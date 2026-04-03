@@ -1,0 +1,18 @@
+export const env = {
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  sanityProjectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? "",
+  sanityDataset: process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production",
+  sanityApiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION ?? "2026-04-01",
+  sanityStudioUrl: process.env.SANITY_STUDIO_URL ?? "",
+  sanityReadToken: process.env.SANITY_READ_TOKEN ?? "",
+  getnetEnvironment: process.env.GETNET_ENVIRONMENT ?? "sandbox",
+  getnetApiBaseUrl: process.env.GETNET_API_BASE_URL ?? "",
+  getnetMerchantId: process.env.GETNET_MERCHANT_ID ?? "",
+  getnetClientId: process.env.GETNET_CLIENT_ID ?? "",
+  getnetClientSecret: process.env.GETNET_CLIENT_SECRET ?? "",
+  getnetSuccessUrl: process.env.GETNET_SUCCESS_URL ?? "",
+  getnetFailureUrl: process.env.GETNET_FAILURE_URL ?? "",
+  getnetPendingUrl: process.env.GETNET_PENDING_URL ?? "",
+  getnetWebhookSecret: process.env.GETNET_WEBHOOK_SECRET ?? "",
+  appLogLevel: process.env.APP_LOG_LEVEL ?? "",
+} as const;
