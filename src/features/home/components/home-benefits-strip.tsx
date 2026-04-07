@@ -1,3 +1,8 @@
+"use client";
+
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+
 const benefits = [
   {
     id: "shipping",
@@ -53,34 +58,93 @@ function SecurityIcon() {
   );
 }
 
-export function HomeBenefitsStrip() {
+function BenefitCard({
+  benefit,
+  centered = false,
+}: {
+  benefit: (typeof benefits)[number];
+  centered?: boolean;
+}) {
+  const Icon = benefit.icon;
+
   return (
-    <section className="mb-10 mt-8 px-6 sm:px-8 md:mb-14 md:mt-12 lg:px-12 xl:px-16">
-      <div className="overflow-hidden rounded-[2rem] border border-border/80 bg-[linear-gradient(180deg,rgba(255,252,247,0.92),rgba(244,237,228,0.88))] py-6 shadow-[0_18px_44px_rgba(58,40,26,0.045)] md:py-8">
-        <div className="grid divide-y divide-border/65 md:grid-cols-3 md:divide-x md:divide-y-0">
-          {benefits.map((benefit) => {
-            const Icon = benefit.icon;
+    <article
+      className={cn(
+        "flex gap-4",
+        centered ? "flex-col items-center text-center" : "items-start",
+      )}
+    >
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/58 text-[var(--color-accent-strong)] sm:h-11 sm:w-11">
+        <span className="h-4.5 w-4.5 sm:h-5 sm:w-5">
+          <Icon />
+        </span>
+      </div>
 
-            return (
-              <article
+      <div className={cn("space-y-1.5", centered && "max-w-[18rem]")}>
+        <h2 className="text-[1rem] font-semibold tracking-[0.015em] text-foreground sm:text-[1.04rem] lg:text-[1.08rem]">
+          {benefit.title}
+        </h2>
+        <p className="text-[0.9rem] leading-6 text-muted sm:text-[0.95rem] lg:max-w-[24ch]">
+          {benefit.text}
+        </p>
+      </div>
+    </article>
+  );
+}
+
+export function HomeBenefitsStrip() {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  return (
+    <section className="px-6 pb-10 pt-7 sm:px-8 sm:pb-12 sm:pt-8 lg:px-12 xl:px-16">
+      <div className="mx-auto w-full max-w-[112rem] bg-[linear-gradient(180deg,rgba(255,252,247,0.7),rgba(244,237,228,0.46))]">
+        <div className="lg:hidden">
+          <div className="overflow-hidden py-6 sm:py-7">
+            <div
+              className="flex transition-transform duration-300 ease-out"
+              style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+            >
+              {benefits.map((benefit) => (
+                <div key={benefit.id} className="w-full shrink-0 px-2">
+                  <div className="mx-auto flex min-h-[9.75rem] max-w-[20rem] items-center justify-center px-3">
+                    <BenefitCard benefit={benefit} centered />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center gap-2 pb-4">
+            {benefits.map((benefit, index) => (
+              <button
                 key={benefit.id}
-                className="flex items-start gap-6 px-5 py-5 sm:px-6 sm:py-6 md:min-h-[8.75rem] md:gap-10 lg:px-7"
-              >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[1rem] border border-border/75 bg-white/78 text-[var(--color-accent-strong)] shadow-[0_8px_20px_rgba(58,40,26,0.04)]">
-                  <span className="h-5 w-5">
-                    <Icon />
-                  </span>
-                </div>
+                type="button"
+                aria-label={`Ver beneficio ${index + 1}`}
+                aria-pressed={index === activeIndex}
+                onClick={() => setActiveIndex(index)}
+                className={cn(
+                  "h-2 rounded-full transition-all duration-300",
+                  index === activeIndex
+                    ? "w-5 bg-[var(--color-accent-strong)]"
+                    : "w-2 bg-border/80 hover:bg-border",
+                )}
+              />
+            ))}
+          </div>
+        </div>
 
-                <div className="space-y-1.5">
-                  <h2 className="text-[1rem] font-semibold tracking-[0.01em] text-foreground sm:text-[1.02rem]">
-                    {benefit.title}
-                  </h2>
-                  <p className="text-sm leading-6 text-muted sm:max-w-[22ch]">{benefit.text}</p>
-                </div>
-              </article>
-            );
-          })}
+        <div className="hidden lg:grid lg:grid-cols-3">
+          {benefits.map((benefit, index) => (
+            <article
+              key={benefit.id}
+              className={cn(
+                "min-h-[10.5rem] px-10 py-10",
+                index < benefits.length - 1 && "border-r border-border/45",
+              )}
+            >
+              <BenefitCard benefit={benefit} />
+            </article>
+          ))}
         </div>
       </div>
     </section>
