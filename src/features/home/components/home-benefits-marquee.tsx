@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 const benefits = [
   {
     id: "shipping",
@@ -38,9 +40,18 @@ function Track({ ariaHidden = false }: { ariaHidden?: boolean }) {
   );
 }
 
-export function HomeBenefitsMarquee() {
+type HomeBenefitsMarqueeProps = {
+  className?: string;
+};
+
+export function HomeBenefitsMarquee({ className }: HomeBenefitsMarqueeProps) {
   return (
-    <div className="overflow-hidden border-y border-border/70 bg-[linear-gradient(180deg,rgba(255,251,245,0.92),rgba(246,239,231,0.9))] py-4">
+    <div
+      className={cn(
+        "overflow-hidden border-t border-[rgba(120,96,76,0.16)] bg-[linear-gradient(180deg,rgba(255,250,244,0.92)_0%,rgba(248,241,232,0.97)_100%)] py-3 backdrop-blur-[10px] shadow-[0_-14px_28px_rgba(17,12,9,0.08)] sm:py-4 lg:border-y lg:border-border/70 lg:bg-[linear-gradient(180deg,rgba(255,251,245,0.92),rgba(246,239,231,0.9))] lg:backdrop-blur-0 lg:shadow-none",
+        className,
+      )}
+    >
       <div className="home-marquee flex items-center">
         <Track />
         <Track ariaHidden />

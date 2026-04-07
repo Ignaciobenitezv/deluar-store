@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { HomeBenefitsMarquee } from "@/features/home/components/home-benefits-marquee";
+import { HomeBenefitsStrip } from "@/features/home/components/home-benefits-strip";
 
 type HomeCategoryVisual = {
   id: string;
@@ -17,8 +17,8 @@ type HomeCategoriesProps = {
 
 export function HomeCategories({ categories }: HomeCategoriesProps) {
   return (
-    <section className="space-y-7">
-      <HomeBenefitsMarquee />
+    <section>
+      <HomeBenefitsStrip />
 
       {categories.length > 0 ? (
         <div className="px-6 sm:px-8 lg:px-12 xl:px-16">

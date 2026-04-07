@@ -8,21 +8,21 @@ import { CartSummary } from "@/features/cart/components/cart-summary";
 export function CartDrawer() {
   const { items, isOpen, closeCart } = useCart();
 
+  if (!isOpen) {
+    return null;
+  }
+
   return (
     <>
       <div
-        aria-hidden={!isOpen}
+        aria-hidden="true"
         onClick={closeCart}
-        className={`fixed inset-0 z-40 bg-black/22 transition-opacity duration-200 ${
-          isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
-        }`}
+        className="fixed inset-0 z-40 bg-black/22 transition-opacity duration-200 pointer-events-auto opacity-100"
       />
 
       <aside
-        aria-hidden={!isOpen}
-        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-[28rem] flex-col border-l border-border/70 bg-background px-5 pb-6 pt-5 transition-transform duration-300 sm:px-6 ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        aria-hidden="false"
+        className="fixed right-0 top-0 z-50 flex h-full w-full max-w-[28rem] flex-col border-l border-border/70 bg-background px-5 pb-6 pt-5 transition-transform duration-300 sm:px-6"
       >
         <div className="flex items-start justify-between gap-4 border-b border-border/75 pb-4">
           <div className="space-y-1">

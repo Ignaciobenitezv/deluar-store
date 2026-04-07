@@ -14,7 +14,7 @@ export async function SiteShell({ children, className }: SiteShellProps) {
   const navigation = await getStorefrontNavigation();
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col overflow-x-hidden">
       <AnnouncementBar navigation={navigation} />
       <SiteHeader navigation={navigation} />
       <main className={cn("flex-1 pb-14 pt-8 sm:pb-16 sm:pt-10", className)}>

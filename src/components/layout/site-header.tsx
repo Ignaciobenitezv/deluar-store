@@ -12,7 +12,7 @@ type SiteHeaderProps = {
 
 export function SiteHeader({ navigation }: SiteHeaderProps) {
   return (
-    <header className="sticky top-0 z-40 border-b border-border/75 bg-surface/95 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur-xl">
       <div className="relative mx-auto w-full max-w-[112rem] px-6 sm:px-8 lg:px-12 xl:px-16">
         <div className="grid min-h-[5.5rem] grid-cols-[auto_1fr_auto] items-center gap-4 lg:min-h-[6.5rem] lg:gap-10">
           <div className="flex items-center gap-3">
