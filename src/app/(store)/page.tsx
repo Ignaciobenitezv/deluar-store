@@ -1,17 +1,31 @@
 import type { Metadata } from "next";
+import { mapProductToCatalogCard } from "@/features/catalog/mappers";
 import { SiteContainer } from "@/components/layout/site-container";
 import { HomeCategories } from "@/features/home/components/home-categories";
 import { HomeFeaturedProducts } from "@/features/home/components/home-featured-products";
 import { HomeHeroSlider } from "@/features/home/components/home-hero-slider";
 import { HomeInstitutional } from "@/features/home/components/home-institutional";
 import { HomePromoBanner } from "@/features/home/components/home-promo-banner";
-import type { HomeHeroSlide } from "@/features/home/types";
+import type { HomeCategoryShowcaseItem, HomeHeroSlide } from "@/features/home/types";
 import { buildMetadata } from "@/lib/seo";
 import { getSanityImageUrl } from "@/integrations/sanity/image";
 import { sanityFetch } from "@/integrations/sanity/client";
 import { getHomePageData } from "@/integrations/sanity/home";
-import { homePageQuery, siteSettingsQuery } from "@/integrations/sanity/queries";
-import type { HomePageDocument, SiteSettingsDocument } from "@/types/cms";
+import {
+  homePageQuery,
+  productsByCategoryQuery,
+  siteSettingsQuery,
+} from "@/integrations/sanity/queries";
+import type { HomePageDocument, ProductDocument, SiteSettingsDocument } from "@/types/cms";
+
+const SHOWCASE_CATEGORY_ORDER = ["cocina", "dormitorio", "living", "bano"];
+
+function normalizeSlug(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
@@ -62,32 +76,55 @@ function buildHomeSlides(homePage: Awaited<ReturnType<typeof getHomePageData>>):
   return [...slides, ...featuredSlides].slice(0, 4);
 }
 
-function buildHomeCategoryVisuals(homePage: Awaited<ReturnType<typeof getHomePageData>>) {
-  return homePage.categories.map((category, index) => {
-    const relatedProduct =
-      homePage.featuredProducts.find((product) => product.categorySlug === category.slug) ??
-      homePage.featuredProducts[index % Math.max(homePage.featuredProducts.length, 1)];
+async function buildHomeCategoryShowcase(
+  homePage: Awaited<ReturnType<typeof getHomePageData>>,
+): Promise<HomeCategoryShowcaseItem[]> {
+  const categoryBySlug = new Map(
+    homePage.categories.map((category) => [normalizeSlug(category.slug), category]),
+  );
 
-    return {
-      id: category.id,
-      title: category.title,
-      description: category.description,
-      href: category.href,
-      imageUrl: relatedProduct?.imageUrl ?? null,
-      imageAlt: relatedProduct?.imageAlt || category.title,
-    };
-  });
+  const selectedCategories = SHOWCASE_CATEGORY_ORDER.map((slug) => categoryBySlug.get(slug)).filter(
+    (category): category is NonNullable<typeof category> => Boolean(category),
+  );
+
+  const showcaseItems = await Promise.all(
+    selectedCategories.map(async (category) => {
+      const productDocuments = await sanityFetch<ProductDocument[]>(productsByCategoryQuery, {
+        categorySlug: category.slug,
+        subcategorySlug: "",
+      });
+      const products = productDocuments.map(mapProductToCatalogCard).slice(0, 4);
+      const fallbackImageProduct =
+        products[0] ??
+        homePage.featuredProducts.find(
+          (product) => normalizeSlug(product.categorySlug) === normalizeSlug(category.slug),
+        );
+
+      return {
+        id: category.id,
+        title: category.title,
+        slug: category.slug,
+        description: category.description,
+        href: category.href,
+        imageUrl: fallbackImageProduct?.imageUrl ?? null,
+        imageAlt: fallbackImageProduct?.imageAlt || category.title,
+        products,
+      };
+    }),
+  );
+
+  return showcaseItems.filter((item) => item.products.length > 0);
 }
 
 export default async function StoreIndexPage() {
   const homePage = await getHomePageData();
   const heroSlides = buildHomeSlides(homePage);
-  const categoryVisuals = buildHomeCategoryVisuals(homePage);
+  const categoryShowcaseItems = await buildHomeCategoryShowcase(homePage);
 
   return (
     <>
       <HomeHeroSlider slides={heroSlides} />
-      <HomeCategories categories={categoryVisuals} />
+      <HomeCategories categories={categoryShowcaseItems} />
 
       <SiteContainer className="space-y-14 pt-12 sm:space-y-16 sm:pt-14">
         <HomeFeaturedProducts products={homePage.featuredProducts} />

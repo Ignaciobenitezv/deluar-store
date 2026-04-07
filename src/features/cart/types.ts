@@ -1,11 +1,16 @@
 export type CartItem = {
   id: string;
+  productId?: string;
   slug: string;
   title: string;
   imageUrl: string | null;
   imageAlt: string;
   basePrice: number;
   transferPrice?: number;
+  variantId?: string;
+  variantLabel?: string;
+  variantValue?: string;
+  sku?: string;
   quantity: number;
   productHref: string;
 };

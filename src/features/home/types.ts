@@ -21,6 +21,17 @@ export type HomePromo = {
   ctaHref: string;
 };
 
+export type HomeCategoryShowcaseItem = {
+  id: string;
+  title: string;
+  slug: string;
+  description?: string;
+  href: string;
+  imageUrl: string | null;
+  imageAlt: string;
+  products: CatalogProductCard[];
+};
+
 export type HomeInstitutional = {
   title: string;
   text: string;

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ProductDetailImage } from "@/features/catalog/types";
 
 type ProductGalleryProps = {
@@ -15,6 +15,10 @@ export function ProductGallery({ images, title }: ProductGalleryProps) {
     : [{ url: null, alt: title }];
   const [activeIndex, setActiveIndex] = useState(0);
   const activeImage = gallery[activeIndex] ?? gallery[0];
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [images]);
 
   return (
     <section className="grid gap-4 lg:grid-cols-[7.2rem_minmax(0,1fr)] lg:gap-5">

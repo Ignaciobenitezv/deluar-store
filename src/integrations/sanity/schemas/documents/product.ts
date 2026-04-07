@@ -92,6 +92,15 @@ export const productSchema = defineType({
       validation: (rule) => rule.required().min(1),
     }),
     defineField({
+      name: "colorVariants",
+      title: "Variantes por color",
+      description:
+        "Opcional. Si completas este bloque, la tienda mostrara un selector de color con miniaturas.",
+      type: "array",
+      group: "content",
+      of: [defineArrayMember({ type: "productColorVariant" })],
+    }),
+    defineField({
       name: "attributes",
       title: "Atributos",
       description: "Datos opcionales como material, color, medidas o terminacion.",

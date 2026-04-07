@@ -33,6 +33,21 @@ export type ProductDetailImage = {
   alt: string;
 };
 
+export type ProductColorVariant = {
+  id: string;
+  title: string;
+  value: string;
+  thumbnailUrl: string | null;
+  thumbnailAlt: string;
+  images: ProductDetailImage[];
+  primaryImageUrl: string | null;
+  primaryImageAlt: string;
+  sku?: string;
+  basePrice?: number;
+  transferPrice?: number;
+  stock?: number;
+};
+
 export type ProductDetailAttribute = {
   label: string;
   value: string;
@@ -54,6 +69,7 @@ export type ProductDetailData = {
   images: ProductDetailImage[];
   primaryImageUrl: string | null;
   primaryImageAlt: string;
+  colorVariants: ProductColorVariant[];
   productHref: string;
   relatedProducts: CatalogProductCard[];
 };

@@ -2,9 +2,14 @@ import { getSanityImageUrl } from "@/integrations/sanity/image";
 import type {
   CatalogCategorySummary,
   CatalogProductCard,
+  ProductColorVariant,
   ProductDetailData,
 } from "@/features/catalog/types";
-import type { CategoryDocument, ProductDocument } from "@/types/cms";
+import type {
+  CategoryDocument,
+  ProductColorVariantDocument,
+  ProductDocument,
+} from "@/types/cms";
 
 export function mapProductToCatalogCard(product: ProductDocument): CatalogProductCard {
   const categorySlug = product.category.slug.current;
@@ -65,6 +70,33 @@ function extractPortableTextParagraphs(value: unknown[] | undefined) {
     .filter(Boolean);
 }
 
+function mapColorVariant(
+  variant: ProductColorVariantDocument,
+  productTitle: string,
+): ProductColorVariant {
+  const images = (variant.images ?? []).map((image) => ({
+    url: getSanityImageUrl(image, 1200, 1500),
+    alt: image.alt || `${productTitle} ${variant.title}`,
+  }));
+  const primaryImage = variant.images?.[0];
+  const thumbnail = variant.thumbnail ?? primaryImage;
+
+  return {
+    id: variant._key || variant.value,
+    title: variant.title,
+    value: variant.value,
+    thumbnailUrl: getSanityImageUrl(thumbnail, 320, 400),
+    thumbnailAlt: thumbnail?.alt || `${productTitle} ${variant.title}`,
+    images,
+    primaryImageUrl: getSanityImageUrl(primaryImage, 1200, 1500),
+    primaryImageAlt: primaryImage?.alt || `${productTitle} ${variant.title}`,
+    sku: variant.sku,
+    basePrice: variant.basePrice,
+    transferPrice: variant.transferPrice,
+    stock: variant.stock,
+  };
+}
+
 export function mapProductToDetail(
   product: ProductDocument,
   relatedProducts: ProductDocument[] = [],
@@ -93,6 +125,9 @@ export function mapProductToDetail(
     })),
     primaryImageUrl: getSanityImageUrl(primaryImage, 1200, 1500),
     primaryImageAlt: primaryImage?.alt || product.title,
+    colorVariants: (product.colorVariants ?? []).map((variant) =>
+      mapColorVariant(variant, product.title),
+    ),
     productHref: `/productos/detalle/${product.slug.current}`,
     relatedProducts: relatedProducts.map(mapProductToCatalogCard),
   };

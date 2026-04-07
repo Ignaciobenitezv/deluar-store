@@ -99,6 +99,18 @@ export const productBySlugQuery = groq`
     stock,
     isFeatured,
     images,
+    colorVariants[]{
+      _key,
+      _type,
+      title,
+      value,
+      thumbnail,
+      images,
+      sku,
+      basePrice,
+      transferPrice,
+      stock
+    },
     attributes,
     seo,
     category->{

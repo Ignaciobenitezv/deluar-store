@@ -17,6 +17,19 @@ export type SanityImageWithAlt = {
   alt?: string;
 };
 
+export type ProductColorVariantDocument = {
+  _key?: string;
+  _type: "productColorVariant";
+  title: string;
+  value: string;
+  thumbnail?: SanityImageWithAlt;
+  images: SanityImageWithAlt[];
+  sku?: string;
+  basePrice?: number;
+  transferPrice?: number;
+  stock?: number;
+};
+
 export type Seo = {
   title?: string;
   description?: string;
@@ -77,6 +90,7 @@ export type ProductDocument = {
   category: CategoryDocument;
   subcategory?: SubcategoryDocument;
   images: SanityImageWithAlt[];
+  colorVariants?: ProductColorVariantDocument[];
   basePrice: number;
   transferPrice?: number;
   stock: number;

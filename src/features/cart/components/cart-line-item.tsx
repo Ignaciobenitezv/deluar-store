@@ -51,6 +51,11 @@ export function CartLineItem({ item }: CartLineItemProps) {
           >
             {item.title}
           </Link>
+          {item.variantLabel ? (
+            <p className="text-[0.68rem] uppercase tracking-[0.18em] text-muted">
+              Color: {item.variantLabel}
+            </p>
+          ) : null}
           <p className="text-sm text-foreground">{formatPrice(item.basePrice)}</p>
           {item.transferPrice ? (
             <p className="text-xs text-muted">

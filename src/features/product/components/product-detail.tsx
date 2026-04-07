@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { ProductGrid } from "@/features/catalog/components/product-grid";
@@ -20,9 +21,19 @@ type ProductDetailProps = {
 };
 
 export function ProductDetail({ product }: ProductDetailProps) {
-  const hasStock = product.stock > 0;
+  const [activeVariantId, setActiveVariantId] = useState(product.colorVariants[0]?.id ?? "");
   const [quantity, setQuantity] = useState(1);
-  const quantityMax = Math.min(Math.max(product.stock, 1), 10);
+  const activeVariant =
+    product.colorVariants.find((variant) => variant.id === activeVariantId) ??
+    product.colorVariants[0];
+  const activeStock = activeVariant?.stock ?? product.stock;
+  const activeBasePrice = activeVariant?.basePrice ?? product.basePrice;
+  const activeTransferPrice = activeVariant?.transferPrice ?? product.transferPrice;
+  const activeImages = activeVariant?.images.length ? activeVariant.images : product.images;
+  const activePrimaryImageUrl = activeVariant?.primaryImageUrl ?? product.primaryImageUrl;
+  const activePrimaryImageAlt = activeVariant?.primaryImageAlt ?? product.primaryImageAlt;
+  const hasStock = activeStock > 0;
+  const quantityMax = Math.min(Math.max(activeStock, 1), 10);
 
   const increaseQuantity = () => {
     setQuantity((current) => Math.min(current + 1, quantityMax));
@@ -35,7 +46,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
   return (
     <div className="space-y-14">
       <section className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(24rem,0.9fr)] lg:gap-14">
-        <ProductGallery images={product.images} title={product.title} />
+        <ProductGallery images={activeImages} title={product.title} />
 
         <div className="space-y-7 rounded-[2rem] border border-border/80 bg-[linear-gradient(180deg,rgba(255,253,249,0.97),rgba(244,238,230,0.92))] px-6 py-7 shadow-[0_24px_60px_rgba(58,40,26,0.06)] sm:px-8 lg:sticky lg:top-28">
           <div className="space-y-4">
@@ -55,22 +66,67 @@ export function ProductDetail({ product }: ProductDetailProps) {
             <div className="space-y-1">
               <p className="text-xs uppercase tracking-[0.24em] text-muted">Precio</p>
               <p className="text-3xl font-semibold tracking-[0.01em] text-foreground sm:text-[2.15rem]">
-                {formatPrice(product.basePrice)}
+                {formatPrice(activeBasePrice)}
               </p>
             </div>
-            {product.transferPrice ? (
+            {activeTransferPrice ? (
               <div className="rounded-[1.2rem] bg-[rgba(167,88,60,0.08)] px-4 py-3">
                 <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-accent-strong)]">
                   Precio con transferencia
                 </p>
                 <p className="mt-1 text-lg font-medium text-foreground">
-                  {formatPrice(product.transferPrice)}
+                  {formatPrice(activeTransferPrice)}
                 </p>
               </div>
             ) : null}
           </div>
 
           <div className="space-y-4 rounded-[1.5rem] border border-border/75 bg-surface/85 px-5 py-5">
+            {product.colorVariants.length > 0 ? (
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <p className="text-xs uppercase tracking-[0.22em] text-muted">Color</p>
+                  <p className="text-sm text-foreground">
+                    {activeVariant?.title || product.colorVariants[0]?.title}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {product.colorVariants.map((variant) => (
+                    <button
+                      key={variant.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveVariantId(variant.id);
+                        setQuantity(1);
+                      }}
+                      aria-label={`Seleccionar color ${variant.title}`}
+                      className={`group rounded-[1rem] border p-1.5 transition-all ${
+                        activeVariant?.id === variant.id
+                          ? "border-foreground/22 bg-white shadow-[0_10px_24px_rgba(58,40,26,0.08)]"
+                          : "border-border/75 bg-white/74 hover:border-foreground/18"
+                      }`}
+                    >
+                      <div className="relative h-14 w-11 overflow-hidden rounded-[0.75rem] bg-[#efe5d8]">
+                        {variant.thumbnailUrl ? (
+                          <Image
+                            src={variant.thumbnailUrl}
+                            alt={variant.thumbnailAlt}
+                            fill
+                            sizes="44px"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center px-2 text-center text-[0.55rem] uppercase tracking-[0.18em] text-muted">
+                            Foto
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="space-y-1">
                 <p className="text-xs uppercase tracking-[0.22em] text-muted">Disponibilidad</p>
@@ -79,7 +135,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                     hasStock ? "text-foreground" : "text-muted"
                   }`}
                 >
-                  {hasStock ? `Stock disponible: ${product.stock}` : "Sin stock disponible"}
+                  {hasStock ? `Stock disponible: ${activeStock}` : "Sin stock disponible"}
                 </p>
               </div>
               <span
@@ -129,13 +185,18 @@ export function ProductDetail({ product }: ProductDetailProps) {
               quantity={quantity}
               disabled={!hasStock}
               product={{
-                id: product.id,
+                id: activeVariant ? `${product.id}:${activeVariant.id}` : product.id,
+                productId: product.id,
                 slug: product.slug,
                 title: product.title,
-                imageUrl: product.primaryImageUrl,
-                imageAlt: product.primaryImageAlt,
-                basePrice: product.basePrice,
-                transferPrice: product.transferPrice,
+                imageUrl: activePrimaryImageUrl,
+                imageAlt: activePrimaryImageAlt,
+                basePrice: activeBasePrice,
+                transferPrice: activeTransferPrice,
+                variantId: activeVariant?.id,
+                variantLabel: activeVariant?.title,
+                variantValue: activeVariant?.value,
+                sku: activeVariant?.sku,
                 productHref: product.productHref,
               }}
             />
