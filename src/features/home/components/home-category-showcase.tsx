@@ -39,7 +39,7 @@ function ProductMiniCard({
         "group rounded-[1.1rem] border border-black/6 bg-white/78 p-2.5 transition-all duration-300 hover:border-black/10 hover:bg-white/84 hover:translate-y-[-1px]",
         compact
           ? "rounded-[1rem] p-2.5"
-          : "lg:relative lg:isolate lg:overflow-hidden lg:rounded-[1.2rem] lg:border-white/26 lg:bg-[linear-gradient(180deg,rgba(255,255,255,0.28),rgba(246,236,225,0.16))] lg:p-2.5 lg:shadow-[0_14px_30px_rgba(33,24,18,0.06),inset_0_1px_0_rgba(255,255,255,0.22)] lg:backdrop-blur-lg lg:ring-1 lg:ring-white/14 lg:before:pointer-events-none lg:before:absolute lg:before:inset-0 lg:before:bg-[linear-gradient(180deg,rgba(255,255,255,0.2),rgba(255,255,255,0.04)_42%,transparent_100%)] lg:before:content-[''] lg:hover:border-white/34 lg:hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.34),rgba(246,236,225,0.2))] lg:hover:shadow-[0_18px_36px_rgba(33,24,18,0.08),inset_0_1px_0_rgba(255,255,255,0.26)]",
+          : "lg:relative lg:isolate lg:overflow-hidden lg:rounded-[1.2rem] lg:border-white/22 lg:bg-[linear-gradient(180deg,rgba(233,225,216,0.62),rgba(210,194,176,0.4))] lg:p-2.5 lg:shadow-[0_18px_36px_rgba(43,31,23,0.1),0_6px_18px_rgba(90,68,52,0.06)] lg:backdrop-blur-md lg:ring-1 lg:ring-white/12 lg:before:pointer-events-none lg:before:absolute lg:before:inset-0 lg:before:bg-[linear-gradient(180deg,rgba(255,250,244,0.22),rgba(255,248,240,0.08)_42%,transparent_100%)] lg:before:content-[''] lg:hover:border-white/28 lg:hover:bg-[linear-gradient(180deg,rgba(237,230,221,0.72),rgba(214,198,180,0.48))] lg:hover:shadow-[0_22px_42px_rgba(43,31,23,0.14),0_8px_22px_rgba(90,68,52,0.08)] lg:hover:translate-y-[-3px]",
       )}
     >
       <div
@@ -68,12 +68,19 @@ function ProductMiniCard({
         <h3
           className={cn(
             "line-clamp-2 font-medium tracking-[0.018em] text-foreground",
-            compact ? "text-[0.82rem] leading-5" : "text-[0.9rem] leading-5 lg:text-[0.95rem]",
+            compact
+              ? "text-[0.82rem] leading-5"
+              : "text-[0.9rem] leading-5 lg:text-[0.95rem] lg:text-[#241914]",
           )}
         >
           {product.title}
         </h3>
-        <p className={cn("text-foreground/86", compact ? "text-[0.82rem]" : "text-[0.88rem]")}>
+        <p
+          className={cn(
+            "text-foreground/86",
+            compact ? "text-[0.82rem]" : "text-[0.88rem] lg:font-medium lg:text-[#34251d]",
+          )}
+        >
           {formatPrice(product.basePrice)}
         </p>
         <div className={cn("flex", compact ? "pt-0.5 justify-start" : "justify-end pt-1")}>
@@ -82,7 +89,7 @@ function ProductMiniCard({
               "inline-flex items-center text-[0.68rem] font-medium uppercase tracking-[0.14em] transition-colors",
               compact
                 ? "text-foreground/72 group-hover:text-foreground"
-                : "text-[var(--color-accent-strong)] group-hover:text-[#7a5848]",
+                : "text-[#6e4e3f] group-hover:text-[#4f372c] lg:font-semibold",
             )}
           >
             Ver producto
@@ -98,6 +105,7 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
   const [showDesktopProducts, setShowDesktopProducts] = useState(false);
   const [desktopMinHeight, setDesktopMinHeight] = useState<number | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
+  const paginationRef = useRef<HTMLDivElement | null>(null);
   const seenCategoryIdsRef = useRef(new Set<string>(categories[0] ? [categories[0].id] : []));
   const batchIndexByCategoryRef = useRef<Record<string, number>>({});
 
@@ -170,7 +178,8 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
       }
 
       const rect = sectionRef.current.getBoundingClientRect();
-      const availableHeight = Math.max(window.innerHeight - rect.top - 12, 0);
+      const paginationHeight = paginationRef.current?.getBoundingClientRect().height ?? 0;
+      const availableHeight = Math.max(window.innerHeight - rect.top - paginationHeight - 20, 0);
       setDesktopMinHeight(availableHeight);
     };
 
@@ -336,7 +345,7 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-2 pb-2">
+        <div ref={paginationRef} className="flex items-center justify-center gap-2 pb-2">
           {categories.map((category, index) => (
             <button
               key={category.id}
