@@ -93,7 +93,7 @@ async function buildHomeCategoryShowcase(
         categorySlug: category.slug,
         subcategorySlug: "",
       });
-      const products = productDocuments.map(mapProductToCatalogCard).slice(0, 4);
+      const products = productDocuments.map(mapProductToCatalogCard);
       const fallbackImageProduct =
         products[0] ??
         homePage.featuredProducts.find(

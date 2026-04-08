@@ -21,11 +21,9 @@ type ProductDetailProps = {
 };
 
 export function ProductDetail({ product }: ProductDetailProps) {
-  const [activeVariantId, setActiveVariantId] = useState(product.colorVariants[0]?.id ?? "");
+  const [activeVariantId, setActiveVariantId] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const activeVariant =
-    product.colorVariants.find((variant) => variant.id === activeVariantId) ??
-    product.colorVariants[0];
+  const activeVariant = product.colorVariants.find((variant) => variant.id === activeVariantId);
   const activeStock = activeVariant?.stock ?? product.stock;
   const activeBasePrice = activeVariant?.basePrice ?? product.basePrice;
   const activeTransferPrice = activeVariant?.transferPrice ?? product.transferPrice;
@@ -87,7 +85,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 <div className="space-y-1">
                   <p className="text-xs uppercase tracking-[0.22em] text-muted">Color</p>
                   <p className="text-sm text-foreground">
-                    {activeVariant?.title || product.colorVariants[0]?.title}
+                    {activeVariant?.title || "Sin seleccionar"}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
