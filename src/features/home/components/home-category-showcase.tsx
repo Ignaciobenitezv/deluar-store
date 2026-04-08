@@ -39,7 +39,7 @@ function ProductMiniCard({
         "group rounded-[1.1rem] border border-black/6 bg-white/78 p-2.5 transition-all duration-300 hover:border-black/10 hover:bg-white/84 hover:translate-y-[-1px]",
         compact
           ? "rounded-[1rem] p-2.5"
-          : "lg:rounded-[1.2rem] lg:border-white/30 lg:bg-white/40 lg:p-2.5 lg:shadow-[0_18px_40px_rgba(33,24,18,0.08)] lg:backdrop-blur-md lg:hover:border-white/40 lg:hover:bg-white/48",
+          : "lg:relative lg:isolate lg:overflow-hidden lg:rounded-[1.2rem] lg:border-white/26 lg:bg-[linear-gradient(180deg,rgba(255,255,255,0.28),rgba(246,236,225,0.16))] lg:p-2.5 lg:shadow-[0_14px_30px_rgba(33,24,18,0.06),inset_0_1px_0_rgba(255,255,255,0.22)] lg:backdrop-blur-lg lg:ring-1 lg:ring-white/14 lg:before:pointer-events-none lg:before:absolute lg:before:inset-0 lg:before:bg-[linear-gradient(180deg,rgba(255,255,255,0.2),rgba(255,255,255,0.04)_42%,transparent_100%)] lg:before:content-[''] lg:hover:border-white/34 lg:hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.34),rgba(246,236,225,0.2))] lg:hover:shadow-[0_18px_36px_rgba(33,24,18,0.08),inset_0_1px_0_rgba(255,255,255,0.26)]",
       )}
     >
       <div
@@ -47,7 +47,7 @@ function ProductMiniCard({
           "relative overflow-hidden bg-[#efe5d8]",
           compact
             ? "aspect-[1/1.02] rounded-[0.85rem]"
-            : "aspect-[1/1.03] rounded-[0.95rem] lg:aspect-[1.08/1]",
+            : "aspect-[1/1.03] rounded-[0.95rem] lg:z-10 lg:aspect-[1.08/1]",
         )}
       >
         {product.imageUrl ? (
@@ -64,7 +64,7 @@ function ProductMiniCard({
           </div>
         )}
       </div>
-      <div className={cn("space-y-1 px-0.5", compact ? "pt-2.5" : "pt-3")}>
+      <div className={cn("space-y-1 px-0.5", compact ? "pt-2.5" : "pt-3 lg:relative lg:z-10")}>
         <h3
           className={cn(
             "line-clamp-2 font-medium tracking-[0.018em] text-foreground",
@@ -224,15 +224,18 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
   const mobileProducts = activeCategoryProducts.slice(0, 2);
 
   return (
-    <section ref={sectionRef} className="px-6 pb-2 sm:px-8 lg:pl-0 lg:pr-4 xl:pl-1 xl:pr-5 2xl:pl-2 2xl:pr-6">
-      <div className="mx-auto w-full max-w-[128rem] space-y-4 lg:space-y-5">
+    <section
+      ref={sectionRef}
+      className="px-6 pb-2 sm:px-8 lg:pl-0 lg:pr-4 xl:pl-1 xl:pr-5 2xl:pl-2 2xl:pr-6"
+    >
+      <div className="mx-auto flex h-full w-full max-w-[128rem] flex-col space-y-4 lg:space-y-5">
         <div className="hidden lg:block">
           <div
             key={activeCategory.id}
             style={desktopMinHeight ? { minHeight: `${desktopMinHeight}px` } : undefined}
             className="grid min-h-[34rem] grid-cols-[minmax(26rem,0.43fr)_minmax(0,0.57fr)] gap-3 animate-[fade-up_700ms_cubic-bezier(0.16,1,0.3,1)] xl:min-h-[36rem] xl:gap-4 2xl:grid-cols-[minmax(28rem,0.45fr)_minmax(0,0.55fr)]"
           >
-            <div className="relative overflow-hidden rounded-[2.15rem] bg-[linear-gradient(180deg,rgba(255,251,246,0.28),rgba(244,237,228,0.16))] shadow-[0_18px_48px_rgba(58,40,26,0.07)]">
+            <div className="relative -ml-4 overflow-hidden rounded-[2.15rem] bg-[linear-gradient(180deg,rgba(255,251,246,0.28),rgba(244,237,228,0.16))] shadow-[0_18px_48px_rgba(58,40,26,0.07)] xl:-ml-6 2xl:-ml-8">
               {activeCategory.imageUrl ? (
                 <Image
                   src={activeCategory.imageUrl}
