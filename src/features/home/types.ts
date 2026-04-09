@@ -43,6 +43,7 @@ export type HomePageData = {
   hero: HomeHero;
   categories: CatalogCategorySummary[];
   featuredProducts: CatalogProductCard[];
+  offerProducts: CatalogProductCard[];
   promo: HomePromo;
   institutional: HomeInstitutional;
 };

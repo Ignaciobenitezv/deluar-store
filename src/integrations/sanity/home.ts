@@ -6,6 +6,7 @@ import {
   categoryTreeQuery,
   featuredProductsQuery,
   homePageQuery,
+  offerProductsQuery,
   promoSettingsQuery,
   siteSettingsQuery,
 } from "@/integrations/sanity/queries";
@@ -19,11 +20,12 @@ import type {
 
 export const getHomePageData = cache(async (): Promise<HomePageData> => {
   try {
-    const [homePage, categories, featuredProducts, promoSettings, siteSettings] =
+    const [homePage, categories, featuredProducts, offerProducts, promoSettings, siteSettings] =
       await Promise.all([
         sanityFetch<HomePageDocument | null>(homePageQuery),
         sanityFetch<CategoryDocument[]>(categoryTreeQuery),
         sanityFetch<ProductDocument[]>(featuredProductsQuery),
+        sanityFetch<ProductDocument[]>(offerProductsQuery),
         sanityFetch<PromoSettingsDocument | null>(promoSettingsQuery),
         sanityFetch<SiteSettingsDocument | null>(siteSettingsQuery),
       ]);
@@ -32,6 +34,7 @@ export const getHomePageData = cache(async (): Promise<HomePageData> => {
       homePage,
       categories,
       featuredProducts,
+      offerProducts,
       promoSettings,
       siteSettings,
     });
@@ -40,6 +43,7 @@ export const getHomePageData = cache(async (): Promise<HomePageData> => {
       homePage: null,
       categories: [],
       featuredProducts: [],
+      offerProducts: [],
       promoSettings: null,
       siteSettings: null,
     });

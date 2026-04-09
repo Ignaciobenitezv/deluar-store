@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { mapProductToCatalogCard } from "@/features/catalog/mappers";
 import { SiteContainer } from "@/components/layout/site-container";
 import { HomeCategories } from "@/features/home/components/home-categories";
-import { HomeFeaturedProducts } from "@/features/home/components/home-featured-products";
+import { HomeOffersCarousel } from "@/features/home/components/home-offers-carousel";
 import { HomeHeroSlider } from "@/features/home/components/home-hero-slider";
 import { HomeInstitutional } from "@/features/home/components/home-institutional";
 import { HomePromoBanner } from "@/features/home/components/home-promo-banner";
@@ -94,12 +94,12 @@ async function buildHomeCategoryShowcase(
         subcategorySlug: "",
       });
       const products = productDocuments.map(mapProductToCatalogCard);
-      const fallbackImageProduct =
-        products.find((product) => product.imageUrl) ??
-        homePage.featuredProducts.find(
-          (product) =>
-            product.imageUrl && normalizeSlug(product.categorySlug) === normalizeSlug(category.slug),
-        );
+      const showcaseImage =
+        productDocuments.find((product) => product.images?.[0]?.image?.asset?._ref)?.images?.[0];
+      const featuredFallbackProduct = homePage.featuredProducts.find(
+        (product) =>
+          normalizeSlug(product.categorySlug) === normalizeSlug(category.slug) && product.imageUrl,
+      );
 
       return {
         id: category.id,
@@ -107,8 +107,9 @@ async function buildHomeCategoryShowcase(
         slug: category.slug,
         description: category.description,
         href: category.href,
-        imageUrl: fallbackImageProduct?.imageUrl ?? null,
-        imageAlt: fallbackImageProduct?.imageAlt || category.title,
+        imageUrl:
+          getSanityImageUrl(showcaseImage, 1400, 1560) ?? featuredFallbackProduct?.imageUrl ?? null,
+        imageAlt: showcaseImage?.alt || featuredFallbackProduct?.imageAlt || category.title,
         products,
       };
     }),
@@ -128,7 +129,7 @@ export default async function StoreIndexPage() {
       <HomeCategories categories={categoryShowcaseItems} />
 
       <SiteContainer className="space-y-14 pt-12 sm:space-y-16 sm:pt-14">
-        <HomeFeaturedProducts products={homePage.featuredProducts} />
+        <HomeOffersCarousel products={homePage.offerProducts} />
         <HomePromoBanner promo={homePage.promo} />
         <HomeInstitutional institutional={homePage.institutional} />
       </SiteContainer>

@@ -95,6 +95,7 @@ export type ProductDocument = {
   transferPrice?: number;
   stock: number;
   isFeatured?: boolean;
+  isOnOffer?: boolean;
   attributes?: ProductAttribute[];
   seo?: Seo;
 };

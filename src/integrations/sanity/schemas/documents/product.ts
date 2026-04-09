@@ -143,6 +143,15 @@ export const productSchema = defineType({
       initialValue: false,
     }),
     defineField({
+      name: "isOnOffer",
+      title: "Mostrar en ofertas del home",
+      description:
+        "Activalo si quieres que este producto aparezca en el carrusel de ofertas de la portada.",
+      type: "boolean",
+      group: "commerce",
+      initialValue: false,
+    }),
+    defineField({
       name: "seo",
       title: "SEO",
       description:

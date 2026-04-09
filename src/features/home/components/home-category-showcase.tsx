@@ -116,7 +116,9 @@ function ProductMiniCard({
           <p
             className={cn(
               "text-[#746154]",
-              compact ? "mt-1.5 line-clamp-2 text-[0.73rem] leading-4" : "mt-2 line-clamp-2 text-[0.8rem] leading-[1.45]",
+              compact
+                ? "mt-1.5 line-clamp-2 text-[0.73rem] leading-4"
+                : "mt-2 line-clamp-2 text-[0.8rem] leading-[1.45]",
             )}
           >
             {product.shortDescription}
@@ -160,18 +162,29 @@ function ProductMiniCard({
 export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [showDesktopProducts, setShowDesktopProducts] = useState(false);
-  const [desktopMinHeight, setDesktopMinHeight] = useState<number | null>(null);
-  const sectionRef = useRef<HTMLElement | null>(null);
-  const seenCategoryIdsRef = useRef(new Set<string>(categories[0] ? [categories[0].id] : []));
+  const seenCategoryIdsRef = useRef(new Set<string>());
   const batchIndexByCategoryRef = useRef<Record<string, number>>({});
+
+  useEffect(() => {
+    if (categories.length === 0) return;
+
+    if (!seenCategoryIdsRef.current.size) {
+      seenCategoryIdsRef.current = new Set([categories[0].id]);
+    }
+
+    setActiveIndex((current) => {
+      if (current >= categories.length) return 0;
+      return current;
+    });
+  }, [categories]);
 
   const moveToCategory = (nextIndex: number) => {
     setActiveIndex((current) => {
-      if (nextIndex === current) {
-        return current;
-      }
+      if (nextIndex === current) return current;
 
       const nextCategory = categories[nextIndex];
+      if (!nextCategory) return current;
+
       const seenCategoryIds = seenCategoryIdsRef.current;
       const batchIndexByCategory = batchIndexByCategoryRef.current;
 
@@ -189,14 +202,14 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
   };
 
   useEffect(() => {
-    if (categories.length <= 1) {
-      return;
-    }
+    if (categories.length <= 1) return;
 
     const timer = window.setInterval(() => {
       setActiveIndex((current) => {
         const nextIndex = (current + 1) % categories.length;
         const nextCategory = categories[nextIndex];
+        if (!nextCategory) return current;
+
         const seenCategoryIds = seenCategoryIdsRef.current;
         const batchIndexByCategory = batchIndexByCategoryRef.current;
 
@@ -214,51 +227,13 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
     }, 10000);
 
     return () => window.clearInterval(timer);
-  }, [categories.length]);
+  }, [categories]);
 
   useEffect(() => {
     setShowDesktopProducts(false);
-
-    const timer = window.setTimeout(() => {
-      setShowDesktopProducts(true);
-    }, 360);
-
+    const timer = window.setTimeout(() => setShowDesktopProducts(true), 360);
     return () => window.clearTimeout(timer);
   }, [activeIndex]);
-
-  useEffect(() => {
-    const updateDesktopMinHeight = () => {
-      if (!sectionRef.current || window.innerWidth < 1024) {
-        setDesktopMinHeight(null);
-        return;
-      }
-
-      const rect = sectionRef.current.getBoundingClientRect();
-      const availableHeight = Math.max(window.innerHeight - rect.top - 12, 0);
-      setDesktopMinHeight(availableHeight);
-    };
-
-    updateDesktopMinHeight();
-    window.addEventListener("resize", updateDesktopMinHeight);
-
-    const resizeObserver =
-      typeof ResizeObserver !== "undefined"
-        ? new ResizeObserver(() => updateDesktopMinHeight())
-        : null;
-
-    if (resizeObserver && sectionRef.current) {
-      resizeObserver.observe(sectionRef.current);
-      const parentElement = sectionRef.current.parentElement;
-      if (parentElement) {
-        resizeObserver.observe(parentElement);
-      }
-    }
-
-    return () => {
-      window.removeEventListener("resize", updateDesktopMinHeight);
-      resizeObserver?.disconnect();
-    };
-  }, []);
 
   if (categories.length === 0) {
     return (
@@ -270,47 +245,40 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
     );
   }
 
-  const activeCategory = categories[activeIndex];
+  const safeIndex = Math.min(activeIndex, categories.length - 1);
+  const activeCategory = categories[safeIndex];
   const activeBatchIndex = batchIndexByCategoryRef.current[activeCategory.id] ?? 0;
-  const activeCategoryProducts = useMemo(() => {
-    const batchSize = DESKTOP_BATCH_SIZE;
-    const products = activeCategory.products;
 
-    if (products.length <= batchSize) {
+  const activeCategoryProducts = useMemo(() => {
+    const products = activeCategory.products ?? [];
+
+    if (products.length <= DESKTOP_BATCH_SIZE) {
       return products;
     }
 
-    const maxStart = products.length - batchSize;
+    const maxStart = products.length - DESKTOP_BATCH_SIZE;
     const start = Math.min(activeBatchIndex, maxStart);
 
-    return products.slice(start, start + batchSize);
+    return products.slice(start, start + DESKTOP_BATCH_SIZE);
   }, [activeBatchIndex, activeCategory]);
+
   const mobileProducts = activeCategoryProducts.slice(0, 2);
+
   const getBadgeLabel = (index: number) => {
-    if (index === 0) {
-      return "Nuevo";
-    }
-
-    if (index === 3) {
-      return "Mas vendido";
-    }
-
+    if (index === 0) return "Nuevo";
+    if (index === 3) return "Mas vendido";
     return undefined;
   };
 
   return (
-    <section
-      ref={sectionRef}
-      className="px-6 pb-2 sm:px-8 lg:pl-0 lg:pr-4 xl:pl-1 xl:pr-5 2xl:pl-2 2xl:pr-6"
-    >
-      <div className="mx-auto flex h-full w-full max-w-[128rem] flex-col space-y-4 lg:space-y-5">
+    <section className="px-6 pb-2 sm:px-8 lg:pl-0 lg:pr-4 xl:pl-1 xl:pr-5 2xl:pl-2 2xl:pr-6">
+      <div className="mx-auto flex w-full max-w-[128rem] flex-col space-y-4 lg:space-y-5">
         <div className="hidden lg:block">
           <div
             key={activeCategory.id}
-            style={desktopMinHeight ? { minHeight: `${desktopMinHeight}px` } : undefined}
-            className="grid min-h-[34rem] items-stretch grid-cols-[minmax(26rem,0.43fr)_minmax(0,0.57fr)] gap-2.5 animate-[fade-up_700ms_cubic-bezier(0.16,1,0.3,1)] xl:min-h-[36rem] xl:gap-3 2xl:grid-cols-[minmax(28rem,0.45fr)_minmax(0,0.55fr)]"
+            className="grid min-h-[36rem] items-stretch grid-cols-[minmax(26rem,0.43fr)_minmax(0,0.57fr)] gap-2.5 animate-[fade-up_700ms_cubic-bezier(0.16,1,0.3,1)] xl:min-h-[38rem] xl:gap-3 2xl:grid-cols-[minmax(28rem,0.45fr)_minmax(0,0.55fr)]"
           >
-            <div className="relative z-0 h-full self-stretch -ml-4 overflow-hidden rounded-l-[2.15rem] rounded-r-none bg-[linear-gradient(180deg,rgba(255,251,246,0.28),rgba(244,237,228,0.16))] shadow-[0_18px_48px_rgba(58,40,26,0.07)] xl:-ml-6 2xl:-ml-8">
+            <div className="relative z-0 h-full overflow-hidden rounded-l-[2.15rem] rounded-r-none bg-[linear-gradient(180deg,rgba(255,251,246,0.28),rgba(244,237,228,0.16))] shadow-[0_18px_48px_rgba(58,40,26,0.07)]">
               {activeCategory.imageUrl ? (
                 <Image
                   src={activeCategory.imageUrl}
@@ -322,20 +290,25 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
               ) : (
                 <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(235,223,206,0.98),rgba(201,181,160,0.92))]" />
               )}
+
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,13,10,0.16)_0%,rgba(18,13,10,0.34)_36%,rgba(18,13,10,0.58)_100%)]" />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,248,240,0.18),transparent_32%)]" />
+
               <div className="relative flex h-full items-end p-6 xl:p-8 2xl:p-10">
                 <div className="max-w-[24rem] space-y-4 text-white 2xl:max-w-[26rem]">
                   <p className="text-[0.7rem] uppercase tracking-[0.3em] text-white/76">
                     Categoria
                   </p>
+
                   <h2 className="text-[3.1rem] font-semibold leading-[0.94] tracking-[0.02em] xl:text-[3.5rem] 2xl:text-[3.85rem]">
                     {activeCategory.title}
                   </h2>
+
                   <p className="max-w-[22rem] text-[1.02rem] leading-7 text-white/84 2xl:max-w-[24rem] 2xl:text-[1.06rem]">
                     {activeCategory.description ||
                       "Explora una seleccion curada de piezas para sumar textura, calma y funcion al ambiente."}
                   </p>
+
                   <Link
                     href={activeCategory.href}
                     className="inline-flex min-h-[3.25rem] items-center justify-center rounded-full border border-[#f4e7d8]/42 bg-[#ead6bf] px-6 text-[0.78rem] font-medium uppercase tracking-[0.14em] text-[#2b1f17] shadow-[0_10px_24px_rgba(24,18,14,0.12)] transition-all duration-300 hover:bg-[#e1c6a6] hover:translate-y-[-1px] xl:min-h-[3.4rem] xl:px-7"
@@ -346,28 +319,19 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
               </div>
             </div>
 
-            <div className="relative z-10 h-full min-h-0 self-stretch -ml-2 grid grid-cols-4 grid-rows-2 gap-3 pl-0 pr-0 xl:-ml-3 xl:gap-3.5 2xl:gap-4">
+            <div className="relative z-10 grid h-full grid-cols-4 grid-rows-2 gap-3 xl:gap-3.5 2xl:gap-4">
               {activeCategoryProducts.map((product, index) => (
                 <ProductMiniCard
                   key={product.id}
                   product={product}
                   sizes="(min-width: 1536px) 11vw, (min-width: 1280px) 12vw, (min-width: 1024px) 14vw, 50vw"
                   badgeLabel={getBadgeLabel(index)}
-                  className={
-                    index % 4 === 0
-                      ? "lg:rounded-l-none lg:rounded-r-[1.2rem]"
-                      : undefined
-                  }
-                  imageClassName={
-                    index % 4 === 0
-                      ? "lg:rounded-l-none lg:rounded-r-[0.95rem]"
-                      : undefined
-                  }
+                  className={index % 4 === 0 ? "lg:rounded-l-none lg:rounded-r-[1.2rem]" : undefined}
+                  imageClassName={index % 4 === 0 ? "lg:rounded-l-none lg:rounded-r-[0.95rem]" : undefined}
                   style={
                     showDesktopProducts
                       ? {
-                          animation:
-                            "fade-up 520ms cubic-bezier(0.16,1,0.3,1) both",
+                          animation: "fade-up 520ms cubic-bezier(0.16,1,0.3,1) both",
                           animationDelay: `${index * 90}ms`,
                         }
                       : { opacity: 0, transform: "translateY(10px)" }
@@ -395,7 +359,9 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
               ) : (
                 <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(235,223,206,0.98),rgba(201,181,160,0.92))]" />
               )}
+
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,13,10,0.12)_0%,rgba(18,13,10,0.3)_44%,rgba(18,13,10,0.56)_100%)]" />
+
               <div className="relative flex min-h-[17.25rem] items-end p-4 sm:p-5">
                 <div className="max-w-[15rem] space-y-3 text-white">
                   <p className="text-[0.66rem] uppercase tracking-[0.24em] text-white/72">
@@ -428,11 +394,11 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
               key={category.id}
               type="button"
               aria-label={`Ver categoria ${category.title}`}
-              aria-pressed={index === activeIndex}
+              aria-pressed={index === safeIndex}
               onClick={() => moveToCategory(index)}
               className={cn(
                 "h-2 rounded-full transition-all duration-300",
-                index === activeIndex
+                index === safeIndex
                   ? "w-6 bg-[var(--color-accent-strong)]"
                   : "w-2 bg-border/80 hover:bg-border",
               )}

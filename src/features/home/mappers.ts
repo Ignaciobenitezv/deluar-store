@@ -14,6 +14,7 @@ type MapHomePageDataInput = {
   homePage: HomePageDocument | null;
   categories: CategoryDocument[];
   featuredProducts: ProductDocument[];
+  offerProducts: ProductDocument[];
   promoSettings: PromoSettingsDocument | null;
   siteSettings: SiteSettingsDocument | null;
 };
@@ -22,6 +23,7 @@ export function mapHomePageData({
   homePage,
   categories,
   featuredProducts,
+  offerProducts,
   promoSettings,
   siteSettings,
 }: MapHomePageDataInput): HomePageData {
@@ -53,6 +55,7 @@ export function mapHomePageData({
     },
     categories: selectedCategories.map(mapCategoryToSummary),
     featuredProducts: selectedFeaturedProducts.map(mapProductToCatalogCard),
+    offerProducts: offerProducts.map(mapProductToCatalogCard),
     promo: {
       title: homePage?.promoTitle || "Compra con calma, elegi con tiempo.",
       text:

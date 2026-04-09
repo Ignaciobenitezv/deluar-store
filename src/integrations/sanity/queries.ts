@@ -31,6 +31,7 @@ export const productCardQuery = groq`
     transferPrice,
     stock,
     isFeatured,
+    isOnOffer,
     images,
     category->{
       _id,
@@ -86,6 +87,11 @@ export const featuredProductsQuery = groq`
   ${productCardQuery}
 `;
 
+export const offerProductsQuery = groq`
+  *[_type == "product" && isOnOffer == true] | order(isFeatured desc, _updatedAt desc) [0...10]
+  ${productCardQuery}
+`;
+
 export const productBySlugQuery = groq`
   *[_type == "product" && slug.current == $slug][0] {
     _id,
@@ -98,6 +104,7 @@ export const productBySlugQuery = groq`
     transferPrice,
     stock,
     isFeatured,
+    isOnOffer,
     images,
     colorVariants[]{
       _key,
@@ -243,6 +250,7 @@ export const homePageQuery = groq`
       transferPrice,
       stock,
       isFeatured,
+      isOnOffer,
       images,
       category->{
         _id,
