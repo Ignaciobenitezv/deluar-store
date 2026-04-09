@@ -95,9 +95,10 @@ async function buildHomeCategoryShowcase(
       });
       const products = productDocuments.map(mapProductToCatalogCard);
       const fallbackImageProduct =
-        products[0] ??
+        products.find((product) => product.imageUrl) ??
         homePage.featuredProducts.find(
-          (product) => normalizeSlug(product.categorySlug) === normalizeSlug(category.slug),
+          (product) =>
+            product.imageUrl && normalizeSlug(product.categorySlug) === normalizeSlug(category.slug),
         );
 
       return {

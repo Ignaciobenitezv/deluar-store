@@ -20,26 +20,49 @@ function formatPrice(value: number) {
   }).format(value);
 }
 
+function getInstallmentPrice(value: number) {
+  return formatPrice(Math.round(value / 3));
+}
+
+function formatAttributeLabel(value: string) {
+  return value
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 function ProductMiniCard({
   product,
   sizes,
   compact = false,
   style,
+  className,
+  imageClassName,
+  badgeLabel,
 }: {
   product: HomeCategoryShowcaseItem["products"][number];
   sizes: string;
   compact?: boolean;
   style?: CSSProperties;
+  className?: string;
+  imageClassName?: string;
+  badgeLabel?: string;
 }) {
+  const detailAttribute = product.subcategorySlug
+    ? formatAttributeLabel(product.subcategorySlug)
+    : product.categoryTitle;
+
   return (
     <Link
       href={product.productHref}
       style={style}
       className={cn(
-        "group rounded-[1.1rem] border border-black/6 bg-white/78 p-2.5 transition-all duration-300 hover:border-black/10 hover:bg-white/84 hover:translate-y-[-1px]",
+        "group flex h-full flex-col rounded-[1.1rem] border border-[#d8c3ae]/70 bg-[linear-gradient(180deg,rgba(252,247,241,0.96),rgba(245,236,227,0.94))] p-2.5 shadow-[0_10px_24px_rgba(73,52,39,0.06)] transition-all duration-300 hover:border-[#cfb59d] hover:translate-y-[-2px] hover:shadow-[0_16px_30px_rgba(73,52,39,0.1)]",
         compact
           ? "rounded-[1rem] p-2.5"
-          : "lg:relative lg:isolate lg:overflow-hidden lg:rounded-[1.2rem] lg:border-white/26 lg:bg-[linear-gradient(180deg,rgba(255,255,255,0.28),rgba(246,236,225,0.16))] lg:p-2.5 lg:shadow-[0_14px_30px_rgba(33,24,18,0.06),inset_0_1px_0_rgba(255,255,255,0.22)] lg:backdrop-blur-lg lg:ring-1 lg:ring-white/14 lg:before:pointer-events-none lg:before:absolute lg:before:inset-0 lg:before:bg-[linear-gradient(180deg,rgba(255,255,255,0.2),rgba(255,255,255,0.04)_42%,transparent_100%)] lg:before:content-[''] lg:hover:border-white/34 lg:hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.34),rgba(246,236,225,0.2))] lg:hover:shadow-[0_18px_36px_rgba(33,24,18,0.08),inset_0_1px_0_rgba(255,255,255,0.26)]",
+          : "lg:relative lg:isolate lg:overflow-hidden lg:rounded-[1.2rem] lg:border-[#d4bda7]/72 lg:bg-[linear-gradient(180deg,rgba(252,247,241,0.98),rgba(244,234,224,0.95))] lg:p-2.5 lg:shadow-[0_12px_28px_rgba(73,52,39,0.07),inset_0_1px_0_rgba(255,251,246,0.55)] lg:before:pointer-events-none lg:before:absolute lg:before:inset-0 lg:before:bg-[linear-gradient(180deg,rgba(255,252,248,0.42),rgba(255,252,248,0.08)_40%,transparent_100%)] lg:before:content-[''] lg:hover:border-[#c8ab90] lg:hover:bg-[linear-gradient(180deg,rgba(253,248,242,1),rgba(245,236,227,0.98))] lg:hover:shadow-[0_18px_34px_rgba(73,52,39,0.11),inset_0_1px_0_rgba(255,251,246,0.62)]",
+        className,
       )}
     >
       <div
@@ -48,6 +71,7 @@ function ProductMiniCard({
           compact
             ? "aspect-[1/1.02] rounded-[0.85rem]"
             : "aspect-[1/1.03] rounded-[0.95rem] lg:z-10 lg:aspect-[1.08/1]",
+          imageClassName,
         )}
       >
         {product.imageUrl ? (
@@ -63,26 +87,66 @@ function ProductMiniCard({
             Sin imagen
           </div>
         )}
+        {badgeLabel ? (
+          <span className="absolute left-2.5 top-2.5 z-20 inline-flex min-h-7 items-center rounded-full bg-[#f5e2ca] px-3 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-[#6f4d3a] shadow-[0_8px_18px_rgba(84,58,42,0.12)]">
+            {badgeLabel}
+          </span>
+        ) : null}
       </div>
-      <div className={cn("space-y-1 px-0.5", compact ? "pt-2.5" : "pt-3 lg:relative lg:z-10")}>
+      <div
+        className={cn(
+          "flex flex-1 flex-col px-0.5",
+          compact ? "pt-2.5" : "pt-3 lg:relative lg:z-10",
+        )}
+      >
+        {!compact ? (
+          <p className="mb-2 text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#8d6d5c]">
+            {detailAttribute}
+          </p>
+        ) : null}
         <h3
           className={cn(
-            "line-clamp-2 font-medium tracking-[0.018em] text-foreground",
-            compact ? "text-[0.82rem] leading-5" : "text-[0.9rem] leading-5 lg:text-[0.95rem]",
+            "line-clamp-2 font-medium tracking-[0.018em] text-[#2f2219]",
+            compact ? "text-[0.82rem] leading-5" : "text-[0.96rem] leading-[1.35] lg:text-[1rem]",
           )}
         >
           {product.title}
         </h3>
-        <p className={cn("text-foreground/86", compact ? "text-[0.82rem]" : "text-[0.88rem]")}>
-          {formatPrice(product.basePrice)}
-        </p>
-        <div className={cn("flex", compact ? "pt-0.5 justify-start" : "justify-end pt-1")}>
+        {product.shortDescription ? (
+          <p
+            className={cn(
+              "text-[#746154]",
+              compact ? "mt-1.5 line-clamp-2 text-[0.73rem] leading-4" : "mt-2 line-clamp-2 text-[0.8rem] leading-[1.45]",
+            )}
+          >
+            {product.shortDescription}
+          </p>
+        ) : null}
+        <div className={cn(compact ? "mt-2 space-y-0.5" : "mt-3 space-y-0.5")}>
+          <p
+            className={cn(
+              "text-[#4a3327]",
+              compact ? "text-[0.9rem] font-semibold" : "text-[1.12rem] font-semibold tracking-[0.01em]",
+            )}
+          >
+            {formatPrice(product.basePrice)}
+          </p>
+          <p
+            className={cn(
+              "text-[#8a6a58]",
+              compact ? "text-[0.72rem]" : "text-[0.78rem] font-medium",
+            )}
+          >
+            3 cuotas de {getInstallmentPrice(product.basePrice)}
+          </p>
+        </div>
+        <div className={cn("mt-auto flex", compact ? "justify-start pt-2" : "justify-start pt-3")}>
           <span
             className={cn(
-              "inline-flex items-center text-[0.68rem] font-medium uppercase tracking-[0.14em] transition-colors",
+              "inline-flex items-center justify-center rounded-full border transition-all duration-300",
               compact
-                ? "text-foreground/72 group-hover:text-foreground"
-                : "text-[var(--color-accent-strong)] group-hover:text-[#7a5848]",
+                ? "min-h-8 border-[#d8b99f] bg-[#f3e2cf] px-3 text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-[#67493a] group-hover:border-[#cda98b] group-hover:bg-[#eed7bf]"
+                : "min-h-9 border-[#d7b79d] bg-[#f4dfcb] px-3.5 text-[0.67rem] font-semibold uppercase tracking-[0.15em] text-[#644637] shadow-[0_6px_14px_rgba(84,58,42,0.08)] group-hover:border-[#caa689] group-hover:bg-[#efd5bb] group-hover:shadow-[0_10px_18px_rgba(84,58,42,0.12)]",
             )}
           >
             Ver producto
@@ -222,6 +286,17 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
     return products.slice(start, start + batchSize);
   }, [activeBatchIndex, activeCategory]);
   const mobileProducts = activeCategoryProducts.slice(0, 2);
+  const getBadgeLabel = (index: number) => {
+    if (index === 0) {
+      return "Nuevo";
+    }
+
+    if (index === 3) {
+      return "Mas vendido";
+    }
+
+    return undefined;
+  };
 
   return (
     <section
@@ -233,9 +308,9 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
           <div
             key={activeCategory.id}
             style={desktopMinHeight ? { minHeight: `${desktopMinHeight}px` } : undefined}
-            className="grid min-h-[34rem] grid-cols-[minmax(26rem,0.43fr)_minmax(0,0.57fr)] gap-3 animate-[fade-up_700ms_cubic-bezier(0.16,1,0.3,1)] xl:min-h-[36rem] xl:gap-4 2xl:grid-cols-[minmax(28rem,0.45fr)_minmax(0,0.55fr)]"
+            className="grid min-h-[34rem] items-stretch grid-cols-[minmax(26rem,0.43fr)_minmax(0,0.57fr)] gap-2.5 animate-[fade-up_700ms_cubic-bezier(0.16,1,0.3,1)] xl:min-h-[36rem] xl:gap-3 2xl:grid-cols-[minmax(28rem,0.45fr)_minmax(0,0.55fr)]"
           >
-            <div className="relative -ml-4 overflow-hidden rounded-[2.15rem] bg-[linear-gradient(180deg,rgba(255,251,246,0.28),rgba(244,237,228,0.16))] shadow-[0_18px_48px_rgba(58,40,26,0.07)] xl:-ml-6 2xl:-ml-8">
+            <div className="relative z-0 h-full self-stretch -ml-4 overflow-hidden rounded-l-[2.15rem] rounded-r-none bg-[linear-gradient(180deg,rgba(255,251,246,0.28),rgba(244,237,228,0.16))] shadow-[0_18px_48px_rgba(58,40,26,0.07)] xl:-ml-6 2xl:-ml-8">
               {activeCategory.imageUrl ? (
                 <Image
                   src={activeCategory.imageUrl}
@@ -271,12 +346,23 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
               </div>
             </div>
 
-            <div className="grid grid-cols-4 gap-3 py-1 pl-1 pr-0 xl:gap-3.5 2xl:gap-4">
+            <div className="relative z-10 h-full min-h-0 self-stretch -ml-2 grid grid-cols-4 grid-rows-2 gap-3 pl-0 pr-0 xl:-ml-3 xl:gap-3.5 2xl:gap-4">
               {activeCategoryProducts.map((product, index) => (
                 <ProductMiniCard
                   key={product.id}
                   product={product}
                   sizes="(min-width: 1536px) 11vw, (min-width: 1280px) 12vw, (min-width: 1024px) 14vw, 50vw"
+                  badgeLabel={getBadgeLabel(index)}
+                  className={
+                    index % 4 === 0
+                      ? "lg:rounded-l-none lg:rounded-r-[1.2rem]"
+                      : undefined
+                  }
+                  imageClassName={
+                    index % 4 === 0
+                      ? "lg:rounded-l-none lg:rounded-r-[0.95rem]"
+                      : undefined
+                  }
                   style={
                     showDesktopProducts
                       ? {
