@@ -147,10 +147,16 @@ export default async function StoreIndexPage() {
     <>
       <HomeHeroSlider slides={heroSlides} />
       <HomeCategoryRail categories={categoryRailItems} />
-      <SiteContainer className="space-y-8 pt-10 sm:space-y-10 sm:pt-12">
-        <HomeCampaignBanner />
-        <HomeCampaignFeaturedProducts campaign={homePage.campaignFeatured} />
-      </SiteContainer>
+      <section className="py-10 sm:py-12">
+        <SiteContainer>
+          <div className="bg-white px-4 py-4 sm:px-5 sm:py-5 lg:px-6 lg:py-6">
+            <div className="space-y-6 sm:space-y-7">
+              <HomeCampaignBanner />
+              <HomeCampaignFeaturedProducts campaign={homePage.campaignFeatured} />
+            </div>
+          </div>
+        </SiteContainer>
+      </section>
       <HomeCategories categories={categoryShowcaseItems} />
 
       <SiteContainer className="space-y-14 pt-12 sm:space-y-16 sm:pt-14">
