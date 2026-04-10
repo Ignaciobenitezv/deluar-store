@@ -46,14 +46,14 @@ export function HomeCampaignFeaturedProducts({
         ) : null}
       </div>
 
-      <div className="mx-auto grid max-w-[73.5rem] grid-cols-2 gap-x-2.5 gap-y-3.5 lg:grid-cols-4 lg:gap-x-3 lg:gap-y-4">
+      <div className="mx-auto grid max-w-[84.5rem] grid-cols-2 gap-x-2.5 gap-y-3.5 lg:grid-cols-4 lg:gap-x-2.5 lg:gap-y-4">
         {campaign.products.map((product) => (
           <article
             key={product.id}
             className="group w-full min-w-0 overflow-hidden rounded-[0.28rem] border border-[#ece7e1] bg-white transition-colors duration-300 hover:border-[#ddd6cc]"
           >
             <Link href={product.productHref} className="block">
-              <div className="relative h-[18.7rem] overflow-hidden bg-[#f1e9de] sm:h-[19.6rem] lg:h-[20.6rem]">
+              <div className="relative h-[21.5rem] overflow-hidden bg-[#f1e9de] sm:h-[22.5rem] lg:h-[23.7rem]">
                 {product.imageUrl ? (
                   <>
                     <Image
