@@ -3,8 +3,8 @@ import bannerDeco from "@/../public/bannerdeco.png";
 
 export function HomeCampaignBanner() {
   return (
-    <section className="overflow-hidden rounded-[0.45rem] border border-[#e9e4dc] bg-white">
-      <div className="relative aspect-[16/4.35] min-h-[9rem] w-full sm:min-h-[11rem] lg:min-h-[13.5rem] xl:min-h-[15rem]">
+    <section className="overflow-hidden rounded-[0.3rem] bg-transparent">
+      <div className="relative aspect-[16/3.8] min-h-[8rem] w-full sm:min-h-[9.5rem] lg:min-h-[11.5rem] xl:min-h-[12.5rem]">
         <Image
           src={bannerDeco}
           alt="Campana destacada DELUAR"

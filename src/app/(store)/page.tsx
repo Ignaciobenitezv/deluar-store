@@ -149,9 +149,9 @@ export default async function StoreIndexPage() {
       <HomeCategoryRail categories={categoryRailItems} />
       <section className="py-10 sm:py-12">
         <SiteContainer>
-          <div className="bg-white px-4 py-4 sm:px-5 sm:py-5 lg:px-6 lg:py-6">
-            <div className="space-y-6 sm:space-y-7">
-              <HomeCampaignBanner />
+          <div className="space-y-4 sm:space-y-5">
+            <HomeCampaignBanner />
+            <div className="bg-white px-3 py-3.5 sm:px-4 sm:py-4.5 lg:px-5 lg:py-5">
               <HomeCampaignFeaturedProducts campaign={homePage.campaignFeatured} />
             </div>
           </div>

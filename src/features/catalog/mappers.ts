@@ -15,6 +15,7 @@ export function mapProductToCatalogCard(product: ProductDocument): CatalogProduc
   const categorySlug = product.category.slug.current;
   const productSlug = product.slug.current;
   const image = product.images[0];
+  const hoverImage = product.images[1];
 
   return {
     id: product._id,
@@ -25,6 +26,8 @@ export function mapProductToCatalogCard(product: ProductDocument): CatalogProduc
     transferPrice: product.transferPrice,
     imageUrl: getSanityImageUrl(image),
     imageAlt: image?.alt || product.title,
+    hoverImageUrl: getSanityImageUrl(hoverImage),
+    hoverImageAlt: hoverImage?.alt || product.title,
     categorySlug,
     categoryTitle: product.category.title,
     subcategorySlug: product.subcategory?.slug.current,

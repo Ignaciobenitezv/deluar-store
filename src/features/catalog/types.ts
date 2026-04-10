@@ -7,6 +7,8 @@ export type CatalogProductCard = {
   transferPrice?: number;
   imageUrl: string | null;
   imageAlt: string;
+  hoverImageUrl?: string | null;
+  hoverImageAlt?: string;
   categorySlug: string;
   categoryTitle: string;
   subcategorySlug?: string;
