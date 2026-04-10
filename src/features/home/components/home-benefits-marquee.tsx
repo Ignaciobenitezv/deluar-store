@@ -22,18 +22,22 @@ function Track({ ariaHidden = false }: { ariaHidden?: boolean }) {
   return (
     <div
       aria-hidden={ariaHidden}
-      className="flex min-w-max shrink-0 items-center gap-10 pr-10 sm:gap-12 sm:pr-12 lg:gap-14 lg:pr-14"
+      className="flex min-w-max shrink-0 items-center"
     >
-      {benefits.map((benefit) => (
-        <div
-          key={`${benefit.id}-${ariaHidden ? "duplicate" : "main"}`}
-          className="inline-flex items-center gap-6 whitespace-nowrap"
-        >
-          <span className="inline-flex h-2 w-2 shrink-0 translate-y-[2px] rounded-full bg-[var(--color-accent-strong)]/72" />
-          <div className="inline-flex items-center gap-4 whitespace-nowrap text-[0.9rem] leading-none tracking-[0.02em] sm:text-[0.98rem]">
-            <span className="font-medium leading-none text-foreground">{benefit.title}</span>
-            <span className="leading-none text-muted">{benefit.text}</span>
+      {benefits.map((benefit, index) => (
+        <div key={`${benefit.id}-${ariaHidden ? "duplicate" : "main"}`} className="contents">
+          <div className="inline-flex items-center whitespace-nowrap">
+            <span className="text-[0.9rem] font-medium leading-none tracking-[0.02em] text-foreground sm:text-[0.98rem]">
+              {benefit.title}
+            </span>
+            <span className="ml-4 text-[0.9rem] leading-none text-muted sm:text-[0.98rem]">
+              {benefit.text}
+            </span>
           </div>
+
+          {index < benefits.length - 1 ? (
+            <span className="mx-10 inline-flex h-2 w-2 shrink-0 rounded-full bg-[var(--color-accent-strong)]/72 sm:mx-12 lg:mx-14" />
+          ) : null}
         </div>
       ))}
     </div>

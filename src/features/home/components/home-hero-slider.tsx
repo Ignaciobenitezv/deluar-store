@@ -96,7 +96,7 @@ export function HomeHeroSlider({ slides }: HomeHeroSliderProps) {
       </div>
 
       <div className="relative z-10 flex flex-1 items-end px-5 py-8 sm:px-8 sm:py-10 lg:min-h-0 lg:px-10 lg:py-7 xl:py-8">
-        <div className="mx-auto flex w-full max-w-[88rem]">
+        <div className="flex w-full max-w-[88rem] pl-12 sm:pl-16 lg:pl-24 xl:pl-32">
           <div className="w-full">
             <div className="max-w-[21rem] space-y-5 text-white sm:max-w-[31rem] lg:max-w-[40rem] xl:max-w-[44rem]">
               <p className="text-[0.74rem] uppercase tracking-[0.34em] text-white/78 sm:text-[0.8rem] lg:text-[0.82rem]">
