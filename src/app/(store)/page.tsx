@@ -1,22 +1,33 @@
 import type { Metadata } from "next";
 import { mapProductToCatalogCard } from "@/features/catalog/mappers";
 import { SiteContainer } from "@/components/layout/site-container";
+import { HomeCategoryRail } from "@/features/home/components/home-category-rail";
 import { HomeCategories } from "@/features/home/components/home-categories";
 import { HomeOffersCarousel } from "@/features/home/components/home-offers-carousel";
 import { HomeHeroSlider } from "@/features/home/components/home-hero-slider";
 import { HomeInstitutional } from "@/features/home/components/home-institutional";
 import { HomePromoBanner } from "@/features/home/components/home-promo-banner";
-import type { HomeCategoryShowcaseItem, HomeHeroSlide } from "@/features/home/types";
+import type {
+  HomeCategoryRailItem,
+  HomeCategoryShowcaseItem,
+  HomeHeroSlide,
+} from "@/features/home/types";
 import { buildMetadata } from "@/lib/seo";
 import { getSanityImageUrl } from "@/integrations/sanity/image";
 import { sanityFetch } from "@/integrations/sanity/client";
 import { getHomePageData } from "@/integrations/sanity/home";
 import {
+  categoryTreeQuery,
   homePageQuery,
   productsByCategoryQuery,
   siteSettingsQuery,
 } from "@/integrations/sanity/queries";
-import type { HomePageDocument, ProductDocument, SiteSettingsDocument } from "@/types/cms";
+import type {
+  CategoryDocument,
+  HomePageDocument,
+  ProductDocument,
+  SiteSettingsDocument,
+} from "@/types/cms";
 
 const SHOWCASE_CATEGORY_ORDER = ["cocina", "dormitorio", "living", "bano"];
 
@@ -97,14 +108,43 @@ async function buildHomeCategoryShowcase(
   return showcaseItems.filter((item) => item.products.length > 0);
 }
 
+async function buildHomeCategoryRail(): Promise<HomeCategoryRailItem[]> {
+  const categories = await sanityFetch<CategoryDocument[]>(categoryTreeQuery);
+
+  const categoryItems = await Promise.all(
+    categories.map(async (category) => {
+      const productDocuments = await sanityFetch<ProductDocument[]>(productsByCategoryQuery, {
+        categorySlug: category.slug.current,
+        subcategorySlug: "",
+      });
+
+      const representativeImage =
+        productDocuments.find((product) => product.images?.[0]?.image?.asset?._ref)?.images?.[0];
+
+      return {
+        id: category._id,
+        title: category.title,
+        slug: category.slug.current,
+        href: `/productos/${category.slug.current}`,
+        imageUrl: getSanityImageUrl(representativeImage, 720, 720),
+        imageAlt: representativeImage?.alt || category.title,
+      };
+    }),
+  );
+
+  return categoryItems;
+}
+
 export default async function StoreIndexPage() {
   const homePage = await getHomePageData();
   const heroSlides = buildHomeSlides(homePage);
+  const categoryRailItems = await buildHomeCategoryRail();
   const categoryShowcaseItems = await buildHomeCategoryShowcase(homePage);
 
   return (
     <>
       <HomeHeroSlider slides={heroSlides} />
+      <HomeCategoryRail categories={categoryRailItems} />
       <HomeCategories categories={categoryShowcaseItems} />
 
       <SiteContainer className="space-y-14 pt-12 sm:space-y-16 sm:pt-14">

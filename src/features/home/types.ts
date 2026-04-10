@@ -34,6 +34,15 @@ export type HomeCategoryShowcaseItem = {
   products: CatalogProductCard[];
 };
 
+export type HomeCategoryRailItem = {
+  id: string;
+  title: string;
+  slug: string;
+  href: string;
+  imageUrl: string | null;
+  imageAlt: string;
+};
+
 export type HomeInstitutional = {
   title: string;
   text: string;
