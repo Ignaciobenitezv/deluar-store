@@ -80,7 +80,7 @@ select {
   }
 }
 
-@keyframes home-marquee-scroll {
+@keyframes marquee {
   from {
     transform: translateX(0);
   }
@@ -90,9 +90,14 @@ select {
 }
 
 .home-marquee {
+  display: flex;
   width: max-content;
-  animation: home-marquee-scroll 28s linear infinite;
+  animation: marquee 25s linear infinite;
   will-change: transform;
+}
+
+.home-marquee > * {
+  flex: 0 0 auto;
 }
 
 @media (prefers-reduced-motion: reduce) {

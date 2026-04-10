@@ -118,7 +118,7 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
 
       <div className="relative">
         <div
-          className="relative mx-auto hidden min-h-[36rem] max-w-[72rem] items-center px-[10rem] lg:flex"
+          className="relative hidden min-h-[36rem] w-full items-center px-[8rem] lg:flex xl:px-[9rem] 2xl:px-[10rem]"
           onMouseEnter={() => setIsDesktopPaused(true)}
           onMouseLeave={() => setIsDesktopPaused(false)}
         >

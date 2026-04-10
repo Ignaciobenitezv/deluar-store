@@ -96,8 +96,8 @@ export function HomeBenefitsStrip() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <section className="px-6 pb-10 pt-7 sm:px-8 sm:pb-12 sm:pt-8 lg:px-12 xl:px-16">
-      <div className="mx-auto w-full max-w-[112rem] bg-[linear-gradient(180deg,rgba(255,252,247,0.7),rgba(244,237,228,0.46))]">
+    <section className="pb-10 pt-7 sm:pb-12 sm:pt-8">
+      <div className="w-full bg-[linear-gradient(180deg,rgba(255,252,247,0.7),rgba(244,237,228,0.46))]">
         <div className="lg:hidden">
           <div className="overflow-hidden py-6 sm:py-7">
             <div

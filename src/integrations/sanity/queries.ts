@@ -231,6 +231,20 @@ export const homePageQuery = groq`
     heroText,
     heroCtaLabel,
     heroCtaHref,
+    heroSlides[]{
+      _key,
+      _type,
+      eyebrow,
+      title,
+      text,
+      desktopImage,
+      mobileImage,
+      primaryCtaLabel,
+      primaryCtaHref,
+      secondaryCtaLabel,
+      secondaryCtaHref,
+      isActive
+    },
     featuredCategories[]->{
       _id,
       _type,

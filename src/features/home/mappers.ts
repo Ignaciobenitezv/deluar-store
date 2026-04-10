@@ -4,6 +4,7 @@ import type { HomePageData } from "@/features/home/types";
 import { getSanityImageUrl } from "@/integrations/sanity/image";
 import type {
   CategoryDocument,
+  HomeHeroSlideDocument,
   HomePageDocument,
   ProductDocument,
   PromoSettingsDocument,
@@ -40,8 +41,25 @@ export function mapHomePageData({
   const fallbackHeroImage =
     homePage?.heroImage ?? selectedFeaturedProducts[0]?.images?.[0];
 
+  const heroSlides = (homePage?.heroSlides ?? [])
+    .filter((slide) => slide.isActive !== false)
+    .map((slide: HomeHeroSlideDocument, index) => ({
+      id: slide._key || `hero-slide-${index}`,
+      eyebrow: slide.eyebrow || siteSettings?.siteName || siteConfig.name,
+      title: slide.title,
+      text: slide.text || "",
+      imageUrl: getSanityImageUrl(slide.desktopImage, 1800, 1080),
+      mobileImageUrl: getSanityImageUrl(slide.mobileImage, 900, 1200),
+      imageAlt: slide.desktopImage?.alt || slide.title,
+      ctaLabel: slide.primaryCtaLabel || "Ver productos",
+      ctaHref: slide.primaryCtaHref || "/productos",
+      secondaryCtaLabel: slide.secondaryCtaLabel,
+      secondaryCtaHref: slide.secondaryCtaHref,
+    }));
+
   return {
     hero: {
+      id: heroSlides[0]?.id || "hero-main",
       eyebrow: siteSettings?.siteName || siteConfig.name,
       title: homePage?.heroTitle || "Textiles y objetos para una casa con calma.",
       text:
@@ -49,10 +67,34 @@ export function mapHomePageData({
         siteSettings?.siteDescription ||
         "Una seleccion de piezas para cocina, living, dormitorio y bano curadas para DELUAR.",
       imageUrl: getSanityImageUrl(fallbackHeroImage, 1400, 1560),
+      mobileImageUrl: getSanityImageUrl(fallbackHeroImage, 900, 1200),
       imageAlt: fallbackHeroImage?.alt || homePage?.heroTitle || siteConfig.name,
       ctaLabel: homePage?.heroCtaLabel || "Ver productos",
       ctaHref: homePage?.heroCtaHref || "/productos",
+      secondaryCtaLabel: undefined,
+      secondaryCtaHref: undefined,
     },
+    heroSlides:
+      heroSlides.length > 0
+        ? heroSlides
+        : [
+            {
+              id: "hero-main",
+              eyebrow: siteSettings?.siteName || siteConfig.name,
+              title: homePage?.heroTitle || "Textiles y objetos para una casa con calma.",
+              text:
+                homePage?.heroText ||
+                siteSettings?.siteDescription ||
+                "Una seleccion de piezas para cocina, living, dormitorio y bano curadas para DELUAR.",
+              imageUrl: getSanityImageUrl(fallbackHeroImage, 1800, 1080),
+              mobileImageUrl: getSanityImageUrl(fallbackHeroImage, 900, 1200),
+              imageAlt: fallbackHeroImage?.alt || homePage?.heroTitle || siteConfig.name,
+              ctaLabel: homePage?.heroCtaLabel || "Ver productos",
+              ctaHref: homePage?.heroCtaHref || "/productos",
+              secondaryCtaLabel: undefined,
+              secondaryCtaHref: undefined,
+            },
+          ],
     categories: selectedCategories.map(mapCategoryToSummary),
     featuredProducts: selectedFeaturedProducts.map(mapProductToCatalogCard),
     offerProducts: offerProducts.map(mapProductToCatalogCard),

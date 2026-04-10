@@ -271,8 +271,8 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
   };
 
   return (
-    <section className="px-6 pb-2 sm:px-8 lg:pl-0 lg:pr-4 xl:pl-1 xl:pr-5 2xl:pl-2 2xl:pr-6">
-      <div className="mx-auto flex w-full max-w-[128rem] flex-col space-y-4 lg:space-y-5">
+    <section className="pb-2">
+      <div className="flex w-full flex-col space-y-4 lg:space-y-5">
         <div className="hidden lg:block">
           <div
             key={activeCategory.id}

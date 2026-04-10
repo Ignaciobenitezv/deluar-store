@@ -1,18 +1,20 @@
 import type { CatalogCategorySummary, CatalogProductCard } from "@/features/catalog/types";
 
 export type HomeHero = {
+  id: string;
   eyebrow: string;
   title: string;
   text: string;
   imageUrl: string | null;
+  mobileImageUrl?: string | null;
   imageAlt: string;
   ctaLabel: string;
   ctaHref: string;
+  secondaryCtaLabel?: string;
+  secondaryCtaHref?: string;
 };
 
-export type HomeHeroSlide = HomeHero & {
-  id: string;
-};
+export type HomeHeroSlide = HomeHero;
 
 export type HomePromo = {
   title: string;
@@ -41,6 +43,7 @@ export type HomeInstitutional = {
 
 export type HomePageData = {
   hero: HomeHero;
+  heroSlides: HomeHeroSlide[];
   categories: CatalogCategorySummary[];
   featuredProducts: CatalogProductCard[];
   offerProducts: CatalogProductCard[];

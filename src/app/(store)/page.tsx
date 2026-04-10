@@ -52,28 +52,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 function buildHomeSlides(homePage: Awaited<ReturnType<typeof getHomePageData>>): HomeHeroSlide[] {
-  const slides: HomeHeroSlide[] = [
-    {
-      id: "hero-main",
-      ...homePage.hero,
-    },
-  ];
-
-  const featuredSlides = homePage.featuredProducts
-    .filter((product) => product.imageUrl)
-    .slice(0, 3)
-    .map<HomeHeroSlide>((product) => ({
-      id: `featured-${product.id}`,
-      eyebrow: product.categoryTitle,
-      title: product.title,
-      text: product.shortDescription,
-      imageUrl: product.imageUrl,
-      imageAlt: product.imageAlt,
-      ctaLabel: "Ver producto",
-      ctaHref: product.productHref,
-    }));
-
-  return [...slides, ...featuredSlides].slice(0, 4);
+  return homePage.heroSlides.length > 0 ? homePage.heroSlides : [homePage.hero];
 }
 
 async function buildHomeCategoryShowcase(

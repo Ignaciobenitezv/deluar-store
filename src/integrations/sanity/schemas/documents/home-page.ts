@@ -58,6 +58,15 @@ export const homePageSchema = defineType({
       group: "content",
     }),
     defineField({
+      name: "heroSlides",
+      title: "Slides del hero",
+      description: "Banners principales del hero de la portada.",
+      type: "array",
+      group: "content",
+      of: [defineArrayMember({ type: "homeHeroSlide" })],
+      validation: (rule) => rule.max(6),
+    }),
+    defineField({
       name: "featuredCategories",
       title: "Categorias destacadas",
       description: "Selecciona categorias para destacar en la portada.",

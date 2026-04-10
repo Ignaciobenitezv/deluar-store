@@ -17,6 +17,21 @@ export type SanityImageWithAlt = {
   alt?: string;
 };
 
+export type HomeHeroSlideDocument = {
+  _key?: string;
+  _type: "homeHeroSlide";
+  eyebrow?: string;
+  title: string;
+  text?: string;
+  desktopImage: SanityImageWithAlt;
+  mobileImage?: SanityImageWithAlt;
+  primaryCtaLabel?: string;
+  primaryCtaHref?: string;
+  secondaryCtaLabel?: string;
+  secondaryCtaHref?: string;
+  isActive?: boolean;
+};
+
 export type ProductColorVariantDocument = {
   _key?: string;
   _type: "productColorVariant";
@@ -109,6 +124,7 @@ export type HomePageDocument = {
   heroImage?: SanityImageWithAlt;
   heroCtaLabel?: string;
   heroCtaHref?: string;
+  heroSlides?: HomeHeroSlideDocument[];
   featuredCategories?: CategoryDocument[];
   featuredProducts?: ProductDocument[];
   promoTitle?: string;

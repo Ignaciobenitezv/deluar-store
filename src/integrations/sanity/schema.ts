@@ -9,10 +9,12 @@ import { imageWithAltSchema } from "./schemas/objects/image-with-alt";
 import { productColorVariantSchema } from "./schemas/objects/product-color-variant";
 import { productAttributeSchema } from "./schemas/objects/product-attribute";
 import { seoSchema } from "./schemas/objects/seo";
+import { homeHeroSlideSchema } from "./schemas/objects/home-hero-slide";
 
 export const schemaTypes = [
   seoSchema,
   imageWithAltSchema,
+  homeHeroSlideSchema,
   productColorVariantSchema,
   productAttributeSchema,
   categorySchema,
