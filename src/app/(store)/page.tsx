@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { mapProductToCatalogCard } from "@/features/catalog/mappers";
 import { SiteContainer } from "@/components/layout/site-container";
+import { HomeCampaignBanner } from "@/features/home/components/home-campaign-banner";
+import { HomeCampaignFeaturedProducts } from "@/features/home/components/home-campaign-featured-products";
 import { HomeCategoryRail } from "@/features/home/components/home-category-rail";
 import { HomeCategories } from "@/features/home/components/home-categories";
 import { HomeOffersCarousel } from "@/features/home/components/home-offers-carousel";
@@ -145,6 +147,10 @@ export default async function StoreIndexPage() {
     <>
       <HomeHeroSlider slides={heroSlides} />
       <HomeCategoryRail categories={categoryRailItems} />
+      <SiteContainer className="space-y-8 pt-10 sm:space-y-10 sm:pt-12">
+        <HomeCampaignBanner />
+        <HomeCampaignFeaturedProducts campaign={homePage.campaignFeatured} />
+      </SiteContainer>
       <HomeCategories categories={categoryShowcaseItems} />
 
       <SiteContainer className="space-y-14 pt-12 sm:space-y-16 sm:pt-14">

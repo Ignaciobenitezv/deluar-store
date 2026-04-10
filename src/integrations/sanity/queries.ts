@@ -279,6 +279,35 @@ export const homePageQuery = groq`
         slug
       }
     },
+    campaignFeaturedTitle,
+    campaignFeaturedText,
+    campaignFeaturedCtaLabel,
+    campaignFeaturedCtaHref,
+    campaignFeaturedProducts[]->{
+      _id,
+      _type,
+      title,
+      slug,
+      shortDescription,
+      basePrice,
+      transferPrice,
+      stock,
+      isFeatured,
+      isOnOffer,
+      images,
+      category->{
+        _id,
+        _type,
+        title,
+        slug
+      },
+      subcategory->{
+        _id,
+        _type,
+        title,
+        slug
+      }
+    },
     promoTitle,
     promoText,
     promoCtaLabel,

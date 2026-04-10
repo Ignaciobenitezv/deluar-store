@@ -29,19 +29,19 @@ export function HomeCategoryRail({ categories }: HomeCategoryRailProps) {
   };
 
   return (
-    <section className="w-full bg-white py-8 sm:py-10">
-      <SiteContainer className="space-y-4">
+    <section className="w-full bg-white py-6 sm:py-8">
+      <SiteContainer className="space-y-3.5">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="text-[1.58rem] font-semibold tracking-[0.01em] text-foreground sm:text-[1.3rem]">
-            Categorias
-          </h2>
+          <h2 className="text-[1.35rem] sm:text-[1.55rem] font-bold tracking-tight text-foreground">
+  Categorías
+</h2>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <button
               type="button"
               aria-label="Categorias anteriores"
               onClick={() => scrollRail("left")}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#e7e2db] bg-white text-foreground/65 transition-colors duration-200 hover:border-foreground/18 hover:text-foreground"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d8d2ca] bg-white text-foreground/70 transition-colors duration-200 hover:border-[#c6bbae] hover:bg-[#f7f5f1] hover:text-foreground"
             >
               <svg
                 aria-hidden="true"
@@ -49,7 +49,7 @@ export function HomeCategoryRail({ categories }: HomeCategoryRailProps) {
                 className="h-3.5 w-3.5"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="1.5"
+                strokeWidth="1.35"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
@@ -60,7 +60,7 @@ export function HomeCategoryRail({ categories }: HomeCategoryRailProps) {
               type="button"
               aria-label="Categorias siguientes"
               onClick={() => scrollRail("right")}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#e7e2db] bg-white text-foreground/65 transition-colors duration-200 hover:border-foreground/18 hover:text-foreground"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d8d2ca] bg-white text-foreground/70 transition-colors duration-200 hover:border-[#c6bbae] hover:bg-[#f7f5f1] hover:text-foreground"
             >
               <svg
                 aria-hidden="true"
@@ -68,7 +68,7 @@ export function HomeCategoryRail({ categories }: HomeCategoryRailProps) {
                 className="h-3.5 w-3.5"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="1.5"
+                strokeWidth="1.35"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >

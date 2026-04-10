@@ -23,6 +23,14 @@ export type HomePromo = {
   ctaHref: string;
 };
 
+export type HomeCampaignFeatured = {
+  title: string;
+  text: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  products: CatalogProductCard[];
+};
+
 export type HomeCategoryShowcaseItem = {
   id: string;
   title: string;
@@ -55,6 +63,7 @@ export type HomePageData = {
   heroSlides: HomeHeroSlide[];
   categories: CatalogCategorySummary[];
   featuredProducts: CatalogProductCard[];
+  campaignFeatured: HomeCampaignFeatured;
   offerProducts: CatalogProductCard[];
   promo: HomePromo;
   institutional: HomeInstitutional;

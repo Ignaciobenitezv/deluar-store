@@ -127,6 +127,11 @@ export type HomePageDocument = {
   heroSlides?: HomeHeroSlideDocument[];
   featuredCategories?: CategoryDocument[];
   featuredProducts?: ProductDocument[];
+  campaignFeaturedTitle?: string;
+  campaignFeaturedText?: string;
+  campaignFeaturedCtaLabel?: string;
+  campaignFeaturedCtaHref?: string;
+  campaignFeaturedProducts?: ProductDocument[];
   promoTitle?: string;
   promoText?: string;
   promoCtaLabel?: string;

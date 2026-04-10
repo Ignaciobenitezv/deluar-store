@@ -38,8 +38,7 @@ export function mapHomePageData({
       ? homePage.featuredCategories
       : categories.slice(0, 4);
 
-  const fallbackHeroImage =
-    homePage?.heroImage ?? selectedFeaturedProducts[0]?.images?.[0];
+  const fallbackHeroImage = homePage?.heroImage ?? selectedFeaturedProducts[0]?.images?.[0];
 
   const heroSlides = (homePage?.heroSlides ?? [])
     .filter((slide) => slide.isActive !== false)
@@ -97,6 +96,15 @@ export function mapHomePageData({
           ],
     categories: selectedCategories.map(mapCategoryToSummary),
     featuredProducts: selectedFeaturedProducts.map(mapProductToCatalogCard),
+    campaignFeatured: {
+      title: homePage?.campaignFeaturedTitle || "Selecciones para regalar y renovar tu casa",
+      text:
+        homePage?.campaignFeaturedText ||
+        "Una curaduria de productos destacados para campanas especiales, regalos y selecciones tematicas.",
+      ctaLabel: homePage?.campaignFeaturedCtaLabel || undefined,
+      ctaHref: homePage?.campaignFeaturedCtaHref || undefined,
+      products: featuredProducts.map(mapProductToCatalogCard),
+    },
     offerProducts: offerProducts.map(mapProductToCatalogCard),
     promo: {
       title: homePage?.promoTitle || "Compra con calma, elegi con tiempo.",
