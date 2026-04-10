@@ -22,35 +22,12 @@ export function HomeCampaignFeaturedProducts({
   }
 
   return (
-    <section className="space-y-4 sm:space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="max-w-[28rem] space-y-1">
-          <p className="text-[0.68rem] uppercase tracking-[0.24em] text-muted">
-            Destacados de la tienda
-          </p>
-          <h2 className="text-[0.98rem] font-semibold leading-none tracking-tight text-foreground sm:text-[1.08rem]">
-            {campaign.title}
-          </h2>
-          <p className="max-w-[25rem] text-[0.76rem] leading-[1.45] text-muted">
-            {campaign.text}
-          </p>
-        </div>
-
-        {campaign.ctaLabel && campaign.ctaHref ? (
-          <Link
-            href={campaign.ctaHref}
-            className="inline-flex items-center text-[0.6rem] uppercase tracking-[0.16em] text-foreground/76 transition-colors hover:text-foreground"
-          >
-            {campaign.ctaLabel}
-          </Link>
-        ) : null}
-      </div>
-
+    <section>
       <div className="mx-auto grid max-w-[84.5rem] grid-cols-2 gap-x-2.5 gap-y-3.5 lg:grid-cols-4 lg:gap-x-2.5 lg:gap-y-4">
         {campaign.products.map((product) => (
           <article
             key={product.id}
-            className="group w-full min-w-0 overflow-hidden rounded-[0.28rem] border border-[#ece7e1] bg-white transition-colors duration-300 hover:border-[#ddd6cc]"
+            className="group w-full min-w-0 overflow-hidden rounded-[0.28rem] border border-[#ece7e1] bg-white shadow-[0_2px_6px_rgba(0,0,0,0.04)] transition-all duration-200 ease-out hover:border-[#ddd6cc] hover:shadow-[0_6px_14px_rgba(0,0,0,0.08)]"
           >
             <Link href={product.productHref} className="block">
               <div className="relative h-[21.5rem] overflow-hidden bg-[#f1e9de] sm:h-[22.5rem] lg:h-[23.7rem]">
@@ -94,22 +71,15 @@ export function HomeCampaignFeaturedProducts({
               </div>
 
               <div className="space-y-0.5">
-                <p className="text-[0.8rem] font-semibold leading-none text-foreground sm:text-[0.84rem]">
+                <p className="text-[0.92rem] font-semibold leading-none text-foreground sm:text-[0.96rem]">
                   {formatPrice(product.basePrice)}
                 </p>
                 {product.transferPrice ? (
-                  <p className="text-[0.62rem] leading-[1.25] text-muted">
+                  <p className="text-[0.68rem] leading-[1.25] text-muted">
                     Transferencia: {formatPrice(product.transferPrice)}
                   </p>
                 ) : null}
               </div>
-
-              <Link
-                href={product.productHref}
-                className="inline-flex items-center text-[0.56rem] uppercase tracking-[0.14em] text-foreground/74 transition-colors hover:text-foreground"
-              >
-                Ver producto
-              </Link>
             </div>
           </article>
         ))}
