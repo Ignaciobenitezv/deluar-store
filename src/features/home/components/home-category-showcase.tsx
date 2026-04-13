@@ -235,21 +235,17 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
     return () => window.clearTimeout(timer);
   }, [activeIndex]);
 
-  if (categories.length === 0) {
-    return (
-      <div className="px-6 sm:px-8 lg:px-12 xl:px-16">
-        <div className="rounded-[1.8rem] border border-border/80 bg-surface/92 px-6 py-8 text-sm leading-7 text-muted">
-          Todavia no hay categorias cargadas para destacar en la portada.
-        </div>
-      </div>
-    );
-  }
-
-  const safeIndex = Math.min(activeIndex, categories.length - 1);
+  const safeIndex = categories.length > 0 ? Math.min(activeIndex, categories.length - 1) : 0;
   const activeCategory = categories[safeIndex];
-  const activeBatchIndex = batchIndexByCategoryRef.current[activeCategory.id] ?? 0;
+  const activeBatchIndex = activeCategory
+    ? batchIndexByCategoryRef.current[activeCategory.id] ?? 0
+    : 0;
 
   const activeCategoryProducts = useMemo(() => {
+    if (!activeCategory) {
+      return [];
+    }
+
     const products = activeCategory.products ?? [];
 
     if (products.length <= DESKTOP_BATCH_SIZE) {
@@ -261,6 +257,16 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
 
     return products.slice(start, start + DESKTOP_BATCH_SIZE);
   }, [activeBatchIndex, activeCategory]);
+
+  if (categories.length === 0 || !activeCategory) {
+    return (
+      <div className="px-6 sm:px-8 lg:px-12 xl:px-16">
+        <div className="rounded-[1.8rem] border border-border/80 bg-surface/92 px-6 py-8 text-sm leading-7 text-muted">
+          Todavia no hay categorias cargadas para destacar en la portada.
+        </div>
+      </div>
+    );
+  }
 
   const mobileProducts = activeCategoryProducts.slice(0, 2);
 

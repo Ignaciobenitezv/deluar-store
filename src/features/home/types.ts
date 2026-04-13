@@ -1,4 +1,8 @@
-import type { CatalogCategorySummary, CatalogProductCard } from "@/features/catalog/types";
+import type {
+  CatalogCategorySummary,
+  CatalogProductCard,
+  ProductDetailImage,
+} from "@/features/catalog/types";
 
 export type HomeHero = {
   id: string;
@@ -58,12 +62,31 @@ export type HomeInstitutional = {
   whatsappNumber?: string;
 };
 
+export type HomeSpotlightProduct = {
+  id: string;
+  slug: string;
+  title: string;
+  shortDescription: string;
+  basePrice: number;
+  transferPrice?: number;
+  stock: number;
+  productHref: string;
+  images: ProductDetailImage[];
+  categoryTitle: string;
+  attributes: {
+    label: string;
+    value: string;
+  }[];
+};
+
 export type HomePageData = {
   hero: HomeHero;
   heroSlides: HomeHeroSlide[];
   categories: CatalogCategorySummary[];
   featuredProducts: CatalogProductCard[];
   campaignFeatured: HomeCampaignFeatured;
+  newInProducts: CatalogProductCard[];
+  spotlightProduct: HomeSpotlightProduct | null;
   offerProducts: CatalogProductCard[];
   promo: HomePromo;
   institutional: HomeInstitutional;

@@ -1,5 +1,8 @@
 import { siteConfig } from "@/config/site";
-import { mapCategoryToSummary, mapProductToCatalogCard } from "@/features/catalog/mappers";
+import {
+  mapCategoryToSummary,
+  mapProductToCatalogCard,
+} from "@/features/catalog/mappers";
 import type { HomePageData } from "@/features/home/types";
 import { getSanityImageUrl } from "@/integrations/sanity/image";
 import type {
@@ -15,6 +18,7 @@ type MapHomePageDataInput = {
   homePage: HomePageDocument | null;
   categories: CategoryDocument[];
   featuredProducts: ProductDocument[];
+  newInProducts: ProductDocument[];
   offerProducts: ProductDocument[];
   promoSettings: PromoSettingsDocument | null;
   siteSettings: SiteSettingsDocument | null;
@@ -24,6 +28,7 @@ export function mapHomePageData({
   homePage,
   categories,
   featuredProducts,
+  newInProducts,
   offerProducts,
   promoSettings,
   siteSettings,
@@ -105,6 +110,28 @@ export function mapHomePageData({
       ctaHref: homePage?.campaignFeaturedCtaHref || undefined,
       products: featuredProducts.map(mapProductToCatalogCard),
     },
+    newInProducts: newInProducts.map(mapProductToCatalogCard),
+    spotlightProduct: homePage?.spotlightProduct
+      ? {
+          id: homePage.spotlightProduct._id,
+          slug: homePage.spotlightProduct.slug.current,
+          title: homePage.spotlightProduct.title,
+          shortDescription: homePage.spotlightProduct.shortDescription,
+          basePrice: homePage.spotlightProduct.basePrice,
+          transferPrice: homePage.spotlightProduct.transferPrice,
+          stock: homePage.spotlightProduct.stock,
+          productHref: `/productos/detalle/${homePage.spotlightProduct.slug.current}`,
+          images: (homePage.spotlightProduct.images ?? []).map((image) => ({
+            url: getSanityImageUrl(image, 1200, 1500),
+            alt: image.alt || homePage.spotlightProduct?.title || "",
+          })),
+          categoryTitle: homePage.spotlightProduct.category.title,
+          attributes: (homePage.spotlightProduct.attributes ?? []).map((attribute) => ({
+            label: attribute.label,
+            value: attribute.value,
+          })),
+        }
+      : null,
     offerProducts: offerProducts.map(mapProductToCatalogCard),
     promo: {
       title: homePage?.promoTitle || "Compra con calma, elegi con tiempo.",

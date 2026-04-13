@@ -13,6 +13,17 @@ export function HomeCampaignBanner() {
           sizes="(min-width: 1280px) 1180px, (min-width: 768px) 88vw, 100vw"
           className="object-cover"
         />
+        <div className="absolute inset-0 bg-black/28" />
+        <div className="absolute inset-y-0 right-0 flex items-center pr-5 text-right sm:pr-8 md:pr-10 lg:pr-12">
+          <div className="text-white">
+            <p className="text-[2rem] font-medium italic leading-tight sm:text-[2.4rem] md:text-[3rem]">
+              Decorá tus espacios,
+            </p>
+            <p className="text-[2rem] font-medium italic leading-tight sm:text-[2.4rem] md:text-[3rem]">
+              con <span className="font-semibold">Deluar</span>
+            </p>
+          </div>
+        </div>
       </div>
     </section>
   );

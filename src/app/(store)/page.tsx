@@ -5,7 +5,9 @@ import { HomeCampaignBanner } from "@/features/home/components/home-campaign-ban
 import { HomeCampaignFeaturedProducts } from "@/features/home/components/home-campaign-featured-products";
 import { HomeCategoryRail } from "@/features/home/components/home-category-rail";
 import { HomeCategories } from "@/features/home/components/home-categories";
+import { HomeNewInStrip } from "@/features/home/components/home-new-in-strip";
 import { HomeOffersCarousel } from "@/features/home/components/home-offers-carousel";
+import { HomeSpotlightProduct } from "@/features/home/components/home-spotlight-product";
 import { HomeHeroSlider } from "@/features/home/components/home-hero-slider";
 import { HomeInstitutional } from "@/features/home/components/home-institutional";
 import { HomePromoBanner } from "@/features/home/components/home-promo-banner";
@@ -157,6 +159,18 @@ export default async function StoreIndexPage() {
           </div>
         </SiteContainer>
       </section>
+      <section className="group w-full bg-gradient-to-r from-[#2b2b2b] via-[#262626] to-[#2b2b2b] py-16 md:py-20">
+        <div className="mx-auto max-w-[1200px] px-4 text-center">
+          <div className="mb-6 h-[1px] w-16 bg-white/20 mx-auto" />
+          <p className="text-[1.7rem] font-medium italic leading-tight tracking-[0.02em] text-white/95 transition-all duration-300 group-hover:tracking-[0.04em] sm:text-[2.2rem] md:text-[2.6rem]">
+            lo nuevo en <span className="font-semibold">Deluar</span>
+          </p>
+        </div>
+      </section>
+      <SiteContainer className="space-y-10 py-10 sm:space-y-12 sm:py-12">
+        <HomeNewInStrip products={homePage.newInProducts} />
+        <HomeSpotlightProduct product={homePage.spotlightProduct} />
+      </SiteContainer>
       <HomeCategories categories={categoryShowcaseItems} />
 
       <SiteContainer className="space-y-14 pt-12 sm:space-y-16 sm:pt-14">

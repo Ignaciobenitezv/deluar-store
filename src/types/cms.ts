@@ -132,6 +132,7 @@ export type HomePageDocument = {
   campaignFeaturedCtaLabel?: string;
   campaignFeaturedCtaHref?: string;
   campaignFeaturedProducts?: ProductDocument[];
+  spotlightProduct?: ProductDocument;
   promoTitle?: string;
   promoText?: string;
   promoCtaLabel?: string;

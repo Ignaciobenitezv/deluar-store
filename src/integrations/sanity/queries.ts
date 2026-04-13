@@ -92,6 +92,11 @@ export const offerProductsQuery = groq`
   ${productCardQuery}
 `;
 
+export const newInProductsQuery = groq`
+  *[_type == "product"] | order(_createdAt desc) [0...8]
+  ${productCardQuery}
+`;
+
 export const productBySlugQuery = groq`
   *[_type == "product" && slug.current == $slug][0] {
     _id,
@@ -306,6 +311,48 @@ export const homePageQuery = groq`
         _type,
         title,
         slug
+      }
+    },
+    spotlightProduct->{
+      _id,
+      _type,
+      title,
+      slug,
+      shortDescription,
+      description,
+      basePrice,
+      transferPrice,
+      stock,
+      isFeatured,
+      isOnOffer,
+      images,
+      colorVariants[]{
+        _key,
+        _type,
+        title,
+        value,
+        thumbnail,
+        images,
+        sku,
+        basePrice,
+        transferPrice,
+        stock
+      },
+      attributes,
+      seo,
+      category->{
+        _id,
+        _type,
+        title,
+        slug,
+        description
+      },
+      subcategory->{
+        _id,
+        _type,
+        title,
+        slug,
+        description
       }
     },
     promoTitle,

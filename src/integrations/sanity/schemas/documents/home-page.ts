@@ -137,6 +137,14 @@ export const homePageSchema = defineType({
       validation: (rule) => rule.max(8),
     }),
     defineField({
+      name: "spotlightProduct",
+      title: "Producto destacado grande",
+      description: "Producto protagonista para la seccion editorial grande de la home.",
+      type: "reference",
+      group: "featured",
+      to: [{ type: "product" }],
+    }),
+    defineField({
       name: "promoTitle",
       title: "Titulo promocional",
       description: "Titulo breve para el bloque promocional de la home.",
