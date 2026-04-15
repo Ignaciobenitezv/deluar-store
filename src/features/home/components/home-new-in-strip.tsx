@@ -3,10 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
-import type { CatalogProductCard } from "@/features/catalog/types";
+import type { HomeNewInProduct } from "@/features/home/types";
 
 type HomeNewInStripProps = {
-  products: CatalogProductCard[];
+  products: HomeNewInProduct[];
+  activeProductId?: string;
+  onSelectProduct?: (productId: string) => void;
 };
 
 function formatPrice(value: number) {
@@ -17,7 +19,11 @@ function formatPrice(value: number) {
   }).format(value);
 }
 
-export function HomeNewInStrip({ products }: HomeNewInStripProps) {
+export function HomeNewInStrip({
+  products,
+  activeProductId,
+  onSelectProduct,
+}: HomeNewInStripProps) {
   const railRef = useRef<HTMLDivElement | null>(null);
 
   if (products.length === 0) {
@@ -28,19 +34,19 @@ export function HomeNewInStrip({ products }: HomeNewInStripProps) {
     if (!railRef.current) return;
 
     railRef.current.scrollBy({
-      left: direction === "left" ? -320 : 320,
+      left: direction === "left" ? -420 : 420,
       behavior: "smooth",
     });
   };
 
   return (
-    <section className="grid gap-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:items-start lg:gap-8">
+    <section className="grid gap-6 lg:grid-cols-[16rem_minmax(0,1fr)] lg:items-start lg:gap-8">
       <div className="space-y-4 lg:sticky lg:top-24">
         <div className="space-y-1.5">
           <p className="text-[0.62rem] uppercase tracking-[0.18em] text-muted/78">
             Seleccion
           </p>
-          <h2 className="text-[1.05rem] font-semibold leading-tight tracking-tight text-foreground">
+          <h2 className="text-[1.6rem] font-semibold leading-tight tracking-tight text-foreground">
             Lo nuevo en Deluar
           </h2>
         </div>
@@ -100,39 +106,69 @@ export function HomeNewInStrip({ products }: HomeNewInStripProps) {
         ref={railRef}
         className="overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        <div className="flex min-w-max gap-3">
+        <div className="flex min-w-max gap-5">
           {products.map((product) => (
-            <Link
+            <article
               key={product.id}
-              href={product.productHref}
-              className="group flex w-[16.2rem] shrink-0 items-center gap-3 rounded-[0.45rem] border border-[#e9e3db] bg-white p-2.5 transition-colors duration-200 hover:border-[#d7cec2]"
+              className={`w-[26rem] shrink-0 overflow-hidden rounded-[0.45rem] border bg-[#f6efe6] transition-colors duration-200 ${
+                product.id === activeProductId
+                  ? "border-[#d7bea4]"
+                  : "border-[#ece3d8] hover:border-[#ddd1c3]"
+              }`}
             >
-              <div className="relative h-[5.6rem] w-[4.6rem] shrink-0 overflow-hidden rounded-[0.3rem] bg-[#efe6da]">
-                {product.imageUrl ? (
-                  <Image
-                    src={product.imageUrl}
-                    alt={product.imageAlt}
-                    fill
-                    sizes="74px"
-                    className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,#f5efe7_0%,#e8ddd1_100%)]" />
-                )}
-              </div>
+              <div
+                role="button"
+                tabIndex={0}
+                aria-pressed={product.id === activeProductId}
+                onClick={() => onSelectProduct?.(product.id)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    onSelectProduct?.(product.id);
+                  }
+                }}
+                className="group flex h-[9.75rem] cursor-pointer"
+              >
+                <div className="relative h-[9.75rem] w-[9.25rem] shrink-0 bg-[#efe6da]">
+                  {product.imageUrl ? (
+                    <Image
+                      src={product.imageUrl}
+                      alt={product.imageAlt}
+                      fill
+                      sizes="136px"
+                      className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,#f5efe7_0%,#e8ddd1_100%)]" />
+                  )}
+                </div>
 
-              <div className="min-w-0 space-y-1">
-                <p className="text-[0.54rem] uppercase tracking-[0.16em] text-muted/72">
-                  {product.categoryTitle}
-                </p>
-                <h3 className="line-clamp-2 text-[0.76rem] font-medium leading-tight text-foreground">
-                  {product.title}
-                </h3>
-                <p className="text-[0.8rem] font-semibold leading-none text-foreground">
-                  {formatPrice(product.basePrice)}
-                </p>
+                <div className="min-w-0 flex-1 space-y-1 px-4 py-4">
+                  <p className="text-[0.65rem] uppercase tracking-[0.16em] text-muted/72">
+                    {product.categoryTitle}
+                  </p>
+                  <h3 className="line-clamp-2 text-[0.95rem] font-medium leading-[1.25] text-foreground">
+                    {product.title}
+                  </h3>
+                  <p className="pt-0.5 text-[1.1rem] font-semibold leading-none text-foreground">
+                    {formatPrice(product.basePrice)}
+                  </p>
+                  {product.transferPrice ? (
+                    <p className="mt-1 text-[0.85rem] leading-[1.2] text-[#c47a2c]">
+                      <span className="font-medium opacity-80">Transferencia:</span>{" "}
+                      <span className="font-semibold">{formatPrice(product.transferPrice)}</span>
+                    </p>
+                  ) : null}
+                  <Link
+                    href={product.productHref}
+                    onClick={(event) => event.stopPropagation()}
+                    className="inline-flex pt-1 text-[0.62rem] uppercase tracking-[0.16em] text-foreground/70 transition-colors hover:text-foreground"
+                  >
+                    Ver detalle
+                  </Link>
+                </div>
               </div>
-            </Link>
+            </article>
           ))}
         </div>
       </div>

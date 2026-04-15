@@ -3,7 +3,7 @@ import {
   mapCategoryToSummary,
   mapProductToCatalogCard,
 } from "@/features/catalog/mappers";
-import type { HomePageData } from "@/features/home/types";
+import type { HomeNewInProduct, HomePageData } from "@/features/home/types";
 import { getSanityImageUrl } from "@/integrations/sanity/image";
 import type {
   CategoryDocument,
@@ -23,6 +23,23 @@ type MapHomePageDataInput = {
   promoSettings: PromoSettingsDocument | null;
   siteSettings: SiteSettingsDocument | null;
 };
+
+function mapProductToHomeNewIn(product: ProductDocument): HomeNewInProduct {
+  const card = mapProductToCatalogCard(product);
+
+  return {
+    ...card,
+    stock: product.stock,
+    images: (product.images ?? []).map((image) => ({
+      url: getSanityImageUrl(image, 1200, 1500),
+      alt: image.alt || product.title,
+    })),
+    attributes: (product.attributes ?? []).map((attribute) => ({
+      label: attribute.label,
+      value: attribute.value,
+    })),
+  };
+}
 
 export function mapHomePageData({
   homePage,
@@ -110,7 +127,7 @@ export function mapHomePageData({
       ctaHref: homePage?.campaignFeaturedCtaHref || undefined,
       products: featuredProducts.map(mapProductToCatalogCard),
     },
-    newInProducts: newInProducts.map(mapProductToCatalogCard),
+    newInProducts: newInProducts.map(mapProductToHomeNewIn),
     spotlightProduct: homePage?.spotlightProduct
       ? {
           id: homePage.spotlightProduct._id,

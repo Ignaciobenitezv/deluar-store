@@ -111,6 +111,8 @@ export type ProductDocument = {
   stock: number;
   isFeatured?: boolean;
   isOnOffer?: boolean;
+  showInNewIn?: boolean;
+  newInOrder?: number;
   attributes?: ProductAttribute[];
   seo?: Seo;
 };

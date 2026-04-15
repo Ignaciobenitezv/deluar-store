@@ -79,13 +79,36 @@ export type HomeSpotlightProduct = {
   }[];
 };
 
+export type HomeNewInProduct = {
+  id: string;
+  slug: string;
+  title: string;
+  shortDescription: string;
+  basePrice: number;
+  transferPrice?: number;
+  stock: number;
+  imageUrl: string | null;
+  imageAlt: string;
+  hoverImageUrl?: string | null;
+  hoverImageAlt?: string;
+  categorySlug: string;
+  categoryTitle: string;
+  subcategorySlug?: string;
+  productHref: string;
+  images: ProductDetailImage[];
+  attributes: {
+    label: string;
+    value: string;
+  }[];
+};
+
 export type HomePageData = {
   hero: HomeHero;
   heroSlides: HomeHeroSlide[];
   categories: CatalogCategorySummary[];
   featuredProducts: CatalogProductCard[];
   campaignFeatured: HomeCampaignFeatured;
-  newInProducts: CatalogProductCard[];
+  newInProducts: HomeNewInProduct[];
   spotlightProduct: HomeSpotlightProduct | null;
   offerProducts: CatalogProductCard[];
   promo: HomePromo;

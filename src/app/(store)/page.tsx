@@ -5,9 +5,8 @@ import { HomeCampaignBanner } from "@/features/home/components/home-campaign-ban
 import { HomeCampaignFeaturedProducts } from "@/features/home/components/home-campaign-featured-products";
 import { HomeCategoryRail } from "@/features/home/components/home-category-rail";
 import { HomeCategories } from "@/features/home/components/home-categories";
-import { HomeNewInStrip } from "@/features/home/components/home-new-in-strip";
+import { HomeNewInShowcase } from "@/features/home/components/home-new-in-showcase";
 import { HomeOffersCarousel } from "@/features/home/components/home-offers-carousel";
-import { HomeSpotlightProduct } from "@/features/home/components/home-spotlight-product";
 import { HomeHeroSlider } from "@/features/home/components/home-hero-slider";
 import { HomeInstitutional } from "@/features/home/components/home-institutional";
 import { HomePromoBanner } from "@/features/home/components/home-promo-banner";
@@ -168,8 +167,7 @@ export default async function StoreIndexPage() {
         </div>
       </section>
       <SiteContainer className="space-y-10 py-10 sm:space-y-12 sm:py-12">
-        <HomeNewInStrip products={homePage.newInProducts} />
-        <HomeSpotlightProduct product={homePage.spotlightProduct} />
+        <HomeNewInShowcase products={homePage.newInProducts} />
       </SiteContainer>
       <HomeCategories categories={categoryShowcaseItems} />
 

@@ -32,6 +32,8 @@ export const productCardQuery = groq`
     stock,
     isFeatured,
     isOnOffer,
+    showInNewIn,
+    newInOrder,
     images,
     category->{
       _id,
@@ -93,8 +95,36 @@ export const offerProductsQuery = groq`
 `;
 
 export const newInProductsQuery = groq`
-  *[_type == "product"] | order(_createdAt desc) [0...8]
-  ${productCardQuery}
+  *[_type == "product" && showInNewIn == true]
+    | order(coalesce(newInOrder, 9999) asc, _createdAt desc) [0...8]
+  {
+    _id,
+    _type,
+    title,
+    slug,
+    shortDescription,
+    basePrice,
+    transferPrice,
+    stock,
+    isFeatured,
+    isOnOffer,
+    showInNewIn,
+    newInOrder,
+    images,
+    attributes,
+    category->{
+      _id,
+      _type,
+      title,
+      slug
+    },
+    subcategory->{
+      _id,
+      _type,
+      title,
+      slug
+    }
+  }
 `;
 
 export const productBySlugQuery = groq`
@@ -270,6 +300,8 @@ export const homePageQuery = groq`
       stock,
       isFeatured,
       isOnOffer,
+      showInNewIn,
+      newInOrder,
       images,
       category->{
         _id,
@@ -299,6 +331,8 @@ export const homePageQuery = groq`
       stock,
       isFeatured,
       isOnOffer,
+      showInNewIn,
+      newInOrder,
       images,
       category->{
         _id,
@@ -325,6 +359,8 @@ export const homePageQuery = groq`
       stock,
       isFeatured,
       isOnOffer,
+      showInNewIn,
+      newInOrder,
       images,
       colorVariants[]{
         _key,

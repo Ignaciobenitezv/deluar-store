@@ -152,6 +152,22 @@ export const productSchema = defineType({
       initialValue: false,
     }),
     defineField({
+      name: "showInNewIn",
+      title: "Mostrar en New In",
+      description:
+        "Activalo si queres que este producto aparezca en la seccion New In del home.",
+      type: "boolean",
+      group: "commerce",
+      initialValue: false,
+    }),
+    defineField({
+      name: "newInOrder",
+      title: "Orden en New In",
+      description: "Menor numero = aparece antes en la seccion New In.",
+      type: "number",
+      group: "commerce",
+    }),
+    defineField({
       name: "seo",
       title: "SEO",
       description:
