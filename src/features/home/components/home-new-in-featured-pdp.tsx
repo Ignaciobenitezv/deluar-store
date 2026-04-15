@@ -55,7 +55,7 @@ export function HomeNewInFeaturedPdp({ product }: HomeNewInFeaturedPdpProps) {
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -24 }}
         transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
-        className="grid gap-5 lg:grid-cols-[4.75rem_minmax(0,1fr)_24rem] lg:items-start lg:gap-6"
+        className="grid gap-8 lg:grid-cols-[4.75rem_minmax(0,1.5fr)_24rem] lg:items-start lg:gap-x-4 lg:gap-y-8"
       >
           <div className="order-2 flex gap-2 overflow-x-auto pb-1 lg:order-1 lg:hidden lg:pb-0">
             {product.images.map((image, index) => (
@@ -75,8 +75,8 @@ export function HomeNewInFeaturedPdp({ product }: HomeNewInFeaturedPdpProps) {
             ))}
           </div>
 
-          <div className="order-2 hidden lg:order-1 lg:flex lg:h-[34rem] lg:flex-col lg:items-center lg:justify-start">
-            <div className="relative h-full w-[4.5rem]">
+          <div className="order-2 hidden lg:order-1 lg:flex lg:h-[43rem] lg:self-start lg:flex-col lg:items-center lg:justify-start">
+            <div className="relative h-full max-h-full w-[4.5rem] overflow-hidden">
               {product.images.length > visibleThumbnailCount ? (
                 <button
                   type="button"
@@ -100,7 +100,7 @@ export function HomeNewInFeaturedPdp({ product }: HomeNewInFeaturedPdpProps) {
                 </button>
               ) : null}
 
-              <div className="h-full overflow-hidden">
+              <div className="h-full max-h-full overflow-hidden">
                 {canScrollThumbnailsUp ? (
                   <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-16 bg-gradient-to-b from-[#f6efe6] to-transparent" />
                 ) : null}
@@ -173,21 +173,20 @@ export function HomeNewInFeaturedPdp({ product }: HomeNewInFeaturedPdpProps) {
             </div>
           </div>
 
-          <div className="order-1 overflow-hidden rounded-[0.45rem] bg-[#f6efe6] lg:order-2">
-            <div className="relative aspect-[1/1.06] min-h-[22rem] sm:min-h-[25rem] lg:h-[34rem] lg:min-h-0">
-              {activeImage?.url ? (
-                <Image
-                  src={activeImage.url}
-                  alt={activeImage.alt}
-                  fill
-                  sizes="(min-width: 1024px) 48vw, 100vw"
-                  className="object-cover"
-                />
-              ) : null}
-            </div>
+          <div className="order-1 flex items-start justify-start lg:order-2">
+            {activeImage?.url ? (
+              <Image
+                src={activeImage.url}
+                alt={activeImage.alt}
+                width={1200}
+                height={1500}
+                sizes="(min-width: 1024px) min(52vw, 800px), 100vw"
+                className="h-auto max-h-[43rem] w-full max-w-full object-contain object-left-top lg:w-auto"
+              />
+            ) : null}
           </div>
 
-          <div className="order-3 space-y-5 lg:pt-1">
+          <div className="order-3 flex flex-col items-start space-y-5 lg:pt-1">
             <div className="space-y-2.5">
               <p className="text-[0.66rem] uppercase tracking-[0.18em] text-muted/76">
                 {product.categoryTitle}
@@ -258,8 +257,8 @@ export function HomeNewInFeaturedPdp({ product }: HomeNewInFeaturedPdpProps) {
               </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="min-w-[12rem] max-w-[22rem]">
+            <div className="mt-6 flex w-full max-w-[320px] flex-col items-start gap-2">
+              <div className="w-full">
                 <AddToCartButton
                   quantity={quantity}
                   disabled={!hasStock}
@@ -278,7 +277,7 @@ export function HomeNewInFeaturedPdp({ product }: HomeNewInFeaturedPdpProps) {
               </div>
               <Link
                 href={product.productHref}
-                className="block text-center text-[0.64rem] uppercase tracking-[0.16em] text-foreground/74 transition-colors hover:text-foreground"
+                className="w-full text-center text-xs uppercase tracking-wide text-neutral-500 transition-colors hover:text-foreground"
               >
                 Ver detalle
               </Link>
