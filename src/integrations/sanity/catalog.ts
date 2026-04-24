@@ -26,6 +26,14 @@ type CategoryWithSubcategories = CategoryDocument & {
   subcategories?: SubcategoryDocument[];
 };
 
+type CatalogFilters = {
+  q?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  inStock?: boolean;
+  color?: string;
+};
+
 function getFallbackCategorySummary(): CatalogCategorySummary[] {
   return storefrontNavigation.categories.map((category) => ({
     id: category.id,
@@ -46,8 +54,38 @@ function getFallbackSubcategory(categorySlug: string, subcategorySlug: string) {
     ?.items.find((item) => item.cmsKey === subcategorySlug);
 }
 
-export const getCatalogPageData = cache(async (query = ""): Promise<CatalogPageData> => {
-  const normalizedQuery = query.trim();
+function matchesCatalogFilters(product: ProductDocument, filters: CatalogFilters) {
+  if (typeof filters.minPrice === "number" && product.basePrice < filters.minPrice) {
+    return false;
+  }
+
+  if (typeof filters.maxPrice === "number" && product.basePrice > filters.maxPrice) {
+    return false;
+  }
+
+  if (filters.inStock && product.stock <= 0) {
+    return false;
+  }
+
+  if (filters.color) {
+    const normalizedColor = filters.color.trim().toLowerCase();
+    const hasColorVariant = (product.colorVariants ?? []).some((variant) => {
+      const title = variant.title?.trim().toLowerCase() ?? "";
+      const value = variant.value?.trim().toLowerCase() ?? "";
+
+      return title === normalizedColor || value === normalizedColor;
+    });
+
+    if (!hasColorVariant) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+export const getCatalogPageData = cache(async (filters: CatalogFilters = {}): Promise<CatalogPageData> => {
+  const normalizedQuery = filters.q?.trim() ?? "";
   const searchPattern = `*${normalizedQuery}*`;
 
   try {
@@ -58,13 +96,14 @@ export const getCatalogPageData = cache(async (query = ""): Promise<CatalogPageD
       ),
       sanityFetch<CategoryWithSubcategories[]>(categoryTreeQuery),
     ]);
+    const filteredProducts = products.filter((product) => matchesCatalogFilters(product, filters));
 
     return {
       title: normalizedQuery ? `Resultados para: ${normalizedQuery}` : "Productos",
       description: normalizedQuery
         ? `Productos de DELUAR que coinciden con "${normalizedQuery}".`
         : "Seleccion de objetos y textiles para hogar y decoracion curados para DELUAR.",
-      products: products.map(mapProductToCatalogCard),
+      products: filteredProducts.map(mapProductToCatalogCard),
       categories: categories.length
         ? categories.map(mapCategoryToSummary)
         : getFallbackCategorySummary(),

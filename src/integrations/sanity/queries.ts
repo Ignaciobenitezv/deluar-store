@@ -35,6 +35,14 @@ export const productCardQuery = groq`
     showInNewIn,
     newInOrder,
     images,
+    colorVariants[]{
+      title,
+      value
+    },
+    attributes[]{
+      label,
+      value
+    },
     category->{
       _id,
       _type,
