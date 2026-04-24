@@ -1,8 +1,26 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useCart } from "@/features/cart/cart-context";
 
-export function CartTrigger() {
+type CartTriggerProps = {
+  variant?: "desktop" | "mobile";
+};
+
+function CartIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M6.75 7.25h10.5l-.8 8.25H7.55l-.8-8.25Z"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 7.25a3 3 0 0 1 6 0" />
+    </svg>
+  );
+}
+
+export function CartTrigger({ variant = "desktop" }: CartTriggerProps) {
   const { toggleCart, totals, isHydrated } = useCart();
   const itemCount = isHydrated ? totals.itemCount : 0;
 
@@ -11,12 +29,28 @@ export function CartTrigger() {
       type="button"
       onClick={toggleCart}
       aria-label="Abrir carrito"
-      className="relative inline-flex h-11 min-w-11 items-center justify-center rounded-full border border-border bg-white/75 px-4 text-sm tracking-[0.06em] transition-colors hover:border-foreground/30"
+      className={cn(
+        "relative inline-flex items-center justify-center transition-colors",
+        variant === "desktop"
+          ? "h-10 rounded-full border border-neutral-200 bg-white px-4 text-neutral-900 hover:border-[#e8e0d8]"
+          : "h-9 w-9 text-foreground hover:text-[var(--color-accent-strong)]",
+      )}
     >
-      <span>Carrito</span>
-      <span className="ml-2 inline-flex min-w-6 items-center justify-center rounded-full bg-foreground px-1.5 py-0.5 text-[0.68rem] text-background">
-        {itemCount}
-      </span>
+      {variant === "desktop" ? (
+        <>
+          <span className="h-[18px] w-[18px]">
+            <CartIcon />
+          </span>
+          <span className="ml-2 text-xs text-neutral-500">({itemCount})</span>
+        </>
+      ) : (
+        <>
+          <span className="h-[18px] w-[18px]"><CartIcon /></span>
+          <span className="absolute -right-1 -top-1 inline-flex min-w-[18px] items-center justify-center rounded-full bg-foreground px-1 py-[1px] text-[0.58rem] leading-none text-background">
+            {itemCount}
+          </span>
+        </>
+      )}
     </button>
   );
 }

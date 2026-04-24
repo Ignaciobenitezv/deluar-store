@@ -6,23 +6,35 @@ import { CatalogPageHeader } from "@/features/catalog/components/catalog-page-he
 import { ProductGrid } from "@/features/catalog/components/product-grid";
 import { buildMetadata } from "@/lib/seo";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const catalog = await getCatalogPageData();
+type ProductsPageProps = {
+  searchParams?: Promise<{
+    q?: string;
+  }>;
+};
+
+export async function generateMetadata({
+  searchParams,
+}: ProductsPageProps): Promise<Metadata> {
+  const resolvedSearchParams = await searchParams;
+  const query = resolvedSearchParams?.q?.trim() ?? "";
+  const catalog = await getCatalogPageData(query);
 
   return buildMetadata({
     title: catalog.title,
     description: catalog.description,
-    path: "/productos",
+    path: query ? `/productos?q=${encodeURIComponent(query)}` : "/productos",
   });
 }
 
-export default async function ProductsPage() {
-  const catalog = await getCatalogPageData();
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const query = resolvedSearchParams?.q?.trim() ?? "";
+  const catalog = await getCatalogPageData(query);
 
   return (
     <SiteContainer className="space-y-8">
       <CatalogPageHeader
-        eyebrow="Catalogo"
+        eyebrow={query ? "Busqueda" : "Catalogo"}
         title={catalog.title}
         description={catalog.description}
         categories={catalog.categories}
@@ -32,8 +44,12 @@ export default async function ProductsPage() {
         <ProductGrid products={catalog.products} />
       ) : (
         <CatalogEmptyState
-          title="Todavia no hay productos publicados"
-          description="Cuando cargues productos en Sanity, esta grilla mostrara automaticamente el catalogo real de DELUAR."
+          title={query ? "No encontramos productos para tu busqueda" : "Todavia no hay productos publicados"}
+          description={
+            query
+              ? `No hay productos que coincidan con "${query}".`
+              : "Cuando cargues productos en Sanity, esta grilla mostrara automaticamente el catalogo real de DELUAR."
+          }
         />
       )}
     </SiteContainer>

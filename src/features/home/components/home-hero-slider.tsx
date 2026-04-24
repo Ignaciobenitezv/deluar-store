@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { HomeBenefitsMarquee } from "@/features/home/components/home-benefits-marquee";
 import { cn } from "@/lib/utils";
 import type { HomeHeroSlide } from "@/features/home/types";
 
@@ -170,10 +169,6 @@ export function HomeHeroSlider({ slides }: HomeHeroSliderProps) {
             ) : null}
           </div>
         </div>
-      </div>
-
-      <div className="relative z-10 w-full">
-        <HomeBenefitsMarquee />
       </div>
     </section>
   );

@@ -42,8 +42,8 @@ export function DesktopNavigation({ navigation }: DesktopNavigationProps) {
                   </span>
                 </Link>
 
-                <div className="pointer-events-none absolute inset-x-0 top-full z-30 border-t border-border/60 bg-[linear-gradient(180deg,rgba(255,250,244,0.995),rgba(248,242,235,0.99))] opacity-0 transition duration-200 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
-                  <div className="py-9 xl:py-11">
+                <div className="pointer-events-none absolute left-1/2 top-full z-30 w-screen -translate-x-1/2 border-t border-border/60 bg-[linear-gradient(180deg,rgba(255,250,244,0.995),rgba(248,242,235,0.99))] opacity-0 transition duration-200 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
+                  <div className="mx-auto w-full max-w-[112rem] px-6 py-9 sm:px-8 lg:px-12 xl:px-16 xl:py-11">
                     <div className="mb-8 flex items-end justify-between gap-6 border-b border-border/60 pb-5">
                       <div className="space-y-2.5">
                         <p className="text-[0.67rem] uppercase tracking-[0.28em] text-muted">

@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import { mapProductToCatalogCard } from "@/features/catalog/mappers";
 import { SiteContainer } from "@/components/layout/site-container";
 import { HomeCampaignBanner } from "@/features/home/components/home-campaign-banner";
+import { HomeBenefitsStrip } from "@/features/home/components/home-benefits-strip";
 import { HomeCampaignFeaturedProducts } from "@/features/home/components/home-campaign-featured-products";
 import { HomeCategoryRail } from "@/features/home/components/home-category-rail";
-import { HomeCategories } from "@/features/home/components/home-categories";
+import { HomeEditorialCategoryBanners } from "@/features/home/components/home-editorial-category-banners";
 import { HomeNewInShowcase } from "@/features/home/components/home-new-in-showcase";
 import { HomeOffersCarousel } from "@/features/home/components/home-offers-carousel";
 import { HomeHeroSlider } from "@/features/home/components/home-hero-slider";
-import { HomeInstitutional } from "@/features/home/components/home-institutional";
-import { HomePromoBanner } from "@/features/home/components/home-promo-banner";
+import { HomeNewsletterBanner } from "@/features/home/components/home-newsletter-banner";
 import type {
   HomeCategoryRailItem,
   HomeCategoryShowcaseItem,
@@ -142,7 +142,7 @@ export default async function StoreIndexPage() {
   const homePage = await getHomePageData();
   const heroSlides = buildHomeSlides(homePage);
   const categoryRailItems = await buildHomeCategoryRail();
-  const categoryShowcaseItems = await buildHomeCategoryShowcase(homePage);
+  await buildHomeCategoryShowcase(homePage);
 
   return (
     <>
@@ -169,13 +169,15 @@ export default async function StoreIndexPage() {
       <SiteContainer className="space-y-10 py-10 sm:space-y-12 sm:py-12">
         <HomeNewInShowcase products={homePage.newInProducts} />
       </SiteContainer>
-      <HomeCategories categories={categoryShowcaseItems} />
+      <HomeEditorialCategoryBanners />
 
-      <SiteContainer className="space-y-14 pt-12 sm:space-y-16 sm:pt-14">
-        <HomeOffersCarousel products={homePage.offerProducts} />
-        <HomePromoBanner promo={homePage.promo} />
-        <HomeInstitutional institutional={homePage.institutional} />
-      </SiteContainer>
+      <section className="bg-white py-12 sm:py-14">
+        <SiteContainer>
+          <HomeOffersCarousel products={homePage.offerProducts} />
+        </SiteContainer>
+      </section>
+      <HomeBenefitsStrip />
+      <HomeNewsletterBanner />
     </>
   );
 }

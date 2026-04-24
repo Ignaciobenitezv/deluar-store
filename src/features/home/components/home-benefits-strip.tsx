@@ -1,26 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
 const benefits = [
   {
     id: "shipping",
-    title: "Enviamos tu compra",
-    text: "Entregas a todo el pais",
+    title: "Envios",
+    text: "A todo el pais",
     icon: ShippingIcon,
   },
   {
     id: "payment",
-    title: "Paga como quieras",
-    text: "Tarjetas de credito o efectivo",
+    title: "20% OFF",
+    text: "Con pago en efectivo",
     icon: PaymentIcon,
   },
   {
-    id: "security",
-    title: "Compra con seguridad",
-    text: "Tus datos siempre protegidos",
-    icon: SecurityIcon,
+    id: "installments",
+    title: "Cuotas",
+    text: "En todos nuestros productos",
+    icon: InstallmentsIcon,
   },
 ];
 
@@ -39,111 +38,81 @@ function ShippingIcon() {
 function PaymentIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
-      <rect x="3.25" y="6" width="17.5" height="12" rx="2.5" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 10.25h16.5M7.25 14.75h3.5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6.25 7.5h11.5M7 12h10M7.75 16.5h8.5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 5.75v12.5" />
     </svg>
   );
 }
 
-function SecurityIcon() {
+function InstallmentsIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 3.75c1.96 1.48 4.46 2.39 7 2.55v5.53c0 4.18-2.55 7.77-7 9.92-4.45-2.15-7-5.74-7-9.92V6.3c2.54-.16 5.04-1.07 7-2.55Z"
-      />
-      <path strokeLinecap="round" strokeLinejoin="round" d="m9.6 12.25 1.65 1.65 3.3-3.55" />
+      <rect x="3.25" y="5.75" width="17.5" height="12.5" rx="2.5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M7 10.25h10M7.5 14.25h4.25" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="m15.5 16 1.4 1.4 2.85-2.9" />
     </svg>
   );
 }
 
-function BenefitCard({
-  benefit,
-  centered = false,
-}: {
-  benefit: (typeof benefits)[number];
-  centered?: boolean;
-}) {
+function BenefitItem({ benefit }: { benefit: (typeof benefits)[number] }) {
   const Icon = benefit.icon;
 
   return (
-    <article
-      className={cn(
-        "flex gap-4",
-        centered ? "flex-col items-center text-center" : "items-start",
-      )}
-    >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/58 text-[var(--color-accent-strong)] sm:h-11 sm:w-11">
-        <span className="h-4.5 w-4.5 sm:h-5 sm:w-5">
+    <article className="flex flex-col items-center text-center">
+      <div className="flex h-10 w-10 items-center justify-center text-foreground/78">
+        <span className="h-5 w-5">
           <Icon />
         </span>
       </div>
-
-      <div className={cn("space-y-1.5", centered && "max-w-[18rem]")}>
-        <h2 className="text-[1rem] font-semibold tracking-[0.015em] text-foreground sm:text-[1.04rem] lg:text-[1.08rem]">
-          {benefit.title}
-        </h2>
-        <p className="text-[0.9rem] leading-6 text-muted sm:text-[0.95rem] lg:max-w-[24ch]">
-          {benefit.text}
-        </p>
-      </div>
+      <h2 className="mt-4 text-[1.05rem] font-semibold tracking-[0.01em] text-foreground">
+        {benefit.title}
+      </h2>
+      <p className="mt-2 max-w-[18rem] text-[0.88rem] leading-6 text-muted">
+        {benefit.text}
+      </p>
     </article>
   );
 }
 
 export function HomeBenefitsStrip() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const activeBenefit = benefits[activeIndex];
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setActiveIndex((current) => (current + 1) % benefits.length);
+    }, 5000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   return (
-    <section className="pb-10 pt-7 sm:pb-12 sm:pt-8">
-      <div className="w-full bg-[linear-gradient(180deg,rgba(255,252,247,0.7),rgba(244,237,228,0.46))]">
-        <div className="lg:hidden">
-          <div className="overflow-hidden py-6 sm:py-7">
-            <div
-              className="flex transition-transform duration-300 ease-out"
-              style={{ transform: `translateX(-${activeIndex * 100}%)` }}
-            >
-              {benefits.map((benefit) => (
-                <div key={benefit.id} className="w-full shrink-0 px-2">
-                  <div className="mx-auto flex min-h-[9.75rem] max-w-[20rem] items-center justify-center px-3">
-                    <BenefitCard benefit={benefit} centered />
-                  </div>
-                </div>
-              ))}
-            </div>
+    <section className="bg-white py-14 sm:py-16">
+      <div className="mx-auto w-full max-w-[78rem] px-6 sm:px-8 lg:px-10">
+        <div className="md:hidden">
+          <div
+            key={activeBenefit.id}
+            className="animate-[fade-up_420ms_cubic-bezier(0.16,1,0.3,1)]"
+          >
+            <BenefitItem benefit={activeBenefit} />
           </div>
-
-          <div className="flex items-center justify-center gap-2 pb-4">
+          <div className="mt-6 flex items-center justify-center gap-2">
             {benefits.map((benefit, index) => (
-              <button
+              <span
                 key={benefit.id}
-                type="button"
-                aria-label={`Ver beneficio ${index + 1}`}
-                aria-pressed={index === activeIndex}
-                onClick={() => setActiveIndex(index)}
-                className={cn(
-                  "h-2 rounded-full transition-all duration-300",
+                className={
                   index === activeIndex
-                    ? "w-5 bg-[var(--color-accent-strong)]"
-                    : "w-2 bg-border/80 hover:bg-border",
-                )}
+                    ? "h-1.5 w-6 rounded-full bg-[var(--color-accent-strong)] transition-all duration-300"
+                    : "h-1.5 w-1.5 rounded-full bg-border transition-all duration-300"
+                }
               />
             ))}
           </div>
         </div>
 
-        <div className="hidden lg:grid lg:grid-cols-3">
-          {benefits.map((benefit, index) => (
-            <article
-              key={benefit.id}
-              className={cn(
-                "min-h-[10.5rem] px-10 py-10",
-                index < benefits.length - 1 && "border-r border-border/45",
-              )}
-            >
-              <BenefitCard benefit={benefit} />
-            </article>
+        <div className="hidden gap-12 md:grid md:grid-cols-3 md:gap-10 lg:gap-14">
+          {benefits.map((benefit) => (
+            <BenefitItem key={benefit.id} benefit={benefit} />
           ))}
         </div>
       </div>

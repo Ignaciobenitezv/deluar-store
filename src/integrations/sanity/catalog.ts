@@ -18,6 +18,7 @@ import {
   productBySlugQuery,
   productsByCategoryQuery,
   relatedProductsByCategoryQuery,
+  searchProductsQuery,
 } from "@/integrations/sanity/queries";
 import type { CategoryDocument, ProductDocument, SubcategoryDocument } from "@/types/cms";
 
@@ -45,17 +46,24 @@ function getFallbackSubcategory(categorySlug: string, subcategorySlug: string) {
     ?.items.find((item) => item.cmsKey === subcategorySlug);
 }
 
-export const getCatalogPageData = cache(async (): Promise<CatalogPageData> => {
+export const getCatalogPageData = cache(async (query = ""): Promise<CatalogPageData> => {
+  const normalizedQuery = query.trim();
+  const searchPattern = `*${normalizedQuery}*`;
+
   try {
     const [products, categories] = await Promise.all([
-      sanityFetch<ProductDocument[]>(allProductsQuery),
+      sanityFetch<ProductDocument[]>(
+        normalizedQuery ? searchProductsQuery : allProductsQuery,
+        normalizedQuery ? { q: normalizedQuery, pattern: searchPattern } : {},
+      ),
       sanityFetch<CategoryWithSubcategories[]>(categoryTreeQuery),
     ]);
 
     return {
-      title: "Productos",
-      description:
-        "Seleccion de objetos y textiles para hogar y decoracion curados para DELUAR.",
+      title: normalizedQuery ? `Resultados para: ${normalizedQuery}` : "Productos",
+      description: normalizedQuery
+        ? `Productos de DELUAR que coinciden con "${normalizedQuery}".`
+        : "Seleccion de objetos y textiles para hogar y decoracion curados para DELUAR.",
       products: products.map(mapProductToCatalogCard),
       categories: categories.length
         ? categories.map(mapCategoryToSummary)
@@ -63,9 +71,10 @@ export const getCatalogPageData = cache(async (): Promise<CatalogPageData> => {
     };
   } catch {
     return {
-      title: "Productos",
-      description:
-        "Seleccion de objetos y textiles para hogar y decoracion curados para DELUAR.",
+      title: normalizedQuery ? `Resultados para: ${normalizedQuery}` : "Productos",
+      description: normalizedQuery
+        ? `Productos de DELUAR que coinciden con "${normalizedQuery}".`
+        : "Seleccion de objetos y textiles para hogar y decoracion curados para DELUAR.",
       products: [],
       categories: getFallbackCategorySummary(),
     };

@@ -15,12 +15,12 @@ export async function SiteShell({ children, className }: SiteShellProps) {
 
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden">
-      <AnnouncementBar navigation={navigation} />
+      <AnnouncementBar navigation={navigation} className="lg:hidden" />
       <SiteHeader navigation={navigation} />
-      <main className={cn("flex-1 pb-14 pt-8 sm:pb-16 sm:pt-10", className)}>
+      <main className={cn("flex-1 pb-14 pt-0 sm:pb-16", className)}>
         {children}
       </main>
-      <SiteFooter />
+      <SiteFooter navigation={navigation} />
     </div>
   );
 }

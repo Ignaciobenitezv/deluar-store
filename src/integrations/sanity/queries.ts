@@ -55,6 +55,19 @@ export const allProductsQuery = groq`
   ${productCardQuery}
 `;
 
+export const searchProductsQuery = groq`
+  *[
+    _type == "product" &&
+    (
+      $q == "" ||
+      title match $pattern ||
+      coalesce(shortDescription, "") match $pattern ||
+      pt::text(description) match $pattern
+    )
+  ] | order(isFeatured desc, _createdAt desc) [0...48]
+  ${productCardQuery}
+`;
+
 export const categoryBySlugQuery = groq`
   *[_type == "category" && slug.current == $slug][0] {
     _id,
