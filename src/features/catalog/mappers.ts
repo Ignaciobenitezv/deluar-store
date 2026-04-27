@@ -24,6 +24,7 @@ export function mapProductToCatalogCard(product: ProductDocument): CatalogProduc
     shortDescription: product.shortDescription,
     basePrice: product.basePrice,
     transferPrice: product.transferPrice,
+    stock: product.stock,
     imageUrl: getSanityImageUrl(image),
     imageAlt: image?.alt || product.title,
     hoverImageUrl: getSanityImageUrl(hoverImage),

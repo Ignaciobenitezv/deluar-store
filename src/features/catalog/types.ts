@@ -1,3 +1,12 @@
+export type CatalogSort =
+  | "price-asc"
+  | "price-desc"
+  | "title-asc"
+  | "title-desc"
+  | "newest"
+  | "oldest"
+  | "best-selling";
+
 export type CatalogProductCard = {
   id: string;
   title: string;
@@ -5,6 +14,7 @@ export type CatalogProductCard = {
   shortDescription: string;
   basePrice: number;
   transferPrice?: number;
+  stock: number;
   imageUrl: string | null;
   imageAlt: string;
   hoverImageUrl?: string | null;

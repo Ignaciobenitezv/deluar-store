@@ -8,6 +8,7 @@ import {
 import type {
   CatalogCategorySummary,
   CatalogPageData,
+  CatalogSort,
   ProductDetailData,
 } from "@/features/catalog/types";
 import { sanityFetch } from "@/integrations/sanity/client";
@@ -32,6 +33,7 @@ type CatalogFilters = {
   maxPrice?: number;
   inStock?: boolean;
   color?: string;
+  sort?: CatalogSort;
 };
 
 function getFallbackCategorySummary(): CatalogCategorySummary[] {
@@ -84,6 +86,42 @@ function matchesCatalogFilters(product: ProductDocument, filters: CatalogFilters
   return true;
 }
 
+function sortProducts(products: ProductDocument[], sort?: CatalogSort) {
+  const sortedProducts = [...products];
+
+  switch (sort) {
+    case "price-asc":
+      sortedProducts.sort((left, right) => left.basePrice - right.basePrice);
+      break;
+    case "price-desc":
+      sortedProducts.sort((left, right) => right.basePrice - left.basePrice);
+      break;
+    case "title-asc":
+      sortedProducts.sort((left, right) => left.title.localeCompare(right.title, "es"));
+      break;
+    case "title-desc":
+      sortedProducts.sort((left, right) => right.title.localeCompare(left.title, "es"));
+      break;
+    case "oldest":
+      sortedProducts.sort(
+        (left, right) =>
+          new Date(left._createdAt).getTime() - new Date(right._createdAt).getTime(),
+      );
+      break;
+    case "newest":
+      sortedProducts.sort(
+        (left, right) =>
+          new Date(right._createdAt).getTime() - new Date(left._createdAt).getTime(),
+      );
+      break;
+    case "best-selling":
+    default:
+      break;
+  }
+
+  return sortedProducts;
+}
+
 export const getCatalogPageData = cache(async (filters: CatalogFilters = {}): Promise<CatalogPageData> => {
   const normalizedQuery = filters.q?.trim() ?? "";
   const searchPattern = `*${normalizedQuery}*`;
@@ -97,13 +135,14 @@ export const getCatalogPageData = cache(async (filters: CatalogFilters = {}): Pr
       sanityFetch<CategoryWithSubcategories[]>(categoryTreeQuery),
     ]);
     const filteredProducts = products.filter((product) => matchesCatalogFilters(product, filters));
+    const sortedProducts = sortProducts(filteredProducts, filters.sort);
 
     return {
       title: normalizedQuery ? `Resultados para: ${normalizedQuery}` : "Productos",
       description: normalizedQuery
         ? `Productos de DELUAR que coinciden con "${normalizedQuery}".`
         : "Seleccion de objetos y textiles para hogar y decoracion curados para DELUAR.",
-      products: filteredProducts.map(mapProductToCatalogCard),
+      products: sortedProducts.map(mapProductToCatalogCard),
       categories: categories.length
         ? categories.map(mapCategoryToSummary)
         : getFallbackCategorySummary(),
@@ -123,6 +162,7 @@ export const getCatalogPageData = cache(async (filters: CatalogFilters = {}): Pr
 export async function getCategoryCatalogPageData(
   categorySlug: string,
   subcategorySlug = "",
+  filters: CatalogFilters = {},
 ): Promise<CatalogPageData | null> {
   try {
     const [category, products] = await Promise.all([
@@ -144,7 +184,10 @@ export async function getCategoryCatalogPageData(
           matchedSubcategory?.description ||
           category.description ||
           "Coleccion curada para explorar productos por categoria.",
-        products: products.map(mapProductToCatalogCard),
+        products: sortProducts(
+          products.filter((product) => matchesCatalogFilters(product, filters)),
+          filters.sort,
+        ).map(mapProductToCatalogCard),
         categories: [mapCategoryToSummary(category)],
       };
     }

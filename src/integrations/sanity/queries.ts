@@ -24,6 +24,7 @@ export const productCardQuery = groq`
   {
     _id,
     _type,
+    _createdAt,
     title,
     slug,
     shortDescription,

@@ -21,17 +21,17 @@ export function ProductGallery({ images, title }: ProductGalleryProps) {
   }, [images]);
 
   return (
-    <section className="grid gap-4 lg:grid-cols-[7.2rem_minmax(0,1fr)] lg:gap-5">
-      <div className="order-2 grid grid-cols-4 gap-3 lg:order-1 lg:grid-cols-1">
+    <section className="grid gap-3 lg:grid-cols-[5.2rem_minmax(0,1fr)] lg:gap-3">
+      <div className="order-2 grid grid-cols-4 gap-1.5 lg:order-1 lg:grid-cols-1 lg:gap-2">
         {gallery.slice(0, 5).map((image, index) => (
           <button
             key={`${image.alt}-${index}`}
             type="button"
             onClick={() => setActiveIndex(index)}
-            className={`relative aspect-[4/5] overflow-hidden rounded-[1.1rem] border bg-[#efe5d8] transition-all ${
+            className={`relative aspect-[4/5] overflow-hidden rounded-md border bg-[#efe5d8] transition-all ${
               index === activeIndex
-                ? "border-foreground/30 ring-1 ring-foreground/15"
-                : "border-border/80 hover:border-foreground/18"
+                ? "border-foreground/40 opacity-100"
+                : "border-border/60 opacity-60 hover:opacity-90 hover:border-foreground/20"
             }`}
           >
             {image.url ? (
@@ -39,7 +39,7 @@ export function ProductGallery({ images, title }: ProductGalleryProps) {
                 src={image.url}
                 alt={image.alt}
                 fill
-                sizes="180px"
+                sizes="120px"
                 className="object-cover"
               />
             ) : (
@@ -51,27 +51,24 @@ export function ProductGallery({ images, title }: ProductGalleryProps) {
         ))}
       </div>
 
-      <div className="order-1 space-y-4 lg:order-2">
-        <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-border/80 bg-[#efe5d8] shadow-[0_26px_64px_rgba(58,40,26,0.08)]">
+      <div className="order-1 lg:order-2">
+        <div className="relative aspect-[4/5] overflow-hidden rounded-xl border border-border/60 bg-[#efe5d8]">
           {activeImage?.url ? (
-          <Image
-            src={activeImage.url}
-            alt={activeImage.alt}
-            fill
-            sizes="(min-width: 1024px) 50vw, 100vw"
-            className="object-cover"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center px-6 text-center text-sm uppercase tracking-[0.24em] text-muted">
-            Sin imagen
-          </div>
-        )}
-        </div>
-        <div className="flex items-center justify-between gap-4 rounded-[1.3rem] border border-border/70 bg-white/68 px-4 py-3 text-xs uppercase tracking-[0.22em] text-muted">
-          <span>Galeria</span>
-          <span>
+            <Image
+              src={activeImage.url}
+              alt={activeImage.alt}
+              fill
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className="object-cover"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center px-6 text-center text-sm uppercase tracking-[0.24em] text-muted">
+              Sin imagen
+            </div>
+          )}
+          <div className="absolute bottom-3 right-3 rounded-full bg-black/30 px-2.5 py-1 text-[0.65rem] tracking-[0.18em] text-white/90">
             {Math.min(activeIndex + 1, gallery.length)} / {gallery.length}
-          </span>
+          </div>
         </div>
       </div>
     </section>

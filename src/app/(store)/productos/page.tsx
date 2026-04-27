@@ -4,6 +4,8 @@ import { getCatalogPageData } from "@/integrations/sanity/catalog";
 import { CatalogEmptyState } from "@/features/catalog/components/catalog-empty-state";
 import { CatalogPageHeader } from "@/features/catalog/components/catalog-page-header";
 import { ProductGrid } from "@/features/catalog/components/product-grid";
+import { CatalogSortDrawer } from "@/features/catalog/components/catalog-sort-drawer";
+import type { CatalogSort } from "@/features/catalog/types";
 import { buildMetadata } from "@/lib/seo";
 
 type ProductSearchParams = {
@@ -12,6 +14,7 @@ type ProductSearchParams = {
   maxPrice?: string | string[];
   color?: string | string[];
   inStock?: string | string[];
+  sort?: string | string[];
 };
 
 type ProductsPageProps = {
@@ -44,12 +47,31 @@ function parseBooleanSearchParam(value: string | string[] | undefined) {
   return normalizedValue === "true" || normalizedValue === "1";
 }
 
+function parseSortSearchParam(value: string | string[] | undefined): CatalogSort | undefined {
+  const normalizedValue = getSingleSearchParam(value)?.trim() as CatalogSort | undefined;
+
+  if (
+    normalizedValue === "price-asc" ||
+    normalizedValue === "price-desc" ||
+    normalizedValue === "title-asc" ||
+    normalizedValue === "title-desc" ||
+    normalizedValue === "newest" ||
+    normalizedValue === "oldest" ||
+    normalizedValue === "best-selling"
+  ) {
+    return normalizedValue;
+  }
+
+  return undefined;
+}
+
 function buildProductsPath(params: {
   q?: string;
   minPrice?: number;
   maxPrice?: number;
   color?: string;
   inStock?: boolean;
+  sort?: CatalogSort;
 }) {
   const search = new URLSearchParams();
 
@@ -73,6 +95,10 @@ function buildProductsPath(params: {
     search.set("inStock", "true");
   }
 
+  if (params.sort) {
+    search.set("sort", params.sort);
+  }
+
   const queryString = search.toString();
 
   return queryString ? `/productos?${queryString}` : "/productos";
@@ -88,6 +114,7 @@ export async function generateMetadata({
     maxPrice: parseNumericSearchParam(resolvedSearchParams?.maxPrice),
     color: getSingleSearchParam(resolvedSearchParams?.color)?.trim() ?? "",
     inStock: parseBooleanSearchParam(resolvedSearchParams?.inStock),
+    sort: parseSortSearchParam(resolvedSearchParams?.sort),
   };
   const catalog = await getCatalogPageData(filters);
 
@@ -105,12 +132,14 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const maxPrice = parseNumericSearchParam(resolvedSearchParams?.maxPrice);
   const color = getSingleSearchParam(resolvedSearchParams?.color)?.trim() ?? "";
   const inStock = parseBooleanSearchParam(resolvedSearchParams?.inStock);
+  const sort = parseSortSearchParam(resolvedSearchParams?.sort);
   const currentFilters = {
     q: query,
     minPrice,
     maxPrice,
     color,
     inStock,
+    sort,
   };
   const hasActiveFilters = Boolean(
     query || typeof minPrice === "number" || typeof maxPrice === "number" || inStock || color,
@@ -151,6 +180,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     maxPrice,
     color,
     inStock,
+    sort,
   });
 
   return (
@@ -175,7 +205,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
                 <div className="space-y-8">
                   <div className="space-y-3">
-                    <h2 className="text-xs uppercase tracking-[0.18em] text-neutral-500">Categorias</h2>
+                    <h2 className="text-xs uppercase tracking-[0.2em] text-neutral-400">Categorias</h2>
                     <ul className="space-y-3 text-sm text-foreground">
                       {catalog.categories.map((category) => (
                         <li key={category.id}>
@@ -187,13 +217,13 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                     </ul>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-4 border-t border-neutral-100 pt-6">
                     <div className="flex items-center justify-between gap-3">
-                      <h2 className="text-xs uppercase tracking-[0.18em] text-neutral-500">Filtrar por</h2>
+                      <h2 className="text-xs uppercase tracking-[0.2em] text-neutral-400">Filtrar por</h2>
                       {hasActiveFilters ? (
                         <a
                           href="/productos"
-                          className="text-xs uppercase tracking-[0.14em] text-neutral-500 transition hover:text-foreground hover:underline"
+                          className="text-xs text-neutral-500 transition hover:underline"
                         >
                           Limpiar filtros
                         </a>
@@ -201,7 +231,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                     </div>
                     <div className="space-y-4 text-sm text-foreground">
                       <div className="space-y-2">
-                        <h3 className="text-xs uppercase tracking-[0.14em] text-neutral-500">Disponibilidad</h3>
+                        <h3 className="text-[11px] uppercase tracking-[0.15em] text-neutral-500">Disponibilidad</h3>
                         <ul className="space-y-2 text-neutral-700">
                           <li>
                             <a
@@ -209,22 +239,28 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                                 ...currentFilters,
                                 inStock: true,
                               })}
-                              className={inStock ? "font-medium text-foreground underline" : "transition hover:underline"}
+                              className={inStock ? "flex items-center gap-2 text-sm font-medium text-foreground transition hover:text-black" : "flex items-center gap-2 text-sm text-neutral-700 transition hover:text-black"}
                             >
+                              <span className="flex h-4 w-4 items-center justify-center rounded-full border border-neutral-300">
+                                {inStock ? <span className="h-2 w-2 rounded-full bg-black" /> : null}
+                              </span>
                               En stock
                             </a>
                           </li>
                         </ul>
                       </div>
                       <div className="space-y-2">
-                        <h3 className="text-xs uppercase tracking-[0.14em] text-neutral-500">Precio</h3>
+                        <h3 className="text-[11px] uppercase tracking-[0.15em] text-neutral-500">Precio</h3>
                         <ul className="space-y-2 text-neutral-700">
                           {priceOptions.map((option) => (
                             <li key={option.label}>
                               <a
                                 href={option.href}
-                                className={option.isActive ? "font-medium text-foreground underline" : "transition hover:underline"}
+                                className={option.isActive ? "flex items-center gap-2 text-sm font-medium text-foreground transition hover:text-black" : "flex items-center gap-2 text-sm text-neutral-700 transition hover:text-black"}
                               >
+                                <span className="flex h-4 w-4 items-center justify-center rounded-full border border-neutral-300">
+                                  {option.isActive ? <span className="h-2 w-2 rounded-full bg-black" /> : null}
+                                </span>
                                 {option.label}
                               </a>
                             </li>
@@ -247,12 +283,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                     {query ? `Resultados para: ${query}` : "Productos"}
                   </h2>
                 </div>
-                <button
-                  type="button"
-                  className="inline-flex h-10 items-center rounded-full border border-neutral-200 bg-white px-4 text-sm text-foreground"
-                >
-                  Ordenar
-                </button>
+                <CatalogSortDrawer sort={sort} />
               </div>
 
               {catalog.products.length > 0 ? (

@@ -72,70 +72,78 @@ function buildHomeSlides(homePage: Awaited<ReturnType<typeof getHomePageData>>):
 async function buildHomeCategoryShowcase(
   homePage: Awaited<ReturnType<typeof getHomePageData>>,
 ): Promise<HomeCategoryShowcaseItem[]> {
-  const categoryBySlug = new Map(
-    homePage.categories.map((category) => [normalizeSlug(category.slug), category]),
-  );
+  try {
+    const categoryBySlug = new Map(
+      homePage.categories.map((category) => [normalizeSlug(category.slug), category]),
+    );
 
-  const selectedCategories = SHOWCASE_CATEGORY_ORDER.map((slug) => categoryBySlug.get(slug)).filter(
-    (category): category is NonNullable<typeof category> => Boolean(category),
-  );
+    const selectedCategories = SHOWCASE_CATEGORY_ORDER.map((slug) => categoryBySlug.get(slug)).filter(
+      (category): category is NonNullable<typeof category> => Boolean(category),
+    );
 
-  const showcaseItems = await Promise.all(
-    selectedCategories.map(async (category) => {
-      const productDocuments = await sanityFetch<ProductDocument[]>(productsByCategoryQuery, {
-        categorySlug: category.slug,
-        subcategorySlug: "",
-      });
-      const products = productDocuments.map(mapProductToCatalogCard);
-      const showcaseImage =
-        productDocuments.find((product) => product.images?.[0]?.image?.asset?._ref)?.images?.[0];
-      const featuredFallbackProduct = homePage.featuredProducts.find(
-        (product) =>
-          normalizeSlug(product.categorySlug) === normalizeSlug(category.slug) && product.imageUrl,
-      );
+    const showcaseItems = await Promise.all(
+      selectedCategories.map(async (category) => {
+        const productDocuments = await sanityFetch<ProductDocument[]>(productsByCategoryQuery, {
+          categorySlug: category.slug,
+          subcategorySlug: "",
+        });
+        const products = productDocuments.map(mapProductToCatalogCard);
+        const showcaseImage =
+          productDocuments.find((product) => product.images?.[0]?.image?.asset?._ref)?.images?.[0];
+        const featuredFallbackProduct = homePage.featuredProducts.find(
+          (product) =>
+            normalizeSlug(product.categorySlug) === normalizeSlug(category.slug) && product.imageUrl,
+        );
 
-      return {
-        id: category.id,
-        title: category.title,
-        slug: category.slug,
-        description: category.description,
-        href: category.href,
-        imageUrl:
-          getSanityImageUrl(showcaseImage, 1400, 1560) ?? featuredFallbackProduct?.imageUrl ?? null,
-        imageAlt: showcaseImage?.alt || featuredFallbackProduct?.imageAlt || category.title,
-        products,
-      };
-    }),
-  );
+        return {
+          id: category.id,
+          title: category.title,
+          slug: category.slug,
+          description: category.description,
+          href: category.href,
+          imageUrl:
+            getSanityImageUrl(showcaseImage, 1400, 1560) ?? featuredFallbackProduct?.imageUrl ?? null,
+          imageAlt: showcaseImage?.alt || featuredFallbackProduct?.imageAlt || category.title,
+          products,
+        };
+      }),
+    );
 
-  return showcaseItems.filter((item) => item.products.length > 0);
+    return showcaseItems.filter((item) => item.products.length > 0);
+  } catch {
+    return [];
+  }
 }
 
 async function buildHomeCategoryRail(): Promise<HomeCategoryRailItem[]> {
-  const categories = await sanityFetch<CategoryDocument[]>(categoryTreeQuery);
+  try {
+    const categories = await sanityFetch<CategoryDocument[]>(categoryTreeQuery);
 
-  const categoryItems = await Promise.all(
-    categories.map(async (category) => {
-      const productDocuments = await sanityFetch<ProductDocument[]>(productsByCategoryQuery, {
-        categorySlug: category.slug.current,
-        subcategorySlug: "",
-      });
+    const categoryItems = await Promise.all(
+      categories.map(async (category) => {
+        const productDocuments = await sanityFetch<ProductDocument[]>(productsByCategoryQuery, {
+          categorySlug: category.slug.current,
+          subcategorySlug: "",
+        });
 
-      const representativeImage =
-        productDocuments.find((product) => product.images?.[0]?.image?.asset?._ref)?.images?.[0];
+        const representativeImage =
+          productDocuments.find((product) => product.images?.[0]?.image?.asset?._ref)?.images?.[0];
 
-      return {
-        id: category._id,
-        title: category.title,
-        slug: category.slug.current,
-        href: `/productos/${category.slug.current}`,
-        imageUrl: getSanityImageUrl(representativeImage, 720, 720),
-        imageAlt: representativeImage?.alt || category.title,
-      };
-    }),
-  );
+        return {
+          id: category._id,
+          title: category.title,
+          slug: category.slug.current,
+          href: `/productos/${category.slug.current}`,
+          imageUrl: getSanityImageUrl(representativeImage, 720, 720),
+          imageAlt: representativeImage?.alt || category.title,
+        };
+      }),
+    );
 
-  return categoryItems;
+    return categoryItems;
+  } catch {
+    return [];
+  }
 }
 
 export default async function StoreIndexPage() {
