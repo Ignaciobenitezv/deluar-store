@@ -15,10 +15,12 @@ type ProductsDropdownProps = {
 
 export function ProductsDropdown({ item, categories }: ProductsDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const closeTimer = useRef<ReturnType<typeof setTimeout>>();
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const open = useCallback(() => {
-    clearTimeout(closeTimer.current);
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+    }
     setIsOpen(true);
   }, []);
 

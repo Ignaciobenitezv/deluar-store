@@ -36,7 +36,7 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
             "relative w-full overflow-hidden",
             isDesktopCatalog
               ? "aspect-square rounded-none bg-[#f4ede4]"
-              : "aspect-square rounded-none bg-[#efe5d8]",
+              : "aspect-square rounded-none bg-neutral-100 p-3 sm:bg-[#efe5d8] sm:p-0",
           )}
         >
           {product.imageUrl ? (
@@ -45,7 +45,10 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
               alt={product.imageAlt}
               fill
               sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 100vw"
-              className="h-full w-full rounded-none object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              className={cn(
+                "h-full w-full rounded-none transition-transform duration-500 group-hover:scale-[1.03]",
+                isDesktopCatalog ? "object-cover" : "object-contain sm:object-cover",
+              )}
             />
           ) : (
             <div className="flex h-full items-center justify-center px-6 text-center text-sm uppercase tracking-[0.24em] text-muted">
@@ -62,15 +65,11 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
             : "space-y-1 px-1.5 pb-2 pt-2 sm:space-y-1.5 sm:px-3 sm:pb-4 sm:pt-3",
         )}
       >
-        <div className="space-y-1">
+        <div className="w-full overflow-hidden">
           <Link href={product.productHref} className="block">
             <h2
-              className={cn(
-                "font-medium text-foreground",
-                isDesktopCatalog
-                  ? "line-clamp-2 text-sm text-neutral-900"
-                  : "truncate text-[13px] font-normal leading-tight text-neutral-900 sm:line-clamp-2 sm:whitespace-normal sm:text-sm sm:font-medium sm:tracking-[0.01em]",
-              )}
+              title={product.title}
+              className="truncate text-sm font-medium text-neutral-800"
             >
               {product.title}
             </h2>
@@ -79,12 +78,7 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
 
         <div className="space-y-1 sm:space-y-0.5">
           <p
-            className={cn(
-              "text-foreground",
-              isDesktopCatalog
-                ? "text-sm font-semibold text-neutral-900"
-                : "text-[16px] font-medium text-neutral-900 sm:text-sm sm:font-semibold",
-            )}
+            className="text-sm font-semibold text-neutral-900 sm:text-base"
           >
             {formatPrice(product.basePrice)}
           </p>
@@ -97,7 +91,7 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
           {product.transferPrice ? (
             <p
               className={cn(
-                "hidden text-xs text-neutral-600 sm:block",
+                "mt-1 hidden text-xs text-neutral-600 sm:block sm:text-sm",
                 isDesktopCatalog && "block",
               )}
             >

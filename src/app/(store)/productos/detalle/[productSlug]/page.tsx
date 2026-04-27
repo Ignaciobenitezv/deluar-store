@@ -59,7 +59,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   }
 
   return (
-    <SiteContainer className="py-2">
+    <SiteContainer className="pt-2 pb-0">
       <ProductDetail product={product} />
     </SiteContainer>
   );

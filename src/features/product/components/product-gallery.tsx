@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useCallback, useState } from "react";
 import type { ProductDetailImage } from "@/features/catalog/types";
+
+const DESKTOP_PAGE = 5;
 
 type ProductGalleryProps = {
   images: ProductDetailImage[];
@@ -10,56 +12,251 @@ type ProductGalleryProps = {
 };
 
 export function ProductGallery({ images, title }: ProductGalleryProps) {
-  const gallery = images.length
-    ? images
-    : [{ url: null, alt: title }];
+  const gallery = images.length ? images : [{ url: null, alt: title }];
   const [activeIndex, setActiveIndex] = useState(0);
+  const [thumbStart, setThumbStart] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
   const activeImage = gallery[activeIndex] ?? gallery[0];
+  const hasMore = gallery.length > DESKTOP_PAGE;
+  const canUp = thumbStart > 0;
+  const canDown = thumbStart + DESKTOP_PAGE < gallery.length;
+  const visibleThumbs = gallery.slice(thumbStart, thumbStart + DESKTOP_PAGE);
+
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const closeLightbox = () => setLightboxOpen(false);
+
+  const lightboxPrev = useCallback(() => {
+    setLightboxIndex((i) => Math.max(i - 1, 0));
+  }, []);
+
+  const lightboxNext = useCallback(() => {
+    setLightboxIndex((i) => Math.min(i + 1, gallery.length - 1));
+  }, [gallery.length]);
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") lightboxPrev();
+      if (e.key === "ArrowRight") lightboxNext();
+      if (e.key === "Escape") closeLightbox();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightboxOpen, lightboxPrev, lightboxNext]);
+
+  useEffect(() => {
+    document.body.style.overflow = lightboxOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [lightboxOpen]);
 
   useEffect(() => {
     setActiveIndex(0);
+    setThumbStart(0);
   }, [images]);
 
-  return (
-    <section className="grid gap-3 lg:grid-cols-[5.2rem_minmax(0,1fr)] lg:gap-3">
-      <div className="order-2 grid grid-cols-4 gap-1.5 lg:order-1 lg:grid-cols-1 lg:gap-2">
-        {gallery.slice(0, 5).map((image, index) => (
-          <button
-            key={`${image.alt}-${index}`}
-            type="button"
-            onClick={() => setActiveIndex(index)}
-            className={`relative aspect-[4/5] overflow-hidden rounded-md border bg-[#efe5d8] transition-all ${
-              index === activeIndex
-                ? "border-foreground/40 opacity-100"
-                : "border-border/60 opacity-60 hover:opacity-90 hover:border-foreground/20"
-            }`}
-          >
-            {image.url ? (
-              <Image
-                src={image.url}
-                alt={image.alt}
-                fill
-                sizes="120px"
-                className="object-cover"
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center text-[0.68rem] uppercase tracking-[0.18em] text-muted">
-                Foto
-              </div>
-            )}
-          </button>
-        ))}
-      </div>
+  const lightboxImage = gallery[lightboxIndex];
 
-      <div className="order-1 lg:order-2">
-        <div className="relative aspect-[4/5] overflow-hidden rounded-xl border border-border/60 bg-[#efe5d8]">
+  return (
+    <>
+      {/* ── LIGHTBOX ── */}
+      {lightboxOpen && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90"
+          onClick={closeLightbox}
+        >
+          {/* Close */}
+          <button
+            type="button"
+            onClick={closeLightbox}
+            aria-label="Cerrar"
+            className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          {/* Counter */}
+          <div className="absolute top-4 left-1/2 z-10 -translate-x-1/2 rounded-full bg-white/10 px-3 py-1 text-xs tracking-widest text-white">
+            {lightboxIndex + 1} / {gallery.length}
+          </div>
+
+          {/* Prev */}
+          {lightboxIndex > 0 && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); lightboxPrev(); }}
+              aria-label="Anterior"
+              className="absolute left-3 top-1/2 z-10 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/25"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          )}
+
+          {/* Next */}
+          {lightboxIndex < gallery.length - 1 && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); lightboxNext(); }}
+              aria-label="Siguiente"
+              className="absolute right-3 top-1/2 z-10 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/25"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          )}
+
+          {/* Image */}
+          {lightboxImage?.url && (
+            <div
+              className="relative h-[90svh] w-[90vw] max-w-3xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Image
+                src={lightboxImage.url}
+                alt={lightboxImage.alt}
+                fill
+                sizes="90vw"
+                className="object-contain"
+                priority
+              />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── MOBILE ── */}
+      <div className="flex w-full flex-col gap-2 overflow-hidden lg:hidden">
+        <button
+          type="button"
+          onClick={() => openLightbox(activeIndex)}
+          className="relative h-[44svh] w-full overflow-hidden rounded-xl border border-border/60 bg-[#efe5d8]"
+        >
           {activeImage?.url ? (
             <Image
               src={activeImage.url}
               alt={activeImage.alt}
               fill
-              sizes="(min-width: 1024px) 50vw, 100vw"
+              sizes="100vw"
               className="object-cover"
+              priority
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center text-sm uppercase tracking-[0.24em] text-muted">
+              Sin imagen
+            </div>
+          )}
+          <div className="absolute bottom-3 right-3 rounded-full bg-black/30 px-2.5 py-1 text-[0.65rem] tracking-[0.18em] text-white/90">
+            {activeIndex + 1} / {gallery.length}
+          </div>
+        </button>
+
+        {gallery.length > 1 && (
+          <div className="flex w-full gap-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+            {gallery.map((image, index) => (
+              <button
+                key={`mob-${index}`}
+                type="button"
+                onClick={() => setActiveIndex(index)}
+                className={`relative aspect-square w-[27vw] shrink-0 overflow-hidden rounded-md border bg-[#efe5d8] transition-all ${
+                  index === activeIndex
+                    ? "border-foreground/40 opacity-100"
+                    : "border-border/60 opacity-55 hover:opacity-90"
+                }`}
+              >
+                {image.url ? (
+                  <Image src={image.url} alt={image.alt} fill sizes="27vw" className="object-cover" />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-[0.6rem] uppercase tracking-widest text-muted">
+                    Foto
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ── DESKTOP ── */}
+      <div className="hidden lg:grid lg:grid-cols-[5.2rem_minmax(0,1fr)] lg:gap-3">
+        {/* Thumbnails column */}
+        <div className="flex flex-col gap-0 self-start">
+          {hasMore && (
+            <button
+              type="button"
+              onClick={() => setThumbStart((s) => Math.max(s - 1, 0))}
+              disabled={!canUp}
+              aria-label="Fotos anteriores"
+              className="flex h-7 w-full items-center justify-center text-muted transition-colors hover:text-foreground disabled:opacity-25"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+              </svg>
+            </button>
+          )}
+          <div className="flex flex-col gap-2">
+            {visibleThumbs.map((image, i) => {
+              const globalIndex = thumbStart + i;
+              return (
+                <button
+                  key={`desk-${globalIndex}`}
+                  type="button"
+                  onClick={() => setActiveIndex(globalIndex)}
+                  className={`relative aspect-[4/5] w-full overflow-hidden rounded-md border bg-[#efe5d8] transition-all ${
+                    globalIndex === activeIndex
+                      ? "border-foreground/40 opacity-100"
+                      : "border-border/60 opacity-55 hover:opacity-90 hover:border-foreground/20"
+                  }`}
+                >
+                  {image.url ? (
+                    <Image src={image.url} alt={image.alt} fill sizes="120px" className="object-cover" />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-[0.68rem] uppercase tracking-[0.18em] text-muted">
+                      Foto
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          {hasMore && (
+            <button
+              type="button"
+              onClick={() => setThumbStart((s) => Math.min(s + 1, gallery.length - DESKTOP_PAGE))}
+              disabled={!canDown}
+              aria-label="Más fotos"
+              className="flex h-7 w-full items-center justify-center text-muted transition-colors hover:text-foreground disabled:opacity-25"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        {/* Main image — clickeable para lightbox */}
+        <button
+          type="button"
+          onClick={() => openLightbox(activeIndex)}
+          className="relative aspect-[4/5] w-full overflow-hidden rounded-xl border border-border/60 bg-[#efe5d8] cursor-zoom-in"
+        >
+          {activeImage?.url ? (
+            <Image
+              src={activeImage.url}
+              alt={activeImage.alt}
+              fill
+              sizes="50vw"
+              className="object-cover"
+              priority
             />
           ) : (
             <div className="flex h-full items-center justify-center px-6 text-center text-sm uppercase tracking-[0.24em] text-muted">
@@ -67,10 +264,10 @@ export function ProductGallery({ images, title }: ProductGalleryProps) {
             </div>
           )}
           <div className="absolute bottom-3 right-3 rounded-full bg-black/30 px-2.5 py-1 text-[0.65rem] tracking-[0.18em] text-white/90">
-            {Math.min(activeIndex + 1, gallery.length)} / {gallery.length}
+            {activeIndex + 1} / {gallery.length}
           </div>
-        </div>
+        </button>
       </div>
-    </section>
+    </>
   );
 }

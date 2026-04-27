@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ProductGrid } from "@/features/catalog/components/product-grid";
+import { ProductCard } from "@/features/catalog/components/product-card";
 import type { ProductDetailData } from "@/features/catalog/types";
 import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import { ProductGallery } from "@/features/product/components/product-gallery";
@@ -23,7 +24,12 @@ type ProductDetailProps = {
 export function ProductDetail({ product }: ProductDetailProps) {
   const [activeVariantId, setActiveVariantId] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const activeVariant = product.colorVariants.find((variant) => variant.id === activeVariantId);
+  const [descOpen, setDescOpen] = useState(true);
+  const relatedScrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const activeVariant = product.colorVariants.find((v) => v.id === activeVariantId);
   const activeStock = activeVariant?.stock ?? product.stock;
   const activeBasePrice = activeVariant?.basePrice ?? product.basePrice;
   const activeTransferPrice = activeVariant?.transferPrice ?? product.transferPrice;
@@ -32,251 +38,265 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const activePrimaryImageAlt = activeVariant?.primaryImageAlt ?? product.primaryImageAlt;
   const hasStock = activeStock > 0;
   const quantityMax = Math.min(Math.max(activeStock, 1), 10);
+  const checkRelatedScroll = () => {
+    const el = relatedScrollRef.current;
+    if (!el) return;
 
-  const increaseQuantity = () => {
-    setQuantity((current) => Math.min(current + 1, quantityMax));
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+
+    setCanScrollLeft(scrollLeft > 5);
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 5);
+  };
+  const scrollRelatedLeft = () => {
+    relatedScrollRef.current?.scrollBy({ left: -200, behavior: "smooth" });
+  };
+  const scrollRelatedRight = () => {
+    relatedScrollRef.current?.scrollBy({ left: 200, behavior: "smooth" });
   };
 
-  const decreaseQuantity = () => {
-    setQuantity((current) => Math.max(current - 1, 1));
-  };
+  useEffect(() => {
+    checkRelatedScroll();
+  }, []);
 
   return (
-    <div className="space-y-14">
-      <section className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(24rem,0.9fr)] lg:gap-14">
+    <div className="space-y-20 pt-6 pb-0">
+      <section className="grid gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)] lg:items-start lg:gap-14">
         <ProductGallery images={activeImages} title={product.title} />
 
-        <div className="space-y-7 rounded-[2rem] border border-border/80 bg-[linear-gradient(180deg,rgba(255,253,249,0.97),rgba(244,238,230,0.92))] px-6 py-7 shadow-[0_24px_60px_rgba(58,40,26,0.06)] sm:px-8 lg:sticky lg:top-28">
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.22em] text-muted">
-              <Link href={`/productos/${product.categorySlug}`}>{product.categoryTitle}</Link>
-              {product.subcategoryTitle ? <span>/ {product.subcategoryTitle}</span> : null}
-            </div>
-            <h1 className="text-4xl font-semibold tracking-[0.02em] text-foreground sm:text-[2.8rem] sm:leading-[1.05]">
+        <div className="space-y-7 lg:sticky lg:top-28">
+          <nav className="text-[0.7rem] uppercase tracking-[0.22em] text-muted">
+            <Link href={`/productos/${product.categorySlug}`} className="hover:text-foreground transition-colors">
+              {product.categoryTitle}
+            </Link>
+            {product.subcategoryTitle && (
+              <>
+                <span className="mx-2">/</span>
+                <span>{product.subcategoryTitle}</span>
+              </>
+            )}
+          </nav>
+
+          <div>
+            <h1 className="text-[1.85rem] font-semibold leading-tight tracking-tight text-foreground sm:text-[2.2rem]">
               {product.title}
             </h1>
-            <p className="max-w-xl text-sm leading-7 text-muted sm:text-base">
-              {product.shortDescription}
-            </p>
-          </div>
-
-          <div className="space-y-4 rounded-[1.5rem] border border-border/75 bg-white/72 px-5 py-5">
-            <div className="space-y-1">
-              <p className="text-xs uppercase tracking-[0.24em] text-muted">Precio</p>
-              <p className="text-3xl font-semibold tracking-[0.01em] text-foreground sm:text-[2.15rem]">
-                {formatPrice(activeBasePrice)}
+            {product.shortDescription && (
+              <p className="mt-2.5 text-sm leading-6 text-muted">
+                {product.shortDescription}
               </p>
-            </div>
+            )}
+          </div>
+
+          <div className="space-y-1">
+            <p className="text-[1.9rem] font-semibold tracking-tight text-foreground sm:text-[2.1rem]">
+              {formatPrice(activeBasePrice)}
+            </p>
             {activeTransferPrice ? (
-              <div className="rounded-[1.2rem] bg-[rgba(167,88,60,0.08)] px-4 py-3">
-                <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-accent-strong)]">
-                  Precio con transferencia
-                </p>
-                <p className="mt-1 text-lg font-medium text-foreground">
+              <p className="text-sm text-muted">
+                <span className="font-medium text-foreground">
                   {formatPrice(activeTransferPrice)}
-                </p>
-              </div>
+                </span>{" "}
+                con transferencia
+              </p>
             ) : null}
           </div>
 
-          <div className="space-y-4 rounded-[1.5rem] border border-border/75 bg-surface/85 px-5 py-5">
-            {product.colorVariants.length > 0 ? (
-              <div className="space-y-3">
-                <div className="space-y-1">
-                  <p className="text-xs uppercase tracking-[0.22em] text-muted">Color</p>
-                  <p className="text-sm text-foreground">
-                    {activeVariant?.title || "Sin seleccionar"}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {product.colorVariants.map((variant) => (
-                    <button
-                      key={variant.id}
-                      type="button"
-                      onClick={() => {
-                        setActiveVariantId(variant.id);
-                        setQuantity(1);
-                      }}
-                      aria-label={`Seleccionar color ${variant.title}`}
-                      className={`group rounded-[1rem] border p-1.5 transition-all ${
-                        activeVariant?.id === variant.id
-                          ? "border-foreground/22 bg-white shadow-[0_10px_24px_rgba(58,40,26,0.08)]"
-                          : "border-border/75 bg-white/74 hover:border-foreground/18"
-                      }`}
-                    >
-                      <div className="relative h-14 w-11 overflow-hidden rounded-[0.75rem] bg-[#efe5d8]">
-                        {variant.thumbnailUrl ? (
-                          <Image
-                            src={variant.thumbnailUrl}
-                            alt={variant.thumbnailAlt}
-                            fill
-                            sizes="44px"
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full items-center justify-center px-2 text-center text-[0.55rem] uppercase tracking-[0.18em] text-muted">
-                            Foto
-                          </div>
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
+          <div className="h-px bg-border/50" />
 
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="space-y-1">
-                <p className="text-xs uppercase tracking-[0.22em] text-muted">Disponibilidad</p>
-                <p
-                  className={`text-sm font-medium ${
-                    hasStock ? "text-foreground" : "text-muted"
-                  }`}
-                >
-                  {hasStock ? `Stock disponible: ${activeStock}` : "Sin stock disponible"}
-                </p>
-              </div>
-              <span
-                className={`inline-flex rounded-full px-3 py-1 text-xs uppercase tracking-[0.18em] ${
-                  hasStock
-                    ? "bg-[rgba(104,126,97,0.12)] text-[rgb(85,109,79)]"
-                    : "bg-[rgba(124,111,97,0.12)] text-muted"
-                }`}
-              >
-                {hasStock ? "Disponible" : "Agotado"}
-              </span>
-            </div>
-
+          {product.colorVariants.length > 0 ? (
             <div className="space-y-3">
-              <p className="text-xs uppercase tracking-[0.22em] text-muted">Cantidad</p>
-              <div className="flex items-center gap-4">
-                <div className="inline-flex items-center rounded-full border border-border/80 bg-white/82">
+              <p className="text-[0.7rem] uppercase tracking-[0.22em] text-muted">
+                Color:{" "}
+                <span className="text-foreground">
+                  {activeVariant?.title ?? "Sin seleccionar"}
+                </span>
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {product.colorVariants.map((variant) => (
                   <button
+                    key={variant.id}
                     type="button"
-                    onClick={decreaseQuantity}
-                    disabled={!hasStock || quantity <= 1}
-                    aria-label="Reducir cantidad"
-                    className="inline-flex h-12 w-12 items-center justify-center text-base text-muted transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                    onClick={() => {
+                      setActiveVariantId(variant.id);
+                      setQuantity(1);
+                    }}
+                    aria-label={`Color ${variant.title}`}
+                    className={`relative h-14 w-11 overflow-hidden rounded border transition-all ${
+                      activeVariant?.id === variant.id
+                        ? "border-foreground/50 ring-1 ring-foreground/15"
+                        : "border-border hover:border-foreground/30"
+                    }`}
                   >
-                    -
+                    {variant.thumbnailUrl ? (
+                      <Image
+                        src={variant.thumbnailUrl}
+                        alt={variant.thumbnailAlt}
+                        fill
+                        sizes="44px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="h-full bg-[#efe5d8]" />
+                    )}
                   </button>
-                  <span className="min-w-12 text-center text-base font-medium text-foreground">
-                    {quantity}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={increaseQuantity}
-                    disabled={!hasStock || quantity >= quantityMax}
-                    aria-label="Aumentar cantidad"
-                    className="inline-flex h-12 w-12 items-center justify-center text-base text-muted transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    +
-                  </button>
-                </div>
-                <p className="text-sm leading-6 text-muted">
-                  Elige la cantidad antes de sumar el producto al carrito.
-                </p>
+                ))}
               </div>
             </div>
+          ) : null}
 
-            <AddToCartButton
-              quantity={quantity}
-              disabled={!hasStock}
-              product={{
-                id: activeVariant ? `${product.id}:${activeVariant.id}` : product.id,
-                productId: product.id,
-                slug: product.slug,
-                title: product.title,
-                imageUrl: activePrimaryImageUrl,
-                imageAlt: activePrimaryImageAlt,
-                basePrice: activeBasePrice,
-                transferPrice: activeTransferPrice,
-                variantId: activeVariant?.id,
-                variantLabel: activeVariant?.title,
-                variantValue: activeVariant?.value,
-                sku: activeVariant?.sku,
-                productHref: product.productHref,
-              }}
+          <div className="flex items-center gap-2.5">
+            <span
+              className={`h-2 w-2 rounded-full ${
+                hasStock ? "bg-green-500" : "bg-neutral-300"
+              }`}
             />
+            <span className="text-sm text-muted">
+              {hasStock
+                ? `Stock disponible: ${activeStock}`
+                : "Sin stock disponible"}
+            </span>
+          </div>
 
-            <div className="grid gap-3 rounded-[1.2rem] border border-border/70 bg-white/64 px-4 py-4 text-sm leading-6 text-muted sm:grid-cols-2">
-              <p>Seleccion curada para hogar y decoracion.</p>
-              <p>El envio y el pago se confirmaran en el siguiente paso.</p>
+          <div className="flex items-stretch gap-3">
+            <div className="flex items-center rounded border border-border/70 bg-white/50">
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.max(q - 1, 1))}
+                disabled={!hasStock || quantity <= 1}
+                aria-label="Reducir cantidad"
+                className="flex h-12 w-10 items-center justify-center text-lg text-muted transition-colors hover:text-foreground disabled:opacity-35"
+              >
+                −
+              </button>
+              <span className="min-w-8 text-center text-sm font-medium text-foreground">
+                {quantity}
+              </span>
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.min(q + 1, quantityMax))}
+                disabled={!hasStock || quantity >= quantityMax}
+                aria-label="Aumentar cantidad"
+                className="flex h-12 w-10 items-center justify-center text-lg text-muted transition-colors hover:text-foreground disabled:opacity-35"
+              >
+                +
+              </button>
+            </div>
+            <div className="flex-1">
+              <AddToCartButton
+                quantity={quantity}
+                disabled={!hasStock}
+                product={{
+                  id: activeVariant ? `${product.id}:${activeVariant.id}` : product.id,
+                  productId: product.id,
+                  slug: product.slug,
+                  title: product.title,
+                  imageUrl: activePrimaryImageUrl,
+                  imageAlt: activePrimaryImageAlt,
+                  basePrice: activeBasePrice,
+                  transferPrice: activeTransferPrice,
+                  variantId: activeVariant?.id,
+                  variantLabel: activeVariant?.title,
+                  variantValue: activeVariant?.value,
+                  sku: activeVariant?.sku,
+                  productHref: product.productHref,
+                }}
+              />
             </div>
           </div>
 
           {product.attributes.length > 0 ? (
-            <div className="space-y-4">
-              <h2 className="text-xs uppercase tracking-[0.24em] text-muted">Detalles del producto</h2>
-              <dl className="grid gap-3 sm:grid-cols-2">
+            <div className="border-t border-border/50 pt-5 space-y-3">
+              <p className="text-[0.7rem] uppercase tracking-[0.22em] text-muted">
+                Detalles del producto
+              </p>
+              <div className="flex flex-wrap gap-2">
                 {product.attributes.map((attribute) => (
-                  <div
+                  <span
                     key={`${attribute.label}-${attribute.value}`}
-                    className="rounded-[1.2rem] border border-border/70 bg-white/70 px-4 py-4"
+                    className="rounded border border-border/60 bg-white/40 px-3 py-1.5 text-xs text-foreground/80"
                   >
-                    <dt className="text-xs uppercase tracking-[0.18em] text-muted">
-                      {attribute.label}
-                    </dt>
-                    <dd className="mt-2 text-sm leading-6 text-foreground/88">{attribute.value}</dd>
-                  </div>
+                    <span className="text-muted">{attribute.label}:</span>{" "}
+                    {attribute.value}
+                  </span>
                 ))}
-              </dl>
+              </div>
+            </div>
+          ) : null}
+
+          {product.description.length > 0 ? (
+            <div className="border-t border-border/50">
+              <button
+                type="button"
+                onClick={() => setDescOpen((o) => !o)}
+                className="flex w-full items-center justify-between py-4 text-left"
+              >
+                <span className="text-[0.7rem] uppercase tracking-[0.22em] text-muted">
+                  Descripción
+                </span>
+                <span className="text-base text-muted">{descOpen ? "−" : "+"}</span>
+              </button>
+              {descOpen ? (
+                <div className="space-y-3 pb-4 text-sm leading-7 text-muted">
+                  {product.description.map((paragraph, index) => (
+                    <p key={`${product.id}-p-${index}`}>{paragraph}</p>
+                  ))}
+                </div>
+              ) : null}
             </div>
           ) : null}
         </div>
       </section>
 
-      <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-10">
-        <div className="space-y-5 rounded-[2rem] border border-border/80 bg-surface/92 px-6 py-8 sm:px-8">
-          <div className="space-y-2">
-            <p className="text-xs uppercase tracking-[0.24em] text-muted">
-              Descripcion
-            </p>
-            <h2 className="text-3xl font-semibold tracking-[0.03em] text-foreground">
-              Pensado para integrarse con naturalidad en tu casa
-            </h2>
-          </div>
-          <div className="space-y-4 text-sm leading-7 text-foreground/80 sm:text-base">
-            {product.description.length > 0 ? (
-              product.description.map((paragraph, index) => (
-                <p key={`${product.id}-paragraph-${index}`}>{paragraph}</p>
-              ))
-            ) : (
-              <p>No hay una descripcion adicional cargada para este producto.</p>
-            )}
-          </div>
-        </div>
-
-        <aside className="rounded-[2rem] border border-border/80 bg-[linear-gradient(180deg,rgba(255,253,249,0.95),rgba(244,237,228,0.92))] px-6 py-8">
-          <div className="space-y-4">
-            <p className="text-xs uppercase tracking-[0.24em] text-muted">Compra online</p>
-            <h2 className="text-2xl font-semibold tracking-[0.03em] text-foreground">
-              Compra simple y clara
-            </h2>
-            <p className="text-sm leading-7 text-muted">
-              La compra online y la coordinacion de envio se integraran en fases
-              siguientes. Esta vista ya consume el producto real desde Sanity.
-            </p>
-            <div className="rounded-[1.2rem] border border-border/70 bg-white/68 px-4 py-4 text-sm leading-6 text-muted">
-              Tu carrito, checkout base y creacion de orden ya estan activos para este
-              producto.
-            </div>
-          </div>
-        </aside>
-      </section>
-
       {product.relatedProducts.length > 0 ? (
-        <section className="space-y-6 rounded-[2rem] border border-border/80 bg-surface/70 px-5 py-6 sm:px-6 sm:py-7">
-          <div className="space-y-2">
-            <p className="text-xs uppercase tracking-[0.24em] text-muted">
-              Relacionados
-            </p>
-            <h2 className="text-3xl font-semibold tracking-[0.03em] text-foreground">
-              Tambien puede interesarte
+        <div className="relative left-1/2 right-1/2 -mb-14 w-screen -ml-[50vw] -mr-[50vw] bg-white pt-8 pb-14 sm:-mb-16 sm:pb-16">
+          <section className="mx-auto max-w-[1200px] space-y-5 px-4 lg:px-8">
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">
+              Productos similares
             </h2>
-          </div>
-          <ProductGrid products={product.relatedProducts} />
-        </section>
+
+            <div className="relative lg:hidden">
+              <button
+                type="button"
+                onClick={scrollRelatedLeft}
+                aria-label="Productos similares anteriores"
+                className={`absolute left-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/50 text-lg font-light leading-none text-foreground shadow-sm backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
+                  canScrollLeft ? "opacity-70" : "pointer-events-none opacity-0"
+                }`}
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                onClick={scrollRelatedRight}
+                aria-label="Productos similares siguientes"
+                className={`absolute right-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/50 text-lg font-light leading-none text-foreground shadow-sm backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
+                  canScrollRight ? "opacity-70" : "pointer-events-none opacity-0"
+                }`}
+              >
+                ›
+              </button>
+
+              {/* Mobile: horizontal scroll */}
+              <div
+                ref={relatedScrollRef}
+                className="flex w-full gap-4 overflow-x-auto scroll-smooth"
+                style={{ scrollbarWidth: "none" }}
+                onScroll={checkRelatedScroll}
+              >
+                {product.relatedProducts.map((p) => (
+                  <div key={p.id} className="w-[45vw] shrink-0">
+                    <ProductCard product={p} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Desktop: grid */}
+            <div className="hidden lg:block">
+              <ProductGrid products={product.relatedProducts} variant="desktopCatalog" />
+            </div>
+          </section>
+        </div>
       ) : null}
     </div>
   );
