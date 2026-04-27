@@ -224,41 +224,37 @@ export function HomeNewInFeaturedPdp({ product }: HomeNewInFeaturedPdpProps) {
               ) : null}
             </div>
 
-            <div className="space-y-2">
-              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-muted/74">Cantidad</p>
-              <div className="flex flex-wrap items-center gap-3">
+            <div className="mt-4">
+              <p className="mb-2 text-[0.62rem] uppercase tracking-[0.18em] text-muted/74">
+                Cantidad
+              </p>
+
+              <div className="flex items-center gap-3">
                 <div className="inline-flex items-center rounded-full border border-[#ddd5ca] bg-white/72">
                   <button
                     type="button"
                     onClick={() => setQuantity((current) => Math.max(current - 1, 1))}
                     disabled={!hasStock || quantity <= 1}
-                    aria-label="Reducir cantidad"
-                    className="inline-flex h-10 w-10 items-center justify-center text-base text-muted transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                    className="inline-flex h-10 w-10 items-center justify-center text-base text-muted hover:text-foreground disabled:opacity-40"
                   >
                     -
                   </button>
+
                   <span className="min-w-10 text-center text-[0.92rem] font-medium text-foreground">
                     {quantity}
                   </span>
+
                   <button
                     type="button"
                     onClick={() => setQuantity((current) => Math.min(current + 1, quantityMax))}
                     disabled={!hasStock || quantity >= quantityMax}
-                    aria-label="Aumentar cantidad"
-                    className="inline-flex h-10 w-10 items-center justify-center text-base text-muted transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                    className="inline-flex h-10 w-10 items-center justify-center text-base text-muted hover:text-foreground disabled:opacity-40"
                   >
                     +
                   </button>
                 </div>
 
-                <div className="min-w-0 text-[0.74rem] leading-5 text-muted">
-                  {hasStock ? `Stock disponible: ${product.stock}` : "Sin stock disponible"}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 flex w-full max-w-[320px] flex-col items-start gap-2">
-              <div className="w-full">
+                <div className="flex-1">
                 <AddToCartButton
                   quantity={quantity}
                   disabled={!hasStock}
@@ -274,10 +270,16 @@ export function HomeNewInFeaturedPdp({ product }: HomeNewInFeaturedPdpProps) {
                     productHref: product.productHref,
                   }}
                 />
+                </div>
               </div>
+
+              <div className="mt-2 text-[0.74rem] text-muted">
+                {hasStock ? `Stock disponible: ${product.stock}` : "Sin stock disponible"}
+              </div>
+
               <Link
                 href={product.productHref}
-                className="w-full text-center text-xs uppercase tracking-wide text-neutral-500 transition-colors hover:text-foreground"
+                className="mt-2 ml-auto block text-right text-xs uppercase tracking-wide text-neutral-500 transition-colors hover:text-foreground"
               >
                 Ver detalle
               </Link>
