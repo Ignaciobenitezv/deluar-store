@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { SiteContainer } from "@/components/layout/site-container";
 import { getCatalogPageData } from "@/integrations/sanity/catalog";
 import { CatalogEmptyState } from "@/features/catalog/components/catalog-empty-state";
-import { CatalogPageHeader } from "@/features/catalog/components/catalog-page-header";
+import { CatalogMobileActions } from "@/features/catalog/components/catalog-mobile-actions";
 import { ProductGrid } from "@/features/catalog/components/product-grid";
 import { CatalogSortDrawer } from "@/features/catalog/components/catalog-sort-drawer";
 import type { CatalogSort } from "@/features/catalog/types";
@@ -304,27 +305,53 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       </div>
 
       <div className="lg:hidden">
-        <SiteContainer className="space-y-8">
-          <CatalogPageHeader
-            eyebrow={query ? "Busqueda" : "Catalogo"}
-            title={catalog.title}
-            description={catalog.description}
+        <section className="space-y-6">
+          <div className="relative h-[160px] w-full overflow-hidden bg-[#e9dfd2]">
+            {catalog.products[0]?.imageUrl ? (
+              <>
+                <Image
+                  src={catalog.products[0].imageUrl}
+                  alt={catalog.products[0].imageAlt}
+                  fill
+                  sizes="100vw"
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-black/25" />
+              </>
+            ) : null}
+
+            <div className="absolute bottom-5 left-4 right-4 text-white">
+              <p className="text-[11px] uppercase tracking-[0.16em] text-white/85">
+                Inicio / Catálogo
+              </p>
+              <h1 className="mt-2 text-[1.9rem] font-medium tracking-[0.01em]">
+                Productos
+              </h1>
+            </div>
+          </div>
+
+          <CatalogMobileActions
+            activeCategorySlug=""
+            basePath="/productos"
             categories={catalog.categories}
+            sort={sort}
           />
 
-          {catalog.products.length > 0 ? (
-            <ProductGrid products={catalog.products} />
-          ) : (
-            <CatalogEmptyState
-              title={query ? "No encontramos productos para tu busqueda" : "Todavia no hay productos publicados"}
-              description={
-                query
-                  ? `No hay productos que coincidan con "${query}".`
-                  : "Cuando cargues productos en Sanity, esta grilla mostrara automaticamente el catalogo real de DELUAR."
-              }
-            />
-          )}
-        </SiteContainer>
+          <div className="w-full px-1.5">
+            {catalog.products.length > 0 ? (
+              <ProductGrid products={catalog.products} variant="catalogMobile" />
+            ) : (
+              <CatalogEmptyState
+                title={query ? "No encontramos productos para tu busqueda" : "Todavia no hay productos publicados"}
+                description={
+                  query
+                    ? `No hay productos que coincidan con "${query}".`
+                    : "Cuando cargues productos en Sanity, esta grilla mostrara automaticamente el catalogo real de DELUAR."
+                }
+              />
+            )}
+          </div>
+        </section>
       </div>
     </>
   );

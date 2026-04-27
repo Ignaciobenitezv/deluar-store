@@ -13,11 +13,12 @@ function formatPrice(value: number) {
 
 type ProductCardProps = {
   product: CatalogProductCard;
-  variant?: "default" | "desktopCatalog";
+  variant?: "default" | "desktopCatalog" | "catalogMobile";
 };
 
 export function ProductCard({ product, variant = "default" }: ProductCardProps) {
   const isDesktopCatalog = variant === "desktopCatalog";
+  const isCatalogMobile = variant === "catalogMobile";
   const isDefaultCatalog = variant === "default";
 
   return (
@@ -26,6 +27,8 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
         "group",
         isDesktopCatalog &&
           "overflow-hidden rounded-[10px] border border-neutral-200/50 bg-neutral-50/30 shadow-none",
+        isCatalogMobile &&
+          "overflow-hidden rounded-[8px] border border-neutral-200/40 bg-neutral-50/20 shadow-none",
         isDefaultCatalog &&
           "overflow-hidden rounded-[8px] border border-neutral-200/40 bg-neutral-50/20 shadow-none sm:rounded-[10px] sm:border-neutral-200/50 sm:bg-neutral-50/30",
       )}
@@ -34,8 +37,8 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
         <div
           className={cn(
             "relative w-full overflow-hidden",
-            isDesktopCatalog
-              ? "aspect-square rounded-none bg-[#f4ede4]"
+            isCatalogMobile
+              ? "aspect-square rounded-none bg-[#efe5d8]"
               : "aspect-square rounded-none bg-neutral-100 p-3 sm:bg-[#efe5d8] sm:p-0",
           )}
         >
@@ -47,7 +50,7 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
               sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 100vw"
               className={cn(
                 "h-full w-full rounded-none transition-transform duration-500 group-hover:scale-[1.03]",
-                isDesktopCatalog ? "object-cover" : "object-contain sm:object-cover",
+                isCatalogMobile ? "object-cover" : "object-contain sm:object-cover",
               )}
             />
           ) : (

@@ -64,7 +64,7 @@ export function HomeNewInStrip({
               type="button"
               aria-label="Productos anteriores"
               onClick={() => scrollRail("left")}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#d8d2ca] bg-white text-foreground/72 transition-colors duration-200 hover:border-[#c6bbae] hover:bg-[#f7f5f1] hover:text-foreground"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#e0d6c8] bg-[#efe5d8] text-foreground/72 transition-colors duration-200 hover:border-[#c6bbae] hover:bg-[#e5d8c7] hover:text-foreground"
             >
               <svg
                 aria-hidden="true"
@@ -83,7 +83,7 @@ export function HomeNewInStrip({
               type="button"
               aria-label="Productos siguientes"
               onClick={() => scrollRail("right")}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#d8d2ca] bg-white text-foreground/72 transition-colors duration-200 hover:border-[#c6bbae] hover:bg-[#f7f5f1] hover:text-foreground"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#e0d6c8] bg-[#efe5d8] text-foreground/72 transition-colors duration-200 hover:border-[#c6bbae] hover:bg-[#e5d8c7] hover:text-foreground"
             >
               <svg
                 aria-hidden="true"
@@ -147,7 +147,7 @@ export function HomeNewInStrip({
                   <p className="text-[0.65rem] uppercase tracking-[0.16em] text-muted/72">
                     {product.categoryTitle}
                   </p>
-                  <h3 className="line-clamp-2 text-[0.95rem] font-medium leading-[1.25] text-foreground">
+                  <h3 className="truncate text-sm font-medium text-neutral-900">
                     {product.title}
                   </h3>
                   <p className="pt-0.5 text-[1.1rem] font-semibold leading-none text-foreground">

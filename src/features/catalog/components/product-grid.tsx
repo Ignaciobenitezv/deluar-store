@@ -3,7 +3,7 @@ import type { CatalogProductCard } from "@/features/catalog/types";
 
 type ProductGridProps = {
   products: CatalogProductCard[];
-  variant?: "default" | "desktopCatalog";
+  variant?: "default" | "desktopCatalog" | "catalogMobile";
 };
 
 export function ProductGrid({ products, variant = "default" }: ProductGridProps) {

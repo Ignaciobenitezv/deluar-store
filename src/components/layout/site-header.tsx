@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { siteConfig } from "@/config/site";
 import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { CartDrawer } from "@/features/cart/components/cart-drawer";
 import { CartTrigger } from "@/features/cart/components/cart-trigger";
@@ -53,15 +53,17 @@ export function SiteHeader({ navigation }: SiteHeaderProps) {
           </div>
 
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <Link href="/" className="inline-flex flex-col items-center text-center">
-              <span
-                className={cn(
-                  "font-semibold tracking-[0.28em] text-foreground transition-all duration-300 ease-in-out",
-                  isScrolled ? "text-[0.92rem]" : "text-[1rem]",
-                )}
-              >
-                {siteConfig.name}
-              </span>
+            <Link href="/" className="inline-flex items-center justify-center">
+              <div className="flex items-center justify-center">
+                <Image
+                  src="/4.png"
+                  alt="Deluar"
+                  width={80}
+                  height={40}
+                  priority
+                  className="block h-12 w-auto object-contain sm:hidden"
+                />
+              </div>
             </Link>
           </div>
 
@@ -125,23 +127,17 @@ export function SiteHeader({ navigation }: SiteHeaderProps) {
           </form>
 
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <Link href="/" className="inline-flex flex-col items-center text-center">
-              <span
-                className={cn(
-                  "font-semibold tracking-[0.28em] text-foreground transition-all duration-300 ease-in-out",
-                  isScrolled ? "text-[1.2rem]" : "text-[1.45rem]",
-                )}
-              >
-                {siteConfig.name}
-              </span>
-              <span
-                className={cn(
-                  "uppercase tracking-[0.26em] text-muted transition-all duration-300 ease-in-out",
-                  isScrolled ? "mt-0.5 text-[0.56rem]" : "mt-1 text-[0.62rem]",
-                )}
-              >
-                hogar y decoracion
-              </span>
+            <Link href="/" className="inline-flex items-center justify-center">
+              <div className="flex items-center justify-center">
+                <Image
+                  src="/deluarlogo.png"
+                  alt="Deluar Hogar y Decoración"
+                  width={180}
+                  height={80}
+                  priority
+                  className="hidden h-12 w-auto object-contain sm:block"
+                />
+              </div>
             </Link>
           </div>
 
