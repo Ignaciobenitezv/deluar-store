@@ -57,7 +57,7 @@ export function ProductsDropdown({ item, categories }: ProductsDropdownProps) {
 
       <div
         className={cn(
-          "absolute left-1/2 top-full z-30 max-h-[min(560px,calc(100vh-160px))] w-[calc(100vw-40px)] max-w-none -translate-x-1/2 overflow-x-hidden overflow-y-auto border border-[#e0d5c8] bg-[linear-gradient(180deg,rgba(255,250,244,0.995),rgba(248,242,235,0.99))] shadow-[0_18px_45px_rgba(58,42,34,0.16)] transition-[opacity,transform] duration-200",
+          "absolute left-1/2 top-full z-[60] max-h-[calc(100vh-220px)] w-[calc(100vw-40px)] max-w-none -translate-x-1/2 overflow-x-hidden overflow-y-auto border border-[#e0d5c8] bg-[linear-gradient(180deg,rgba(255,250,244,0.995),rgba(248,242,235,0.99))] shadow-[0_18px_45px_rgba(58,42,34,0.16)] transition-[opacity,transform] duration-200 xl:max-h-[min(560px,calc(100vh-160px))]",
           isOpen
             ? "pointer-events-auto translate-y-0 opacity-100"
             : "pointer-events-none -translate-y-1 opacity-0",
@@ -65,7 +65,7 @@ export function ProductsDropdown({ item, categories }: ProductsDropdownProps) {
         onMouseEnter={open}
         onMouseLeave={scheduleClose}
       >
-        <div className="mx-auto w-full px-8 py-8 lg:px-12 xl:px-14">
+        <div className="mx-auto w-full px-8 py-6 lg:px-12 xl:px-14 xl:py-8">
           <div className="mb-8 flex items-end justify-between gap-6 border-b border-border/60 pb-5">
             <div className="space-y-2.5">
               <p className="text-[0.67rem] uppercase tracking-[0.28em] text-muted">
