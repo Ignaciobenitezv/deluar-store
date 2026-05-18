@@ -5,7 +5,7 @@ const editorialCategories = [
   {
     title: "Mesa & Comedor",
     description: "Diseño y estilo para vestir tu mesa con personalidad.",
-    imageSrc: "/mcome.jpg",
+    imageSrc: "/dcome.png",
     imageAlt: "Mesa y comedor Deluar",
     href: "/productos",
   },
