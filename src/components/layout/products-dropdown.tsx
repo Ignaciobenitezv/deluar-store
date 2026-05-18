@@ -18,13 +18,17 @@ type ProductsDropdownProps = {
 export function ProductsDropdown({ item, categories }: ProductsDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const open = useCallback(() => {
     if (closeTimer.current) {
       clearTimeout(closeTimer.current);
     }
+    if (!isOpen && dropdownRef.current) {
+      dropdownRef.current.scrollTop = 0;
+    }
     setIsOpen(true);
-  }, []);
+  }, [isOpen]);
 
   const scheduleClose = useCallback(() => {
     closeTimer.current = setTimeout(() => setIsOpen(false), 150);
@@ -56,8 +60,9 @@ export function ProductsDropdown({ item, categories }: ProductsDropdownProps) {
       </Link>
 
       <div
+        ref={dropdownRef}
         className={cn(
-          "absolute left-1/2 top-full z-[60] max-h-[calc(100vh-220px)] w-[calc(100vw-40px)] max-w-none -translate-x-1/2 overflow-x-hidden overflow-y-auto border border-[#e0d5c8] bg-[linear-gradient(180deg,rgba(255,250,244,0.995),rgba(248,242,235,0.99))] shadow-[0_18px_45px_rgba(58,42,34,0.16)] transition-[opacity,transform] duration-200 xl:max-h-[min(560px,calc(100vh-160px))]",
+          "absolute left-1/2 top-full z-[60] max-h-[420px] w-[min(1040px,calc(100vw-80px))] max-w-none -translate-x-1/2 overflow-x-hidden overflow-y-auto border border-[#e0d5c8] bg-[linear-gradient(180deg,rgba(255,250,244,0.995),rgba(248,242,235,0.99))] shadow-[0_18px_45px_rgba(58,42,34,0.16)] transition-[opacity,transform] duration-200 min-[1281px]:max-h-[min(460px,calc(100vh-240px))] min-[1281px]:w-[min(1180px,calc(100vw-96px))] min-[1440px]:max-h-[560px] min-[1440px]:w-[calc(100vw-40px)] [@media(max-height:800px)]:max-h-[min(460px,calc(100vh-240px))] [@media(max-height:800px)]:w-[min(1180px,calc(100vw-96px))] [@media(max-height:800px)]:max-[1280px]:max-h-[420px] [@media(max-height:800px)]:max-[1280px]:w-[min(1040px,calc(100vw-80px))]",
           isOpen
             ? "pointer-events-auto translate-y-0 opacity-100"
             : "pointer-events-none -translate-y-1 opacity-0",
@@ -65,7 +70,7 @@ export function ProductsDropdown({ item, categories }: ProductsDropdownProps) {
         onMouseEnter={open}
         onMouseLeave={scheduleClose}
       >
-        <div className="mx-auto w-full px-8 py-6 lg:px-12 xl:px-14 xl:py-8">
+        <div className="mx-auto w-full px-8 py-6 min-[1440px]:px-14 min-[1440px]:py-8">
           <div className="mb-8 flex items-end justify-between gap-6 border-b border-border/60 pb-5">
             <div className="space-y-2.5">
               <p className="text-[0.67rem] uppercase tracking-[0.28em] text-muted">
@@ -86,7 +91,7 @@ export function ProductsDropdown({ item, categories }: ProductsDropdownProps) {
             </Link>
           </div>
 
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(155px,1fr))] gap-x-10 gap-y-8">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-x-8 gap-y-7 min-[1440px]:grid-cols-[repeat(auto-fit,minmax(155px,1fr))] min-[1440px]:gap-x-10 min-[1440px]:gap-y-8">
             {categories.map((category) => (
               <div key={category.id} className="min-w-0 space-y-4">
                 <Link
