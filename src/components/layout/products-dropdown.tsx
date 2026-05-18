@@ -7,6 +7,8 @@ import type { NavigationCategory, NavigationLink } from "@/types/navigation";
 
 const baseLinkClassName =
   "text-sm tracking-[0.08em] text-foreground/78 transition-colors duration-200 hover:text-foreground";
+const dropdownLinkHoverClassName =
+  "origin-left text-[#4a3329] transition-all duration-200 ease-out hover:scale-[1.025] hover:text-[#2f211b]";
 
 type ProductsDropdownProps = {
   item: NavigationLink;
@@ -55,7 +57,7 @@ export function ProductsDropdown({ item, categories }: ProductsDropdownProps) {
 
       <div
         className={cn(
-          "absolute left-1/2 top-full z-30 w-screen -translate-x-1/2 border-t border-border/60 bg-[linear-gradient(180deg,rgba(255,250,244,0.995),rgba(248,242,235,0.99))] transition-[opacity,transform] duration-200",
+          "absolute left-1/2 top-full z-30 max-h-[min(560px,calc(100vh-160px))] w-[calc(100vw-40px)] max-w-none -translate-x-1/2 overflow-x-hidden overflow-y-auto border border-[#e0d5c8] bg-[linear-gradient(180deg,rgba(255,250,244,0.995),rgba(248,242,235,0.99))] shadow-[0_18px_45px_rgba(58,42,34,0.16)] transition-[opacity,transform] duration-200",
           isOpen
             ? "pointer-events-auto translate-y-0 opacity-100"
             : "pointer-events-none -translate-y-1 opacity-0",
@@ -63,7 +65,7 @@ export function ProductsDropdown({ item, categories }: ProductsDropdownProps) {
         onMouseEnter={open}
         onMouseLeave={scheduleClose}
       >
-        <div className="mx-auto w-full max-w-[112rem] px-6 py-9 sm:px-8 lg:px-12 xl:px-16 xl:py-11">
+        <div className="mx-auto w-full px-8 py-8 lg:px-12 xl:px-14">
           <div className="mb-8 flex items-end justify-between gap-6 border-b border-border/60 pb-5">
             <div className="space-y-2.5">
               <p className="text-[0.67rem] uppercase tracking-[0.28em] text-muted">
@@ -75,18 +77,24 @@ export function ProductsDropdown({ item, categories }: ProductsDropdownProps) {
             </div>
             <Link
               href={item.href}
-              className="text-sm font-medium tracking-[0.08em] text-foreground/88 transition-colors hover:text-foreground"
+              className={cn(
+                dropdownLinkHoverClassName,
+                "inline-block text-sm font-medium tracking-[0.08em]",
+              )}
             >
               Ver todo
             </Link>
           </div>
 
-          <div className="grid grid-cols-4 gap-x-12 gap-y-10 2xl:grid-cols-5 2xl:gap-x-14">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(155px,1fr))] gap-x-10 gap-y-8">
             {categories.map((category) => (
               <div key={category.id} className="min-w-0 space-y-4">
                 <Link
                   href={category.href}
-                  className="block text-[0.9rem] font-medium tracking-[0.08em] text-foreground"
+                  className={cn(
+                    dropdownLinkHoverClassName,
+                    "inline-block text-[0.9rem] font-medium tracking-[0.08em]",
+                  )}
                 >
                   {category.label}
                 </Link>
@@ -96,7 +104,10 @@ export function ProductsDropdown({ item, categories }: ProductsDropdownProps) {
                       <li key={subCategory.id}>
                         <Link
                           href={subCategory.href}
-                          className="text-[0.94rem] leading-6 text-foreground/64 transition-colors hover:text-foreground"
+                          className={cn(
+                            dropdownLinkHoverClassName,
+                            "inline-block text-[0.94rem] leading-6",
+                          )}
                         >
                           {subCategory.label}
                         </Link>
