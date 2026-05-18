@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
+import { shouldIndexSite } from "@/lib/deployment";
 
 type BuildMetadataInput = {
   title?: string;
@@ -27,6 +28,7 @@ export function buildMetadata({
   const canonical = buildAbsoluteUrl(path);
   const resolvedDescription = description || siteConfig.description;
   const images = image ? [{ url: image }] : undefined;
+  const canIndex = shouldIndexSite && !noIndex;
 
   return {
     title,
@@ -35,8 +37,8 @@ export function buildMetadata({
       canonical,
     },
     robots: {
-      index: !noIndex,
-      follow: !noIndex,
+      index: canIndex,
+      follow: canIndex,
     },
     openGraph: {
       type: "website",

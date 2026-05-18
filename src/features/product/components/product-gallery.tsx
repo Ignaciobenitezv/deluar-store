@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useState } from "react";
 import type { ProductDetailImage } from "@/features/catalog/types";
 
 const DESKTOP_PAGE = 5;
@@ -12,6 +12,12 @@ type ProductGalleryProps = {
 };
 
 export function ProductGallery({ images, title }: ProductGalleryProps) {
+  const galleryKey = images.map((image) => image.url ?? image.alt).join("|") || title;
+
+  return <ProductGalleryContent key={galleryKey} images={images} title={title} />;
+}
+
+function ProductGalleryContent({ images, title }: ProductGalleryProps) {
   const gallery = images.length ? images : [{ url: null, alt: title }];
   const [activeIndex, setActiveIndex] = useState(0);
   const [thumbStart, setThumbStart] = useState(0);
@@ -31,34 +37,33 @@ export function ProductGallery({ images, title }: ProductGalleryProps) {
 
   const closeLightbox = () => setLightboxOpen(false);
 
-  const lightboxPrev = useCallback(() => {
+  const lightboxPrev = () => {
     setLightboxIndex((i) => Math.max(i - 1, 0));
-  }, []);
+  };
 
-  const lightboxNext = useCallback(() => {
+  const lightboxNext = () => {
     setLightboxIndex((i) => Math.min(i + 1, gallery.length - 1));
-  }, [gallery.length]);
+  };
 
   useEffect(() => {
     if (!lightboxOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") lightboxPrev();
-      if (e.key === "ArrowRight") lightboxNext();
+      if (e.key === "ArrowLeft") {
+        setLightboxIndex((i) => Math.max(i - 1, 0));
+      }
+      if (e.key === "ArrowRight") {
+        setLightboxIndex((i) => Math.min(i + 1, gallery.length - 1));
+      }
       if (e.key === "Escape") closeLightbox();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [lightboxOpen, lightboxPrev, lightboxNext]);
+  }, [gallery.length, lightboxOpen]);
 
   useEffect(() => {
     document.body.style.overflow = lightboxOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [lightboxOpen]);
-
-  useEffect(() => {
-    setActiveIndex(0);
-    setThumbStart(0);
-  }, [images]);
 
   const lightboxImage = gallery[lightboxIndex];
 

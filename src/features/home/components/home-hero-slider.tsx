@@ -132,7 +132,7 @@ export function HomeHeroSlider({ slides }: HomeHeroSliderProps) {
 
             {safeSlides.length > 1 ? (
               <div className="mt-6 flex flex-wrap items-center gap-3 sm:mt-7">
-                <div className="flex items-center gap-2">
+                <div className="hidden items-center gap-2">
                   <button
                     type="button"
                     aria-label="Slide anterior"

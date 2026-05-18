@@ -1,4 +1,4 @@
-import { createOrder } from "@/features/order/order-service";
+import { createOrder } from "@/features/orders/server/order-service";
 import type { CreateOrderInput } from "@/features/order/types";
 import { jsonError, jsonSuccess } from "@/lib/http";
 import { logger } from "@/lib/logger";

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import type { HomeSpotlightProduct } from "@/features/home/types";
 
@@ -19,17 +19,20 @@ function formatPrice(value: number) {
 }
 
 export function HomeSpotlightProduct({ product }: HomeSpotlightProductProps) {
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [quantity, setQuantity] = useState(1);
-
-  useEffect(() => {
-    setActiveImageIndex(0);
-    setQuantity(1);
-  }, [product?.id]);
-
   if (!product || product.images.length === 0) {
     return null;
   }
+
+  return <HomeSpotlightProductContent key={product.id} product={product} />;
+}
+
+function HomeSpotlightProductContent({
+  product,
+}: {
+  product: NonNullable<HomeSpotlightProductProps["product"]>;
+}) {
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [quantity, setQuantity] = useState(1);
 
   const safeIndex = Math.min(activeImageIndex, product.images.length - 1);
   const activeImage = product.images[safeIndex];

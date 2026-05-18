@@ -1,4 +1,5 @@
 import { getnetConfig, hasGetnetCredentials } from "@/integrations/getnet/config";
+import { canUseRealPayments, reviewPaymentMessage } from "@/lib/deployment";
 import { logger } from "@/lib/logger";
 import type {
   GetnetInitPaymentResponse,
@@ -40,10 +41,12 @@ export async function initGetnetPayment(order: Order): Promise<GetnetInitPayment
     itemCount: order.items.length,
   });
 
-  if (!hasGetnetCredentials()) {
-    logger.warn("payments.getnet.init.missing_credentials", {
+  if (!canUseRealPayments || !hasGetnetCredentials()) {
+    logger.warn("payments.getnet.init.disabled", {
       orderId: order.id,
       environment: getnetConfig.environment,
+      canUseRealPayments,
+      hasCredentials: hasGetnetCredentials(),
     });
 
     return {
@@ -54,8 +57,7 @@ export async function initGetnetPayment(order: Order): Promise<GetnetInitPayment
       orderNumber: order.orderNumber,
       paymentPayload,
       checkoutUrl: null,
-      message:
-        "La orden esta lista para iniciar el pago, pero Getnet aun no esta configurado.",
+      message: reviewPaymentMessage,
     };
   }
 

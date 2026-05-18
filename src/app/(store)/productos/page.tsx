@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { SiteContainer } from "@/components/layout/site-container";
+import Link from "next/link";
 import { getCatalogPageData } from "@/integrations/sanity/catalog";
 import { CatalogEmptyState } from "@/features/catalog/components/catalog-empty-state";
 import { CatalogMobileActions } from "@/features/catalog/components/catalog-mobile-actions";
@@ -210,9 +210,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                     <ul className="space-y-3 text-sm text-foreground">
                       {catalog.categories.map((category) => (
                         <li key={category.id}>
-                          <a href={category.href} className="transition hover:underline">
+                          <Link href={category.href} className="transition hover:underline">
                             {category.title}
-                          </a>
+                          </Link>
                         </li>
                       ))}
                     </ul>
@@ -222,12 +222,12 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-xs uppercase tracking-[0.2em] text-neutral-400">Filtrar por</h2>
                       {hasActiveFilters ? (
-                        <a
+                        <Link
                           href="/productos"
                           className="text-xs text-neutral-500 transition hover:underline"
                         >
                           Limpiar filtros
-                        </a>
+                        </Link>
                       ) : null}
                     </div>
                     <div className="space-y-4 text-sm text-foreground">
@@ -235,7 +235,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                         <h3 className="text-[11px] uppercase tracking-[0.15em] text-neutral-500">Disponibilidad</h3>
                         <ul className="space-y-2 text-neutral-700">
                           <li>
-                            <a
+                            <Link
                               href={buildProductsPath({
                                 ...currentFilters,
                                 inStock: true,
@@ -246,7 +246,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                                 {inStock ? <span className="h-2 w-2 rounded-full bg-black" /> : null}
                               </span>
                               En stock
-                            </a>
+                            </Link>
                           </li>
                         </ul>
                       </div>
@@ -255,7 +255,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                         <ul className="space-y-2 text-neutral-700">
                           {priceOptions.map((option) => (
                             <li key={option.label}>
-                              <a
+                              <Link
                                 href={option.href}
                                 className={option.isActive ? "flex items-center gap-2 text-sm font-medium text-foreground transition hover:text-black" : "flex items-center gap-2 text-sm text-neutral-700 transition hover:text-black"}
                               >
@@ -263,7 +263,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                                   {option.isActive ? <span className="h-2 w-2 rounded-full bg-black" /> : null}
                                 </span>
                                 {option.label}
-                              </a>
+                              </Link>
                             </li>
                           ))}
                         </ul>

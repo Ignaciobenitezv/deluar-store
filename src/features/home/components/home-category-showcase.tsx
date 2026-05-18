@@ -161,22 +161,8 @@ function ProductMiniCard({
 
 export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [showDesktopProducts, setShowDesktopProducts] = useState(false);
+  const [batchIndexByCategory, setBatchIndexByCategory] = useState<Record<string, number>>({});
   const seenCategoryIdsRef = useRef(new Set<string>());
-  const batchIndexByCategoryRef = useRef<Record<string, number>>({});
-
-  useEffect(() => {
-    if (categories.length === 0) return;
-
-    if (!seenCategoryIdsRef.current.size) {
-      seenCategoryIdsRef.current = new Set([categories[0].id]);
-    }
-
-    setActiveIndex((current) => {
-      if (current >= categories.length) return 0;
-      return current;
-    });
-  }, [categories]);
 
   const moveToCategory = (nextIndex: number) => {
     setActiveIndex((current) => {
@@ -186,15 +172,18 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
       if (!nextCategory) return current;
 
       const seenCategoryIds = seenCategoryIdsRef.current;
-      const batchIndexByCategory = batchIndexByCategoryRef.current;
-
       if (seenCategoryIds.has(nextCategory.id)) {
         const totalBatches = Math.max(nextCategory.products.length - DESKTOP_BATCH_SIZE + 1, 1);
-        batchIndexByCategory[nextCategory.id] =
-          ((batchIndexByCategory[nextCategory.id] ?? 0) + 1) % totalBatches;
+        setBatchIndexByCategory((currentBatchIndexes) => ({
+          ...currentBatchIndexes,
+          [nextCategory.id]: ((currentBatchIndexes[nextCategory.id] ?? 0) + 1) % totalBatches,
+        }));
       } else {
         seenCategoryIds.add(nextCategory.id);
-        batchIndexByCategory[nextCategory.id] = 0;
+        setBatchIndexByCategory((currentBatchIndexes) => ({
+          ...currentBatchIndexes,
+          [nextCategory.id]: 0,
+        }));
       }
 
       return nextIndex;
@@ -211,15 +200,18 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
         if (!nextCategory) return current;
 
         const seenCategoryIds = seenCategoryIdsRef.current;
-        const batchIndexByCategory = batchIndexByCategoryRef.current;
-
         if (seenCategoryIds.has(nextCategory.id)) {
           const totalBatches = Math.max(nextCategory.products.length - DESKTOP_BATCH_SIZE + 1, 1);
-          batchIndexByCategory[nextCategory.id] =
-            ((batchIndexByCategory[nextCategory.id] ?? 0) + 1) % totalBatches;
+          setBatchIndexByCategory((currentBatchIndexes) => ({
+            ...currentBatchIndexes,
+            [nextCategory.id]: ((currentBatchIndexes[nextCategory.id] ?? 0) + 1) % totalBatches,
+          }));
         } else {
           seenCategoryIds.add(nextCategory.id);
-          batchIndexByCategory[nextCategory.id] = 0;
+          setBatchIndexByCategory((currentBatchIndexes) => ({
+            ...currentBatchIndexes,
+            [nextCategory.id]: 0,
+          }));
         }
 
         return nextIndex;
@@ -229,16 +221,10 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
     return () => window.clearInterval(timer);
   }, [categories]);
 
-  useEffect(() => {
-    setShowDesktopProducts(false);
-    const timer = window.setTimeout(() => setShowDesktopProducts(true), 360);
-    return () => window.clearTimeout(timer);
-  }, [activeIndex]);
-
   const safeIndex = categories.length > 0 ? Math.min(activeIndex, categories.length - 1) : 0;
   const activeCategory = categories[safeIndex];
   const activeBatchIndex = activeCategory
-    ? batchIndexByCategoryRef.current[activeCategory.id] ?? 0
+    ? batchIndexByCategory[activeCategory.id] ?? 0
     : 0;
 
   const activeCategoryProducts = useMemo(() => {
@@ -334,14 +320,10 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
                   badgeLabel={getBadgeLabel(index)}
                   className={index % 4 === 0 ? "lg:rounded-l-none lg:rounded-r-[1.2rem]" : undefined}
                   imageClassName={index % 4 === 0 ? "lg:rounded-l-none lg:rounded-r-[0.95rem]" : undefined}
-                  style={
-                    showDesktopProducts
-                      ? {
-                          animation: "fade-up 520ms cubic-bezier(0.16,1,0.3,1) both",
-                          animationDelay: `${index * 90}ms`,
-                        }
-                      : { opacity: 0, transform: "translateY(10px)" }
-                  }
+                  style={{
+                    animation: "fade-up 520ms cubic-bezier(0.16,1,0.3,1) both",
+                    animationDelay: `${index * 90}ms`,
+                  }}
                 />
               ))}
             </div>

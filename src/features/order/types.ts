@@ -1,6 +1,14 @@
 import type { CheckoutFormValues } from "@/features/checkout/types";
 
-export type OrderStatus = "draft" | "pending_payment";
+export type OrderStatus =
+  | "created"
+  | "pending_payment"
+  | "paid"
+  | "payment_failed"
+  | "cancelled"
+  | "expired"
+  | "fulfilled"
+  | "refunded";
 
 export type OrderCustomer = Pick<
   CheckoutFormValues,

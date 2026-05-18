@@ -10,34 +10,31 @@ type HomeNewInShowcaseProps = {
 };
 
 export function HomeNewInShowcase({ products }: HomeNewInShowcaseProps) {
-  const [activeProductId, setActiveProductId] = useState<string | null>(products[0]?.id ?? null);
+  const [requestedActiveProductId, setRequestedActiveProductId] = useState<string | null>(null);
+
+  const activeProduct = useMemo(
+    () =>
+      products.find((product) => product.id === requestedActiveProductId) ??
+      products[0] ??
+      null,
+    [requestedActiveProductId, products],
+  );
 
   useEffect(() => {
-    if (!products.some((product) => product.id === activeProductId)) {
-      setActiveProductId(products[0]?.id ?? null);
-    }
-  }, [activeProductId, products]);
-
-  useEffect(() => {
-    if (products.length <= 1 || !activeProductId) {
+    if (products.length <= 1 || !activeProduct) {
       return;
     }
 
     const intervalId = window.setInterval(() => {
-      const currentIndex = products.findIndex((product) => product.id === activeProductId);
+      const currentIndex = products.findIndex((product) => product.id === activeProduct.id);
       const safeCurrentIndex = currentIndex >= 0 ? currentIndex : 0;
       const nextIndex = safeCurrentIndex + 1 >= products.length ? 0 : safeCurrentIndex + 1;
 
-      setActiveProductId(products[nextIndex].id);
+      setRequestedActiveProductId(products[nextIndex].id);
     }, 15000);
 
     return () => window.clearInterval(intervalId);
-  }, [activeProductId, products]);
-
-  const activeProduct = useMemo(
-    () => products.find((product) => product.id === activeProductId) ?? products[0] ?? null,
-    [activeProductId, products],
-  );
+  }, [activeProduct, products]);
 
   if (products.length === 0) {
     return null;
@@ -48,7 +45,7 @@ export function HomeNewInShowcase({ products }: HomeNewInShowcaseProps) {
       <HomeNewInStrip
         products={products}
         activeProductId={activeProduct?.id}
-        onSelectProduct={setActiveProductId}
+        onSelectProduct={setRequestedActiveProductId}
       />
       <HomeNewInFeaturedPdp product={activeProduct} />
     </div>

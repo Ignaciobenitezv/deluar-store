@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import type { HomeNewInProduct } from "@/features/home/types";
 
@@ -20,23 +20,25 @@ function formatPrice(value: number) {
 }
 
 export function HomeNewInFeaturedPdp({ product }: HomeNewInFeaturedPdpProps) {
+  if (!product || product.images.length === 0) {
+    return null;
+  }
+
+  return <HomeNewInFeaturedPdpContent key={product.id} product={product} />;
+}
+
+function HomeNewInFeaturedPdpContent({
+  product,
+}: {
+  product: NonNullable<HomeNewInFeaturedPdpProps["product"]>;
+}) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [thumbnailStartIndex, setThumbnailStartIndex] = useState(0);
   const bulletItems = useMemo(
-    () => (product?.attributes ?? []).filter((attribute) => attribute.value).slice(0, 4),
-    [product?.attributes],
+    () => product.attributes.filter((attribute) => attribute.value).slice(0, 4),
+    [product.attributes],
   );
-
-  useEffect(() => {
-    setActiveImageIndex(0);
-    setQuantity(1);
-    setThumbnailStartIndex(0);
-  }, [product?.id]);
-
-  if (!product || product.images.length === 0) {
-    return null;
-  }
 
   const safeIndex = Math.min(activeImageIndex, product.images.length - 1);
   const activeImage = product.images[safeIndex];

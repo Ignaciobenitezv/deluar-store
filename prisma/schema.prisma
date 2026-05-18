@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum OrderStatus {
+  CREATED
+  PENDING_PAYMENT
+  PAID
+  PAYMENT_FAILED
+  CANCELLED
+  EXPIRED
+  FULFILLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  MERCADO_PAGO
+  TRANSFER
+  GETNET
+}
+
+enum PaymentProvider {
+  MERCADO_PAGO
+  GETNET
+}
+
+enum PaymentStatus {
+  NOT_STARTED
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  REFUNDED
+  CHARGED_BACK
+}
+
+model Customer {
+  id                String            @id @default(uuid()) @db.Uuid
+  fullName          String
+  email             String
+  phone             String
+  createdAt         DateTime          @default(now())
+  orders            Order[]
+  shippingAddresses ShippingAddress[]
+
+  @@index([email])
+  @@index([createdAt])
+}
+
+model ShippingAddress {
+  id         String   @id @default(uuid()) @db.Uuid
+  customerId String   @db.Uuid
+  province   String
+  city       String
+  postalCode String
+  address    String
+  apartment  String?
+  notes      String?
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  orders     Order[]
+
+  @@index([customerId])
+  @@index([province, city])
+}
+
+model ProductSnapshot {
+  id              String      @id @default(uuid()) @db.Uuid
+  sanityProductId String
+  title           String
+  slug            String
+  price           Decimal     @db.Decimal(12, 2)
+  transferPrice   Decimal?    @db.Decimal(12, 2)
+  imageUrl        String?
+  createdAt       DateTime    @default(now())
+  orderItems      OrderItem[]
+
+  @@index([sanityProductId])
+  @@index([slug])
+  @@index([createdAt])
+}
+
+model Order {
+  id                String           @id @default(uuid()) @db.Uuid
+  orderNumber       String           @unique
+  status            OrderStatus      @default(CREATED)
+  subtotal          Decimal          @db.Decimal(12, 2)
+  shippingCost      Decimal          @default(0) @db.Decimal(12, 2)
+  total             Decimal          @db.Decimal(12, 2)
+  paymentMethod     PaymentMethod
+  paymentProvider   PaymentProvider?
+  paymentStatus     PaymentStatus    @default(NOT_STARTED)
+  externalPaymentId String?
+  providerPreferenceId String?       @unique
+  providerPaymentId  String?          @unique
+  customerId        String           @db.Uuid
+  shippingAddressId String?          @db.Uuid
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  customer          Customer         @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  shippingAddress   ShippingAddress? @relation(fields: [shippingAddressId], references: [id], onDelete: SetNull)
+  items             OrderItem[]
+  webhookEvents     MercadoPagoWebhookEvent[]
+
+  @@index([customerId])
+  @@index([shippingAddressId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([externalPaymentId])
+  @@index([providerPreferenceId])
+  @@index([providerPaymentId])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id                String           @id @default(uuid()) @db.Uuid
+  orderId           String           @db.Uuid
+  productSnapshotId String?          @db.Uuid
+  productId         String
+  productName       String
+  productSlug       String
+  quantity          Int
+  unitPrice         Decimal          @db.Decimal(12, 2)
+  transferPrice     Decimal?         @db.Decimal(12, 2)
+  imageUrl          String?
+  order             Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productSnapshot   ProductSnapshot? @relation(fields: [productSnapshotId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([productSnapshotId])
+  @@index([productId])
+  @@index([productSlug])
+}
+
+model MercadoPagoWebhookEvent {
+  id                String   @id @default(uuid()) @db.Uuid
+  provider          String
+  dedupeKey         String   @unique
+  providerEventId   String?
+  providerPaymentId String?
+  externalReference String?
+  topic             String?
+  action            String?
+  orderId           String?  @db.Uuid
+  payload           Json
+  headers           Json?
+  createdAt         DateTime @default(now())
+  order             Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([providerEventId])
+  @@index([providerPaymentId])
+  @@index([externalReference])
+  @@index([createdAt])
+}

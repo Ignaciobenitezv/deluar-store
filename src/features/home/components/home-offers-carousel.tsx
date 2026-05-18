@@ -78,14 +78,6 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
   };
 
   useEffect(() => {
-    if (products.length === 0) {
-      return;
-    }
-
-    setActiveIndex((current) => (current >= products.length ? 0 : current));
-  }, [products]);
-
-  useEffect(() => {
     if (products.length <= 1 || isDesktopPaused) {
       return;
     }
@@ -102,10 +94,11 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
     return null;
   }
 
-  const activeProduct = products[activeIndex];
+  const safeActiveIndex = activeIndex >= products.length ? 0 : activeIndex;
+  const activeProduct = products[safeActiveIndex];
   const hasMultipleProducts = products.length > 1;
-  const previousProduct = hasMultipleProducts ? products[getPrevIndex(activeIndex, products.length)] : null;
-  const nextProduct = hasMultipleProducts ? products[getNextIndex(activeIndex, products.length)] : null;
+  const previousProduct = hasMultipleProducts ? products[getPrevIndex(safeActiveIndex, products.length)] : null;
+  const nextProduct = hasMultipleProducts ? products[getNextIndex(safeActiveIndex, products.length)] : null;
 
   return (
     <section className="space-y-7">

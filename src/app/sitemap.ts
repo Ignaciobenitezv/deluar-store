@@ -5,6 +5,7 @@ import {
   allProductSlugsQuery,
   categoryTreeQuery,
 } from "@/integrations/sanity/queries";
+import { shouldIndexSite } from "@/lib/deployment";
 
 type CategoryTreeItem = {
   slug: {
@@ -22,6 +23,10 @@ type ProductSlugItem = {
 };
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  if (!shouldIndexSite) {
+    return [];
+  }
+
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: siteConfig.url,

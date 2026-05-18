@@ -14,5 +14,9 @@ export const env = {
   getnetFailureUrl: process.env.GETNET_FAILURE_URL ?? "",
   getnetPendingUrl: process.env.GETNET_PENDING_URL ?? "",
   getnetWebhookSecret: process.env.GETNET_WEBHOOK_SECRET ?? "",
+  mercadoPagoAccessToken: process.env.MERCADOPAGO_ACCESS_TOKEN ?? "",
+  mercadoPagoPublicKey: process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY ?? "",
+  mercadoPagoWebhookSecret: process.env.MERCADOPAGO_WEBHOOK_SECRET ?? "",
   appLogLevel: process.env.APP_LOG_LEVEL ?? "",
+  vercelEnv: process.env.VERCEL_ENV ?? "development",
 } as const;

@@ -10,7 +10,15 @@ import type { CheckoutFormValues } from "@/features/checkout/types";
 import type { GetnetInitPaymentResponse } from "@/integrations/getnet/types";
 import type { Order } from "@/features/order/types";
 
-export function CheckoutPageContent() {
+type CheckoutPageContentProps = {
+  isReview?: boolean;
+  reviewPaymentMessage?: string;
+};
+
+export function CheckoutPageContent({
+  isReview = false,
+  reviewPaymentMessage = "Esta versión es de prueba. Los pagos todavía no están habilitados.",
+}: CheckoutPageContentProps) {
   const { items } = useCart();
   const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -116,6 +124,12 @@ export function CheckoutPageContent() {
     return (
       <section className="space-y-8">
         <div className="rounded-[2rem] border border-border/80 bg-[linear-gradient(180deg,rgba(255,253,249,0.97),rgba(245,239,230,0.94))] px-6 py-8 shadow-[0_24px_60px_rgba(58,40,26,0.05)] sm:px-8">
+          {isReview ? (
+            <div className="mb-6 rounded-[1.3rem] border border-[var(--color-accent-strong)]/25 bg-[rgba(167,88,60,0.07)] px-5 py-4 text-sm font-medium leading-6 text-foreground">
+              {reviewPaymentMessage}
+            </div>
+          ) : null}
+
           <div className="max-w-2xl space-y-4">
             <p className="text-xs uppercase tracking-[0.24em] text-muted">
               Orden creada
@@ -244,6 +258,17 @@ export function CheckoutPageContent() {
 
   return (
     <div className="space-y-10">
+      {isReview ? (
+        <section className="rounded-[1.5rem] border border-[var(--color-accent-strong)]/25 bg-[rgba(167,88,60,0.07)] px-6 py-5 sm:px-8">
+          <p className="text-xs uppercase tracking-[0.22em] text-[var(--color-accent-strong)]">
+            Version de revision
+          </p>
+          <p className="mt-2 text-sm font-medium leading-7 text-foreground">
+            {reviewPaymentMessage}
+          </p>
+        </section>
+      ) : null}
+
       <section className="grid gap-6 rounded-[2rem] border border-border/80 bg-[linear-gradient(180deg,rgba(255,253,249,0.95),rgba(243,236,227,0.92))] px-6 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
         <div className="space-y-3">
           <p className="text-xs uppercase tracking-[0.24em] text-muted">Checkout</p>

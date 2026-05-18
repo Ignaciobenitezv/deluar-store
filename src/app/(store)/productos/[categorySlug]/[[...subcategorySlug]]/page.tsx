@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { SiteContainer } from "@/components/layout/site-container";
 import { CatalogEmptyState } from "@/features/catalog/components/catalog-empty-state";
 import { CatalogMobileActions } from "@/features/catalog/components/catalog-mobile-actions";
 import { ProductGrid } from "@/features/catalog/components/product-grid";
@@ -206,9 +206,9 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                     <ul className="space-y-3 text-sm text-foreground">
                       {allCatalog.categories.map((category) => (
                         <li key={category.id}>
-                          <a href={category.href} className="transition hover:underline">
+                          <Link href={category.href} className="transition hover:underline">
                             {category.title}
-                          </a>
+                          </Link>
                         </li>
                       ))}
                     </ul>
@@ -218,12 +218,12 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-xs uppercase tracking-[0.2em] text-neutral-400">Filtrar por</h2>
                       {hasActiveFilters ? (
-                        <a
+                        <Link
                           href={basePath}
                           className="text-xs text-neutral-500 transition hover:underline"
                         >
                           Limpiar filtros
-                        </a>
+                        </Link>
                       ) : null}
                     </div>
                     <div className="space-y-4 text-sm text-foreground">
@@ -231,7 +231,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                         <h3 className="text-[11px] uppercase tracking-[0.15em] text-neutral-500">Disponibilidad</h3>
                         <ul className="space-y-2 text-neutral-700">
                           <li>
-                            <a
+                            <Link
                               href={buildCategoryPath(basePath, {
                                 ...currentFilters,
                                 inStock: true,
@@ -242,7 +242,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                                 {inStock ? <span className="h-2 w-2 rounded-full bg-black" /> : null}
                               </span>
                               En stock
-                            </a>
+                            </Link>
                           </li>
                         </ul>
                       </div>
@@ -251,7 +251,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                         <ul className="space-y-2 text-neutral-700">
                           {priceOptions.map((option) => (
                             <li key={option.label}>
-                              <a
+                              <Link
                                 href={option.href}
                                 className={option.isActive ? "flex items-center gap-2 text-sm font-medium text-foreground transition hover:text-black" : "flex items-center gap-2 text-sm text-neutral-700 transition hover:text-black"}
                               >
@@ -259,7 +259,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                                   {option.isActive ? <span className="h-2 w-2 rounded-full bg-black" /> : null}
                                 </span>
                                 {option.label}
-                              </a>
+                              </Link>
                             </li>
                           ))}
                         </ul>

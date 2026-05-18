@@ -1,4 +1,4 @@
-import { getOrderById } from "@/features/order/order-repository";
+import { getOrderById } from "@/features/orders/server/order-repository";
 import { initGetnetPayment } from "@/integrations/getnet/payment";
 import type { GetnetInitPaymentRequest } from "@/integrations/getnet/types";
 import { jsonError, jsonSuccess } from "@/lib/http";
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     orderId: payload.orderId,
   });
 
-  const order = getOrderById(payload.orderId);
+  const order = await getOrderById(payload.orderId);
 
   if (!order) {
     logger.warn("api.payments.getnet.init.order_not_found", {
