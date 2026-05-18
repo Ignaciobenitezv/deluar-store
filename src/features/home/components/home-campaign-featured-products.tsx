@@ -1,5 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import {
+  formatInstallmentPrice,
+  formatProductPrice,
+} from "@/features/catalog/components/product-card-formatting";
+import {
+  ProductCardActions,
+} from "@/features/catalog/components/product-card-commerce";
 import type { HomeCampaignFeatured } from "@/features/home/types";
 
 type HomeCampaignFeaturedProductsProps = {
@@ -7,11 +14,7 @@ type HomeCampaignFeaturedProductsProps = {
 };
 
 function formatPrice(value: number) {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0,
-  }).format(value);
+  return formatProductPrice(value);
 }
 
 export function HomeCampaignFeaturedProducts({
@@ -74,11 +77,18 @@ export function HomeCampaignFeaturedProducts({
                 <p className="text-base font-semibold sm:text-lg">
                   {formatPrice(product.basePrice)}
                 </p>
+                <p className="text-[11px] text-neutral-500 sm:text-xs">
+                  6 cuotas sin interés de {formatInstallmentPrice(product.basePrice)}
+                </p>
                 {product.transferPrice ? (
-                  <p className="text-sm text-neutral-500 sm:text-base">
+                  <p className="text-sm font-medium text-[#b51429] sm:text-base">
                     Transferencia: {formatPrice(product.transferPrice)}
                   </p>
                 ) : null}
+              </div>
+
+              <div className="pt-1">
+                <ProductCardActions product={product} />
               </div>
             </div>
           </article>

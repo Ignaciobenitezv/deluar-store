@@ -285,7 +285,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
               >
                 {product.relatedProducts.map((p) => (
                   <div key={p.id} className="w-[45vw] shrink-0">
-                    <ProductCard product={p} />
+                    <ProductCard product={p} showCommerceEnhancements={false} />
                   </div>
                 ))}
               </div>

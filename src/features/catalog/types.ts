@@ -23,6 +23,7 @@ export type CatalogProductCard = {
   categoryTitle: string;
   subcategorySlug?: string;
   productHref: string;
+  hasSelectableOptions: boolean;
 };
 
 export type CatalogCategorySummary = {

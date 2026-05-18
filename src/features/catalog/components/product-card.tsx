@@ -1,22 +1,30 @@
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import {
+  formatInstallmentPrice,
+  formatProductPrice,
+} from "@/features/catalog/components/product-card-formatting";
+import {
+  ProductCardActions,
+} from "@/features/catalog/components/product-card-commerce";
 import type { CatalogProductCard } from "@/features/catalog/types";
 
 function formatPrice(value: number) {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0,
-  }).format(value);
+  return formatProductPrice(value);
 }
 
 type ProductCardProps = {
   product: CatalogProductCard;
   variant?: "default" | "desktopCatalog" | "catalogMobile";
+  showCommerceEnhancements?: boolean;
 };
 
-export function ProductCard({ product, variant = "default" }: ProductCardProps) {
+export function ProductCard({
+  product,
+  variant = "default",
+  showCommerceEnhancements = true,
+}: ProductCardProps) {
   const isDesktopCatalog = variant === "desktopCatalog";
   const isCatalogMobile = variant === "catalogMobile";
   const isDefaultCatalog = variant === "default";
@@ -85,16 +93,34 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
           >
             {formatPrice(product.basePrice)}
           </p>
+          {showCommerceEnhancements ? (
+            <p className="text-[11px] leading-tight text-neutral-500 sm:text-xs">
+              6 cuotas sin interés de {formatInstallmentPrice(product.basePrice)}
+            </p>
+          ) : null}
           {!isDesktopCatalog && product.transferPrice ? (
-            <p className="text-[11px] leading-tight text-neutral-500 sm:hidden">
-              <span className="font-medium text-neutral-700">Transferencia:</span>{" "}
+            <p
+              className={cn(
+                "text-[11px] leading-tight sm:hidden",
+                showCommerceEnhancements ? "text-[#b51429]" : "text-neutral-500",
+              )}
+            >
+              <span
+                className={cn(
+                  "font-medium",
+                  !showCommerceEnhancements && "text-neutral-700",
+                )}
+              >
+                Transferencia:
+              </span>{" "}
               {formatPrice(product.transferPrice)}
             </p>
           ) : null}
           {product.transferPrice ? (
             <p
               className={cn(
-                "mt-1 hidden text-xs text-neutral-600 sm:block sm:text-sm",
+                "mt-1 hidden text-xs sm:block sm:text-sm",
+                showCommerceEnhancements ? "text-[#b51429]" : "text-neutral-600",
                 isDesktopCatalog && "block",
               )}
             >
@@ -103,6 +129,23 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
             </p>
           ) : null}
         </div>
+
+        {showCommerceEnhancements ? (
+          <div>
+            <ProductCardActions
+              product={product}
+              addLabel="Añadir"
+              viewLabel="Ver"
+              className={cn(
+                "w-full items-center overflow-hidden pt-2",
+                product.hasSelectableOptions
+                  ? "justify-end"
+                  : "justify-between gap-1.5",
+              )}
+              buttonClassName="h-7 min-w-0 px-2.5 text-[10px] sm:px-2.5 sm:text-[10px]"
+            />
+          </div>
+        ) : null}
       </div>
     </article>
   );

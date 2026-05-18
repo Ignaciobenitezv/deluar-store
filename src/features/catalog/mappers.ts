@@ -33,6 +33,7 @@ export function mapProductToCatalogCard(product: ProductDocument): CatalogProduc
     categoryTitle: product.category.title,
     subcategorySlug: product.subcategory?.slug.current,
     productHref: `/productos/detalle/${productSlug}`,
+    hasSelectableOptions: (product.colorVariants ?? []).length > 0,
   };
 }
 

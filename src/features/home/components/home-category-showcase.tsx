@@ -4,6 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { cn } from "@/lib/utils";
+import {
+  formatInstallmentPrice,
+  formatProductPrice,
+} from "@/features/catalog/components/product-card-formatting";
 import type { HomeCategoryShowcaseItem } from "@/features/home/types";
 
 type HomeCategoryShowcaseProps = {
@@ -13,15 +17,7 @@ type HomeCategoryShowcaseProps = {
 const DESKTOP_BATCH_SIZE = 8;
 
 function formatPrice(value: number) {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-function getInstallmentPrice(value: number) {
-  return formatPrice(Math.round(value / 3));
+  return formatProductPrice(value);
 }
 
 function formatAttributeLabel(value: string) {
@@ -54,8 +50,7 @@ function ProductMiniCard({
     : product.categoryTitle;
 
   return (
-    <Link
-      href={product.productHref}
+    <article
       style={style}
       className={cn(
         "group flex h-full flex-col rounded-[1.1rem] border border-[#d8c3ae]/70 bg-[linear-gradient(180deg,rgba(252,247,241,0.96),rgba(245,236,227,0.94))] p-2.5 shadow-[0_10px_24px_rgba(73,52,39,0.06)] transition-all duration-300 hover:border-[#cfb59d] hover:translate-y-[-2px] hover:shadow-[0_16px_30px_rgba(73,52,39,0.1)]",
@@ -65,9 +60,10 @@ function ProductMiniCard({
         className,
       )}
     >
-      <div
+      <Link
+        href={product.productHref}
         className={cn(
-          "relative overflow-hidden bg-[#efe5d8]",
+          "relative block overflow-hidden bg-[#efe5d8]",
           compact
             ? "aspect-[1/1.02] rounded-[0.85rem]"
             : "aspect-[1/1.03] rounded-[0.95rem] lg:z-10 lg:aspect-[1.08/1]",
@@ -92,7 +88,7 @@ function ProductMiniCard({
             {badgeLabel}
           </span>
         ) : null}
-      </div>
+      </Link>
       <div
         className={cn(
           "flex flex-1 flex-col px-0.5",
@@ -104,14 +100,16 @@ function ProductMiniCard({
             {detailAttribute}
           </p>
         ) : null}
-        <h3
-          className={cn(
-            "line-clamp-2 font-medium tracking-[0.018em] text-[#2f2219]",
-            compact ? "text-[0.82rem] leading-5" : "text-[0.96rem] leading-[1.35] lg:text-[1rem]",
-          )}
-        >
-          {product.title}
-        </h3>
+        <Link href={product.productHref} className="block">
+          <h3
+            className={cn(
+              "line-clamp-2 font-medium tracking-[0.018em] text-[#2f2219]",
+              compact ? "text-[0.82rem] leading-5" : "text-[0.96rem] leading-[1.35] lg:text-[1rem]",
+            )}
+          >
+            {product.title}
+          </h3>
+        </Link>
         {product.shortDescription ? (
           <p
             className={cn(
@@ -139,23 +137,21 @@ function ProductMiniCard({
               compact ? "text-[0.72rem]" : "text-[0.78rem] font-medium",
             )}
           >
-            3 cuotas de {getInstallmentPrice(product.basePrice)}
+            6 cuotas sin interés de {formatInstallmentPrice(product.basePrice)}
           </p>
-        </div>
-        <div className={cn("mt-auto flex", compact ? "justify-start pt-2" : "justify-start pt-3")}>
-          <span
-            className={cn(
-              "inline-flex items-center justify-center rounded-full border transition-all duration-300",
-              compact
-                ? "min-h-8 border-[#d8b99f] bg-[#f3e2cf] px-3 text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-[#67493a] group-hover:border-[#cda98b] group-hover:bg-[#eed7bf]"
-                : "min-h-9 border-[#d7b79d] bg-[#f4dfcb] px-3.5 text-[0.67rem] font-semibold uppercase tracking-[0.15em] text-[#644637] shadow-[0_6px_14px_rgba(84,58,42,0.08)] group-hover:border-[#caa689] group-hover:bg-[#efd5bb] group-hover:shadow-[0_10px_18px_rgba(84,58,42,0.12)]",
-            )}
-          >
-            Ver producto
-          </span>
+          {product.transferPrice ? (
+            <p
+              className={cn(
+                "font-medium text-[#b51429]",
+                compact ? "text-[0.72rem]" : "text-[0.78rem]",
+              )}
+            >
+              Transferencia: {formatPrice(product.transferPrice)}
+            </p>
+          ) : null}
         </div>
       </div>
-    </Link>
+    </article>
   );
 }
 

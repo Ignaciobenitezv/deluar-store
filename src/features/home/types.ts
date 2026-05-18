@@ -95,6 +95,7 @@ export type HomeNewInProduct = {
   categoryTitle: string;
   subcategorySlug?: string;
   productHref: string;
+  hasSelectableOptions: boolean;
   images: ProductDetailImage[];
   attributes: {
     label: string;

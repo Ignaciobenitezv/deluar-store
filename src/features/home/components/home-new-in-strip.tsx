@@ -3,6 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
+import {
+  formatInstallmentPrice,
+  formatProductPrice,
+} from "@/features/catalog/components/product-card-formatting";
 import type { HomeNewInProduct } from "@/features/home/types";
 
 type HomeNewInStripProps = {
@@ -12,11 +16,7 @@ type HomeNewInStripProps = {
 };
 
 function formatPrice(value: number) {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0,
-  }).format(value);
+  return formatProductPrice(value);
 }
 
 export function HomeNewInStrip({
@@ -153,19 +153,15 @@ export function HomeNewInStrip({
                   <p className="pt-0.5 text-[1.1rem] font-semibold leading-none text-foreground">
                     {formatPrice(product.basePrice)}
                   </p>
+                  <p className="text-[11px] leading-tight text-neutral-500 sm:text-xs">
+                    6 cuotas sin interés de {formatInstallmentPrice(product.basePrice)}
+                  </p>
                   {product.transferPrice ? (
-                    <p className="mt-1 text-[0.85rem] leading-[1.2] text-[#c47a2c]">
-                      <span className="font-medium opacity-80">Transferencia:</span>{" "}
+                    <p className="mt-1 text-[0.85rem] leading-[1.2] text-[#b51429]">
+                      <span className="font-medium">Transferencia:</span>{" "}
                       <span className="font-semibold">{formatPrice(product.transferPrice)}</span>
                     </p>
                   ) : null}
-                  <Link
-                    href={product.productHref}
-                    onClick={(event) => event.stopPropagation()}
-                    className="inline-flex pt-1 text-[0.62rem] uppercase tracking-[0.16em] text-foreground/70 transition-colors hover:text-foreground"
-                  >
-                    Ver detalle
-                  </Link>
                 </div>
               </div>
             </article>

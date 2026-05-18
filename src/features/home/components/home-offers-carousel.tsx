@@ -4,6 +4,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import {
+  formatInstallmentPrice,
+  formatProductPrice,
+} from "@/features/catalog/components/product-card-formatting";
 import type { CatalogProductCard } from "@/features/catalog/types";
 import { cn } from "@/lib/utils";
 
@@ -12,11 +16,7 @@ type HomeOffersCarouselProps = {
 };
 
 function formatPrice(value: number) {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0,
-  }).format(value);
+  return formatProductPrice(value);
 }
 
 function getPrevIndex(index: number, total: number) {
@@ -178,8 +178,11 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                       <p className="text-[2rem] font-semibold leading-none tracking-[0.01em] text-[#3a281e] xl:text-[2.3rem]">
                         {formatPrice(activeProduct.basePrice)}
                       </p>
+                      <p className="text-xs text-neutral-500">
+                        6 cuotas sin interés de {formatInstallmentPrice(activeProduct.basePrice)}
+                      </p>
                       {activeProduct.transferPrice ? (
-                        <p className="text-[0.92rem] font-medium text-[#8a6754] xl:text-[0.96rem]">
+                        <p className="text-[0.92rem] font-medium text-[#b51429] xl:text-[0.96rem]">
                           Transferencia: {formatPrice(activeProduct.transferPrice)}
                         </p>
                       ) : null}
@@ -270,8 +273,11 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                     <p className="text-[1.7rem] font-semibold leading-none text-[#3a281e]">
                       {formatPrice(activeProduct.basePrice)}
                     </p>
+                    <p className="text-[11px] text-neutral-500 sm:text-xs">
+                      6 cuotas sin interés de {formatInstallmentPrice(activeProduct.basePrice)}
+                    </p>
                     {activeProduct.transferPrice ? (
-                      <p className="text-[0.88rem] font-medium text-[#8a6754]">
+                      <p className="text-[0.88rem] font-medium text-[#b51429]">
                         Transferencia: {formatPrice(activeProduct.transferPrice)}
                       </p>
                     ) : null}

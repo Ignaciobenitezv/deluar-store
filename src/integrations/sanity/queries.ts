@@ -133,6 +133,10 @@ export const newInProductsQuery = groq`
     showInNewIn,
     newInOrder,
     images,
+    colorVariants[]{
+      title,
+      value
+    },
     attributes,
     category->{
       _id,
