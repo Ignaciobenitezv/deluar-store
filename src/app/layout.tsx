@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { WhatsAppFloatingButton } from "@/components/layout/whatsapp-floating-button";
 import { siteConfig } from "@/config/site";
 import { buildMetadata } from "@/lib/seo";
 import { sanityFetch } from "@/integrations/sanity/client";
@@ -46,7 +47,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="h-full" suppressHydrationWarning>
-      <body className="min-h-full bg-background text-foreground">{children}</body>
+      <body className="min-h-full bg-background text-foreground">
+        {children}
+        <WhatsAppFloatingButton />
+      </body>
     </html>
   );
 }

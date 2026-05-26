@@ -18,7 +18,7 @@ import {
   categoryTreeQuery,
   productBySlugQuery,
   productsByCategoryQuery,
-  relatedProductsByCategoryQuery,
+  relatedProductFallbackGroupsQuery,
   searchProductsQuery,
 } from "@/integrations/sanity/queries";
 import type { CategoryDocument, ProductDocument, SubcategoryDocument } from "@/types/cms";
@@ -35,6 +35,14 @@ type CatalogFilters = {
   color?: string;
   sort?: CatalogSort;
 };
+
+type RelatedProductFallbackGroups = {
+  sameCategory?: ProductDocument[];
+  featured?: ProductDocument[];
+  fallback?: ProductDocument[];
+};
+
+const RELATED_PRODUCTS_LIMIT = 4;
 
 function getFallbackCategorySummary(): CatalogCategorySummary[] {
   return storefrontNavigation.categories.map((category) => ({
@@ -120,6 +128,40 @@ function sortProducts(products: ProductDocument[], sort?: CatalogSort) {
   }
 
   return sortedProducts;
+}
+
+function mergeRelatedProductFallbacks(groups: RelatedProductFallbackGroups) {
+  const relatedProducts: ProductDocument[] = [];
+  const seenIds = new Set<string>();
+  const seenSlugs = new Set<string>();
+
+  for (const product of [
+    ...(groups.sameCategory ?? []),
+    ...(groups.featured ?? []),
+    ...(groups.fallback ?? []),
+  ]) {
+    const slug = product.slug?.current;
+
+    if (
+      !slug ||
+      product.stock <= 0 ||
+      product.isActive === false ||
+      seenIds.has(product._id) ||
+      seenSlugs.has(slug)
+    ) {
+      continue;
+    }
+
+    relatedProducts.push(product);
+    seenIds.add(product._id);
+    seenSlugs.add(slug);
+
+    if (relatedProducts.length >= RELATED_PRODUCTS_LIMIT) {
+      break;
+    }
+  }
+
+  return relatedProducts;
 }
 
 export const getCatalogPageData = cache(async (filters: CatalogFilters = {}): Promise<CatalogPageData> => {
@@ -225,13 +267,14 @@ export const getProductDetailData = cache(
         return null;
       }
 
-      const relatedProducts = await sanityFetch<ProductDocument[]>(
-        relatedProductsByCategoryQuery,
+      const relatedProductGroups = await sanityFetch<RelatedProductFallbackGroups>(
+        relatedProductFallbackGroupsQuery,
         {
-          categorySlug: product.category.slug.current,
+          categorySlug: product.category?.slug.current ?? "",
           slug,
         },
       );
+      const relatedProducts = mergeRelatedProductFallbacks(relatedProductGroups);
 
       return mapProductToDetail(product, relatedProducts);
     } catch {

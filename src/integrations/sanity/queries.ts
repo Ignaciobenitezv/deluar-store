@@ -31,6 +31,7 @@ export const productCardQuery = groq`
     basePrice,
     transferPrice,
     stock,
+    isActive,
     isFeatured,
     isOnOffer,
     showInNewIn,
@@ -128,6 +129,7 @@ export const newInProductsQuery = groq`
     basePrice,
     transferPrice,
     stock,
+    isActive,
     isFeatured,
     isOnOffer,
     showInNewIn,
@@ -164,6 +166,7 @@ export const productBySlugQuery = groq`
     basePrice,
     transferPrice,
     stock,
+    isActive,
     isFeatured,
     isOnOffer,
     images,
@@ -198,13 +201,36 @@ export const productBySlugQuery = groq`
   }
 `;
 
-export const relatedProductsByCategoryQuery = groq`
-  *[
-    _type == "product" &&
-    category->slug.current == $categorySlug &&
-    slug.current != $slug
-  ] | order(isFeatured desc, _createdAt desc) [0...4]
-  ${productCardQuery}
+export const relatedProductFallbackGroupsQuery = groq`
+  {
+    "sameCategory": *[
+      _type == "product" &&
+      defined(slug.current) &&
+      slug.current != $slug &&
+      stock > 0 &&
+      (!defined(isActive) || isActive == true) &&
+      $categorySlug != "" &&
+      category->slug.current == $categorySlug
+    ] | order(isFeatured desc, _createdAt desc) [0...4]
+    ${productCardQuery},
+    "featured": *[
+      _type == "product" &&
+      defined(slug.current) &&
+      slug.current != $slug &&
+      stock > 0 &&
+      (!defined(isActive) || isActive == true) &&
+      isFeatured == true
+    ] | order(_createdAt desc) [0...12]
+    ${productCardQuery},
+    "fallback": *[
+      _type == "product" &&
+      defined(slug.current) &&
+      slug.current != $slug &&
+      stock > 0 &&
+      (!defined(isActive) || isActive == true)
+    ] | order(_createdAt desc) [0...24]
+    ${productCardQuery}
+  }
 `;
 
 export const productsBySlugsQuery = groq`

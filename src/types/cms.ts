@@ -110,6 +110,7 @@ export type ProductDocument = {
   basePrice: number;
   transferPrice?: number;
   stock: number;
+  isActive?: boolean;
   isFeatured?: boolean;
   isOnOffer?: boolean;
   showInNewIn?: boolean;
