@@ -1,4 +1,5 @@
 import type { CheckoutFormErrors, CheckoutFormValues } from "@/features/checkout/types";
+import { DEFAULT_CHECKOUT_PAYMENT_METHOD } from "@/features/payments/types";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -17,6 +18,7 @@ export function getInitialCheckoutFormValues(): CheckoutFormValues {
     province: "",
     postalCode: "",
     notes: "",
+    paymentMethod: DEFAULT_CHECKOUT_PAYMENT_METHOD,
   };
 }
 

@@ -1,5 +1,10 @@
 import type { CheckoutFormValues } from "@/features/checkout/types";
 import type { CreateOrderInput } from "@/features/order/types";
+import {
+  DEFAULT_CHECKOUT_PAYMENT_METHOD,
+  normalizeCheckoutPaymentMethod,
+  isEnabledCheckoutPaymentMethod,
+} from "@/features/payments/types";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_PATTERN = /^[\d\s()+-]{6,25}$/;
@@ -30,7 +35,22 @@ export function normalizeCheckoutCustomer(
     province: readString(input?.province),
     postalCode: readString(input?.postalCode),
     notes: readString(input?.notes),
+    paymentMethod: DEFAULT_CHECKOUT_PAYMENT_METHOD,
   };
+}
+
+export function normalizeOrderPaymentMethod(input: CreateOrderInput["paymentMethod"]) {
+  return normalizeCheckoutPaymentMethod(input);
+}
+
+export function validateOrderPaymentMethod(paymentMethod: unknown) {
+  if (paymentMethod === undefined || paymentMethod === null || paymentMethod === "") {
+    return [];
+  }
+
+  return isEnabledCheckoutPaymentMethod(paymentMethod)
+    ? []
+    : ["El metodo de pago seleccionado no esta disponible."];
 }
 
 export function validateOrderCustomer(values: CheckoutFormValues) {

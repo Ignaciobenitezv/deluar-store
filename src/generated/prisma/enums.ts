@@ -24,6 +24,7 @@ export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
 
 
 export const PaymentMethod = {
+  GOCUOTAS: 'GOCUOTAS',
   MERCADO_PAGO: 'MERCADO_PAGO',
   TRANSFER: 'TRANSFER',
   GETNET: 'GETNET'
@@ -33,6 +34,7 @@ export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]
 
 
 export const PaymentProvider = {
+  GOCUOTAS: 'GOCUOTAS',
   MERCADO_PAGO: 'MERCADO_PAGO',
   GETNET: 'GETNET'
 } as const

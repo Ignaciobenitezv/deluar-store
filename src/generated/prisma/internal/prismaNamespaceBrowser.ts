@@ -55,6 +55,8 @@ export const ModelName = {
   ShippingAddress: 'ShippingAddress',
   ProductSnapshot: 'ProductSnapshot',
   Order: 'Order',
+  PaymentWebhookEvent: 'PaymentWebhookEvent',
+  EmailLog: 'EmailLog',
   OrderItem: 'OrderItem',
   MercadoPagoWebhookEvent: 'MercadoPagoWebhookEvent'
 } as const
@@ -125,8 +127,12 @@ export const OrderScalarFieldEnum = {
   paymentProvider: 'paymentProvider',
   paymentStatus: 'paymentStatus',
   externalPaymentId: 'externalPaymentId',
+  externalReference: 'externalReference',
   providerPreferenceId: 'providerPreferenceId',
   providerPaymentId: 'providerPaymentId',
+  rawProviderStatus: 'rawProviderStatus',
+  checkoutUrl: 'checkoutUrl',
+  installments: 'installments',
   customerId: 'customerId',
   shippingAddressId: 'shippingAddressId',
   createdAt: 'createdAt',
@@ -134,6 +140,38 @@ export const OrderScalarFieldEnum = {
 } as const
 
 export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+
+
+export const PaymentWebhookEventScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  dedupeKey: 'dedupeKey',
+  providerEventId: 'providerEventId',
+  providerPaymentId: 'providerPaymentId',
+  externalReference: 'externalReference',
+  orderId: 'orderId',
+  payload: 'payload',
+  headers: 'headers',
+  processedAt: 'processedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type PaymentWebhookEventScalarFieldEnum = (typeof PaymentWebhookEventScalarFieldEnum)[keyof typeof PaymentWebhookEventScalarFieldEnum]
+
+
+export const EmailLogScalarFieldEnum = {
+  id: 'id',
+  eventKey: 'eventKey',
+  orderId: 'orderId',
+  recipient: 'recipient',
+  subject: 'subject',
+  template: 'template',
+  provider: 'provider',
+  providerMessageId: 'providerMessageId',
+  createdAt: 'createdAt'
+} as const
+
+export type EmailLogScalarFieldEnum = (typeof EmailLogScalarFieldEnum)[keyof typeof EmailLogScalarFieldEnum]
 
 
 export const OrderItemScalarFieldEnum = {

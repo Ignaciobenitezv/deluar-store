@@ -1,4 +1,5 @@
 import type { CheckoutFormValues } from "@/features/checkout/types";
+import type { PaymentMethod } from "@/features/payments/types";
 import type { CreateOrderResult, Order } from "@/features/order/types";
 import type {
   GetnetInitPaymentResponse,
@@ -11,6 +12,7 @@ type CreateCheckoutOrderInput = {
     slug: string;
     quantity: number;
   }[];
+  paymentMethod?: PaymentMethod;
 };
 
 export async function createCheckoutOrder(

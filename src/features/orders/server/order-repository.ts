@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
 import type { Order } from "@/features/order/types";
 import { mapPersistedOrderToCheckoutOrder } from "@/features/orders/server/order-mapper";
+import { PAYMENT_METHODS, type EnabledCheckoutPaymentMethod } from "@/features/payments/types";
 
 type PersistOrderInput = {
   orderNumber: string;
@@ -29,6 +30,7 @@ type PersistOrderInput = {
     transferPrice?: number;
     lineTotal: number;
   }[];
+  paymentMethod: EnabledCheckoutPaymentMethod;
   subtotal: number;
   shippingCost?: number;
   total: number;
@@ -46,6 +48,26 @@ const orderInclude = {
 
 function decimal(value: number) {
   return new Prisma.Decimal(value);
+}
+
+function toPrismaPaymentMethod(paymentMethod: EnabledCheckoutPaymentMethod) {
+  switch (paymentMethod) {
+    case PAYMENT_METHODS.TRANSFER:
+      return "TRANSFER" as const;
+    case PAYMENT_METHODS.GOCUOTAS:
+    default:
+      return "GOCUOTAS" as const;
+  }
+}
+
+function toPrismaPaymentProvider(paymentMethod: EnabledCheckoutPaymentMethod) {
+  switch (paymentMethod) {
+    case PAYMENT_METHODS.TRANSFER:
+      return null;
+    case PAYMENT_METHODS.GOCUOTAS:
+    default:
+      return "GOCUOTAS" as const;
+  }
 }
 
 export async function saveOrder(input: PersistOrderInput): Promise<Order> {
@@ -77,8 +99,10 @@ export async function saveOrder(input: PersistOrderInput): Promise<Order> {
         subtotal: decimal(input.subtotal),
         shippingCost: decimal(input.shippingCost ?? 0),
         total: decimal(input.total),
-        paymentMethod: "GETNET",
+        paymentMethod: toPrismaPaymentMethod(input.paymentMethod),
+        paymentProvider: toPrismaPaymentProvider(input.paymentMethod),
         paymentStatus: "PENDING",
+        externalReference: input.orderNumber,
         customerId: customer.id,
         shippingAddressId: shippingAddress.id,
         items: {
@@ -123,6 +147,29 @@ export async function getOrderById(id: string) {
   });
 
   return order ? mapPersistedOrderToCheckoutOrder(order) : null;
+}
+
+export async function markOrderWithGoCuotasCheckout(params: {
+  orderId: string;
+  checkoutUrl: string;
+  rawProviderStatus?: string;
+  externalReference: string;
+}) {
+  const order = await prisma.order.update({
+    where: { id: params.orderId },
+    data: {
+      status: "PENDING_PAYMENT",
+      paymentMethod: "GOCUOTAS",
+      paymentProvider: "GOCUOTAS",
+      paymentStatus: "PENDING",
+      externalReference: params.externalReference,
+      checkoutUrl: params.checkoutUrl,
+      rawProviderStatus: params.rawProviderStatus,
+    },
+    include: orderInclude,
+  });
+
+  return mapPersistedOrderToCheckoutOrder(order);
 }
 
 export async function listOrders() {

@@ -1,4 +1,5 @@
 import type { CheckoutFormValues } from "@/features/checkout/types";
+import type { PaymentMethod } from "@/features/payments/types";
 
 export type OrderStatus =
   | "created"
@@ -36,6 +37,13 @@ export type Order = {
   id: string;
   orderNumber: string;
   status: OrderStatus;
+  paymentMethod: PaymentMethod;
+  paymentProvider?: "gocuotas" | "getnet" | "mercado_pago";
+  paymentStatus: "not_started" | "pending" | "approved" | "rejected" | "cancelled" | "refunded" | "charged_back";
+  externalReference?: string;
+  checkoutUrl?: string;
+  rawProviderStatus?: string;
+  installments?: number;
   items: OrderItem[];
   subtotal: number;
   total: number;
@@ -56,6 +64,7 @@ export type CreateOrderItemInput = {
 export type CreateOrderInput = {
   customer?: Partial<CheckoutFormValues>;
   items?: CreateOrderItemInput[];
+  paymentMethod?: PaymentMethod;
 };
 
 export type CreateOrderResult =

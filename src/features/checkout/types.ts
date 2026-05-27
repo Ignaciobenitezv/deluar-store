@@ -1,3 +1,5 @@
+import type { PaymentMethod } from "@/features/payments/types";
+
 export type CheckoutFormValues = {
   firstName: string;
   lastName: string;
@@ -8,6 +10,7 @@ export type CheckoutFormValues = {
   province: string;
   postalCode: string;
   notes: string;
+  paymentMethod: PaymentMethod;
 };
 
 export type CheckoutFormErrors = Partial<Record<keyof CheckoutFormValues, string>>;

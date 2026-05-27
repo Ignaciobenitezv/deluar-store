@@ -1,5 +1,6 @@
 import type { Order as CheckoutOrder, OrderStatus as CheckoutOrderStatus } from "@/features/order/types";
 import type { Prisma } from "@/generated/prisma/client";
+import { PAYMENT_METHODS, type PaymentMethod } from "@/features/payments/types";
 
 type PersistedOrder = Prisma.OrderGetPayload<{
   include: {
@@ -25,6 +26,35 @@ function toCheckoutStatus(status: PersistedOrder["status"]): CheckoutOrderStatus
   return status.toLowerCase() as CheckoutOrderStatus;
 }
 
+function toCheckoutPaymentMethod(method: PersistedOrder["paymentMethod"]): PaymentMethod {
+  switch (method) {
+    case "TRANSFER":
+      return PAYMENT_METHODS.TRANSFER;
+    case "GETNET":
+      return PAYMENT_METHODS.GETNET;
+    case "GOCUOTAS":
+    default:
+      return PAYMENT_METHODS.GOCUOTAS;
+  }
+}
+
+function toCheckoutPaymentProvider(provider: PersistedOrder["paymentProvider"]) {
+  switch (provider) {
+    case "GETNET":
+      return "getnet" as const;
+    case "MERCADO_PAGO":
+      return "mercado_pago" as const;
+    case "GOCUOTAS":
+      return "gocuotas" as const;
+    default:
+      return undefined;
+  }
+}
+
+function toCheckoutPaymentStatus(status: PersistedOrder["paymentStatus"]) {
+  return status.toLowerCase() as CheckoutOrder["paymentStatus"];
+}
+
 function splitFullName(fullName: string) {
   const parts = fullName.trim().split(/\s+/).filter(Boolean);
   const firstName = parts.shift() ?? fullName;
@@ -42,6 +72,13 @@ export function mapPersistedOrderToCheckoutOrder(order: PersistedOrder): Checkou
     id: order.id,
     orderNumber: order.orderNumber,
     status: toCheckoutStatus(order.status),
+    paymentMethod: toCheckoutPaymentMethod(order.paymentMethod),
+    paymentProvider: toCheckoutPaymentProvider(order.paymentProvider),
+    paymentStatus: toCheckoutPaymentStatus(order.paymentStatus),
+    externalReference: order.externalReference ?? undefined,
+    checkoutUrl: order.checkoutUrl ?? undefined,
+    rawProviderStatus: order.rawProviderStatus ?? undefined,
+    installments: order.installments ?? undefined,
     items: order.items.map((item) => ({
       productId: item.productId,
       productSlug: item.productSlug,

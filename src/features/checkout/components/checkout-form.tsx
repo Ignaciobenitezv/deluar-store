@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { CheckoutFormErrors, CheckoutFormValues } from "@/features/checkout/types";
+import { PAYMENT_METHODS } from "@/features/payments/types";
 import {
   getInitialCheckoutFormValues,
   validateCheckoutForm,
@@ -15,13 +16,13 @@ type CheckoutFormProps = {
 };
 
 type FieldProps = {
-  id: keyof CheckoutFormValues;
+  id: Exclude<keyof CheckoutFormValues, "paymentMethod">;
   label: string;
   value: string;
   error?: string;
   required?: boolean;
   multiline?: boolean;
-  onChange: (field: keyof CheckoutFormValues, value: string) => void;
+  onChange: (field: Exclude<keyof CheckoutFormValues, "paymentMethod">, value: string) => void;
 };
 
 function Field({
@@ -77,9 +78,16 @@ export function CheckoutForm({
   const [values, setValues] = useState<CheckoutFormValues>(getInitialCheckoutFormValues);
   const [errors, setErrors] = useState<CheckoutFormErrors>({});
 
-  const handleChange = (field: keyof CheckoutFormValues, value: string) => {
+  const handleChange = (
+    field: Exclude<keyof CheckoutFormValues, "paymentMethod">,
+    value: string,
+  ) => {
     setValues((current) => ({ ...current, [field]: value }));
     setErrors((current) => ({ ...current, [field]: undefined }));
+  };
+
+  const handlePaymentMethodChange = (paymentMethod: CheckoutFormValues["paymentMethod"]) => {
+    setValues((current) => ({ ...current, paymentMethod }));
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -215,6 +223,67 @@ export function CheckoutForm({
       </section>
 
       <div className="space-y-4 rounded-[1.5rem] border border-border/75 bg-white/68 px-5 py-5">
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <p className="text-xs uppercase tracking-[0.22em] text-muted">Medio de pago</p>
+            <p className="text-sm leading-7 text-muted">
+              Elegi como queres dejar preparado el pago de tu orden.
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {[
+              {
+                value: PAYMENT_METHODS.GOCUOTAS,
+                title: "GoCuotas",
+                description: "Tarjetas en cuotas. Integracion redirect en preparacion.",
+              },
+              {
+                value: PAYMENT_METHODS.TRANSFER,
+                title: "Transferencia bancaria",
+                description: "La orden queda pendiente para coordinar el pago.",
+              },
+            ].map((option) => {
+              const isSelected = values.paymentMethod === option.value;
+
+              return (
+                <label
+                  key={option.value}
+                  className={cn(
+                    "cursor-pointer rounded-[1.2rem] border bg-white/78 px-4 py-4 transition-colors",
+                    isSelected
+                      ? "border-[var(--color-accent-strong)]/45 bg-[rgba(167,88,60,0.06)]"
+                      : "border-border/80 hover:border-foreground/25",
+                  )}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value={option.value}
+                    checked={isSelected}
+                    onChange={() => handlePaymentMethodChange(option.value)}
+                    className="sr-only"
+                  />
+                  <span className="flex items-start gap-3">
+                    <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-foreground/25">
+                      {isSelected ? (
+                        <span className="h-2 w-2 rounded-full bg-[var(--color-accent-strong)]" />
+                      ) : null}
+                    </span>
+                    <span>
+                      <span className="block text-sm font-medium text-foreground">
+                        {option.title}
+                      </span>
+                      <span className="mt-1 block text-xs leading-5 text-muted">
+                        {option.description}
+                      </span>
+                    </span>
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+
         <div className="space-y-1">
           <p className="text-xs uppercase tracking-[0.22em] text-muted">Siguiente paso</p>
           <p className="text-sm leading-7 text-muted">

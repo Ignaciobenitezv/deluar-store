@@ -19,12 +19,14 @@ enum OrderStatus {
 }
 
 enum PaymentMethod {
+  GOCUOTAS
   MERCADO_PAGO
   TRANSFER
   GETNET
 }
 
 enum PaymentProvider {
+  GOCUOTAS
   MERCADO_PAGO
   GETNET
 }
@@ -95,8 +97,12 @@ model Order {
   paymentProvider   PaymentProvider?
   paymentStatus     PaymentStatus    @default(NOT_STARTED)
   externalPaymentId String?
+  externalReference String?
   providerPreferenceId String?       @unique
   providerPaymentId  String?          @unique
+  rawProviderStatus  String?
+  checkoutUrl        String?
+  installments       Int?
   customerId        String           @db.Uuid
   shippingAddressId String?          @db.Uuid
   createdAt         DateTime         @default(now())
@@ -105,14 +111,57 @@ model Order {
   shippingAddress   ShippingAddress? @relation(fields: [shippingAddressId], references: [id], onDelete: SetNull)
   items             OrderItem[]
   webhookEvents     MercadoPagoWebhookEvent[]
+  paymentWebhookEvents PaymentWebhookEvent[]
+  emailLogs         EmailLog[]
 
   @@index([customerId])
   @@index([shippingAddressId])
   @@index([status])
   @@index([paymentStatus])
   @@index([externalPaymentId])
+  @@index([externalReference])
   @@index([providerPreferenceId])
   @@index([providerPaymentId])
+  @@index([createdAt])
+}
+
+model PaymentWebhookEvent {
+  id                String    @id @default(uuid()) @db.Uuid
+  provider          String
+  dedupeKey         String    @unique
+  providerEventId   String?
+  providerPaymentId String?
+  externalReference String?
+  orderId           String?   @db.Uuid
+  payload           Json
+  headers           Json?
+  processedAt       DateTime?
+  createdAt         DateTime  @default(now())
+  order             Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([provider])
+  @@index([providerEventId])
+  @@index([providerPaymentId])
+  @@index([externalReference])
+  @@index([orderId])
+  @@index([createdAt])
+}
+
+model EmailLog {
+  id                String   @id @default(uuid()) @db.Uuid
+  eventKey          String   @unique
+  orderId           String?  @db.Uuid
+  recipient         String
+  subject           String
+  template          String
+  provider          String   @default("resend")
+  providerMessageId String?
+  createdAt         DateTime @default(now())
+  order             Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([recipient])
+  @@index([template])
   @@index([createdAt])
 }
 

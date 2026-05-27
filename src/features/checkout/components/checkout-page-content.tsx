@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useCart } from "@/features/cart/cart-context";
-import { createCheckoutOrder, initGetnetCheckoutPayment } from "@/features/checkout/api";
+import { createCheckoutOrder } from "@/features/checkout/api";
 import { CheckoutForm } from "@/features/checkout/components/checkout-form";
 import { CheckoutOrderSummary } from "@/features/checkout/components/checkout-order-summary";
 import type { CheckoutFormValues } from "@/features/checkout/types";
-import type { GetnetInitPaymentResponse } from "@/integrations/getnet/types";
+import { PAYMENT_METHODS, type PaymentMethod } from "@/features/payments/types";
 import type { Order } from "@/features/order/types";
 
 type CheckoutPageContentProps = {
@@ -23,9 +23,18 @@ export function CheckoutPageContent({
   const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [paymentInit, setPaymentInit] = useState<GetnetInitPaymentResponse | null>(null);
-  const [paymentError, setPaymentError] = useState<string | null>(null);
-  const [isInitializingPayment, setIsInitializingPayment] = useState(false);
+
+  const getPaymentMethodLabel = (paymentMethod: PaymentMethod) => {
+    if (paymentMethod === PAYMENT_METHODS.TRANSFER) {
+      return "Transferencia bancaria";
+    }
+
+    if (paymentMethod === PAYMENT_METHODS.GETNET) {
+      return "Getnet";
+    }
+
+    return "GoCuotas";
+  };
 
   const handleCreateOrder = async (values: CheckoutFormValues) => {
     try {
@@ -38,6 +47,7 @@ export function CheckoutPageContent({
           slug: item.slug,
           quantity: item.quantity,
         })),
+        paymentMethod: values.paymentMethod,
       });
 
       setCreatedOrder(result.order);
@@ -53,48 +63,12 @@ export function CheckoutPageContent({
   };
 
   useEffect(() => {
-    if (!createdOrder) {
-      return;
+    if (
+      createdOrder?.paymentMethod === PAYMENT_METHODS.GOCUOTAS &&
+      createdOrder.checkoutUrl
+    ) {
+      window.location.href = createdOrder.checkoutUrl;
     }
-
-    let isActive = true;
-
-    const run = async () => {
-      try {
-        setIsInitializingPayment(true);
-        setPaymentError(null);
-
-        const result = await initGetnetCheckoutPayment({
-          orderId: createdOrder.id,
-        });
-
-        if (!isActive) {
-          return;
-        }
-
-        setPaymentInit(result.payment);
-      } catch (error) {
-        if (!isActive) {
-          return;
-        }
-
-        setPaymentError(
-          error instanceof Error
-            ? error.message
-            : "No se pudo preparar el pago en este momento.",
-        );
-      } finally {
-        if (isActive) {
-          setIsInitializingPayment(false);
-        }
-      }
-    };
-
-    void run();
-
-    return () => {
-      isActive = false;
-    };
   }, [createdOrder]);
 
   if (items.length === 0) {
@@ -138,8 +112,8 @@ export function CheckoutPageContent({
               Tu pedido ya fue creado correctamente
             </h1>
             <p className="text-sm leading-7 text-muted sm:text-base">
-              La orden ya existe en backend y el checkout avanzo al paso de inicio de
-              pago. Esta vista refleja el estado actual de la preparacion con Getnet.
+              La orden ya existe en backend y quedo pendiente de pago con el metodo
+              seleccionado. La integracion externa se conectara en el siguiente paso.
             </p>
           </div>
 
@@ -154,6 +128,12 @@ export function CheckoutPageContent({
               <p className="text-xs uppercase tracking-[0.22em] text-muted">Estado</p>
               <p className="mt-1 text-lg font-medium text-foreground">
                 {createdOrder.status}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.22em] text-muted">Pago</p>
+              <p className="mt-1 text-lg font-medium text-foreground">
+                {getPaymentMethodLabel(createdOrder.paymentMethod)}
               </p>
             </div>
             <div>
@@ -175,54 +155,25 @@ export function CheckoutPageContent({
               <p className="text-xs uppercase tracking-[0.22em] text-muted">
                 Estado del pago
               </p>
-              {isInitializingPayment ? (
-                <>
-                  <h2 className="text-2xl font-semibold tracking-[0.03em] text-foreground">
-                    Iniciando pago
-                  </h2>
-                  <p className="text-sm leading-7 text-muted">
-                    Estamos preparando la siguiente etapa del checkout con Getnet.
-                  </p>
-                </>
-              ) : null}
-
-              {!isInitializingPayment && paymentError ? (
-                <>
-                  <h2 className="text-2xl font-semibold tracking-[0.03em] text-foreground">
-                    No se pudo iniciar el pago
-                  </h2>
-                  <p className="text-sm leading-7 text-muted">{paymentError}</p>
-                </>
-              ) : null}
-
-              {!isInitializingPayment && paymentInit?.mode === "mock" ? (
-                <>
-                  <h2 className="text-2xl font-semibold tracking-[0.03em] text-foreground">
-                    El pago no esta configurado todavia
-                  </h2>
-                  <p className="text-sm leading-7 text-muted">{paymentInit.message}</p>
-                </>
-              ) : null}
-
-              {!isInitializingPayment && paymentInit?.mode === "live" ? (
-                <>
-                  <h2 className="text-2xl font-semibold tracking-[0.03em] text-foreground">
-                    Pago listo para continuar
-                  </h2>
-                  <p className="text-sm leading-7 text-muted">{paymentInit.message}</p>
-                </>
-              ) : null}
+              <h2 className="text-2xl font-semibold tracking-[0.03em] text-foreground">
+                {createdOrder.checkoutUrl ? "Redirigiendo al pago" : "Pago pendiente"}
+              </h2>
+              <p className="text-sm leading-7 text-muted">
+                {createdOrder.checkoutUrl
+                  ? "Estamos abriendo el checkout seguro de GoCuotas."
+                  : createdOrder.paymentMethod === PAYMENT_METHODS.TRANSFER
+                  ? "La orden quedo registrada para coordinar los datos de transferencia."
+                  : "La orden quedo preparada para conectar el redirect de GoCuotas."}
+              </p>
             </div>
 
-            {paymentInit ? (
-              <div className="mt-4 rounded-[1.2rem] border border-border/70 bg-background/80 p-4 text-xs leading-6 text-muted">
-                <p>Proveedor: {paymentInit.provider}</p>
-                <p>Modo: {paymentInit.mode}</p>
-                <p>Estado: {paymentInit.status}</p>
-                <p>Referencia: {paymentInit.paymentPayload.externalReference}</p>
-                <p>Monto: {paymentInit.paymentPayload.amount}</p>
-              </div>
-            ) : null}
+            <div className="mt-4 rounded-[1.2rem] border border-border/70 bg-background/80 p-4 text-xs leading-6 text-muted">
+              <p>Metodo: {getPaymentMethodLabel(createdOrder.paymentMethod)}</p>
+              <p>Proveedor: {createdOrder.paymentProvider ?? "Sin proveedor externo"}</p>
+              <p>Estado: {createdOrder.paymentStatus}</p>
+              <p>Referencia: {createdOrder.orderNumber}</p>
+              <p>Monto: {createdOrder.total}</p>
+            </div>
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3">
@@ -232,22 +183,22 @@ export function CheckoutPageContent({
             >
               Volver al carrito
             </Link>
-            {paymentInit?.mode === "live" && paymentInit.checkoutUrl ? (
-              <button
-                type="button"
-                className="inline-flex min-h-12 items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white transition-opacity hover:opacity-95"
-              >
-                Continuar al pago
-              </button>
-            ) : (
-              <button
-                type="button"
-                disabled
-                className="inline-flex min-h-12 items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white opacity-55"
-              >
-                Continuar al pago
-              </button>
-            )}
+            <button
+              type="button"
+              disabled={!createdOrder.checkoutUrl}
+              onClick={() => {
+                if (createdOrder.checkoutUrl) {
+                  window.location.href = createdOrder.checkoutUrl;
+                }
+              }}
+              className={
+                createdOrder.checkoutUrl
+                  ? "inline-flex min-h-12 items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white transition-opacity hover:opacity-95"
+                  : "inline-flex min-h-12 items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white opacity-55"
+              }
+            >
+              {createdOrder.checkoutUrl ? "Ir al pago" : "Continuar al pago"}
+            </button>
           </div>
         </div>
 

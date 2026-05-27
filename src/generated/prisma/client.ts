@@ -62,6 +62,16 @@ export type ProductSnapshot = Prisma.ProductSnapshotModel
  */
 export type Order = Prisma.OrderModel
 /**
+ * Model PaymentWebhookEvent
+ * 
+ */
+export type PaymentWebhookEvent = Prisma.PaymentWebhookEventModel
+/**
+ * Model EmailLog
+ * 
+ */
+export type EmailLog = Prisma.EmailLogModel
+/**
  * Model OrderItem
  * 
  */
