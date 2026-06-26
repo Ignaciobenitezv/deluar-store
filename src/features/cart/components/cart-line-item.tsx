@@ -19,20 +19,23 @@ type CartLineItemProps = {
 
 export function CartLineItem({ item }: CartLineItemProps) {
   const { removeItem, setItemQuantity, closeCart } = useCart();
+  const stockLimit = typeof item.stock === "number" ? item.stock : undefined;
+  const hasStockLimit = typeof stockLimit === "number";
+  const isAtStockLimit = typeof stockLimit === "number" && item.quantity >= stockLimit;
 
   return (
-    <article className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-4 rounded-[1.4rem] border border-border/75 bg-white/70 p-4">
+    <article className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3.5 border-b border-border/70 bg-transparent py-3 last:border-b-0 sm:grid-cols-[6rem_minmax(0,1fr)]">
       <Link
         href={item.productHref}
         onClick={closeCart}
-        className="relative aspect-[4/5] overflow-hidden rounded-[1rem] bg-[#efe5d8]"
+        className="relative h-[5.5rem] w-[5.5rem] overflow-hidden rounded-[0.75rem] bg-[#efe5d8] sm:h-24 sm:w-24"
       >
         {item.imageUrl ? (
           <Image
             src={item.imageUrl}
             alt={item.imageAlt}
             fill
-            sizes="120px"
+            sizes="96px"
             className="object-cover"
           />
         ) : (
@@ -42,12 +45,12 @@ export function CartLineItem({ item }: CartLineItemProps) {
         )}
       </Link>
 
-      <div className="space-y-3">
+      <div className="min-w-0 space-y-2">
         <div className="space-y-1">
           <Link
             href={item.productHref}
             onClick={closeCart}
-            className="block text-sm font-medium leading-6 text-foreground"
+            className="block break-words text-sm font-medium leading-5 text-foreground"
           >
             {item.title}
           </Link>
@@ -56,32 +59,38 @@ export function CartLineItem({ item }: CartLineItemProps) {
               Color: {item.variantLabel}
             </p>
           ) : null}
-          <p className="text-sm text-foreground">{formatPrice(item.basePrice)}</p>
+          <p className="text-sm font-medium text-foreground">{formatPrice(item.basePrice)}</p>
           {item.transferPrice ? (
-            <p className="text-xs text-muted">
+            <p className="text-[0.72rem] leading-4 text-muted">
               Transferencia: {formatPrice(item.transferPrice)}
+            </p>
+          ) : null}
+          {hasStockLimit ? (
+            <p className="text-[0.72rem] leading-4 text-muted">
+              Stock disponible: {stockLimit}
             </p>
           ) : null}
         </div>
 
-        <div className="flex items-center justify-between gap-3">
-          <div className="inline-flex items-center rounded-full border border-border/80 bg-surface">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+          <div className="inline-flex h-8 items-center rounded-full border border-border/80 bg-white/78">
             <button
               type="button"
               aria-label={`Reducir cantidad de ${item.title}`}
               onClick={() => setItemQuantity(item.id, item.quantity - 1)}
-              className="inline-flex h-9 w-9 items-center justify-center text-sm text-muted transition-colors hover:text-foreground"
+              className="inline-flex h-8 w-8 items-center justify-center text-sm text-muted transition-colors hover:text-foreground"
             >
               -
             </button>
-            <span className="min-w-8 text-center text-sm text-foreground">
+            <span className="min-w-7 text-center text-sm text-foreground">
               {item.quantity}
             </span>
             <button
               type="button"
               aria-label={`Aumentar cantidad de ${item.title}`}
               onClick={() => setItemQuantity(item.id, item.quantity + 1)}
-              className="inline-flex h-9 w-9 items-center justify-center text-sm text-muted transition-colors hover:text-foreground"
+              disabled={isAtStockLimit}
+              className="inline-flex h-8 w-8 items-center justify-center text-sm text-muted transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-35"
             >
               +
             </button>
@@ -90,11 +99,16 @@ export function CartLineItem({ item }: CartLineItemProps) {
           <button
             type="button"
             onClick={() => removeItem(item.id)}
-            className="text-xs uppercase tracking-[0.18em] text-muted transition-colors hover:text-foreground"
+            className="text-[0.68rem] uppercase tracking-[0.16em] text-muted transition-colors hover:text-foreground"
           >
             Quitar
           </button>
         </div>
+        {isAtStockLimit ? (
+          <p className="text-[0.72rem] leading-4 text-[var(--color-accent-strong)]">
+            Ya agregaste el stock disponible.
+          </p>
+        ) : null}
       </div>
     </article>
   );

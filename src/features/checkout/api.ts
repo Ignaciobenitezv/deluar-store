@@ -1,6 +1,7 @@
 import type { CheckoutFormValues } from "@/features/checkout/types";
 import type { PaymentMethod } from "@/features/payments/types";
 import type { CreateOrderResult, Order } from "@/features/order/types";
+import type { ShippingMethod } from "@/features/shipping/shipping";
 import type {
   GetnetInitPaymentResponse,
   GetnetInitPaymentRequest,
@@ -12,6 +13,7 @@ type CreateCheckoutOrderInput = {
     slug: string;
     quantity: number;
   }[];
+  shippingMethod?: ShippingMethod;
   paymentMethod?: PaymentMethod;
 };
 

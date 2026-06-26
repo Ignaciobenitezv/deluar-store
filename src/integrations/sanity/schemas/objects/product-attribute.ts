@@ -2,13 +2,14 @@ import { defineField, defineType } from "sanity";
 
 export const productAttributeSchema = defineType({
   name: "productAttribute",
-  title: "Atributo del producto",
+  title: "Caracteristica del producto",
   type: "object",
   fields: [
     defineField({
       name: "label",
-      title: "Nombre del atributo",
+      title: "Etiqueta",
       description: "Ejemplo: Material, Color, Medidas.",
+      placeholder: "Ej: Material",
       type: "string",
       validation: (rule) => rule.required(),
     }),
@@ -16,6 +17,7 @@ export const productAttributeSchema = defineType({
       name: "value",
       title: "Valor",
       description: "Ejemplo: Algodon, Beige, 50 x 70 cm.",
+      placeholder: "Ej: Algodon",
       type: "string",
       validation: (rule) => rule.required(),
     }),
@@ -24,6 +26,12 @@ export const productAttributeSchema = defineType({
     select: {
       title: "label",
       subtitle: "value",
+    },
+    prepare({ title, subtitle }) {
+      return {
+        title: title || "Caracteristica",
+        subtitle: subtitle || "Sin valor",
+      };
     },
   },
 });

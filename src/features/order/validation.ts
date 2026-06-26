@@ -2,9 +2,18 @@ import type { CheckoutFormValues } from "@/features/checkout/types";
 import type { CreateOrderInput } from "@/features/order/types";
 import {
   DEFAULT_CHECKOUT_PAYMENT_METHOD,
+  PAYMENT_METHODS,
   normalizeCheckoutPaymentMethod,
   isEnabledCheckoutPaymentMethod,
+  isGetnetEnabled,
 } from "@/features/payments/types";
+import {
+  isPickupShippingMethod,
+  isShippingMethod,
+  normalizeShippingMethod,
+  requiresLocationFields,
+  requiresStreetAddress,
+} from "@/features/shipping/shipping";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_PATTERN = /^[\d\s()+-]{6,25}$/;
@@ -22,6 +31,38 @@ function readPositiveInteger(value: unknown) {
   return value > 0 ? value : 0;
 }
 
+export function sanitizeShippingFields(
+  values: Pick<
+    CheckoutFormValues,
+    "address" | "city" | "province" | "postalCode" | "shippingMethod"
+  >,
+) {
+  if (isPickupShippingMethod(values.shippingMethod)) {
+    return {
+      address: "",
+      city: "",
+      province: "",
+      postalCode: "",
+    };
+  }
+
+  if (!requiresStreetAddress(values.shippingMethod)) {
+    return {
+      address: "",
+      city: values.city,
+      province: values.province,
+      postalCode: values.postalCode,
+    };
+  }
+
+  return {
+    address: values.address,
+    city: values.city,
+    province: values.province,
+    postalCode: values.postalCode,
+  };
+}
+
 export function normalizeCheckoutCustomer(
   input: CreateOrderInput["customer"],
 ): CheckoutFormValues {
@@ -35,6 +76,7 @@ export function normalizeCheckoutCustomer(
     province: readString(input?.province),
     postalCode: readString(input?.postalCode),
     notes: readString(input?.notes),
+    shippingMethod: normalizeShippingMethod(input?.shippingMethod),
     paymentMethod: DEFAULT_CHECKOUT_PAYMENT_METHOD,
   };
 }
@@ -43,9 +85,17 @@ export function normalizeOrderPaymentMethod(input: CreateOrderInput["paymentMeth
   return normalizeCheckoutPaymentMethod(input);
 }
 
+export function normalizeOrderShippingMethod(input: CreateOrderInput["shippingMethod"]) {
+  return normalizeShippingMethod(input);
+}
+
 export function validateOrderPaymentMethod(paymentMethod: unknown) {
   if (paymentMethod === undefined || paymentMethod === null || paymentMethod === "") {
     return [];
+  }
+
+  if (paymentMethod === PAYMENT_METHODS.GETNET && !isGetnetEnabled) {
+    return ["Getnet no esta habilitado en este entorno."];
   }
 
   return isEnabledCheckoutPaymentMethod(paymentMethod)
@@ -53,8 +103,20 @@ export function validateOrderPaymentMethod(paymentMethod: unknown) {
     : ["El metodo de pago seleccionado no esta disponible."];
 }
 
+export function validateOrderShippingMethod(shippingMethod: unknown) {
+  if (shippingMethod === undefined || shippingMethod === null || shippingMethod === "") {
+    return [];
+  }
+
+  return isShippingMethod(shippingMethod)
+    ? []
+    : ["El metodo de envio seleccionado no esta disponible."];
+}
+
 export function validateOrderCustomer(values: CheckoutFormValues) {
   const errors: string[] = [];
+  const addressRequired = requiresStreetAddress(values.shippingMethod);
+  const locationRequired = requiresLocationFields(values.shippingMethod);
 
   if (!values.firstName) {
     errors.push("El nombre es obligatorio.");
@@ -76,22 +138,26 @@ export function validateOrderCustomer(values: CheckoutFormValues) {
     errors.push("El telefono no es valido.");
   }
 
-  if (!values.address) {
+  if (addressRequired && !values.address) {
     errors.push("La direccion es obligatoria.");
   }
 
-  if (!values.city) {
+  if (locationRequired && !values.city) {
     errors.push("La localidad es obligatoria.");
   }
 
-  if (!values.province) {
+  if (locationRequired && !values.province) {
     errors.push("La provincia es obligatoria.");
   }
 
-  if (!values.postalCode) {
+  if (locationRequired && !values.postalCode) {
     errors.push("El codigo postal es obligatorio.");
-  } else if (!POSTAL_CODE_PATTERN.test(values.postalCode)) {
+  } else if (locationRequired && !POSTAL_CODE_PATTERN.test(values.postalCode)) {
     errors.push("El codigo postal no es valido.");
+  }
+
+  if (!values.shippingMethod || !isShippingMethod(values.shippingMethod)) {
+    errors.push("El metodo de envio es obligatorio.");
   }
 
   return errors;

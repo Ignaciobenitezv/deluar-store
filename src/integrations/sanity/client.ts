@@ -20,6 +20,17 @@ export const sanityReadClient = sanityConfig.readToken
     })
   : sanityClient;
 
+export const sanityWriteClient = sanityConfig.writeToken
+  ? createClient({
+      projectId: sanityConfig.projectId,
+      dataset: sanityConfig.dataset,
+      apiVersion: sanityConfig.apiVersion,
+      useCdn: false,
+      token: sanityConfig.writeToken,
+      perspective: "published",
+    })
+  : null;
+
 export async function sanityFetch<T>(
   query: string,
   params: QueryParams = {},

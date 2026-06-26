@@ -3,18 +3,17 @@ import { env } from "@/lib/env";
 export const getnetConfig = {
   environment: env.getnetEnvironment,
   apiBaseUrl: env.getnetApiBaseUrl,
-  merchantId: env.getnetMerchantId,
+  webCheckoutBaseUrl: env.getnetWebCheckoutBaseUrl,
   clientId: env.getnetClientId,
   clientSecret: env.getnetClientSecret,
-  successUrl: env.getnetSuccessUrl,
-  failureUrl: env.getnetFailureUrl,
-  pendingUrl: env.getnetPendingUrl,
+  webhookUser: env.getnetWebhookUser,
+  webhookPassword: env.getnetWebhookPassword,
 } as const;
 
 export function hasGetnetCredentials() {
   return Boolean(
     getnetConfig.apiBaseUrl &&
-      getnetConfig.merchantId &&
+      getnetConfig.webCheckoutBaseUrl &&
       getnetConfig.clientId &&
       getnetConfig.clientSecret,
   );

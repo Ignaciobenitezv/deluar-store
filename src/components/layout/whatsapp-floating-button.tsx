@@ -29,12 +29,12 @@ export function WhatsAppFloatingButton() {
       </a>
       <a
         aria-label="Consultar por WhatsApp"
-        className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-[#f1dcc7] text-[#f8f4ef] shadow-[0_18px_42px_rgba(58,42,34,0.34)] ring-1 ring-black/5 backdrop-blur-sm md:hidden"
+        className="fixed bottom-[calc(2.875rem+env(safe-area-inset-bottom))] right-4 z-50 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-[#f1dcc7] text-[#f8f4ef] shadow-[0_12px_28px_rgba(58,42,34,0.28)] ring-1 ring-black/5 backdrop-blur-sm md:hidden"
         href={WHATSAPP_URL}
         rel="noopener noreferrer"
         target="_blank"
       >
-        <WhatsAppIcon className="h-5 w-5" />
+        <WhatsAppIcon className="h-[1.05rem] w-[1.05rem]" />
       </a>
     </>
   );

@@ -17,6 +17,7 @@ type CartAction =
   | { type: "add"; payload: CartProductInput & { quantity?: number } }
   | { type: "remove"; payload: { id: string } }
   | { type: "setQuantity"; payload: { id: string; quantity: number } }
+  | { type: "clear" }
   | { type: "toggle" }
   | { type: "open" }
   | { type: "close" };
@@ -26,12 +27,21 @@ type CartContextValue = {
   totals: CartTotals;
   isOpen: boolean;
   isHydrated: boolean;
-  addItem: (product: CartProductInput, quantity?: number) => void;
+  addItem: (product: CartProductInput, quantity?: number) => CartQuantityResult;
   removeItem: (id: string) => void;
-  setItemQuantity: (id: string, quantity: number) => void;
+  setItemQuantity: (id: string, quantity: number) => CartQuantityResult;
+  clearCart: () => void;
   openCart: () => void;
   closeCart: () => void;
   toggleCart: () => void;
+};
+
+type CartQuantityResult = {
+  quantity: number;
+  requestedQuantity: number;
+  stockLimit?: number;
+  wasLimited: boolean;
+  wasRejected: boolean;
 };
 
 const initialState: CartState = {
@@ -42,36 +52,78 @@ const initialState: CartState = {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
+function normalizeQuantity(value: number | undefined) {
+  return value && value > 0 ? Math.trunc(value) : 1;
+}
+
+function normalizeStock(value: number | undefined) {
+  return typeof value === "number" && Number.isFinite(value)
+    ? Math.max(0, Math.trunc(value))
+    : undefined;
+}
+
+function clampQuantityToStock(quantity: number, stock: number | undefined) {
+  const normalizedQuantity = Math.max(0, Math.trunc(quantity));
+
+  if (typeof stock !== "number") {
+    return normalizedQuantity;
+  }
+
+  return Math.min(normalizedQuantity, stock);
+}
+
+function clampCartItemToStock(item: CartItem) {
+  const stockLimit = normalizeStock(item.stock);
+
+  return {
+    ...item,
+    stock: stockLimit,
+    quantity: clampQuantityToStock(item.quantity, stockLimit),
+  };
+}
+
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case "hydrate":
       return {
         ...state,
-        items: action.payload,
+        items: action.payload
+          .map(clampCartItemToStock)
+          .filter((item) => item.quantity > 0),
         isHydrated: true,
       };
     case "add": {
-      const quantity = action.payload.quantity && action.payload.quantity > 0
-        ? action.payload.quantity
-        : 1;
+      const quantity = normalizeQuantity(action.payload.quantity);
       const existingItem = state.items.find((item) => item.id === action.payload.id);
+      const stockLimit = normalizeStock(action.payload.stock ?? existingItem?.stock);
 
       if (existingItem) {
+        const nextQuantity = clampQuantityToStock(
+          existingItem.quantity + quantity,
+          stockLimit,
+        );
+
         return {
           ...state,
-          isOpen: true,
+          isOpen: nextQuantity > 0 || state.isOpen,
           items: state.items.map((item) =>
             item.id === action.payload.id
-              ? { ...item, quantity: item.quantity + quantity }
+              ? { ...item, ...action.payload, stock: stockLimit, quantity: nextQuantity }
               : item,
-          ),
+          ).filter((item) => item.quantity > 0),
         };
+      }
+
+      const nextQuantity = clampQuantityToStock(quantity, stockLimit);
+
+      if (nextQuantity <= 0) {
+        return state;
       }
 
       return {
         ...state,
         isOpen: true,
-        items: [...state.items, { ...action.payload, quantity }],
+        items: [...state.items, { ...action.payload, stock: stockLimit, quantity: nextQuantity }],
       };
     }
     case "remove":
@@ -85,10 +137,22 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         items: state.items
           .map((item) =>
             item.id === action.payload.id
-              ? { ...item, quantity: action.payload.quantity }
+              ? {
+                  ...item,
+                  quantity: clampQuantityToStock(
+                    action.payload.quantity,
+                    normalizeStock(item.stock),
+                  ),
+                }
               : item,
           )
           .filter((item) => item.quantity > 0),
+      };
+    case "clear":
+      return {
+        ...state,
+        items: [],
+        isOpen: false,
       };
     case "toggle":
       return {
@@ -142,6 +206,11 @@ export function CartProvider({ children }: CartProviderProps) {
       return;
     }
 
+    if (state.items.length === 0) {
+      window.localStorage.removeItem(CART_STORAGE_KEY);
+      return;
+    }
+
     window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(state.items));
   }, [state.isHydrated, state.items]);
 
@@ -159,11 +228,44 @@ export function CartProvider({ children }: CartProviderProps) {
       totals,
       isOpen: state.isOpen,
       isHydrated: state.isHydrated,
-      addItem: (product, quantity = 1) =>
-        dispatch({ type: "add", payload: { ...product, quantity } }),
+      addItem: (product, quantity = 1) => {
+        const requestedAddQuantity = normalizeQuantity(quantity);
+        const existingItem = state.items.find((item) => item.id === product.id);
+        const stockLimit = normalizeStock(product.stock ?? existingItem?.stock);
+        const requestedQuantity = (existingItem?.quantity ?? 0) + requestedAddQuantity;
+        const nextQuantity = clampQuantityToStock(requestedQuantity, stockLimit);
+
+        dispatch({ type: "add", payload: { ...product, stock: stockLimit, quantity } });
+
+        return {
+          quantity: nextQuantity,
+          requestedQuantity,
+          stockLimit,
+          wasLimited: nextQuantity < requestedQuantity,
+          wasRejected: nextQuantity <= 0,
+        };
+      },
       removeItem: (id) => dispatch({ type: "remove", payload: { id } }),
-      setItemQuantity: (id, quantity) =>
-        dispatch({ type: "setQuantity", payload: { id, quantity } }),
+      setItemQuantity: (id, quantity) => {
+        const item = state.items.find((cartItem) => cartItem.id === id);
+        const stockLimit = normalizeStock(item?.stock);
+        const requestedQuantity = Math.max(0, Math.trunc(quantity));
+        const nextQuantity = clampQuantityToStock(requestedQuantity, stockLimit);
+
+        dispatch({ type: "setQuantity", payload: { id, quantity } });
+
+        return {
+          quantity: nextQuantity,
+          requestedQuantity,
+          stockLimit,
+          wasLimited: nextQuantity < requestedQuantity,
+          wasRejected: nextQuantity <= 0,
+        };
+      },
+      clearCart: () => {
+        window.localStorage.removeItem(CART_STORAGE_KEY);
+        dispatch({ type: "clear" });
+      },
       openCart: () => dispatch({ type: "open" }),
       closeCart: () => dispatch({ type: "close" }),
       toggleCart: () => dispatch({ type: "toggle" }),

@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { createUniqueSlugValidation } from "../utils/slug";
 
 export const subcategorySchema = defineType({
   name: "subcategory",
@@ -7,7 +8,7 @@ export const subcategorySchema = defineType({
   fields: [
     defineField({
       name: "title",
-      title: "Nombre de la subcategoria",
+      title: "Nombre",
       description: "Nombre visible dentro de la categoria principal.",
       type: "string",
       validation: (rule) => rule.required().min(2).max(120),
@@ -15,10 +16,11 @@ export const subcategorySchema = defineType({
     defineField({
       name: "slug",
       title: "URL",
-      description: "Se usa para construir la direccion de esta subcategoria.",
+      description:
+        "Se genera automaticamente desde el nombre. Cambialo solo si necesitas corregir la URL.",
       type: "slug",
       options: { source: "title", maxLength: 96 },
-      validation: (rule) => rule.required(),
+      validation: (rule) => rule.required().custom(createUniqueSlugValidation("subcategory", "La subcategoria")),
     }),
     defineField({
       name: "parentCategory",

@@ -1,5 +1,6 @@
 import { handleGoCuotasWebhook } from "@/features/payments/gocuotas/webhook-service";
-import { jsonSuccess } from "@/lib/http";
+import { env } from "@/lib/env";
+import { jsonError, jsonSuccess } from "@/lib/http";
 import { logger } from "@/lib/logger";
 
 async function readWebhookPayload(request: Request) {
@@ -27,6 +28,17 @@ async function readWebhookPayload(request: Request) {
 
 export async function POST(request: Request) {
   const requestId = crypto.randomUUID();
+  const secretHeader =
+    request.headers.get("x-webhook-secret") ?? request.headers.get("x-gocuotas-secret");
+
+  if (env.gocuotasWebhookSecret && secretHeader !== env.gocuotasWebhookSecret) {
+    logger.warn("api.payments.gocuotas.webhook.unauthorized", {
+      requestId,
+      hasSecretHeader: Boolean(secretHeader),
+    });
+    return jsonError(["Unauthorized"], 401, { requestId });
+  }
+
   const { payload, rawBody } = await readWebhookPayload(request);
   const headers = Object.fromEntries(request.headers.entries());
 

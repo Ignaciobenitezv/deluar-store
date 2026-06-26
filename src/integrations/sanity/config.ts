@@ -6,5 +6,6 @@ export const sanityConfig = {
   apiVersion: env.sanityApiVersion,
   studioUrl: env.sanityStudioUrl,
   readToken: env.sanityReadToken,
+  writeToken: env.sanityWriteToken,
   useCdn: true,
 } as const;

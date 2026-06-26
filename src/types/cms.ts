@@ -97,6 +97,7 @@ export type ProductAttribute = {
 
 export type ProductDocument = {
   _id: string;
+  _rev?: string;
   _type: "product";
   _createdAt: string;
   title: string;

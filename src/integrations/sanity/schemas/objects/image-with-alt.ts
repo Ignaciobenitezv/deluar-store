@@ -8,7 +8,7 @@ export const imageWithAltSchema = defineType({
     defineField({
       name: "image",
       title: "Imagen",
-      description: "Carga la imagen principal o secundaria del producto.",
+      description: "Subi una foto clara del producto. La primera imagen suele funcionar como principal.",
       type: "image",
       options: {
         hotspot: true,
@@ -18,7 +18,8 @@ export const imageWithAltSchema = defineType({
     defineField({
       name: "alt",
       title: "Texto alternativo",
-      description: "Descripcion breve de la imagen para accesibilidad y SEO.",
+      description: "Descripcion breve para accesibilidad y SEO.",
+      placeholder: "Ej: Vista frontal del producto",
       type: "string",
     }),
   ],

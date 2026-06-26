@@ -4,11 +4,14 @@ export const PAYMENT_METHODS = {
   GETNET: "getnet",
 } as const;
 
+export const isGetnetEnabled = process.env.NEXT_PUBLIC_ENABLE_GETNET === "true";
+
 export type PaymentMethod =
   (typeof PAYMENT_METHODS)[keyof typeof PAYMENT_METHODS];
 
 export const ENABLED_CHECKOUT_PAYMENT_METHODS = [
   PAYMENT_METHODS.GOCUOTAS,
+  ...(isGetnetEnabled ? [PAYMENT_METHODS.GETNET] : []),
   PAYMENT_METHODS.TRANSFER,
 ] as const;
 
@@ -32,4 +35,3 @@ export function normalizeCheckoutPaymentMethod(
     ? value
     : DEFAULT_CHECKOUT_PAYMENT_METHOD;
 }
-

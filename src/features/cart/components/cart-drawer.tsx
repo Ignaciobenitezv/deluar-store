@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useCart } from "@/features/cart/cart-context";
 import { CartLineItem } from "@/features/cart/components/cart-line-item";
@@ -8,50 +10,92 @@ import { CartSummary } from "@/features/cart/components/cart-summary";
 export function CartDrawer() {
   const { items, isOpen, closeCart } = useCart();
 
-  if (!isOpen) {
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeCart();
+      }
+    };
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousBodyOverscrollBehavior = document.body.style.overscrollBehavior;
+    const previousDocumentOverflow = document.documentElement.style.overflow;
+    const previousDocumentOverscrollBehavior =
+      document.documentElement.style.overscrollBehavior;
+
+    document.body.style.overflow = "hidden";
+    document.body.style.overscrollBehavior = "none";
+    document.documentElement.style.overflow = "hidden";
+    document.documentElement.style.overscrollBehavior = "none";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.body.style.overscrollBehavior = previousBodyOverscrollBehavior;
+      document.documentElement.style.overflow = previousDocumentOverflow;
+      document.documentElement.style.overscrollBehavior =
+        previousDocumentOverscrollBehavior;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [closeCart, isOpen]);
+
+  if (!isOpen || typeof document === "undefined") {
     return null;
   }
 
-  return (
+  return createPortal(
     <>
-      <div
-        aria-hidden="true"
+      <button
+        type="button"
+        aria-label="Cerrar carrito"
         onClick={closeCart}
-        className="fixed inset-0 z-40 bg-black/22 transition-opacity duration-200 pointer-events-auto opacity-100"
+        className="pointer-events-auto fixed inset-0 z-[80] cursor-default bg-[#2b1b14]/45 opacity-100 backdrop-blur-[1px] transition-opacity duration-200"
       />
 
       <aside
-        aria-hidden="false"
-        className="fixed right-0 top-0 z-50 flex h-full w-full max-w-[28rem] flex-col border-l border-border/70 bg-background px-5 pb-6 pt-5 transition-transform duration-300 sm:px-6"
+        aria-modal="true"
+        role="dialog"
+        aria-label="Carrito"
+        onClick={(event) => event.stopPropagation()}
+        className="pointer-events-auto fixed right-0 top-0 z-[90] flex h-dvh w-full flex-col overflow-hidden border-l border-border/70 bg-[#fbf8f4] shadow-[-18px_0_50px_rgba(58,40,26,0.12)] transition-transform duration-300 sm:w-[27rem] sm:max-w-[27rem] lg:w-[28rem] lg:max-w-[28rem]"
       >
-        <div className="flex items-start justify-between gap-4 border-b border-border/75 pb-4">
-          <div className="space-y-1">
-            <p className="text-xs uppercase tracking-[0.22em] text-muted">Carrito</p>
-            <h2 className="text-2xl font-semibold tracking-[0.03em] text-foreground">
-              Tus productos
-            </h2>
+        <div className="shrink-0 border-b border-border/75 bg-[#fbf8f4] px-5 py-4 sm:px-6">
+          <div className="flex items-center justify-between gap-4">
+            <div className="space-y-0.5">
+              <p className="text-[0.68rem] uppercase tracking-[0.22em] text-muted">
+                Carrito
+              </p>
+              <h2 className="text-xl font-semibold tracking-[0.02em] text-foreground">
+                Tus productos
+              </h2>
+            </div>
+            <button
+              type="button"
+              onClick={closeCart}
+              aria-label="Cerrar carrito"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/80 bg-white/70 text-sm text-muted transition-colors hover:text-foreground"
+            >
+              X
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={closeCart}
-            aria-label="Cerrar carrito"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/80 text-sm text-muted transition-colors hover:text-foreground"
-          >
-            X
-          </button>
         </div>
 
         {items.length > 0 ? (
-          <>
-            <div className="flex-1 space-y-4 overflow-y-auto py-5">
+          <div className="flex min-h-0 flex-1 flex-col">
+            <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-4 pr-3 sm:px-5 sm:pr-4">
               {items.map((item) => (
                 <CartLineItem key={item.id} item={item} />
               ))}
             </div>
-            <CartSummary />
-          </>
+            <div className="shrink-0 border-t border-border/75 bg-[#fbf8f4] px-4 py-4 shadow-[0_-16px_28px_rgba(58,40,26,0.06)] sm:px-5">
+              <CartSummary className="rounded-[1.1rem] px-4 py-4" />
+            </div>
+          </div>
         ) : (
-          <div className="flex flex-1 flex-col items-center justify-center gap-5 px-4 text-center">
+          <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-5 px-6 py-8 text-center">
             <div className="space-y-2">
               <h3 className="text-xl font-medium text-foreground">Tu carrito esta vacio</h3>
               <p className="max-w-sm text-sm leading-7 text-muted">
@@ -68,6 +112,7 @@ export function CartDrawer() {
           </div>
         )}
       </aside>
-    </>
+    </>,
+    document.body,
   );
 }

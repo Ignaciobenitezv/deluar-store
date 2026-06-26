@@ -41,7 +41,7 @@ export function CartSummary({ className, compact = false }: CartSummaryProps) {
           <span className="font-medium text-foreground">{formatPrice(totals.subtotal)}</span>
         </div>
         <p className="leading-6">
-          Los costos de envio y el pago se definiran en la siguiente fase del ecommerce.
+          El costo de envio se calcula en checkout segun el metodo que elijas.
         </p>
       </div>
 

@@ -35,3 +35,30 @@ What to verify in Studio:
 - `product.subcategory` only lists subcategories from the selected category.
 - `images` requires at least one item.
 - `basePrice` and `stock` are required.
+- `product.isActive` is visible and starts enabled.
+- `slug` is generated from `title` for `product`, `category` and `subcategory`.
+- Duplicate slugs should show a validation error before saving.
+
+Fields the client should use for products:
+
+- Nombre
+- Slug
+- Descripcion corta
+- Descripcion completa
+- Categoria
+- Subcategoria
+- Imagenes
+- Precio base
+- Precio transferencia
+- Stock
+- Variantes de color
+- Producto destacado
+- Oferta
+- Nuevo ingreso
+
+Fields the client should avoid touching unless instructed:
+
+- `siteSettings`
+- `promoSettings`
+- `homePage`
+- `staticPage`

@@ -1,71 +1,81 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
+import { createUniqueSlugValidation } from "../utils/slug";
 
 type ProductReferenceDocument = {
   category?: { _ref?: string };
 };
 
+function formatPreviewPrice(value?: number) {
+  if (typeof value !== "number" || Number.isNaN(value)) {
+    return "Sin precio";
+  }
+
+  return `$${new Intl.NumberFormat("es-AR", {
+    maximumFractionDigits: 0,
+  }).format(value)}`;
+}
+
 export const productSchema = defineType({
   name: "product",
   title: "Productos",
   type: "document",
-  groups: [
-    { name: "content", title: "Contenido", default: true },
-    { name: "commerce", title: "Precios y stock" },
-    { name: "seo", title: "SEO" },
+  fieldsets: [
+    { name: "general", title: "Informacion general" },
+    { name: "prices", title: "Precios" },
+    { name: "inventory", title: "Inventario" },
+    { name: "images", title: "Imagenes" },
+    {
+      name: "variants",
+      title: "Variantes",
+      options: { collapsible: true, collapsed: true },
+    },
+    {
+      name: "promotions",
+      title: "Promociones",
+      options: { collapsible: true, collapsed: true },
+    },
+    {
+      name: "seo",
+      title: "SEO",
+      options: { collapsible: true, collapsed: true },
+    },
   ],
   fields: [
     defineField({
       name: "title",
-      title: "Nombre del producto",
-      description: "Nombre comercial del producto que se mostrara en la tienda.",
+      title: "Nombre",
+      description: "Nombre comercial visible del producto.",
+      placeholder: "Ej: Manta tejida natural",
       type: "string",
-      group: "content",
+      fieldset: "general",
       validation: (rule) => rule.required().min(2).max(160),
     }),
     defineField({
       name: "slug",
       title: "URL",
-      description: "Se usa para construir la direccion del producto.",
-      type: "slug",
-      group: "content",
-      options: { source: "title", maxLength: 96 },
-      validation: (rule) => rule.required(),
-    }),
-    defineField({
-      name: "shortDescription",
-      title: "Descripcion corta",
-      description: "Resumen breve para cards, listados y destacados.",
-      type: "text",
-      rows: 3,
-      group: "content",
-      validation: (rule) => rule.required().min(10).max(240),
-    }),
-    defineField({
-      name: "description",
-      title: "Descripcion completa",
       description:
-        "Contenido principal del producto. Puedes escribir detalles, materiales y cuidados.",
-      type: "array",
-      group: "content",
-      of: [defineArrayMember({ type: "block" })],
-      validation: (rule) => rule.required(),
+        "Se genera automaticamente desde el nombre. Puedes ajustarlo si necesitas corregir la URL.",
+      type: "slug",
+      fieldset: "general",
+      options: { source: "title", maxLength: 96 },
+      validation: (rule) => rule.required().custom(createUniqueSlugValidation("product", "El producto")),
     }),
     defineField({
       name: "category",
-      title: "Categoria principal",
-      description:
-        "Selecciona la categoria principal en la que se mostrara este producto.",
+      title: "Categoria",
+      description: "Selecciona la categoria principal donde aparecera este producto.",
       type: "reference",
-      group: "content",
+      fieldset: "general",
       to: [{ type: "category" }],
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: "subcategory",
       title: "Subcategoria",
-      description: "Opcional. Solo muestra subcategorias de la categoria elegida.",
+      description:
+        "Opcional. Solo muestra subcategorias de la categoria elegida y ayuda a ordenar el catalogo.",
       type: "reference",
-      group: "content",
+      fieldset: "general",
       to: [{ type: "subcategory" }],
       options: {
         filter: ({ document }) => {
@@ -83,104 +93,149 @@ export const productSchema = defineType({
       },
     }),
     defineField({
-      name: "images",
-      title: "Imagenes del producto",
-      description: "Carga una o mas imagenes para mostrar el producto en la tienda.",
+      name: "shortDescription",
+      title: "Descripcion corta",
+      description: "Resumen breve para cards, listados y destacados. Usa una sola idea clara.",
+      placeholder: "Ej: Textil decorativo para living en tono natural.",
+      type: "text",
+      rows: 3,
+      fieldset: "general",
+      validation: (rule) => rule.required().min(10).max(240),
+    }),
+    defineField({
+      name: "description",
+      title: "Descripcion completa",
+      description:
+        "Contenido principal del producto. Incluye detalles, materiales, cuidados y cualquier dato util para la compra.",
       type: "array",
-      group: "content",
+      fieldset: "general",
+      of: [defineArrayMember({ type: "block" })],
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "attributes",
+      title: "Caracteristicas",
+      description: "Datos opcionales como material, color, medidas o terminacion.",
+      type: "array",
+      fieldset: "general",
+      of: [defineArrayMember({ type: "productAttribute" })],
+    }),
+    defineField({
+      name: "images",
+      title: "Imagenes",
+      description:
+        "Carga una o mas imagenes del producto. La primera se usa como principal en la tienda.",
+      type: "array",
+      fieldset: "images",
       of: [defineArrayMember({ type: "imageWithAlt" })],
       validation: (rule) => rule.required().min(1),
     }),
     defineField({
       name: "colorVariants",
-      title: "Variantes por color",
+      title: "Variantes de color",
       description:
-        "Opcional. Si completas este bloque, la tienda mostrara un selector de color con miniaturas.",
+        "Opcional. Si lo completas, la tienda mostrara un selector de color con miniaturas e imagenes propias.",
       type: "array",
-      group: "content",
+      fieldset: "variants",
       of: [defineArrayMember({ type: "productColorVariant" })],
     }),
     defineField({
-      name: "attributes",
-      title: "Atributos",
-      description: "Datos opcionales como material, color, medidas o terminacion.",
-      type: "array",
-      group: "content",
-      of: [defineArrayMember({ type: "productAttribute" })],
-    }),
-    defineField({
       name: "basePrice",
-      title: "Precio",
+      title: "Precio de lista",
       description: "Precio principal que vera el cliente en la tienda.",
+      placeholder: "Ej: 100000",
       type: "number",
-      group: "commerce",
+      fieldset: "prices",
       validation: (rule) => rule.required().positive(),
     }),
     defineField({
       name: "transferPrice",
-      title: "Precio con transferencia",
+      title: "Precio por transferencia",
       description:
         "Opcional. Completa este valor si ofreces un precio especial por transferencia.",
+      placeholder: "Ej: 90000",
       type: "number",
-      group: "commerce",
+      fieldset: "prices",
       validation: (rule) => rule.min(0),
     }),
     defineField({
       name: "stock",
       title: "Stock disponible",
-      description: "Cantidad disponible para la venta.",
+      description: "Cantidad disponible para la venta. Usa cero si no hay unidades.",
+      placeholder: "Ej: 3",
       type: "number",
-      group: "commerce",
+      fieldset: "inventory",
       initialValue: 0,
       validation: (rule) => rule.required().integer().min(0),
     }),
     defineField({
+      name: "isActive",
+      title: "Visible en tienda",
+      description: "Si esta desactivado, el producto no se muestra en la tienda.",
+      type: "boolean",
+      fieldset: "inventory",
+      initialValue: true,
+    }),
+    defineField({
       name: "isFeatured",
-      title: "Destacar en la tienda",
+      title: "Destacado en home",
       description: "Activalo si quieres usar este producto en secciones destacadas.",
       type: "boolean",
-      group: "commerce",
+      fieldset: "promotions",
       initialValue: false,
     }),
     defineField({
       name: "isOnOffer",
-      title: "Mostrar en ofertas del home",
+      title: "Visible en ofertas",
       description:
         "Activalo si quieres que este producto aparezca en el carrusel de ofertas de la portada.",
       type: "boolean",
-      group: "commerce",
+      fieldset: "promotions",
       initialValue: false,
     }),
     defineField({
       name: "showInNewIn",
-      title: "Mostrar en New In",
+      title: "Visible en New In",
       description:
-        "Activalo si queres que este producto aparezca en la seccion New In del home.",
+        "Activalo si quieres que este producto aparezca en la seccion New In del home.",
       type: "boolean",
-      group: "commerce",
+      fieldset: "promotions",
       initialValue: false,
     }),
     defineField({
       name: "newInOrder",
-      title: "Orden en New In",
+      title: "Prioridad en New In",
       description: "Menor numero = aparece antes en la seccion New In.",
       type: "number",
-      group: "commerce",
+      fieldset: "promotions",
+      hidden: ({ document }) => !document?.showInNewIn,
     }),
     defineField({
       name: "seo",
-      title: "SEO",
+      title: "SEO del producto",
       description:
-        "Completa estos datos si quieres personalizar como se muestra el producto en buscadores y redes.",
+        "Opcional. Personaliza como se muestra el producto en buscadores y redes.",
       type: "seo",
-      group: "seo",
+      fieldset: "seo",
     }),
   ],
   preview: {
     select: {
       title: "title",
-      subtitle: "slug.current",
+      basePrice: "basePrice",
+      stock: "stock",
+      isActive: "isActive",
       media: "images.0.image",
+    },
+    prepare({ title, basePrice, stock, isActive, media }) {
+      const status = isActive === false ? "Inactivo" : "Activo";
+      const stockLabel = typeof stock === "number" ? `Stock ${stock}` : "Stock sin definir";
+
+      return {
+        title: title || "Producto",
+        subtitle: `${status} | ${formatPreviewPrice(basePrice)} | ${stockLabel}`,
+        media,
+      };
     },
   },
 });

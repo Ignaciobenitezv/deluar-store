@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { createUniqueSlugValidation } from "../utils/slug";
 
 export const categorySchema = defineType({
   name: "category",
@@ -7,18 +8,19 @@ export const categorySchema = defineType({
   fields: [
     defineField({
       name: "title",
-      title: "Nombre de la categoria",
-      description: "Nombre principal que vas a ver en la tienda y en la navegacion.",
+      title: "Nombre",
+      description: "Nombre visible en la tienda y en la navegacion.",
       type: "string",
       validation: (rule) => rule.required().min(2).max(120),
     }),
     defineField({
       name: "slug",
       title: "URL",
-      description: "Se usa para construir la direccion de la categoria en el sitio.",
+      description:
+        "Se genera automaticamente desde el nombre. Cambialo solo si necesitas corregir la URL.",
       type: "slug",
       options: { source: "title", maxLength: 96 },
-      validation: (rule) => rule.required(),
+      validation: (rule) => rule.required().custom(createUniqueSlugValidation("category", "La categoria")),
     }),
     defineField({
       name: "description",

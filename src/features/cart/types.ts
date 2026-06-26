@@ -7,6 +7,7 @@ export type CartItem = {
   imageAlt: string;
   basePrice: number;
   transferPrice?: number;
+  stock?: number;
   variantId?: string;
   variantLabel?: string;
   variantValue?: string;

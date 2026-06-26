@@ -1,5 +1,10 @@
 import type { CheckoutFormErrors, CheckoutFormValues } from "@/features/checkout/types";
 import { DEFAULT_CHECKOUT_PAYMENT_METHOD } from "@/features/payments/types";
+import {
+  requiresLocationFields,
+  requiresStreetAddress,
+  SHIPPING_METHODS,
+} from "@/features/shipping/shipping";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -18,12 +23,15 @@ export function getInitialCheckoutFormValues(): CheckoutFormValues {
     province: "",
     postalCode: "",
     notes: "",
+    shippingMethod: SHIPPING_METHODS.HOME_DELIVERY,
     paymentMethod: DEFAULT_CHECKOUT_PAYMENT_METHOD,
   };
 }
 
 export function validateCheckoutForm(values: CheckoutFormValues): CheckoutFormErrors {
   const errors: CheckoutFormErrors = {};
+  const addressRequired = requiresStreetAddress(values.shippingMethod);
+  const locationRequired = requiresLocationFields(values.shippingMethod);
 
   if (isBlank(values.firstName)) {
     errors.firstName = "Ingresa el nombre.";
@@ -43,20 +51,24 @@ export function validateCheckoutForm(values: CheckoutFormValues): CheckoutFormEr
     errors.phone = "Ingresa el telefono.";
   }
 
-  if (isBlank(values.address)) {
+  if (addressRequired && isBlank(values.address)) {
     errors.address = "Ingresa la direccion.";
   }
 
-  if (isBlank(values.city)) {
+  if (locationRequired && isBlank(values.city)) {
     errors.city = "Ingresa la localidad.";
   }
 
-  if (isBlank(values.province)) {
+  if (locationRequired && isBlank(values.province)) {
     errors.province = "Ingresa la provincia.";
   }
 
-  if (isBlank(values.postalCode)) {
+  if (locationRequired && isBlank(values.postalCode)) {
     errors.postalCode = "Ingresa el codigo postal.";
+  }
+
+  if (!values.shippingMethod) {
+    errors.shippingMethod = "Selecciona un metodo de envio.";
   }
 
   return errors;

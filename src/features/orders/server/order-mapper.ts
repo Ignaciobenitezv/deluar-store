@@ -1,6 +1,7 @@
 import type { Order as CheckoutOrder, OrderStatus as CheckoutOrderStatus } from "@/features/order/types";
 import type { Prisma } from "@/generated/prisma/client";
 import { PAYMENT_METHODS, type PaymentMethod } from "@/features/payments/types";
+import { normalizeShippingMethod } from "@/features/shipping/shipping";
 
 type PersistedOrder = Prisma.OrderGetPayload<{
   include: {
@@ -72,6 +73,8 @@ export function mapPersistedOrderToCheckoutOrder(order: PersistedOrder): Checkou
     id: order.id,
     orderNumber: order.orderNumber,
     status: toCheckoutStatus(order.status),
+    shippingMethod: normalizeShippingMethod(order.shippingMethod),
+    shippingCost: toNumber(order.shippingCost),
     paymentMethod: toCheckoutPaymentMethod(order.paymentMethod),
     paymentProvider: toCheckoutPaymentProvider(order.paymentProvider),
     paymentStatus: toCheckoutPaymentStatus(order.paymentStatus),
@@ -101,6 +104,7 @@ export function mapPersistedOrderToCheckoutOrder(order: PersistedOrder): Checkou
     },
     shippingAddress: {
       address: order.shippingAddress?.address ?? "",
+      apartment: order.shippingAddress?.apartment ?? undefined,
       city: order.shippingAddress?.city ?? "",
       province: order.shippingAddress?.province ?? "",
       postalCode: order.shippingAddress?.postalCode ?? "",

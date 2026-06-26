@@ -1,4 +1,5 @@
 import type { Order } from "@/features/order/types";
+import { getShippingMethodLabel } from "@/features/shipping/shipping";
 
 const currencyFormatter = new Intl.NumberFormat("es-AR", {
   style: "currency",
@@ -134,6 +135,8 @@ export function renderOrderSummary(order: Order) {
       <div style="font-size:14px;line-height:1.7;color:#2f241f;">
         <div><strong>Orden:</strong> ${escapeHtml(order.orderNumber)}</div>
         <div><strong>Metodo de pago:</strong> ${escapeHtml(formatPaymentMethod(order.paymentMethod))}</div>
+        <div><strong>Metodo de envio:</strong> ${escapeHtml(getShippingMethodLabel(order.shippingMethod))}</div>
+        <div><strong>Costo de envio:</strong> ${formatCurrency(order.shippingCost)}</div>
         <div><strong>Estado del pago:</strong> ${escapeHtml(formatPaymentStatus(order.paymentStatus))}</div>
         <div><strong>Total:</strong> ${formatCurrency(order.total)}</div>
       </div>
@@ -164,6 +167,8 @@ export function renderShippingBlock(order: Order) {
   return `
     <div style="font-size:14px;line-height:1.7;color:#2f241f;">
       <div><strong>Direccion/envio:</strong> ${escapeHtml(address || "Sin direccion cargada")}</div>
+      <div><strong>Metodo de envio:</strong> ${escapeHtml(getShippingMethodLabel(order.shippingMethod))}</div>
+      <div><strong>Costo de envio:</strong> ${formatCurrency(order.shippingCost)}</div>
       ${
         order.customer.notes
           ? `<div><strong>Notas:</strong> ${escapeHtml(order.customer.notes)}</div>`

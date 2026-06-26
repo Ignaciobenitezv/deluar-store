@@ -1,10 +1,14 @@
 import crypto from "node:crypto";
 import type { OrderStatus, PaymentStatus, Prisma } from "@/generated/prisma/client";
 import { sendPaymentApprovedEmails } from "@/features/emails/email-service";
+import {
+  decrementSanityStock,
+  isInsufficientStockError,
+  restoreSanityStock,
+} from "@/features/inventory/inventory-service";
 import { getOrderById } from "@/features/orders/server/order-repository";
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
-import { env } from "@/lib/env";
 
 type GoCuotasMappedStatus = {
   orderStatus: OrderStatus;
@@ -200,33 +204,6 @@ function sanitizeForLog(value: unknown, depth = 0): unknown {
   );
 }
 
-function validateWebhookSignature(headers: Record<string, string>) {
-  if (!env.gocuotasWebhookSecret) {
-    logger.warn("payments.gocuotas.webhook.signature_not_configured", {
-      message:
-        "GOCUOTAS_WEBHOOK_SECRET no esta configurado o la documentacion no indico header de firma; no se bloquea el webhook.",
-    });
-    return true;
-  }
-
-  const signature =
-    headers["x-gocuotas-signature"] ||
-    headers["x-signature"] ||
-    headers["signature"];
-
-  if (!signature) {
-    logger.warn("payments.gocuotas.webhook.signature_missing");
-    return false;
-  }
-
-  logger.warn("payments.gocuotas.webhook.signature_unverified", {
-    message:
-      "Hay GOCUOTAS_WEBHOOK_SECRET configurado, pero falta confirmar algoritmo/header oficial. No se bloquea hasta validar documentacion.",
-  });
-
-  return true;
-}
-
 async function findOrder(parsed: ParsedGoCuotasWebhook) {
   const where: Prisma.OrderWhereInput[] = [];
 
@@ -247,6 +224,58 @@ async function findOrder(parsed: ParsedGoCuotasWebhook) {
     where: {
       OR: where,
     },
+    include: {
+      items: true,
+    },
+  });
+}
+
+type GoCuotasWebhookOrder = NonNullable<Awaited<ReturnType<typeof findOrder>>>;
+
+function isPaidOrder(order: GoCuotasWebhookOrder) {
+  return order.status === "PAID" || order.paymentStatus === "APPROVED";
+}
+
+function shouldApproveOrder(mappedStatus: GoCuotasMappedStatus) {
+  return mappedStatus.orderStatus === "PAID" && mappedStatus.paymentStatus === "APPROVED";
+}
+
+function mapOrderItemsToInventoryItems(order: GoCuotasWebhookOrder) {
+  return order.items.map((item) => ({
+    sanityProductId: item.productId,
+    slug: item.productSlug,
+    title: item.productName,
+    quantity: item.quantity,
+  }));
+}
+
+async function sendPaymentApprovedEmailsForOrder(params: {
+  dedupeKey: string;
+  orderId: string;
+  reason: "new_approval" | "duplicate_paid_retry";
+}) {
+  logger.info("payments.gocuotas.webhook.payment_approved_emails_started", {
+    dedupeKey: params.dedupeKey,
+    orderId: params.orderId,
+    reason: params.reason,
+  });
+
+  const updatedOrder = await getOrderById(params.orderId);
+
+  if (!updatedOrder) {
+    logger.error("payments.gocuotas.webhook.payment_approved_email_order_missing", {
+      dedupeKey: params.dedupeKey,
+      orderId: params.orderId,
+      reason: params.reason,
+    });
+    return;
+  }
+
+  await sendPaymentApprovedEmails(updatedOrder);
+  logger.info("payments.gocuotas.webhook.payment_approved_emails_finished", {
+    dedupeKey: params.dedupeKey,
+    orderId: params.orderId,
+    reason: params.reason,
   });
 }
 
@@ -261,56 +290,227 @@ export async function handleGoCuotasWebhook(params: {
   const safeHeaders = sanitizeForLog(params.headers);
   const safePayload = sanitizeForLog(params.payload);
 
-  validateWebhookSignature(params.headers);
+  logger.info("payments.gocuotas.webhook.received", {
+    dedupeKey,
+    externalReference: parsed.externalReference,
+    providerEventId: parsed.providerEventId,
+    providerPaymentId: parsed.providerPaymentId,
+    rawProviderStatus: parsed.rawStatus,
+    mappedOrderStatus: mappedStatus.orderStatus,
+    mappedPaymentStatus: mappedStatus.paymentStatus,
+  });
 
+  const isApproval = shouldApproveOrder(mappedStatus);
   const existingEvent = await prisma.paymentWebhookEvent.findUnique({
     where: { dedupeKey },
   });
+  const orderFromExistingEvent = existingEvent?.orderId
+    ? await prisma.order.findUnique({
+        where: { id: existingEvent.orderId },
+        include: { items: true },
+      })
+    : null;
+  const order = orderFromExistingEvent ?? (await findOrder(parsed));
+  const wasAlreadyPaid = order ? isPaidOrder(order) : false;
 
   if (existingEvent) {
-    logger.info("payments.gocuotas.webhook.duplicated", {
-      dedupeKey,
-      orderId: existingEvent.orderId,
-    });
+    if (isApproval && order?.id && !wasAlreadyPaid) {
+      logger.warn("payments.gocuotas.webhook.retry_existing_unprocessed_event", {
+        dedupeKey,
+        eventId: existingEvent.id,
+        orderId: order.id,
+        previousOrderStatus: order.status,
+        previousPaymentStatus: order.paymentStatus,
+      });
+    } else {
+      logger.info("payments.gocuotas.webhook.duplicated", {
+        dedupeKey,
+        orderId: existingEvent.orderId,
+        orderStatus: order?.status ?? null,
+        paymentStatus: order?.paymentStatus ?? null,
+      });
 
-    return {
-      duplicated: true,
-      linkedOrderId: existingEvent.orderId,
-      parsed,
-    };
+      if (isApproval && order?.id && wasAlreadyPaid) {
+        logger.info("payments.gocuotas.webhook.duplicate_paid_email_retry", {
+          dedupeKey,
+          orderId: order.id,
+          reason: "retry_missing_payment_approved_emails_only",
+        });
+
+        await sendPaymentApprovedEmailsForOrder({
+          dedupeKey,
+          orderId: order.id,
+          reason: "duplicate_paid_retry",
+        });
+      }
+
+      return {
+        duplicated: true,
+        linkedOrderId: existingEvent.orderId,
+        parsed,
+      };
+    }
   }
 
-  const order = await findOrder(parsed);
-
-  await prisma.$transaction(async (tx) => {
-    await tx.paymentWebhookEvent.create({
-      data: {
-        provider: "gocuotas",
-        dedupeKey,
-        providerEventId: parsed.providerEventId,
-        providerPaymentId: parsed.providerPaymentId,
-        externalReference: parsed.externalReference,
-        orderId: order?.id,
-        payload: safePayload as never,
-        headers: safeHeaders as never,
-        processedAt: new Date(),
-      },
-    });
-
-    if (order?.id) {
-      await tx.order.update({
-        where: { id: order.id },
-        data: {
-          status: mappedStatus.orderStatus,
-          paymentStatus: mappedStatus.paymentStatus,
-          paymentProvider: "GOCUOTAS",
-          providerPaymentId: parsed.providerPaymentId ?? undefined,
-          rawProviderStatus: parsed.rawStatus,
-          installments: parsed.installments,
-        },
-      });
-    }
+  logger.info("payments.gocuotas.webhook.order_lookup", {
+    dedupeKey,
+    orderId: order?.id ?? null,
+    orderNumber: order?.orderNumber ?? null,
+    previousOrderStatus: order?.status ?? null,
+    previousPaymentStatus: order?.paymentStatus ?? null,
+    hasOrder: Boolean(order),
   });
+
+  logger.info("payments.gocuotas.webhook.approval_decision", {
+    dedupeKey,
+    orderId: order?.id ?? null,
+    isApproval,
+    wasAlreadyPaid,
+    willAttemptStockDiscount: Boolean(order?.id && isApproval && !wasAlreadyPaid),
+    willSendPaymentApprovedEmails: Boolean(order?.id && isApproval && !wasAlreadyPaid),
+  });
+
+  let stockDiscounted = false;
+  let stockSkippedReason: string | undefined;
+
+  if (order?.id && isApproval) {
+    if (wasAlreadyPaid) {
+      stockSkippedReason = "order_already_paid";
+      logger.info("payments.gocuotas.webhook.stock_skipped", {
+        dedupeKey,
+        orderId: order.id,
+        reason: stockSkippedReason,
+      });
+    } else {
+      try {
+        await decrementSanityStock(mapOrderItemsToInventoryItems(order));
+        stockDiscounted = true;
+        logger.info("payments.gocuotas.webhook.stock_discounted", {
+          dedupeKey,
+          orderId: order.id,
+          itemCount: order.items.length,
+        });
+      } catch (error) {
+        stockSkippedReason = isInsufficientStockError(error)
+          ? "insufficient_stock_or_revision_conflict"
+          : "stock_discount_failed";
+
+        logger.error("payments.gocuotas.webhook.stock_discount_failed", {
+          dedupeKey,
+          orderId: order.id,
+          reason: stockSkippedReason,
+          error: error instanceof Error ? error.message : "unknown_error",
+        });
+
+        if (existingEvent) {
+          await prisma.paymentWebhookEvent.update({
+            where: { id: existingEvent.id },
+            data: {
+              providerEventId: parsed.providerEventId,
+              providerPaymentId: parsed.providerPaymentId,
+              externalReference: parsed.externalReference,
+              orderId: order.id,
+              payload: safePayload as never,
+              headers: safeHeaders as never,
+              processedAt: new Date(),
+            },
+          });
+        } else {
+          await prisma.paymentWebhookEvent.create({
+            data: {
+              provider: "gocuotas",
+              dedupeKey,
+              providerEventId: parsed.providerEventId,
+              providerPaymentId: parsed.providerPaymentId,
+              externalReference: parsed.externalReference,
+              orderId: order.id,
+              payload: safePayload as never,
+              headers: safeHeaders as never,
+              processedAt: new Date(),
+            },
+          });
+        }
+
+        return {
+          duplicated: false,
+          linkedOrderId: order.id,
+          parsed,
+          stockDiscounted,
+          stockSkippedReason,
+          paymentUpdated: false,
+        };
+      }
+    }
+  } else if (isApproval) {
+    stockSkippedReason = "order_not_found";
+  } else {
+    stockSkippedReason = "not_approved_status";
+  }
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      if (existingEvent) {
+        await tx.paymentWebhookEvent.update({
+          where: { id: existingEvent.id },
+          data: {
+            providerEventId: parsed.providerEventId,
+            providerPaymentId: parsed.providerPaymentId,
+            externalReference: parsed.externalReference,
+            orderId: order?.id,
+            payload: safePayload as never,
+            headers: safeHeaders as never,
+            processedAt: new Date(),
+          },
+        });
+      } else {
+        await tx.paymentWebhookEvent.create({
+          data: {
+            provider: "gocuotas",
+            dedupeKey,
+            providerEventId: parsed.providerEventId,
+            providerPaymentId: parsed.providerPaymentId,
+            externalReference: parsed.externalReference,
+            orderId: order?.id,
+            payload: safePayload as never,
+            headers: safeHeaders as never,
+            processedAt: new Date(),
+          },
+        });
+      }
+
+      if (order?.id && !(isApproval && wasAlreadyPaid)) {
+        await tx.order.update({
+          where: { id: order.id },
+          data: {
+            status: mappedStatus.orderStatus,
+            paymentStatus: mappedStatus.paymentStatus,
+            paymentProvider: "GOCUOTAS",
+            providerPaymentId: parsed.providerPaymentId ?? undefined,
+            rawProviderStatus: parsed.rawStatus,
+            installments: parsed.installments,
+          },
+        });
+      }
+    });
+  } catch (error) {
+    if (stockDiscounted && order?.id) {
+      try {
+        await restoreSanityStock(mapOrderItemsToInventoryItems(order));
+        logger.warn("payments.gocuotas.webhook.stock_restored_after_update_failure", {
+          dedupeKey,
+          orderId: order.id,
+        });
+      } catch (restoreError) {
+        logger.error("payments.gocuotas.webhook.stock_restore_failed", {
+          dedupeKey,
+          orderId: order.id,
+          error: restoreError instanceof Error ? restoreError.message : "unknown_error",
+        });
+      }
+    }
+
+    throw error;
+  }
 
   logger.info("payments.gocuotas.webhook.processed", {
     dedupeKey,
@@ -321,19 +521,37 @@ export async function handleGoCuotasWebhook(params: {
     mappedOrderStatus: mappedStatus.orderStatus,
     mappedPaymentStatus: mappedStatus.paymentStatus,
     hasOrder: Boolean(order),
+    previousOrderStatus: order?.status ?? null,
+    previousPaymentStatus: order?.paymentStatus ?? null,
+    stockDiscounted,
+    stockSkippedReason,
+    paymentUpdated: Boolean(order?.id && !(isApproval && wasAlreadyPaid)),
   });
 
-  if (order?.id && mappedStatus.paymentStatus === "APPROVED") {
-    const updatedOrder = await getOrderById(order.id);
-
-    if (updatedOrder) {
-      await sendPaymentApprovedEmails(updatedOrder);
-    }
+  if (order?.id && isApproval && !wasAlreadyPaid) {
+    await sendPaymentApprovedEmailsForOrder({
+      dedupeKey,
+      orderId: order.id,
+      reason: "new_approval",
+    });
+  } else {
+    logger.info("payments.gocuotas.webhook.payment_approved_emails_skipped", {
+      dedupeKey,
+      orderId: order?.id ?? null,
+      reason: !isApproval
+        ? "not_approved_status"
+        : wasAlreadyPaid
+          ? "order_already_paid"
+          : "order_not_found",
+    });
   }
 
   return {
     duplicated: false,
     linkedOrderId: order?.id ?? null,
     parsed,
+    stockDiscounted,
+    stockSkippedReason,
+    paymentUpdated: Boolean(order?.id && !(isApproval && wasAlreadyPaid)),
   };
 }

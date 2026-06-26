@@ -33,6 +33,11 @@ export type ShippingAddress = Prisma.ShippingAddressModel
  */
 export type ProductSnapshot = Prisma.ProductSnapshotModel
 /**
+ * Model Product
+ * 
+ */
+export type Product = Prisma.ProductModel
+/**
  * Model Order
  * 
  */

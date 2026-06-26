@@ -54,6 +54,7 @@ export const ModelName = {
   Customer: 'Customer',
   ShippingAddress: 'ShippingAddress',
   ProductSnapshot: 'ProductSnapshot',
+  Product: 'Product',
   Order: 'Order',
   PaymentWebhookEvent: 'PaymentWebhookEvent',
   EmailLog: 'EmailLog',
@@ -116,11 +117,26 @@ export const ProductSnapshotScalarFieldEnum = {
 export type ProductSnapshotScalarFieldEnum = (typeof ProductSnapshotScalarFieldEnum)[keyof typeof ProductSnapshotScalarFieldEnum]
 
 
+export const ProductScalarFieldEnum = {
+  id: 'id',
+  sanityProductId: 'sanityProductId',
+  slug: 'slug',
+  title: 'title',
+  stock: 'stock',
+  trackInventory: 'trackInventory',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
+
+
 export const OrderScalarFieldEnum = {
   id: 'id',
   orderNumber: 'orderNumber',
   status: 'status',
   subtotal: 'subtotal',
+  shippingMethod: 'shippingMethod',
   shippingCost: 'shippingCost',
   total: 'total',
   paymentMethod: 'paymentMethod',

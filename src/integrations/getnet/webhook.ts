@@ -1,18 +1,13 @@
-import { env } from "@/lib/env";
-
 export type GetnetWebhookEnvelope = {
-  event?: string;
-  paymentId?: string;
-  orderNumber?: string;
-  status?: string;
-  payload?: unknown;
+  order_id?: string;
+  payment_intent_id?: string;
+  payment?: {
+    result?: {
+      status?: string;
+      payment_id?: string;
+    };
+    installment?: {
+      number?: number;
+    };
+  };
 };
-
-export function hasGetnetWebhookSecret() {
-  return Boolean(env.getnetWebhookSecret);
-}
-
-export function validateGetnetWebhookSignature(signature?: string | null) {
-  void signature;
-  return hasGetnetWebhookSecret();
-}

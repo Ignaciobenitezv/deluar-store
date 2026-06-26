@@ -50,8 +50,8 @@ export async function POST(request: Request) {
     logger.info("api.payments.getnet.init.succeeded", {
       requestId,
       orderId: order.id,
-      mode: payment.mode,
       status: payment.status,
+      paymentIntentId: payment.paymentIntentId,
     });
 
     return jsonSuccess(

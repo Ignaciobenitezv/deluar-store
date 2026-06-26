@@ -3,6 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/features/cart/cart-context";
+import {
+  calculateShippingCost,
+  getShippingMethodLabel,
+  type ShippingMethod,
+} from "@/features/shipping/shipping";
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat("es-AR", {
@@ -12,8 +17,14 @@ function formatPrice(value: number) {
   }).format(value);
 }
 
-export function CheckoutOrderSummary() {
+type CheckoutOrderSummaryProps = {
+  shippingMethod: ShippingMethod;
+};
+
+export function CheckoutOrderSummary({ shippingMethod }: CheckoutOrderSummaryProps) {
   const { items, totals } = useCart();
+  const shippingCost = calculateShippingCost(totals.subtotal, shippingMethod);
+  const total = totals.subtotal + shippingCost;
 
   return (
     <aside className="space-y-6 rounded-[2rem] border border-border/80 bg-[linear-gradient(180deg,rgba(255,253,249,0.98),rgba(243,235,226,0.95))] px-6 py-7 shadow-[0_24px_60px_rgba(58,40,26,0.05)] lg:sticky lg:top-28">
@@ -93,9 +104,16 @@ export function CheckoutOrderSummary() {
             {formatPrice(totals.subtotal)}
           </span>
         </div>
-        <p className="leading-6 text-muted">
-          Envio y pago se integraran despues. Esta base ya usa el estado real del carrito.
-        </p>
+        <div className="flex items-center justify-between gap-4 text-muted">
+          <span>{getShippingMethodLabel(shippingMethod)}</span>
+          <span>{shippingCost === 0 ? "Gratis" : formatPrice(shippingCost)}</span>
+        </div>
+        <div className="flex items-center justify-between gap-4 border-t border-border/70 pt-4 text-foreground">
+          <span className="font-medium">Total</span>
+          <span className="text-xl font-semibold tracking-[0.01em]">
+            {formatPrice(total)}
+          </span>
+        </div>
       </div>
     </aside>
   );

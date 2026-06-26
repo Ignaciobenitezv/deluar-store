@@ -169,6 +169,7 @@ function HomeSpotlightProductContent({
                 imageAlt: activeImage?.alt ?? product.images[0]?.alt ?? product.title,
                 basePrice: product.basePrice,
                 transferPrice: product.transferPrice,
+                stock: product.stock,
                 productHref: product.productHref,
               }}
             />

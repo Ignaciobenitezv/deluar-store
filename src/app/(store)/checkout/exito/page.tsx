@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { OrderStatusBadge } from "@/features/order/components/order-status-badge";
+import { OrderTimeline } from "@/features/order/components/order-timeline";
 
 export default function CheckoutSuccessPage() {
   return (
@@ -8,10 +10,12 @@ export default function CheckoutSuccessPage() {
         <h1 className="text-3xl font-semibold tracking-[0.03em] text-foreground">
           Pago aprobado
         </h1>
+        <OrderStatusBadge status="PAID" />
         <p className="text-sm leading-7 text-muted">
           Si el webhook ya llego, tu orden quedo confirmada. Si tarda, la vamos a
           sincronizar apenas Mercado Pago avise el estado final.
         </p>
+        <OrderTimeline status="PAID" />
         <Link
           href="/productos"
           className="inline-flex min-h-12 items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white"

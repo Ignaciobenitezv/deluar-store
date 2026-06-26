@@ -1,5 +1,6 @@
 import type { CheckoutFormValues } from "@/features/checkout/types";
 import type { PaymentMethod } from "@/features/payments/types";
+import type { ShippingMethod } from "@/features/shipping/shipping";
 
 export type OrderStatus =
   | "created"
@@ -19,7 +20,9 @@ export type OrderCustomer = Pick<
 export type OrderShippingAddress = Pick<
   CheckoutFormValues,
   "address" | "city" | "province" | "postalCode"
->;
+> & {
+  apartment?: string;
+};
 
 export type OrderItem = {
   productId: string;
@@ -37,6 +40,8 @@ export type Order = {
   id: string;
   orderNumber: string;
   status: OrderStatus;
+  shippingMethod: ShippingMethod;
+  shippingCost: number;
   paymentMethod: PaymentMethod;
   paymentProvider?: "gocuotas" | "getnet" | "mercado_pago";
   paymentStatus: "not_started" | "pending" | "approved" | "rejected" | "cancelled" | "refunded" | "charged_back";
@@ -64,6 +69,7 @@ export type CreateOrderItemInput = {
 export type CreateOrderInput = {
   customer?: Partial<CheckoutFormValues>;
   items?: CreateOrderItemInput[];
+  shippingMethod?: ShippingMethod;
   paymentMethod?: PaymentMethod;
 };
 

@@ -29,6 +29,7 @@ function toCartProduct(product: ProductCardCommerceData): CartProductInput {
     imageAlt: product.imageAlt,
     basePrice: product.basePrice,
     transferPrice: product.transferPrice,
+    stock: product.stock,
     productHref: product.productHref,
   };
 }

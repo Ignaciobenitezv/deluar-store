@@ -1,4 +1,5 @@
 import type { PaymentMethod } from "@/features/payments/types";
+import type { ShippingMethod } from "@/features/shipping/shipping";
 
 export type CheckoutFormValues = {
   firstName: string;
@@ -10,6 +11,7 @@ export type CheckoutFormValues = {
   province: string;
   postalCode: string;
   notes: string;
+  shippingMethod: ShippingMethod;
   paymentMethod: PaymentMethod;
 };
 

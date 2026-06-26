@@ -23,6 +23,7 @@ export const categoryTreeQuery = groq`
 export const productCardQuery = groq`
   {
     _id,
+    _rev,
     _type,
     _createdAt,
     title,
@@ -236,6 +237,7 @@ export const relatedProductFallbackGroupsQuery = groq`
 export const productsBySlugsQuery = groq`
   *[_type == "product" && slug.current in $slugs] {
     _id,
+    _rev,
     _type,
     title,
     slug,

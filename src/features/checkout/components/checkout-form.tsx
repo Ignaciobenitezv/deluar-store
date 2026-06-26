@@ -1,29 +1,49 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { CheckoutFormErrors, CheckoutFormValues } from "@/features/checkout/types";
-import { PAYMENT_METHODS } from "@/features/payments/types";
+import { isGetnetEnabled, PAYMENT_METHODS } from "@/features/payments/types";
 import {
   getInitialCheckoutFormValues,
   validateCheckoutForm,
 } from "@/features/checkout/validation";
+import {
+  getShippingOptions,
+  isPickupShippingMethod,
+  requiresLocationFields,
+  requiresStreetAddress,
+  type ShippingMethod,
+} from "@/features/shipping/shipping";
 
 type CheckoutFormProps = {
   onSubmit: (values: CheckoutFormValues) => void | Promise<void>;
+  onValuesChange?: (values: CheckoutFormValues) => void;
   isSubmitting?: boolean;
+  subtotal: number;
   submitLabel?: string;
 };
 
 type FieldProps = {
-  id: Exclude<keyof CheckoutFormValues, "paymentMethod">;
+  id: Exclude<keyof CheckoutFormValues, "paymentMethod" | "shippingMethod">;
   label: string;
   value: string;
   error?: string;
   required?: boolean;
   multiline?: boolean;
-  onChange: (field: Exclude<keyof CheckoutFormValues, "paymentMethod">, value: string) => void;
+  onChange: (
+    field: Exclude<keyof CheckoutFormValues, "paymentMethod" | "shippingMethod">,
+    value: string,
+  ) => void;
 };
+
+function formatPrice(value: number) {
+  return new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
 
 function Field({
   id,
@@ -72,18 +92,40 @@ function Field({
 
 export function CheckoutForm({
   onSubmit,
+  onValuesChange,
   isSubmitting = false,
+  subtotal,
   submitLabel = "Continuar al pago",
 }: CheckoutFormProps) {
   const [values, setValues] = useState<CheckoutFormValues>(getInitialCheckoutFormValues);
   const [errors, setErrors] = useState<CheckoutFormErrors>({});
+  const shippingOptions = getShippingOptions(subtotal);
+  const showAddressField = requiresStreetAddress(values.shippingMethod);
+  const showLocationFields = requiresLocationFields(values.shippingMethod);
+  const isPickupMethod = isPickupShippingMethod(values.shippingMethod);
+
+  useEffect(() => {
+    onValuesChange?.(values);
+  }, [onValuesChange, values]);
 
   const handleChange = (
-    field: Exclude<keyof CheckoutFormValues, "paymentMethod">,
+    field: Exclude<keyof CheckoutFormValues, "paymentMethod" | "shippingMethod">,
     value: string,
   ) => {
     setValues((current) => ({ ...current, [field]: value }));
     setErrors((current) => ({ ...current, [field]: undefined }));
+  };
+
+  const handleShippingMethodChange = (shippingMethod: ShippingMethod) => {
+    setValues((current) => ({ ...current, shippingMethod }));
+    setErrors((current) => ({
+      ...current,
+      shippingMethod: undefined,
+      address: undefined,
+      city: undefined,
+      province: undefined,
+      postalCode: undefined,
+    }));
   };
 
   const handlePaymentMethodChange = (paymentMethod: CheckoutFormValues["paymentMethod"]) => {
@@ -177,37 +219,109 @@ export function CheckoutForm({
           </h3>
         </div>
 
+        <div className="space-y-3">
+          <p className="text-sm font-medium tracking-[0.01em] text-foreground">
+            Metodo de envio *
+          </p>
+          <div className="grid gap-3">
+            {shippingOptions.map((option) => {
+              const isSelected = values.shippingMethod === option.value;
+
+              return (
+                <label
+                  key={option.value}
+                  className={cn(
+                    "cursor-pointer rounded-[1.2rem] border bg-white/78 px-4 py-4 transition-colors",
+                    isSelected
+                      ? "border-[var(--color-accent-strong)]/45 bg-[rgba(167,88,60,0.06)]"
+                      : "border-border/80 hover:border-foreground/25",
+                  )}
+                >
+                  <input
+                    type="radio"
+                    name="shippingMethod"
+                    value={option.value}
+                    checked={isSelected}
+                    onChange={() => handleShippingMethodChange(option.value)}
+                    className="sr-only"
+                  />
+                  <span className="flex items-start justify-between gap-4">
+                    <span className="flex items-start gap-3">
+                      <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-foreground/25">
+                        {isSelected ? (
+                          <span className="h-2 w-2 rounded-full bg-[var(--color-accent-strong)]" />
+                        ) : null}
+                      </span>
+                      <span>
+                        <span className="block text-sm font-medium text-foreground">
+                          {option.label}
+                        </span>
+                        <span className="mt-1 block text-xs leading-5 text-muted">
+                          {option.description}
+                        </span>
+                      </span>
+                    </span>
+                    <span className="text-sm font-medium text-foreground">
+                      {option.cost === 0 ? "Gratis" : formatPrice(option.cost)}
+                    </span>
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+          {errors.shippingMethod ? (
+            <p className="text-sm leading-6 text-[var(--color-accent-strong)]">
+              {errors.shippingMethod}
+            </p>
+          ) : null}
+        </div>
+
+        {isPickupMethod ? (
+          <div className="rounded-[1.2rem] border border-border/75 bg-white/78 px-4 py-4 text-sm leading-7 text-muted">
+            Podes retirar tu pedido en Resistencia, Chaco. Luego coordinaremos por
+            WhatsApp el punto y horario de retiro.
+          </div>
+        ) : null}
+
         <div className="grid gap-5 sm:grid-cols-2">
-          <div className="sm:col-span-2">
+          {showAddressField ? (
+            <div className="sm:col-span-2">
+              <Field
+                id="address"
+                label="Direccion"
+                value={values.address}
+                error={errors.address}
+                onChange={handleChange}
+              />
+            </div>
+          ) : null}
+          {showLocationFields ? (
             <Field
-              id="address"
-              label="Direccion"
-              value={values.address}
-              error={errors.address}
+              id="city"
+              label="Localidad"
+              value={values.city}
+              error={errors.city}
               onChange={handleChange}
             />
-          </div>
-          <Field
-            id="city"
-            label="Localidad"
-            value={values.city}
-            error={errors.city}
-            onChange={handleChange}
-          />
-          <Field
-            id="province"
-            label="Provincia"
-            value={values.province}
-            error={errors.province}
-            onChange={handleChange}
-          />
-          <Field
-            id="postalCode"
-            label="Codigo postal"
-            value={values.postalCode}
-            error={errors.postalCode}
-            onChange={handleChange}
-          />
+          ) : null}
+          {showLocationFields ? (
+            <Field
+              id="province"
+              label="Provincia"
+              value={values.province}
+              error={errors.province}
+              onChange={handleChange}
+            />
+          ) : null}
+          {showLocationFields ? (
+            <Field
+              id="postalCode"
+              label="Codigo postal"
+              value={values.postalCode}
+              error={errors.postalCode}
+              onChange={handleChange}
+            />
+          ) : null}
           <div className="sm:col-span-2">
             <Field
               id="notes"
@@ -235,8 +349,15 @@ export function CheckoutForm({
               {
                 value: PAYMENT_METHODS.GOCUOTAS,
                 title: "GoCuotas",
-                description: "Tarjetas en cuotas. Integracion redirect en preparacion.",
+                description: "Tarjetas en cuotas con checkout externo seguro.",
               },
+              ...(isGetnetEnabled
+                ? [{
+                    value: PAYMENT_METHODS.GETNET,
+                    title: "Getnet",
+                    description: "Checkout alojado por Getnet. Redireccion segura sin capturar tarjeta.",
+                  }]
+                : []),
               {
                 value: PAYMENT_METHODS.TRANSFER,
                 title: "Transferencia bancaria",

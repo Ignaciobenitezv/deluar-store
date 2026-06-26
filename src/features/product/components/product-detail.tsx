@@ -7,6 +7,7 @@ import { ProductGrid } from "@/features/catalog/components/product-grid";
 import { ProductCard } from "@/features/catalog/components/product-card";
 import type { ProductDetailData } from "@/features/catalog/types";
 import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
+import { useCart } from "@/features/cart/cart-context";
 import { ProductGallery } from "@/features/product/components/product-gallery";
 
 function formatPrice(value: number) {
@@ -22,6 +23,7 @@ type ProductDetailProps = {
 };
 
 export function ProductDetail({ product }: ProductDetailProps) {
+  const { items: cartItems } = useCart();
   const [activeVariantId, setActiveVariantId] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [descOpen, setDescOpen] = useState(true);
@@ -36,8 +38,17 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const activeImages = activeVariant?.images.length ? activeVariant.images : product.images;
   const activePrimaryImageUrl = activeVariant?.primaryImageUrl ?? product.primaryImageUrl;
   const activePrimaryImageAlt = activeVariant?.primaryImageAlt ?? product.primaryImageAlt;
+  const cartItemId = activeVariant ? `${product.id}:${activeVariant.id}` : product.id;
+  const cartItem = cartItems.find((item) => item.id === cartItemId);
+  const cartQuantity = cartItem?.quantity ?? 0;
+  const remainingStock = Math.max(activeStock - cartQuantity, 0);
   const hasStock = activeStock > 0;
-  const quantityMax = Math.min(Math.max(activeStock, 1), 10);
+  const hasRemainingStock = remainingStock > 0;
+  const hasReachedCartStockLimit = hasStock && remainingStock === 0;
+  const quantityMax = Math.max(remainingStock, 1);
+  const effectiveQuantity = Math.min(Math.max(quantity, 1), quantityMax);
+  const canDecreaseQuantity = hasRemainingStock && effectiveQuantity > 1;
+  const canIncreaseQuantity = hasRemainingStock && effectiveQuantity < quantityMax;
   const checkRelatedScroll = () => {
     const el = relatedScrollRef.current;
     if (!el) return;
@@ -52,6 +63,12 @@ export function ProductDetail({ product }: ProductDetailProps) {
   };
   const scrollRelatedRight = () => {
     relatedScrollRef.current?.scrollBy({ left: 200, behavior: "smooth" });
+  };
+  const handleDecreaseQuantity = () => {
+    setQuantity((q) => Math.max(q - 1, 1));
+  };
+  const handleIncreaseQuantity = () => {
+    setQuantity((q) => Math.min(q + 1, quantityMax));
   };
 
   useEffect(() => {
@@ -157,52 +174,63 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </span>
           </div>
 
-          <div className="flex items-stretch gap-3">
-            <div className="flex items-center rounded border border-border/70 bg-white/50">
-              <button
-                type="button"
-                onClick={() => setQuantity((q) => Math.max(q - 1, 1))}
-                disabled={!hasStock || quantity <= 1}
-                aria-label="Reducir cantidad"
-                className="flex h-12 w-10 items-center justify-center text-lg text-muted transition-colors hover:text-foreground disabled:opacity-35"
-              >
-                −
-              </button>
-              <span className="min-w-8 text-center text-sm font-medium text-foreground">
-                {quantity}
-              </span>
-              <button
-                type="button"
-                onClick={() => setQuantity((q) => Math.min(q + 1, quantityMax))}
-                disabled={!hasStock || quantity >= quantityMax}
-                aria-label="Aumentar cantidad"
-                className="flex h-12 w-10 items-center justify-center text-lg text-muted transition-colors hover:text-foreground disabled:opacity-35"
-              >
-                +
-              </button>
+          {hasRemainingStock ? (
+            <div className="flex items-stretch gap-3">
+              <div className="flex items-center rounded border border-border/70 bg-white/50">
+                <button
+                  type="button"
+                  onClick={handleDecreaseQuantity}
+                  disabled={!canDecreaseQuantity}
+                  aria-label="Reducir cantidad"
+                  className="flex h-12 w-10 items-center justify-center text-lg text-muted transition-colors hover:text-foreground disabled:opacity-35"
+                >
+                  -
+                </button>
+                <span className="min-w-8 text-center text-sm font-medium text-foreground">
+                  {effectiveQuantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleIncreaseQuantity}
+                  disabled={!canIncreaseQuantity}
+                  aria-label="Aumentar cantidad"
+                  className="flex h-12 w-10 items-center justify-center text-lg text-muted transition-colors hover:text-foreground disabled:opacity-35"
+                >
+                  +
+                </button>
+              </div>
+              <div className="flex-1">
+                <AddToCartButton
+                  quantity={effectiveQuantity}
+                  disabled={!hasRemainingStock}
+                  product={{
+                    id: cartItemId,
+                    productId: product.id,
+                    slug: product.slug,
+                    title: product.title,
+                    imageUrl: activePrimaryImageUrl,
+                    imageAlt: activePrimaryImageAlt,
+                    basePrice: activeBasePrice,
+                    transferPrice: activeTransferPrice,
+                    stock: activeStock,
+                    variantId: activeVariant?.id,
+                    variantLabel: activeVariant?.title,
+                    variantValue: activeVariant?.value,
+                    sku: activeVariant?.sku,
+                    productHref: product.productHref,
+                  }}
+                />
+              </div>
             </div>
-            <div className="flex-1">
-              <AddToCartButton
-                quantity={quantity}
-                disabled={!hasStock}
-                product={{
-                  id: activeVariant ? `${product.id}:${activeVariant.id}` : product.id,
-                  productId: product.id,
-                  slug: product.slug,
-                  title: product.title,
-                  imageUrl: activePrimaryImageUrl,
-                  imageAlt: activePrimaryImageAlt,
-                  basePrice: activeBasePrice,
-                  transferPrice: activeTransferPrice,
-                  variantId: activeVariant?.id,
-                  variantLabel: activeVariant?.title,
-                  variantValue: activeVariant?.value,
-                  sku: activeVariant?.sku,
-                  productHref: product.productHref,
-                }}
-              />
+          ) : hasReachedCartStockLimit ? (
+            <div className="flex min-h-14 w-full items-center justify-center rounded-full border border-emerald-700/20 bg-emerald-50 px-5 text-center text-sm font-medium text-emerald-800">
+              Ya agregaste todo el stock disponible
             </div>
-          </div>
+          ) : (
+            <div className="flex min-h-14 w-full items-center justify-center rounded-full border border-border/80 bg-surface px-5 text-center text-sm font-medium text-muted">
+              Sin stock
+            </div>
+          )}
 
           {product.attributes.length > 0 ? (
             <div className="border-t border-border/50 pt-5 space-y-3">
@@ -231,9 +259,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 className="flex w-full items-center justify-between py-4 text-left"
               >
                 <span className="text-[0.7rem] uppercase tracking-[0.22em] text-muted">
-                  Descripción
+                  Descripcion
                 </span>
-                <span className="text-base text-muted">{descOpen ? "−" : "+"}</span>
+                <span className="text-base text-muted">{descOpen ? "-" : "+"}</span>
               </button>
               {descOpen ? (
                 <div className="space-y-3 pb-4 text-sm leading-7 text-muted">
@@ -263,7 +291,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                   canScrollLeft ? "opacity-70" : "pointer-events-none opacity-0"
                 }`}
               >
-                ‹
+                {"<"}
               </button>
               <button
                 type="button"
@@ -273,7 +301,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                   canScrollRight ? "opacity-70" : "pointer-events-none opacity-0"
                 }`}
               >
-                ›
+                {">"}
               </button>
 
               {/* Mobile: horizontal scroll */}

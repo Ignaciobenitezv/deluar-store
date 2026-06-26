@@ -11,6 +11,7 @@
 export type * from './models/Customer'
 export type * from './models/ShippingAddress'
 export type * from './models/ProductSnapshot'
+export type * from './models/Product'
 export type * from './models/Order'
 export type * from './models/PaymentWebhookEvent'
 export type * from './models/EmailLog'

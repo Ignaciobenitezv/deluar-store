@@ -1,0 +1,4 @@
+api.checkout.orders.failed {
+  requestId: 'f6889cbd-acf1-4c84-8dd8-17b0bd964694',
+  error: '(ENOTFOUND) tenant/user postgres.gxxfzdzxbsdspaahretx not found'
+}
