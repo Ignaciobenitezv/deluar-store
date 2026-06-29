@@ -127,6 +127,14 @@ export type DashboardMetrics = {
     uniqueCustomers: number;
     recurrentCustomers: number;
     newCustomers: number;
+    allCustomers: {
+      email: string;
+      displayName: string;
+      orders: number;
+      revenue: number;
+      firstOrderAt: string;
+      isNewCustomer: boolean;
+    }[];
     topCustomers: {
       email: string;
       displayName: string;
@@ -161,6 +169,13 @@ export type DashboardMetrics = {
       label: string;
       orders: number;
     }[];
+    failedByMethod: {
+      method: string;
+      label: string;
+      failedOrders: number;
+      pendingOrders: number;
+      revenue: number;
+    }[];
   };
   shipping: {
     methods: {
@@ -171,6 +186,10 @@ export type DashboardMetrics = {
       shippingCostTotal: number;
     }[];
     totalShippingCost: number;
+    averageShippingCost: number;
+    shippingOrders: number;
+    freeShippingOrders: number;
+    paidShippingOrders: number;
     pickupOrders: number;
     homeDeliveryOrders: number;
     cityBranchOrders: number;
@@ -522,23 +541,31 @@ export async function getDashboardMetrics(
       shippingCostTotal: number;
     }
   >();
+  const paymentMethodFailureStats = new Map<
+    string,
+    {
+      method: string;
+      label: string;
+      failedOrders: number;
+      pendingOrders: number;
+      revenue: number;
+    }
+  >();
+  let freeShippingOrders = 0;
 
   for (const order of ordersInPeriod) {
+    const paidOrder = isPaidOrder(order);
+
     const key = formatDateKey(order.createdAt);
     createdByDate.set(key, (createdByDate.get(key) ?? 0) + 1);
 
-    if (isPaidOrder(order)) {
+    if (paidOrder) {
       paidByDate.set(key, (paidByDate.get(key) ?? 0) + 1);
-    }
-
-    if (isPaidOrder(order)) {
       const orderRevenue = toNumber(order.total);
+      const orderUnits = order.items.reduce((sum, item) => sum + item.quantity, 0);
+
       revenueByDate.set(key, (revenueByDate.get(key) ?? 0) + orderRevenue);
-      unitsByDate.set(
-        key,
-        (unitsByDate.get(key) ?? 0) +
-          order.items.reduce((sum, item) => sum + item.quantity, 0),
-      );
+      unitsByDate.set(key, (unitsByDate.get(key) ?? 0) + orderUnits);
     }
 
     const customerEmail = order.customer.email.toLowerCase();
@@ -565,8 +592,10 @@ export async function getDashboardMetrics(
     paymentStatus.orders += 1;
     paymentStatusStats.set(order.paymentStatus, paymentStatus);
 
-    if (isPaidOrder(order)) {
+    if (paidOrder) {
       const orderRevenue = toNumber(order.total);
+      const orderShippingCost = toNumber(order.shippingCost);
+
       customerEntry.revenue += orderRevenue;
 
       const province = order.shippingAddress?.province.trim() || "Sin provincia";
@@ -604,6 +633,22 @@ export async function getDashboardMetrics(
       paymentMethodEntry.revenue += orderRevenue;
       paymentMethodStats.set(paymentMethod, paymentMethodEntry);
 
+      const paymentFailureEntry = paymentMethodFailureStats.get(paymentMethod) ?? {
+        method: paymentMethod,
+        label: paymentMethodLabel,
+        failedOrders: 0,
+        pendingOrders: 0,
+        revenue: 0,
+      };
+      if (isFailedOrder(order)) {
+        paymentFailureEntry.failedOrders += 1;
+      }
+      if (isPendingPaymentOrder(order)) {
+        paymentFailureEntry.pendingOrders += 1;
+      }
+      paymentFailureEntry.revenue += orderRevenue;
+      paymentMethodFailureStats.set(paymentMethod, paymentFailureEntry);
+
       const shippingMethod = normalizeShippingMethod(order.shippingMethod);
       const shippingMethodEntry = shippingMethodStats.get(shippingMethod) ?? {
         method: shippingMethod,
@@ -614,8 +659,12 @@ export async function getDashboardMetrics(
       };
       shippingMethodEntry.orders += 1;
       shippingMethodEntry.revenue += orderRevenue;
-      shippingMethodEntry.shippingCostTotal += toNumber(order.shippingCost);
+      shippingMethodEntry.shippingCostTotal += orderShippingCost;
       shippingMethodStats.set(shippingMethod, shippingMethodEntry);
+
+      if (orderShippingCost === 0) {
+        freeShippingOrders += 1;
+      }
 
       for (const item of order.items) {
         const productEntry = productStats.get(item.productId) ?? {
@@ -646,20 +695,19 @@ export async function getDashboardMetrics(
     customer.isNewCustomer = Boolean(firstOrder && firstOrder >= start && firstOrder <= end);
   }
 
-  const recurrentCustomers = [...customerStats.values()].filter((customer) => customer.orders > 1)
-    .length;
-  const newCustomers = [...customerStats.values()].filter((customer) => customer.isNewCustomer)
-    .length;
+  const customerValues = [...customerStats.values()];
+  const recurrentCustomers = customerValues.filter((customer) => customer.orders > 1).length;
+  const newCustomers = customerValues.filter((customer) => customer.isNewCustomer).length;
+  const sortedCustomers = customerValues.sort((left, right) => {
+    if (right.revenue !== left.revenue) {
+      return right.revenue - left.revenue;
+    }
 
-  const topCustomers = [...customerStats.values()]
+    return right.orders - left.orders;
+  });
+
+  const topCustomers = sortedCustomers
     .filter((customer) => customer.revenue > 0)
-    .sort((left, right) => {
-      if (right.revenue !== left.revenue) {
-        return right.revenue - left.revenue;
-      }
-
-      return right.orders - left.orders;
-    })
     .slice(0, 10);
 
   const topSold = [...productStats.values()]
@@ -724,6 +772,14 @@ export async function getDashboardMetrics(
   const shippingMethodValues = [...shippingMethodStats.values()].sort(
     (left, right) => right.orders - left.orders || left.label.localeCompare(right.label),
   );
+  const totalShippingOrders = shippingMethodValues.reduce((accumulator, item) => accumulator + item.orders, 0);
+  const paidShippingOrders = Math.max(totalShippingOrders - freeShippingOrders, 0);
+  const paymentFailedByMethod = [...paymentMethodFailureStats.values()].sort(
+    (left, right) =>
+      right.failedOrders - left.failedOrders ||
+      right.pendingOrders - left.pendingOrders ||
+      left.label.localeCompare(right.label),
+  );
 
   const missingTracking = [
     "Visitas",
@@ -784,6 +840,12 @@ export async function getDashboardMetrics(
       uniqueCustomers: customerStats.size,
       recurrentCustomers,
       newCustomers,
+      allCustomers: sortedCustomers
+        .filter((customer) => customer.orders > 0)
+        .map((customer) => ({
+          ...customer,
+          firstOrderAt: customer.firstOrderAt.toISOString(),
+        })),
       topCustomers: topCustomers.map((customer) => ({
         ...customer,
         firstOrderAt: customer.firstOrderAt.toISOString(),
@@ -804,10 +866,15 @@ export async function getDashboardMetrics(
           )
         : [],
       statusBreakdown: paymentStatusBreakdown,
+      failedByMethod: paymentFailedByMethod,
     },
     shipping: {
       methods: shippingMethodValues,
       totalShippingCost: shippingCostTotal,
+      averageShippingCost: totalShippingOrders > 0 ? shippingCostTotal / totalShippingOrders : 0,
+      shippingOrders: totalShippingOrders,
+      freeShippingOrders,
+      paidShippingOrders,
       pickupOrders: shippingMethodStats.get(SHIPPING_METHODS.RESISTANCE_PICKUP)?.orders ?? 0,
       homeDeliveryOrders: shippingMethodStats.get(SHIPPING_METHODS.HOME_DELIVERY)?.orders ?? 0,
       cityBranchOrders: shippingMethodStats.get(SHIPPING_METHODS.CITY_BRANCH)?.orders ?? 0,
