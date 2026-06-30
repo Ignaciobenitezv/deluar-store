@@ -20,7 +20,7 @@ export function DateRangeFilter() {
   };
 
   return (
-    <div className="inline-flex rounded-full border border-slate-200 bg-slate-100 p-1 shadow-[0_6px_18px_rgba(15,23,42,0.03)]">
+    <div className="grid w-full grid-cols-2 gap-1 rounded-[16px] border border-slate-200 bg-slate-100 p-1 shadow-[0_6px_18px_rgba(15,23,42,0.03)] sm:inline-flex sm:w-auto sm:grid-cols-none sm:rounded-full">
       {periodValues.map((period) => {
         const active = period === currentPeriod;
 
@@ -30,7 +30,7 @@ export function DateRangeFilter() {
             type="button"
             onClick={() => updatePeriod(period)}
             className={cn(
-              "rounded-full px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition",
+              "rounded-[12px] px-2 py-1.5 text-[9px] font-semibold uppercase tracking-[0.14em] transition sm:rounded-full sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.18em]",
               active
                 ? "bg-white text-slate-950 shadow-[0_8px_18px_rgba(15,23,42,0.08)]"
                 : "text-slate-500 hover:text-slate-900",
@@ -43,4 +43,3 @@ export function DateRangeFilter() {
     </div>
   );
 }
-

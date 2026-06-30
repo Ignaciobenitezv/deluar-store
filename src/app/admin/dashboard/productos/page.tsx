@@ -56,9 +56,7 @@ function barWidth(value: number, max: number) {
   return `${Math.max(8, (value / max) * 100)}%`;
 }
 
-export default async function AdminDashboardProductsPage({
-  searchParams,
-}: AdminDashboardProductsPageProps) {
+export default async function AdminDashboardProductsPage({ searchParams }: AdminDashboardProductsPageProps) {
   const resolvedSearchParams = await searchParams;
   const period = normalizeDashboardPeriodValue(resolvedSearchParams?.period);
   const topProductsLimit = normalizeProductsLimit(resolvedSearchParams?.topProductsLimit);
@@ -74,6 +72,8 @@ export default async function AdminDashboardProductsPage({
   const topProductsStart = (currentTopProductPage - 1) * topProductsLimit;
   const topProductsEnd = topProductsStart + topProductsLimit;
   const topProductsPageItems = topSold.slice(topProductsStart, topProductsEnd);
+  const mobileTopProductsPageItems = topProductsPageItems.slice(0, 3);
+  const hiddenMobileTopProductsCount = Math.max(0, topProductsPageItems.length - mobileTopProductsPageItems.length);
   const maxUnits = Math.max(...topProductsPageItems.map((item) => item.unitsSold), 1);
 
   const buildPageHref = (nextPage: number, nextLimit = topProductsLimit) =>
@@ -93,7 +93,7 @@ export default async function AdminDashboardProductsPage({
       subtitle={`Vista comercial y operativa de productos. Período activo: ${DASHBOARD_PERIODS[period].label}.`}
       lastUpdated={lastUpdated}
     >
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-3 min-[420px]:grid-cols-2 sm:gap-4 xl:grid-cols-4">
         <KpiCard
           title="Productos vendidos distintos"
           value={formatDashboardNumber(metrics.summary.distinctProductsSold)}
@@ -137,16 +137,15 @@ export default async function AdminDashboardProductsPage({
             <div className="space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="text-xs text-slate-500">
-                  Mostrando {topProductsStart + 1}-{Math.min(topProductsEnd, totalTopProducts)} de{" "}
-                  {totalTopProducts}
+                  Mostrando {topProductsStart + 1}-{Math.min(topProductsEnd, totalTopProducts)} de {totalTopProducts}
                 </div>
-                <div className="inline-flex rounded-full border border-slate-200 bg-slate-100 p-1">
+                <div className="grid w-full grid-cols-2 gap-1 rounded-[16px] border border-slate-200 bg-slate-100 p-1 sm:inline-flex sm:w-auto sm:grid-cols-none sm:rounded-full">
                   {[5, 10, 25, 50].map((limit) => (
                     <Link
                       key={limit}
                       href={buildLimitHref(limit)}
                       className={cn(
-                        "rounded-full px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition",
+                        "rounded-[12px] px-2.5 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] transition sm:rounded-full sm:px-3 sm:py-2 sm:text-[11px] sm:tracking-[0.18em]",
                         topProductsLimit === limit
                           ? "bg-white text-slate-950 shadow-[0_8px_18px_rgba(15,23,42,0.08)]"
                           : "text-slate-500 hover:text-slate-900",
@@ -158,22 +157,52 @@ export default async function AdminDashboardProductsPage({
                 </div>
               </div>
 
-              <div className="overflow-hidden rounded-[20px] border border-slate-200/70">
+              <div className="space-y-3 sm:hidden">
+                {mobileTopProductsPageItems.map((product) => (
+                  <div key={product.productId} className="rounded-[16px] border border-slate-200/70 bg-white px-3 py-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-slate-900">{product.productName}</p>
+                        <p className="mt-1 text-[11px] text-slate-500">{product.productSlug}</p>
+                      </div>
+                      <p className="shrink-0 text-sm font-semibold text-slate-950">
+                        {typeof product.stock === "number" ? formatDashboardNumber(product.stock) : "N/D"}
+                      </p>
+                    </div>
+                    <div className="mt-3 grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-[10px] uppercase tracking-[0.18em] text-slate-400">Unidades</p>
+                        <p className="mt-1 text-sm font-semibold text-slate-950">
+                          {formatDashboardNumber(product.unitsSold)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] uppercase tracking-[0.18em] text-slate-400">Facturación</p>
+                        <p className="mt-1 text-sm font-semibold text-slate-950">
+                          {formatDashboardPrice(product.revenue)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-3 h-1 overflow-hidden rounded-full bg-slate-100">
+                      <div className="h-full rounded-full bg-sky-400" style={{ width: barWidth(product.unitsSold, maxUnits) }} />
+                    </div>
+                  </div>
+                ))}
+                {hiddenMobileTopProductsCount > 0 ? (
+                  <p className="px-1 text-xs text-slate-500">
+                    Ver detalle en desktop · +{hiddenMobileTopProductsCount} productos más
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="hidden overflow-hidden rounded-[20px] border border-slate-200/70 sm:block">
                 <table className="w-full border-collapse text-sm">
                   <thead className="bg-slate-50 text-left">
                     <tr>
-                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                        Producto
-                      </th>
-                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                        Unidades vendidas
-                      </th>
-                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                        Facturación
-                      </th>
-                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                        Stock
-                      </th>
+                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Producto</th>
+                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Unidades vendidas</th>
+                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Facturación</th>
+                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Stock</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -191,10 +220,7 @@ export default async function AdminDashboardProductsPage({
                               <span>{formatDashboardNumber(product.unitsSold)} uds.</span>
                             </div>
                             <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
-                              <div
-                                className="h-full rounded-full bg-sky-400"
-                                style={{ width: barWidth(product.unitsSold, maxUnits) }}
-                              />
+                              <div className="h-full rounded-full bg-sky-400" style={{ width: barWidth(product.unitsSold, maxUnits) }} />
                             </div>
                           </div>
                         </td>
@@ -212,9 +238,7 @@ export default async function AdminDashboardProductsPage({
 
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <p className="text-xs text-slate-500">
-                  {totalTopProductPages > 1
-                    ? `Página ${currentTopProductPage} de ${totalTopProductPages}`
-                    : "Vista completa"}
+                  {totalTopProductPages > 1 ? `Página ${currentTopProductPage} de ${totalTopProductPages}` : "Vista completa"}
                 </p>
                 <div className="flex items-center gap-2">
                   <Link
@@ -254,10 +278,7 @@ export default async function AdminDashboardProductsPage({
                 : []
             }
             emptyState={
-              <EmptyState
-                title="Sin producto líder"
-                description="Todavía no hay productos vendidos en este período."
-              />
+              <EmptyState title="Sin producto líder" description="Todavía no hay productos vendidos en este período." />
             }
           />
 
@@ -290,10 +311,7 @@ export default async function AdminDashboardProductsPage({
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <ChartCard
-          title="Inventario"
-          description="Alertas operativas de stock bajo y stock agotado."
-        >
+        <ChartCard title="Inventario" description="Alertas operativas de stock bajo y stock agotado.">
           <div className="grid gap-4">
             <RankingCard
               title="Productos con bajo stock"
@@ -306,12 +324,7 @@ export default async function AdminDashboardProductsPage({
                 secondaryValue: "Bajo stock",
                 tone: "warning",
               }))}
-              emptyState={
-                <EmptyState
-                  title="Sin alertas de bajo stock"
-                  description="No hay productos con stock bajo en este momento."
-                />
-              }
+              emptyState={<EmptyState title="Sin alertas de bajo stock" description="No hay productos con stock bajo en este momento." />}
             />
 
             <RankingCard
@@ -325,12 +338,7 @@ export default async function AdminDashboardProductsPage({
                 secondaryValue: "Sin stock",
                 tone: "danger",
               }))}
-              emptyState={
-                <EmptyState
-                  title="Sin productos agotados"
-                  description="No hay productos agotados en el período."
-                />
-              }
+              emptyState={<EmptyState title="Sin productos agotados" description="No hay productos agotados en el período." />}
             />
           </div>
         </ChartCard>
@@ -348,4 +356,3 @@ export default async function AdminDashboardProductsPage({
     </DashboardShell>
   );
 }
-

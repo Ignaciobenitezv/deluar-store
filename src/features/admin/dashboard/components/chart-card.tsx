@@ -10,17 +10,16 @@ type ChartCardProps = {
 export function ChartCard({ title, description, children, emptyState }: ChartCardProps) {
   return (
     <section className={dashboardUi.card}>
-      <div className={`${dashboardUi.cardHeader} items-center`}>
-        <div>
+      <div className={dashboardUi.cardHeader}>
+        <div className="min-w-0">
           <h2 className="text-sm font-semibold tracking-[-0.02em] text-slate-900">{title}</h2>
           {description ? (
-            <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
+            <p className="mt-1 text-[13px] leading-5 text-slate-500 sm:text-sm sm:leading-6">{description}</p>
           ) : null}
         </div>
       </div>
-      <div className="px-5 py-5 lg:px-6 lg:py-6">{children}</div>
-      {emptyState ? <div className="border-t border-slate-200/70 px-5 py-4">{emptyState}</div> : null}
+      <div className={dashboardUi.cardBody}>{children}</div>
+      {emptyState ? <div className="px-4 pb-4 sm:px-5 sm:pb-5 lg:px-6 lg:pb-6">{emptyState}</div> : null}
     </section>
   );
 }
-

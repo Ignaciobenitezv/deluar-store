@@ -29,9 +29,7 @@ type AdminDashboardShippingPageProps = {
   }>;
 };
 
-export default async function AdminDashboardShippingPage({
-  searchParams,
-}: AdminDashboardShippingPageProps) {
+export default async function AdminDashboardShippingPage({ searchParams }: AdminDashboardShippingPageProps) {
   const resolvedSearchParams = await searchParams;
   const period = normalizeDashboardPeriodValue(resolvedSearchParams?.period);
   const metrics = await getDashboardMetrics(period);
@@ -44,6 +42,8 @@ export default async function AdminDashboardShippingPage({
   const mostUsedMethod = shippingMethods[0];
   const freeShippingOrders = metrics.shipping.freeShippingOrders;
   const paidShippingOrders = metrics.shipping.paidShippingOrders;
+  const mobileShippingMethods = shippingMethods.slice(0, 3);
+  const hiddenMobileShippingMethods = Math.max(0, shippingMethods.length - mobileShippingMethods.length);
 
   return (
     <DashboardShell
@@ -51,31 +51,11 @@ export default async function AdminDashboardShippingPage({
       subtitle={`Operación de envíos basada en pedidos reales. Período activo: ${DASHBOARD_PERIODS[period].label}.`}
       lastUpdated={lastUpdated}
     >
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard
-          title="Pedidos con envío"
-          value={formatDashboardNumber(totalShippingOrders)}
-          description="Pedidos con método de envío registrado."
-          tone="accent"
-        />
-        <KpiCard
-          title="Costo total cobrado"
-          value={formatDashboardPrice(totalShippingCost)}
-          description="Costo de envío cobrado en el período."
-          tone="success"
-        />
-        <KpiCard
-          title="Método más usado"
-          value={mostUsedMethod ? mostUsedMethod.label : "-"}
-          description={mostUsedMethod ? `${formatDashboardNumber(mostUsedMethod.orders)} pedidos` : "Sin datos"}
-          tone="warning"
-        />
-        <KpiCard
-          title="Retiros en Resistencia"
-          value={formatDashboardNumber(metrics.shipping.pickupOrders)}
-          description="Pedidos retirados en sucursal/local."
-          tone="neutral"
-        />
+      <section className="grid gap-3 min-[420px]:grid-cols-2 sm:gap-4 xl:grid-cols-4">
+        <KpiCard title="Pedidos con envío" value={formatDashboardNumber(totalShippingOrders)} description="Pedidos con método de envío registrado." tone="accent" />
+        <KpiCard title="Costo total cobrado" value={formatDashboardPrice(totalShippingCost)} description="Costo de envío cobrado en el período." tone="success" />
+        <KpiCard title="Método más usado" value={mostUsedMethod ? mostUsedMethod.label : "-"} description={mostUsedMethod ? `${formatDashboardNumber(mostUsedMethod.orders)} pedidos` : "Sin datos"} tone="warning" />
+        <KpiCard title="Retiros en Resistencia" value={formatDashboardNumber(metrics.shipping.pickupOrders)} description="Pedidos retirados en sucursal/local." tone="neutral" />
       </section>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
@@ -92,46 +72,55 @@ export default async function AdminDashboardShippingPage({
           }
         >
           {shippingMethods.length > 0 ? (
-            <div className="overflow-hidden rounded-[20px] border border-slate-200/70">
-              <table className="w-full border-collapse text-sm">
-                <thead className="bg-slate-50 text-left">
-                  <tr>
-                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                      Método
-                    </th>
-                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                      Pedidos
-                    </th>
-                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                      Facturación
-                    </th>
-                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                      Costo envío
-                    </th>
-                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                      %
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {shippingMethods.map((item) => (
-                    <tr key={item.method} className="border-t border-slate-200/70">
-                      <td className="px-4 py-4 font-medium text-slate-900">{item.label}</td>
-                      <td className="px-4 py-4 text-slate-700">{formatDashboardNumber(item.orders)}</td>
-                      <td className="px-4 py-4 text-slate-950 font-semibold">
-                        {formatDashboardPrice(item.revenue)}
-                      </td>
-                      <td className="px-4 py-4 text-slate-700">
-                        {formatDashboardPrice(item.shippingCostTotal)}
-                      </td>
-                      <td className="px-4 py-4 text-slate-700">
-                        {formatDashboardPercent((item.orders / totalShippingOrders) * 100)}
-                      </td>
+            <>
+              <div className="space-y-3 sm:hidden">
+                {mobileShippingMethods.map((item) => (
+                  <div key={item.method} className="rounded-[16px] border border-slate-200/70 bg-white px-3 py-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-medium text-slate-900">{item.label}</p>
+                        <p className="mt-1 text-xs text-slate-500">{formatDashboardNumber(item.orders)} pedidos</p>
+                      </div>
+                      <p className="text-sm font-semibold text-slate-950">{formatDashboardPrice(item.revenue)}</p>
+                    </div>
+                    <div className="mt-3 grid grid-cols-2 gap-3 text-xs text-slate-500">
+                      <span>{formatDashboardPrice(item.shippingCostTotal)} costo</span>
+                      <span className="text-right">{formatDashboardPercent((item.orders / totalShippingOrders) * 100)}</span>
+                    </div>
+                  </div>
+                ))}
+                {hiddenMobileShippingMethods > 0 ? (
+                  <p className="px-1 text-xs text-slate-500">
+                    Ver detalle en desktop · +{hiddenMobileShippingMethods} métodos más
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="hidden overflow-hidden rounded-[20px] border border-slate-200/70 sm:block">
+                <table className="w-full border-collapse text-sm">
+                  <thead className="bg-slate-50 text-left">
+                    <tr>
+                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Método</th>
+                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Pedidos</th>
+                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Facturación</th>
+                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Costo envío</th>
+                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">%</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {shippingMethods.map((item) => (
+                      <tr key={item.method} className="border-t border-slate-200/70">
+                        <td className="px-4 py-4 font-medium text-slate-900">{item.label}</td>
+                        <td className="px-4 py-4 text-slate-700">{formatDashboardNumber(item.orders)}</td>
+                        <td className="px-4 py-4 text-slate-950 font-semibold">{formatDashboardPrice(item.revenue)}</td>
+                        <td className="px-4 py-4 text-slate-700">{formatDashboardPrice(item.shippingCostTotal)}</td>
+                        <td className="px-4 py-4 text-slate-700">{formatDashboardPercent((item.orders / totalShippingOrders) * 100)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           ) : null}
         </ChartCard>
 
@@ -146,39 +135,18 @@ export default async function AdminDashboardShippingPage({
             secondaryValue: formatDashboardPrice(item.shippingCostTotal),
             tone: "accent",
           }))}
-          emptyState={
-            <EmptyState
-              title="Sin métodos de envío"
-              description="Todavía no hay pedidos con método de envío en este período."
-            />
-          }
+          emptyState={<EmptyState title="Sin métodos de envío" description="Todavía no hay pedidos con método de envío en este período." />}
         />
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <ChartCard title="Resumen de costos de envío" description="Lectura operativa de costos y gratuidad.">
           {totalShippingOrders > 0 ? (
-            <div className="grid gap-3 sm:grid-cols-2">
-              <StatBadge
-                label="Costo total cobrado"
-                value={formatDashboardPrice(totalShippingCost)}
-                tone="approved"
-              />
-              <StatBadge
-                label="Costo promedio por pedido"
-                value={formatDashboardPrice(averageShippingCost)}
-                tone="neutral"
-              />
-              <StatBadge
-                label="Envíos gratis"
-                value={formatDashboardNumber(freeShippingOrders)}
-                tone="warning"
-              />
-              <StatBadge
-                label="Envíos pagos"
-                value={formatDashboardNumber(paidShippingOrders)}
-                tone="neutral"
-              />
+            <div className="grid gap-3 min-[420px]:grid-cols-2">
+              <StatBadge label="Costo total cobrado" value={formatDashboardPrice(totalShippingCost)} tone="approved" />
+              <StatBadge label="Costo promedio por pedido" value={formatDashboardPrice(averageShippingCost)} tone="neutral" />
+              <StatBadge label="Envíos gratis" value={formatDashboardNumber(freeShippingOrders)} tone="warning" />
+              <StatBadge label="Envíos pagos" value={formatDashboardNumber(paidShippingOrders)} tone="neutral" />
             </div>
           ) : (
             <EmptyState
@@ -197,11 +165,7 @@ export default async function AdminDashboardShippingPage({
                     <p className="text-sm font-medium text-slate-900">Retiros en Resistencia</p>
                     <p className="mt-1 text-xs text-slate-500">Pedidos retirados en punto local.</p>
                   </div>
-                  <StatBadge
-                    label="Pedidos"
-                    value={formatDashboardNumber(metrics.shipping.pickupOrders)}
-                    tone="neutral"
-                  />
+                  <StatBadge label="Pedidos" value={formatDashboardNumber(metrics.shipping.pickupOrders)} tone="neutral" />
                 </div>
               </div>
 
@@ -211,11 +175,7 @@ export default async function AdminDashboardShippingPage({
                     <p className="text-sm font-medium text-slate-900">Envíos a domicilio</p>
                     <p className="mt-1 text-xs text-slate-500">Entrega directa al cliente.</p>
                   </div>
-                  <StatBadge
-                    label="Pedidos"
-                    value={formatDashboardNumber(metrics.shipping.homeDeliveryOrders)}
-                    tone="approved"
-                  />
+                  <StatBadge label="Pedidos" value={formatDashboardNumber(metrics.shipping.homeDeliveryOrders)} tone="approved" />
                 </div>
               </div>
 
@@ -225,11 +185,7 @@ export default async function AdminDashboardShippingPage({
                     <p className="text-sm font-medium text-slate-900">Envíos a sucursal</p>
                     <p className="mt-1 text-xs text-slate-500">Entrega en punto de retiro.</p>
                   </div>
-                  <StatBadge
-                    label="Pedidos"
-                    value={formatDashboardNumber(metrics.shipping.cityBranchOrders)}
-                    tone="warning"
-                  />
+                  <StatBadge label="Pedidos" value={formatDashboardNumber(metrics.shipping.cityBranchOrders)} tone="warning" />
                 </div>
               </div>
             </div>
@@ -244,4 +200,3 @@ export default async function AdminDashboardShippingPage({
     </DashboardShell>
   );
 }
-

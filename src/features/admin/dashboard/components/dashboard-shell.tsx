@@ -1,4 +1,5 @@
 import { DashboardHeader } from "./dashboard-header";
+import { DashboardMobileMenu } from "./dashboard-mobile-menu";
 import { DashboardSidebar } from "./dashboard-sidebar";
 import { dashboardUi } from "../lib/dashboard-ui";
 
@@ -11,14 +12,12 @@ type DashboardShellProps = {
 
 export function DashboardShell({ children, title = "Resumen", subtitle, lastUpdated }: DashboardShellProps) {
   return (
-    <main className={dashboardUi.pageOuter}>
-      <div className="mx-auto w-full max-w-[1680px] px-4 py-4 lg:px-6 lg:py-6">
+    <main className={`${dashboardUi.pageOuter} overflow-x-clip`}>
+      <div className={`mx-auto w-full ${dashboardUi.contentMaxWidth} px-3 py-3 sm:px-4 sm:py-4 lg:px-6 lg:py-6`}>
         <div className={`${dashboardUi.shell} overflow-hidden`}>
           <div className={`grid ${dashboardUi.shellGrid}`}>
-            <aside className="border-b border-slate-200/70 bg-white lg:min-h-[calc(100vh-3rem)] lg:border-b-0 lg:border-r">
-              <div className="sticky top-0">
-                <DashboardSidebar />
-              </div>
+            <aside className="hidden min-w-0 bg-white lg:block lg:min-h-[calc(100vh-3rem)] lg:border-r">
+              <DashboardSidebar />
             </aside>
 
             <div className="min-w-0 bg-[#f6f7fb]">
@@ -37,7 +36,8 @@ export function DashboardShell({ children, title = "Resumen", subtitle, lastUpda
           </div>
         </div>
       </div>
+
+      <DashboardMobileMenu />
     </main>
   );
 }
-
