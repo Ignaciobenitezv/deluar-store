@@ -11,6 +11,7 @@ const paymentMethodLabels: Record<Order["paymentMethod"], string> = {
   gocuotas: "GoCuotas",
   transfer: "Transferencia bancaria",
   getnet: "Getnet",
+  unicobros: "Unicobros",
 };
 
 const paymentStatusLabels: Record<Order["paymentStatus"], string> = {

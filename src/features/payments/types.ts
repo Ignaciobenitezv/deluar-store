@@ -2,9 +2,11 @@ export const PAYMENT_METHODS = {
   GOCUOTAS: "gocuotas",
   TRANSFER: "transfer",
   GETNET: "getnet",
+  UNICOBROS: "unicobros",
 } as const;
 
 export const isGetnetEnabled = process.env.NEXT_PUBLIC_ENABLE_GETNET === "true";
+export const isUnicobrosEnabled = process.env.NEXT_PUBLIC_ENABLE_UNICOBROS === "true";
 
 export type PaymentMethod =
   (typeof PAYMENT_METHODS)[keyof typeof PAYMENT_METHODS];

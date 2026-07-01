@@ -4,7 +4,7 @@ import type { OrderStatus, PaymentStatus } from "@/generated/prisma/client";
 
 export type PaymentProviderMethod = Extract<
   PaymentMethod,
-  "gocuotas" | "getnet"
+  "gocuotas" | "getnet" | "unicobros"
 >;
 
 export type PaymentProviderCheckoutResult = {
