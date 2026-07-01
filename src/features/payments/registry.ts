@@ -1,0 +1,13 @@
+import { getnetProvider } from "@/features/payments/getnet/provider";
+import { goCuotasProvider } from "@/features/payments/gocuotas/provider";
+import { PAYMENT_METHODS, type PaymentMethod } from "@/features/payments/types";
+import type { PaymentProvider } from "@/features/payments/provider";
+
+const CHECKOUT_PAYMENT_PROVIDERS: Partial<Record<PaymentMethod, PaymentProvider>> = {
+  [PAYMENT_METHODS.GOCUOTAS]: goCuotasProvider,
+  [PAYMENT_METHODS.GETNET]: getnetProvider,
+};
+
+export function resolvePaymentProvider(paymentMethod: PaymentMethod): PaymentProvider | null {
+  return CHECKOUT_PAYMENT_PROVIDERS[paymentMethod] ?? null;
+}

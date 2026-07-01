@@ -2,16 +2,13 @@ import { getSanityImageUrl } from "@/integrations/sanity/image";
 import { sanityFetch } from "@/integrations/sanity/client";
 import { productsBySlugsQuery } from "@/integrations/sanity/queries";
 import { logger } from "@/lib/logger";
-import { env } from "@/lib/env";
 import type { ProductDocument } from "@/types/cms";
 import { sendOrderCreatedEmails } from "@/features/emails/email-service";
 import {
   INSUFFICIENT_STOCK_ERROR_MESSAGE,
 } from "@/features/inventory/inventory-service";
 import type { CreateOrderInput, CreateOrderResult } from "@/features/order/types";
-import { createCheckout } from "@/features/payments/gocuotas/client";
-import { createGetnetPaymentIntent } from "@/features/payments/getnet/client";
-import { PAYMENT_METHODS } from "@/features/payments/types";
+import { resolvePaymentProvider } from "@/features/payments/registry";
 import {
   normalizeOrderShippingMethod,
   normalizeCheckoutCustomer,
@@ -25,23 +22,14 @@ import {
 } from "@/features/order/validation";
 import { generateOrderNumber } from "@/features/orders/server/order-number";
 import {
+  markOrderWithCheckout,
   markOrderProviderInitFailed,
-  markOrderWithGetnetCheckout,
-  markOrderWithGoCuotasCheckout,
   saveOrder,
 } from "@/features/orders/server/order-repository";
 import { calculateShippingCost } from "@/features/shipping/shipping";
 
 function buildProductMap(products: ProductDocument[]) {
   return new Map(products.map((product) => [product.slug.current, product]));
-}
-
-function toAmountInCents(value: number) {
-  return Math.round(value * 100);
-}
-
-function buildSiteUrl(path: string) {
-  return new URL(path, env.siteUrl).toString();
 }
 
 export async function createOrder(input: CreateOrderInput): Promise<CreateOrderResult> {
@@ -184,34 +172,31 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
     },
   });
 
-  if (paymentMethod === PAYMENT_METHODS.GOCUOTAS) {
+  const paymentProvider = resolvePaymentProvider(paymentMethod);
+
+  if (paymentProvider) {
     try {
-      logger.info("checkout.order.gocuotas.create_checkout.started", {
+      logger.info("checkout.order.provider.create_checkout.started", {
         orderId: order.id,
         orderNumber: order.orderNumber,
         total: order.total,
+        provider: paymentProvider.method,
       });
 
-      const checkout = await createCheckout({
-        amount_in_cents: toAmountInCents(order.total),
-        url_success: env.gocuotasSuccessUrl || buildSiteUrl("/checkout/success"),
-        url_failure: env.gocuotasFailureUrl || buildSiteUrl("/checkout/failure"),
-        webhook_url: buildSiteUrl("/api/payments/gocuotas/webhook"),
-        order_reference_id: order.orderNumber,
-        email: order.customer.email,
-        phone_number: order.customer.phone,
-      });
+      const checkout = await paymentProvider.createCheckout(order);
 
-      order = await markOrderWithGoCuotasCheckout({
+      order = await markOrderWithCheckout({
         orderId: order.id,
         checkoutUrl: checkout.checkoutUrl,
         rawProviderStatus: checkout.rawProviderStatus,
         externalReference: order.orderNumber,
+        providerPaymentId: checkout.providerPaymentId,
       });
 
-      logger.info("checkout.order.gocuotas.create_checkout.succeeded", {
+      logger.info("checkout.order.provider.create_checkout.succeeded", {
         orderId: order.id,
         orderNumber: order.orderNumber,
+        provider: paymentProvider.method,
         hasCheckoutUrl: Boolean(order.checkoutUrl),
       });
     } catch (error) {
@@ -220,9 +205,10 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
         rawProviderStatus: "provider_init_failed",
       }).catch(() => null);
 
-      logger.error("checkout.order.gocuotas.create_checkout.failed", {
+      logger.error("checkout.order.provider.create_checkout.failed", {
         orderId: order.id,
         orderNumber: order.orderNumber,
+        provider: paymentProvider?.method ?? paymentMethod,
         error: error instanceof Error ? error.message : "unknown_error",
       });
 
@@ -232,56 +218,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
         errors: [
           error instanceof Error
             ? error.message
-            : "No se pudo crear el checkout de GoCuotas.",
-        ],
-      };
-    }
-  }
-
-  if (paymentMethod === PAYMENT_METHODS.GETNET) {
-    try {
-      logger.info("checkout.order.getnet.payment_intent.started", {
-        orderId: order.id,
-        orderNumber: order.orderNumber,
-        total: order.total,
-      });
-
-      const paymentIntent = await createGetnetPaymentIntent(order);
-
-      order = await markOrderWithGetnetCheckout({
-        orderId: order.id,
-        paymentIntentId: paymentIntent.paymentIntentId,
-        checkoutUrl: paymentIntent.redirectUrl,
-        rawProviderStatus: paymentIntent.rawProviderStatus,
-        externalReference: order.orderNumber,
-      });
-
-      logger.info("checkout.order.getnet.payment_intent.succeeded", {
-        orderId: order.id,
-        orderNumber: order.orderNumber,
-        paymentIntentId: paymentIntent.paymentIntentId,
-        hasCheckoutUrl: Boolean(order.checkoutUrl),
-        amount: paymentIntent.amount,
-      });
-    } catch (error) {
-      await markOrderProviderInitFailed({
-        orderId: order.id,
-        rawProviderStatus: "provider_init_failed",
-      }).catch(() => null);
-
-      logger.error("checkout.order.getnet.payment_intent.failed", {
-        orderId: order.id,
-        orderNumber: order.orderNumber,
-        error: error instanceof Error ? error.message : "unknown_error",
-      });
-
-      return {
-        ok: false,
-        status: 502,
-        errors: [
-          error instanceof Error
-            ? error.message
-            : "No se pudo crear el payment intent de Getnet.",
+            : paymentProvider?.checkoutFailureMessage ?? "No se pudo crear el checkout externo.",
         ],
       };
     }

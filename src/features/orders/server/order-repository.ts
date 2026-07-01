@@ -204,6 +204,29 @@ export async function markOrderWithGetnetCheckout(params: {
   return mapPersistedOrderToCheckoutOrder(order);
 }
 
+export async function markOrderWithCheckout(params: {
+  orderId: string;
+  checkoutUrl: string;
+  rawProviderStatus?: string;
+  externalReference: string;
+  providerPaymentId?: string;
+}) {
+  const order = await prisma.order.update({
+    where: { id: params.orderId },
+    data: {
+      status: "PENDING_PAYMENT",
+      paymentStatus: "PENDING",
+      externalReference: params.externalReference,
+      providerPaymentId: params.providerPaymentId,
+      checkoutUrl: params.checkoutUrl,
+      rawProviderStatus: params.rawProviderStatus,
+    },
+    include: orderInclude,
+  });
+
+  return mapPersistedOrderToCheckoutOrder(order);
+}
+
 export async function markTransferOrderPaid(orderId: string) {
   const order = await prisma.order.update({
     where: { id: orderId },
