@@ -29,11 +29,15 @@ function toNumber(value: Prisma.Decimal | number) {
   return typeof value === "number" ? value : value.toNumber();
 }
 
+function toTwoDecimals(value: number) {
+  return Number(value.toFixed(2));
+}
+
 function readString(value: string | undefined) {
   return value?.trim() ?? "";
 }
 
-function extractIdentification(notes: string) {
+function extractIdentification(notes: string, fallback: string) {
   const normalizedNotes = notes.trim();
   const documentTypeMatch = normalizedNotes.match(/\b(DNI|CUIT|CUIL|PASSPORT)\b/i);
   const documentNumberMatch = normalizedNotes.match(/\b\d{7,14}\b/);
@@ -42,7 +46,7 @@ function extractIdentification(notes: string) {
     return `${documentTypeMatch[1].toUpperCase()} ${documentNumberMatch[0]}`;
   }
 
-  return "SIN_IDENTIFICACION";
+  return fallback;
 }
 
 function buildReference(order: Order) {
@@ -55,36 +59,25 @@ function buildDescription(order: Order) {
   return `Pedido ${order.orderNumber} - ${itemCount} item${itemCount === 1 ? "" : "s"}`;
 }
 
-function buildItems(order: Order) {
-  return order.items.map((item) => ({
-    title: item.title,
-    quantity: item.quantity,
-    unit_price: toNumber(item.unitPrice),
-    total: toNumber(item.unitPrice) * item.quantity,
-    product_id: item.productId,
-    product_slug: item.productSlug,
-  }));
-}
-
 function buildCheckoutPayload(order: Order, reference: string): UnicobrosCreateCheckoutRequest {
   const returnUrl = env.unicobrosReturnUrl || new URL("/checkout/success", env.siteUrl).toString();
   const webhookUrl =
     env.unicobrosWebhookUrl || new URL("/api/payments/unicobros/webhook", env.siteUrl).toString();
 
   return {
-    total: toNumber(order.total),
+    total: toTwoDecimals(toNumber(order.total)),
     description: buildDescription(order),
-    currency: "ars",
+    currency: "ARS",
     reference,
     customer: {
       email: readString(order.customer.email),
       name: readString(`${order.customer.firstName} ${order.customer.lastName}`.trim()),
-      identification: extractIdentification(order.customer.notes),
+      identification: extractIdentification(order.customer.notes, order.orderNumber),
     },
     test: String(env.unicobrosTest).toLowerCase() === "true",
     return_url: returnUrl,
     webhook: webhookUrl,
-    items: buildItems(order),
+    webhooksType: "final",
   };
 }
 
@@ -102,17 +95,12 @@ export const unicobrosProvider: PaymentProvider = {
 
     try {
       const response = await createUnicobrosCheckout(payload);
-      const checkoutUrl = response.data?.url ?? "";
-
-      if (!checkoutUrl) {
-        throw new UnicobrosClientError("Unicobros no devolvio una url de checkout.");
-      }
-
       return {
-        checkoutUrl,
+        checkoutUrl: response.checkoutUrl,
         externalReference: reference,
-        rawProviderStatus: response.status,
-        rawResponse: response.raw,
+        providerPaymentId: response.providerPaymentId,
+        rawProviderStatus: response.rawProviderStatus,
+        rawResponse: response.rawResponse,
       };
     } catch (error) {
       if (error instanceof UnicobrosClientError) {

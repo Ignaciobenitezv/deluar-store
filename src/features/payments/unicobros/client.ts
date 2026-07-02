@@ -45,11 +45,8 @@ function extractCheckoutUrl(payload: unknown) {
 
   const candidates = [
     payload.data && isRecord(payload.data)
-      ? payload.data.url ?? payload.data.checkoutUrl ?? payload.data.checkout_url
+      ? payload.data.url
       : undefined,
-    payload.url,
-    payload.checkoutUrl,
-    payload.checkout_url,
   ];
 
   for (const candidate of candidates) {
@@ -63,14 +60,24 @@ function extractCheckoutUrl(payload: unknown) {
   return "";
 }
 
-function extractStatus(payload: unknown) {
-  if (!isRecord(payload)) {
-    return undefined;
+function extractProviderPaymentId(payload: unknown) {
+  if (!isRecord(payload) || !isRecord(payload.data)) {
+    return "";
   }
 
-  const status = readString(payload.status);
+  const candidates = [
+    payload.data.id,
+  ];
 
-  return status || undefined;
+  for (const candidate of candidates) {
+    const value = readString(candidate);
+
+    if (value) {
+      return value;
+    }
+  }
+
+  return "";
 }
 
 async function requestJson<T>(input: RequestInit & { body: string }) {
@@ -119,12 +126,17 @@ async function requestJson<T>(input: RequestInit & { body: string }) {
 
 export async function createUnicobrosCheckout(
   input: UnicobrosCreateCheckoutRequest,
-): Promise<UnicobrosCreateCheckoutResponse> {
+): Promise<{
+  checkoutUrl: string;
+  providerPaymentId: string;
+  rawProviderStatus: string;
+  rawResponse: unknown;
+}> {
   const { ok, status, payload, text } = await requestJson<UnicobrosCreateCheckoutResponse>({
     body: JSON.stringify(input),
   });
   const checkoutUrl = extractCheckoutUrl(payload);
-  const rawStatus = extractStatus(payload);
+  const providerPaymentId = extractProviderPaymentId(payload);
 
   if (!ok) {
     throw new UnicobrosClientError(
@@ -140,12 +152,18 @@ export async function createUnicobrosCheckout(
     );
   }
 
+  if (!providerPaymentId) {
+    throw new UnicobrosClientError(
+      `Unicobros respondio sin id de operacion. Status HTTP: ${status}.`,
+      status,
+    );
+  }
+
   return {
-    data: {
-      url: checkoutUrl,
-    },
-    status: rawStatus,
-    raw: payload ?? text,
+    checkoutUrl,
+    providerPaymentId,
+    rawProviderStatus: "created",
+    rawResponse: payload ?? text,
   };
 }
 

@@ -7,7 +7,7 @@ export type UnicobrosCheckoutCustomer = {
 export type UnicobrosCreateCheckoutRequest = {
   total: number;
   description: string;
-  currency: "ars";
+  currency: "ARS";
   reference: string;
   customer: UnicobrosCheckoutCustomer;
   test?: boolean;
@@ -15,6 +15,7 @@ export type UnicobrosCreateCheckoutRequest = {
   webhook?: string;
   items?: unknown[];
   sources?: unknown[];
+  webhooksType?: "final" | "intermediateAndFinal";
   installments?: number;
   timeout?: number;
   addresses?: unknown;
@@ -22,14 +23,9 @@ export type UnicobrosCreateCheckoutRequest = {
 
 export type UnicobrosCreateCheckoutResponse = {
   data?: {
+    id?: string;
     url?: string;
-    checkoutUrl?: string;
-    checkout_url?: string;
   };
-  url?: string;
-  checkoutUrl?: string;
-  checkout_url?: string;
-  status?: string;
   raw?: unknown;
 };
 
