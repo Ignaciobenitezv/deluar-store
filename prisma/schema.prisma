@@ -29,6 +29,7 @@ enum PaymentProvider {
   GOCUOTAS
   MERCADO_PAGO
   GETNET
+  UNICOBROS
 }
 
 enum PaymentStatus {

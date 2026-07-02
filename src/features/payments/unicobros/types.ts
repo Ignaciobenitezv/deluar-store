@@ -29,4 +29,28 @@ export type UnicobrosCreateCheckoutResponse = {
   raw?: unknown;
 };
 
-export type UnicobrosWebhookPayload = Record<string, unknown>;
+export type UnicobrosWebhookStatus = {
+  code?: number | string;
+  text?: string;
+  message?: string;
+};
+
+export type UnicobrosWebhookPayload = {
+  data?: {
+    payment?: {
+      reference?: string;
+      id?: string | number;
+      status?: UnicobrosWebhookStatus;
+      updated?: string;
+      source?: {
+        transaction?: {
+          transactionId?: string | number;
+        };
+      };
+    };
+    checkout?: {
+      uid?: string;
+    };
+  };
+  [key: string]: unknown;
+};

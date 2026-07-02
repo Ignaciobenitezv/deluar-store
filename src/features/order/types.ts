@@ -43,7 +43,7 @@ export type Order = {
   shippingMethod: ShippingMethod;
   shippingCost: number;
   paymentMethod: PaymentMethod;
-  paymentProvider?: "gocuotas" | "getnet" | "mercado_pago";
+  paymentProvider?: "gocuotas" | "getnet" | "mercado_pago" | "unicobros";
   paymentStatus: "not_started" | "pending" | "approved" | "rejected" | "cancelled" | "refunded" | "charged_back";
   externalReference?: string;
   checkoutUrl?: string;
