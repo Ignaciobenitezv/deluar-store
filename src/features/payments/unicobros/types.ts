@@ -23,7 +23,13 @@ export type UnicobrosCreateCheckoutRequest = {
 export type UnicobrosCreateCheckoutResponse = {
   data?: {
     url?: string;
+    checkoutUrl?: string;
+    checkout_url?: string;
   };
+  url?: string;
+  checkoutUrl?: string;
+  checkout_url?: string;
+  status?: string;
   raw?: unknown;
 };
 

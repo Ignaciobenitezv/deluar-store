@@ -189,7 +189,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
         orderId: order.id,
         checkoutUrl: checkout.checkoutUrl,
         rawProviderStatus: checkout.rawProviderStatus,
-        externalReference: order.orderNumber,
+        externalReference: checkout.externalReference ?? order.orderNumber,
         providerPaymentId: checkout.providerPaymentId,
       });
 

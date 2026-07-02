@@ -9,8 +9,10 @@ export type PaymentProviderMethod = Extract<
 
 export type PaymentProviderCheckoutResult = {
   checkoutUrl: string;
+  externalReference?: string;
   rawProviderStatus?: string;
   providerPaymentId?: string;
+  rawResponse?: unknown;
 };
 
 export type PaymentProviderStatus = {
