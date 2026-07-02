@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 
-import type { Prisma } from "@/generated/prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 import { sendPaymentApprovedEmails } from "@/features/emails/email-service";
 import {
   decrementSanityStock,
@@ -99,13 +99,15 @@ function stableJson(value: unknown): string {
   return JSON.stringify(value);
 }
 
-function buildDedupeKey(parsed: ParsedUnicobrosWebhook, payload: unknown) {
+function buildDedupeKey(
+  parsed: ParsedUnicobrosWebhook,
+  mappedStatus: ReturnType<typeof mapUnicobrosStatus>,
+  payload: unknown,
+) {
   const basis =
     [
       parsed.externalReference,
-      parsed.providerPaymentId,
-      parsed.rawStatusCode?.toString(),
-      parsed.checkoutUid,
+      mappedStatus.category,
     ]
       .filter(Boolean)
       .join(":") || stableJson(payload);
@@ -166,16 +168,15 @@ async function sendPaymentApprovedEmailsForOrder(orderId: string) {
   await sendPaymentApprovedEmails(order);
 }
 
-async function upsertWebhookEvent(params: {
+async function createWebhookEventLock(params: {
   dedupeKey: string;
   parsed: ParsedUnicobrosWebhook;
   payload: unknown;
   headers: Record<string, string>;
   orderId: string | null;
 }) {
-  return prisma.paymentWebhookEvent.upsert({
-    where: { dedupeKey: params.dedupeKey },
-    create: {
+  return prisma.paymentWebhookEvent.create({
+    data: {
       provider: "unicobros",
       dedupeKey: params.dedupeKey,
       providerEventId: params.parsed.providerEventId,
@@ -184,17 +185,14 @@ async function upsertWebhookEvent(params: {
       orderId: params.orderId,
       payload: params.payload as never,
       headers: params.headers as never,
-      processedAt: new Date(),
+      processedAt: null,
     },
-    update: {
-      providerEventId: params.parsed.providerEventId,
-      providerPaymentId: params.parsed.providerPaymentId,
-      externalReference: params.parsed.externalReference,
-      orderId: params.orderId,
-      payload: params.payload as never,
-      headers: params.headers as never,
-      processedAt: new Date(),
-    },
+  });
+}
+
+async function deleteWebhookEvent(dedupeKey: string) {
+  await prisma.paymentWebhookEvent.delete({
+    where: { dedupeKey },
   });
 }
 
@@ -203,8 +201,8 @@ export async function handleUnicobrosWebhook(params: {
   payload: unknown;
 }) {
   const parsed = parsePayload(params.payload);
-  const dedupeKey = buildDedupeKey(parsed, params.payload);
   const mappedStatus = mapUnicobrosStatus(parsed.rawStatusCode);
+  const dedupeKey = buildDedupeKey(parsed, mappedStatus, params.payload);
 
   logger.info("payments.unicobros.webhook.received", {
     dedupeKey,
@@ -233,8 +231,37 @@ export async function handleUnicobrosWebhook(params: {
     });
   }
 
+  try {
+    await createWebhookEventLock({
+      dedupeKey,
+      parsed,
+      payload: params.payload,
+      headers: params.headers,
+      orderId: order?.id ?? null,
+    });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      logger.info("payments.unicobros.webhook.duplicated", {
+        dedupeKey,
+        orderId: order?.id ?? null,
+        externalReference: parsed.externalReference ?? null,
+      });
+
+      return {
+        duplicated: true,
+        linkedOrderId: order?.id ?? null,
+        paymentUpdated: false,
+        stockDiscounted: false,
+        stockSkippedReason: "duplicate_event",
+      };
+    }
+
+    throw error;
+  }
+
   let stockDiscounted = false;
   let stockSkippedReason: string | undefined;
+  let orderUpdated = false;
 
   if (order?.id && shouldApprove && !wasAlreadyPaid) {
     try {
@@ -252,13 +279,7 @@ export async function handleUnicobrosWebhook(params: {
         error: error instanceof Error ? error.message : "unknown_error",
       });
 
-      await upsertWebhookEvent({
-        dedupeKey,
-        parsed,
-        payload: params.payload,
-        headers: params.headers,
-        orderId: order.id,
-      });
+      await deleteWebhookEvent(dedupeKey).catch(() => null);
 
       return {
         duplicated: false,
@@ -276,20 +297,9 @@ export async function handleUnicobrosWebhook(params: {
 
   try {
     await prisma.$transaction(async (tx) => {
-      await tx.paymentWebhookEvent.upsert({
+      await tx.paymentWebhookEvent.update({
         where: { dedupeKey },
-        create: {
-          provider: "unicobros",
-          dedupeKey,
-          providerEventId: parsed.providerEventId,
-          providerPaymentId: parsed.providerPaymentId,
-          externalReference: parsed.externalReference,
-          orderId: order?.id ?? null,
-          payload: params.payload as never,
-          headers: params.headers as never,
-          processedAt: new Date(),
-        },
-        update: {
+        data: {
           providerEventId: parsed.providerEventId,
           providerPaymentId: parsed.providerPaymentId,
           externalReference: parsed.externalReference,
@@ -303,10 +313,10 @@ export async function handleUnicobrosWebhook(params: {
       if (order?.id) {
         const nextData: Prisma.OrderUpdateInput = {
           paymentProvider: "UNICOBROS",
+          // Keep the checkout operation id in providerPaymentId and store the webhook payment id
+          // in externalPaymentId if Unicobros uses a different identifier for the payment event.
           providerPaymentId: order.providerPaymentId ?? parsed.providerPaymentId ?? undefined,
-          // Reuse the generic field that already exists for external transaction identifiers.
-          // If we need queryable Unicobros-specific reporting later, promote this to a dedicated column.
-          externalPaymentId: parsed.transactionId ?? order.externalPaymentId ?? undefined,
+          externalPaymentId: parsed.providerPaymentId ?? order.externalPaymentId ?? undefined,
         };
 
         if (shouldApplyStateChange || !order.rawProviderStatus) {
@@ -318,10 +328,17 @@ export async function handleUnicobrosWebhook(params: {
           nextData.paymentStatus = mappedStatus.paymentStatus;
         }
 
-        await tx.order.update({
-          where: { id: order.id },
+        const updateResult = await tx.order.updateMany({
+          where: {
+            id: order.id,
+            status: {
+              in: ["CREATED", "PENDING_PAYMENT"],
+            },
+          },
           data: nextData,
         });
+
+        orderUpdated = updateResult.count > 0;
       }
     });
   } catch (error) {
@@ -341,7 +358,35 @@ export async function handleUnicobrosWebhook(params: {
       }
     }
 
+    await deleteWebhookEvent(dedupeKey).catch(() => null);
+
     throw error;
+  }
+
+  if (stockDiscounted && order?.id && !orderUpdated) {
+    try {
+      await restoreSanityStock(mapOrderItemsToInventoryItems(order));
+      logger.warn("payments.unicobros.webhook.stock_restored_after_skipped_update", {
+        dedupeKey,
+        orderId: order.id,
+      });
+    } catch (restoreError) {
+      logger.error("payments.unicobros.webhook.stock_restore_failed", {
+        dedupeKey,
+        orderId: order.id,
+        error: restoreError instanceof Error ? restoreError.message : "unknown_error",
+      });
+    }
+
+    await deleteWebhookEvent(dedupeKey).catch(() => null);
+
+    return {
+      duplicated: false,
+      linkedOrderId: order.id,
+      paymentUpdated: false,
+      stockDiscounted: false,
+      stockSkippedReason: "order_update_skipped_after_stock",
+    };
   }
 
   logger.info("payments.unicobros.webhook.processed", {
@@ -356,10 +401,10 @@ export async function handleUnicobrosWebhook(params: {
     mappedPaymentStatus: mappedStatus.paymentStatus,
     stockDiscounted,
     stockSkippedReason,
-    paymentUpdated: Boolean(order?.id && shouldApplyStateChange),
+    paymentUpdated: orderUpdated,
   });
 
-  if (order?.id && shouldApprove && !wasAlreadyPaid) {
+  if (order?.id && shouldApprove && orderUpdated) {
     await sendPaymentApprovedEmailsForOrder(order.id);
   } else {
     logger.info("payments.unicobros.webhook.payment_approved_emails_skipped", {
@@ -367,8 +412,8 @@ export async function handleUnicobrosWebhook(params: {
       orderId: order?.id ?? null,
       reason: !shouldApprove
         ? "not_approved_status"
-        : wasAlreadyPaid
-          ? "order_already_paid"
+        : !orderUpdated
+          ? "order_already_paid_or_terminal"
           : "order_not_found",
     });
   }
@@ -376,7 +421,7 @@ export async function handleUnicobrosWebhook(params: {
   return {
     duplicated: false,
     linkedOrderId: order?.id ?? null,
-    paymentUpdated: Boolean(order?.id && shouldApplyStateChange),
+    paymentUpdated: orderUpdated,
     stockDiscounted,
     stockSkippedReason,
   };

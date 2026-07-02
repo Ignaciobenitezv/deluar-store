@@ -47,6 +47,8 @@ function toCheckoutPaymentProvider(provider: PersistedOrder["paymentProvider"]) 
       return "mercado_pago" as const;
     case "GOCUOTAS":
       return "gocuotas" as const;
+    case "UNICOBROS":
+      return "unicobros" as const;
     default:
       return undefined;
   }

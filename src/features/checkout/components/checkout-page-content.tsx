@@ -47,6 +47,10 @@ export function CheckoutPageContent({
       return "Transferencia bancaria";
     }
 
+    if (paymentMethod === PAYMENT_METHODS.UNICOBROS) {
+      return "Unicobros";
+    }
+
     if (paymentMethod === PAYMENT_METHODS.GETNET) {
       return "Getnet";
     }
@@ -96,7 +100,8 @@ export function CheckoutPageContent({
   useEffect(() => {
     if (
       (createdOrder?.paymentMethod === PAYMENT_METHODS.GOCUOTAS ||
-        createdOrder?.paymentMethod === PAYMENT_METHODS.GETNET) &&
+        createdOrder?.paymentMethod === PAYMENT_METHODS.GETNET ||
+        createdOrder?.paymentMethod === PAYMENT_METHODS.UNICOBROS) &&
       createdOrder.checkoutUrl
     ) {
       window.location.href = createdOrder.checkoutUrl;

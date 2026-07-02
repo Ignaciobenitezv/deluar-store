@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { CheckoutFormErrors, CheckoutFormValues } from "@/features/checkout/types";
-import { isGetnetEnabled, PAYMENT_METHODS } from "@/features/payments/types";
+import {
+  isGetnetEnabled,
+  isUnicobrosEnabled,
+  PAYMENT_METHODS,
+} from "@/features/payments/types";
 import {
   getInitialCheckoutFormValues,
   validateCheckoutForm,
@@ -351,6 +355,16 @@ export function CheckoutForm({
                 title: "GoCuotas",
                 description: "Tarjetas en cuotas con checkout externo seguro.",
               },
+              ...(isUnicobrosEnabled
+                ? [
+                    {
+                      value: PAYMENT_METHODS.UNICOBROS,
+                      title: "Unicobros",
+                      description:
+                        "Checkout externo seguro con redireccion al proveedor.",
+                    },
+                  ]
+                : []),
               ...(isGetnetEnabled
                 ? [{
                     value: PAYMENT_METHODS.GETNET,

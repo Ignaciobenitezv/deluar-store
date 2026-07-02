@@ -6,6 +6,7 @@ import {
   normalizeCheckoutPaymentMethod,
   isEnabledCheckoutPaymentMethod,
   isGetnetEnabled,
+  isUnicobrosEnabled,
 } from "@/features/payments/types";
 import {
   isPickupShippingMethod,
@@ -96,6 +97,10 @@ export function validateOrderPaymentMethod(paymentMethod: unknown) {
 
   if (paymentMethod === PAYMENT_METHODS.GETNET && !isGetnetEnabled) {
     return ["Getnet no esta habilitado en este entorno."];
+  }
+
+  if (paymentMethod === PAYMENT_METHODS.UNICOBROS && !isUnicobrosEnabled) {
+    return ["Unicobros no esta habilitado en este entorno."];
   }
 
   return isEnabledCheckoutPaymentMethod(paymentMethod)

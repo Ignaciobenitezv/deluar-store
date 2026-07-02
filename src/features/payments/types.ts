@@ -14,6 +14,7 @@ export type PaymentMethod =
 export const ENABLED_CHECKOUT_PAYMENT_METHODS = [
   PAYMENT_METHODS.GOCUOTAS,
   ...(isGetnetEnabled ? [PAYMENT_METHODS.GETNET] : []),
+  ...(isUnicobrosEnabled ? [PAYMENT_METHODS.UNICOBROS] : []),
   PAYMENT_METHODS.TRANSFER,
 ] as const;
 
