@@ -38,9 +38,22 @@ export async function POST(request: Request) {
       rawBodyLength: rawBody.length,
     });
 
+    console.info("WEBHOOK_RECEIVED", {
+      requestId,
+      hasPayload: Boolean(payload),
+      rawBodyLength: rawBody.length,
+    });
+
     const result = await handleUnicobrosWebhook({
       headers,
       payload: payload ?? { rawBody },
+    });
+
+    console.info("WEBHOOK_FINISHED", {
+      requestId,
+      processed: true,
+      duplicated: result.duplicated,
+      linkedOrderId: result.linkedOrderId,
     });
 
     return jsonSuccess(
@@ -56,6 +69,12 @@ export async function POST(request: Request) {
     logger.error("api.payments.unicobros.webhook.failed", {
       requestId,
       error: error instanceof Error ? error.message : "unknown_error",
+    });
+
+    console.error("WEBHOOK_FINISHED", {
+      requestId,
+      processed: false,
+      reason: error instanceof Error ? error.message : "unknown_error",
     });
 
     return jsonSuccess(
