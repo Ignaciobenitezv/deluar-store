@@ -58,6 +58,8 @@ function toPrismaPaymentMethod(paymentMethod: EnabledCheckoutPaymentMethod) {
       return "TRANSFER" as const;
     case PAYMENT_METHODS.GETNET:
       return "GETNET" as const;
+    case PAYMENT_METHODS.UNICOBROS:
+      return "UNICOBROS" as const;
     case PAYMENT_METHODS.GOCUOTAS:
     default:
       return "GOCUOTAS" as const;

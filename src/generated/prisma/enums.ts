@@ -27,7 +27,8 @@ export const PaymentMethod = {
   GOCUOTAS: 'GOCUOTAS',
   MERCADO_PAGO: 'MERCADO_PAGO',
   TRANSFER: 'TRANSFER',
-  GETNET: 'GETNET'
+  GETNET: 'GETNET',
+  UNICOBROS: 'UNICOBROS'
 } as const
 
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]

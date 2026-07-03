@@ -33,6 +33,8 @@ function toCheckoutPaymentMethod(method: PersistedOrder["paymentMethod"]): Payme
       return PAYMENT_METHODS.TRANSFER;
     case "GETNET":
       return PAYMENT_METHODS.GETNET;
+    case "UNICOBROS":
+      return PAYMENT_METHODS.UNICOBROS;
     case "GOCUOTAS":
     default:
       return PAYMENT_METHODS.GOCUOTAS;

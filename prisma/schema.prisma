@@ -23,6 +23,7 @@ enum PaymentMethod {
   MERCADO_PAGO
   TRANSFER
   GETNET
+  UNICOBROS
 }
 
 enum PaymentProvider {
