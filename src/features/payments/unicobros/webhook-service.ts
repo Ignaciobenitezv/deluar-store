@@ -381,16 +381,6 @@ export async function handleUnicobrosWebhook(params: {
         reason: stockSkippedReason,
         error: error instanceof Error ? error.message : "unknown_error",
       });
-
-      await deleteWebhookEvent(dedupeKey).catch(() => null);
-
-      return {
-        duplicated: false,
-        linkedOrderId: order.id,
-        paymentUpdated: false,
-        stockDiscounted: false,
-        stockSkippedReason,
-      };
     }
   } else if (order?.id && shouldApprove && wasAlreadyPaid) {
     stockSkippedReason = "order_already_paid";
@@ -542,7 +532,6 @@ export async function handleUnicobrosWebhook(params: {
         result: "failed",
         error: error instanceof Error ? error.message : "unknown_error",
       });
-      throw error;
     }
   } else {
     logger.info("payments.unicobros.webhook.payment_approved_emails_skipped", {
