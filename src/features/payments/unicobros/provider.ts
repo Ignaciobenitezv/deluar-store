@@ -81,6 +81,18 @@ function buildCheckoutPayload(order: Order, reference: string): UnicobrosCreateC
   };
 }
 
+function buildCheckoutLogPayload(payload: UnicobrosCreateCheckoutRequest) {
+  return {
+    reference: payload.reference,
+    webhook: payload.webhook,
+    return_url: payload.return_url,
+    webhooksType: payload.webhooksType,
+    test: payload.test,
+    total: payload.total,
+    currency: payload.currency,
+  };
+}
+
 export const unicobrosProvider: PaymentProvider = {
   method: "unicobros",
   displayName: "Unicobros",
@@ -94,7 +106,20 @@ export const unicobrosProvider: PaymentProvider = {
     const payload = buildCheckoutPayload(order, reference);
 
     try {
+      console.info("UNICOBROS_CREATE_CHECKOUT_REQUEST", buildCheckoutLogPayload(payload));
       const response = await createUnicobrosCheckout(payload);
+      console.info("UNICOBROS_CREATE_CHECKOUT_RESPONSE", {
+        data: {
+          id: response.providerPaymentId,
+          url: response.checkoutUrl,
+        },
+        result: response.rawResponse && typeof response.rawResponse === "object"
+          ? (response.rawResponse as { result?: unknown }).result
+          : undefined,
+        status: response.rawResponse && typeof response.rawResponse === "object"
+          ? (response.rawResponse as { status?: unknown }).status
+          : undefined,
+      });
       return {
         checkoutUrl: response.checkoutUrl,
         externalReference: reference,
