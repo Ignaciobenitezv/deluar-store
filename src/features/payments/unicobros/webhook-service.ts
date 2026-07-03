@@ -120,13 +120,16 @@ async function findOrderByReference(reference?: string) {
     return null;
   }
 
-  const orderNumberMatch = reference.match(/^UC-(.+?)-[a-z0-9]+-[a-f0-9]{8}$/i);
-  const orderNumber = orderNumberMatch?.[1];
+  const normalizedReference = reference.trim();
+  const orderNumber = normalizedReference.startsWith("UC-")
+    ? normalizedReference.slice(3).replace(/-[a-z0-9]+-[a-f0-9]{8}$/i, "")
+    : normalizedReference;
 
   return prisma.order.findFirst({
     where: {
       OR: [
-        { externalReference: reference },
+        { externalReference: normalizedReference },
+        { orderNumber: normalizedReference },
         ...(orderNumber ? [{ orderNumber }] : []),
       ],
     },
