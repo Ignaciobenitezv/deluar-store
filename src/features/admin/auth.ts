@@ -7,7 +7,7 @@ export const ADMIN_SESSION_COOKIE_NAME = "deluar_admin_session";
 
 function getAdminSessionCookieValue() {
   if (!env.adminSecret) {
-    return "";
+    return null;
   }
 
   return crypto.createHash("sha256").update(env.adminSecret).digest("hex");
@@ -24,10 +24,15 @@ function getAdminSessionCookieOptions() {
 }
 
 export async function hasAdminSession() {
+  const expectedValue = getAdminSessionCookieValue();
+  if (!expectedValue) {
+    return false;
+  }
+
   const cookieStore = await cookies();
   const session = cookieStore.get(ADMIN_SESSION_COOKIE_NAME)?.value ?? "";
 
-  return Boolean(session && session === getAdminSessionCookieValue());
+  return Boolean(session && session === expectedValue);
 }
 
 export async function requireAdminSession() {
@@ -39,11 +44,16 @@ export async function requireAdminSession() {
 }
 
 export async function createAdminSession() {
+  const expectedValue = getAdminSessionCookieValue();
+  if (!expectedValue) {
+    throw new Error("ADMIN_SECRET no esta configurado.");
+  }
+
   const cookieStore = await cookies();
 
   cookieStore.set(
     ADMIN_SESSION_COOKIE_NAME,
-    getAdminSessionCookieValue(),
+    expectedValue,
     getAdminSessionCookieOptions(),
   );
 }

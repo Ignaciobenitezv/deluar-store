@@ -2,12 +2,18 @@ import { createMercadoPagoPreference } from "@/features/payments/mercadopago/ser
 import type { MercadoPagoCreatePreferenceInput } from "@/features/payments/mercadopago/server/types";
 import { jsonError, jsonSuccess } from "@/lib/http";
 import { logger } from "@/lib/logger";
+import { isSameOriginRequest } from "@/lib/request-security";
 
 export async function POST(request: Request) {
   const requestId = crypto.randomUUID();
   let payload: MercadoPagoCreatePreferenceInput;
 
   try {
+    if (!isSameOriginRequest(request)) {
+      logger.warn("api.payments.mercadopago.preference.invalid_origin", { requestId });
+      return jsonError(["Solicitud no permitida."], 403, { requestId });
+    }
+
     payload = (await request.json()) as MercadoPagoCreatePreferenceInput;
   } catch {
     logger.warn("api.payments.mercadopago.preference.invalid_json", { requestId });

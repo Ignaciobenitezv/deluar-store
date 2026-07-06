@@ -2,12 +2,18 @@ import { createOrder } from "@/features/orders/server/order-service";
 import type { CreateOrderInput } from "@/features/order/types";
 import { jsonError, jsonSuccess } from "@/lib/http";
 import { logger } from "@/lib/logger";
+import { isSameOriginRequest } from "@/lib/request-security";
 
 export async function POST(request: Request) {
   const requestId = crypto.randomUUID();
   let payload: CreateOrderInput;
 
   try {
+    if (!isSameOriginRequest(request)) {
+      logger.warn("api.checkout.orders.invalid_origin", { requestId });
+      return jsonError(["Solicitud no permitida."], 403, { requestId });
+    }
+
     payload = (await request.json()) as CreateOrderInput;
   } catch {
     logger.warn("api.checkout.orders.invalid_json", { requestId });

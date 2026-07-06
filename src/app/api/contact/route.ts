@@ -3,6 +3,7 @@ import { env } from "@/lib/env";
 import { hasEmailConfig, sendEmail } from "@/integrations/email/resend";
 import { renderContactMessageEmail } from "@/features/emails/templates/contact-message";
 import { logger } from "@/lib/logger";
+import { isSameOriginRequest } from "@/lib/request-security";
 
 type ContactPayload = {
   name?: unknown;
@@ -58,6 +59,11 @@ export async function POST(request: Request) {
   const requestId = crypto.randomUUID();
 
   try {
+    if (!isSameOriginRequest(request)) {
+      logger.warn("api.contact.invalid_origin", { requestId });
+      return jsonError(["Solicitud no permitida."], 403, { requestId });
+    }
+
     const payload = (await request.json()) as ContactPayload;
     const { errors, values } = validatePayload(payload);
 
