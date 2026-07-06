@@ -1,33 +1,43 @@
 import { createClient, type QueryParams } from "@sanity/client";
 import { sanityConfig } from "@/integrations/sanity/config";
 
-export const sanityClient = createClient({
-  projectId: sanityConfig.projectId,
-  dataset: sanityConfig.dataset,
-  apiVersion: sanityConfig.apiVersion,
+function hasSanityConfig() {
+  return Boolean(sanityConfig.projectId && sanityConfig.dataset);
+}
+
+function createConfiguredClient(options: {
+  useCdn: boolean;
+  token?: string;
+}) {
+  if (!hasSanityConfig()) {
+    return null;
+  }
+
+  return createClient({
+    projectId: sanityConfig.projectId,
+    dataset: sanityConfig.dataset,
+    apiVersion: sanityConfig.apiVersion,
+    useCdn: options.useCdn,
+    token: options.token,
+    perspective: "published",
+  });
+}
+
+export const sanityClient = createConfiguredClient({
   useCdn: sanityConfig.useCdn,
-  perspective: "published",
 });
 
 export const sanityReadClient = sanityConfig.readToken
-  ? createClient({
-      projectId: sanityConfig.projectId,
-      dataset: sanityConfig.dataset,
-      apiVersion: sanityConfig.apiVersion,
+  ? createConfiguredClient({
       useCdn: false,
       token: sanityConfig.readToken,
-      perspective: "published",
     })
   : sanityClient;
 
 export const sanityWriteClient = sanityConfig.writeToken
-  ? createClient({
-      projectId: sanityConfig.projectId,
-      dataset: sanityConfig.dataset,
-      apiVersion: sanityConfig.apiVersion,
+  ? createConfiguredClient({
       useCdn: false,
       token: sanityConfig.writeToken,
-      perspective: "published",
     })
   : null;
 
@@ -37,6 +47,10 @@ export async function sanityFetch<T>(
   options: { useToken?: boolean } = {},
 ) {
   const client = options.useToken ? sanityReadClient : sanityClient;
+
+  if (!client) {
+    throw new Error("Sanity is not configured.");
+  }
 
   return client.fetch<T>(query, params);
 }
