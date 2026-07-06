@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
 import { SiteContainer } from "@/components/layout/site-container";
 import Link from "next/link";
+import { ContactForm } from "@/app/(store)/contacto/contact-form";
 
 export const metadata: Metadata = buildMetadata({
   title: "Contacto",
@@ -53,64 +54,7 @@ export default function ContactoPage() {
         </div>
 
         <div>
-          <form className="space-y-4">
-            <div>
-              <label htmlFor="nombre" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-foreground">
-                Nombre
-              </label>
-              <input
-                id="nombre"
-                name="nombre"
-                type="text"
-                required
-                className="w-full rounded border border-[#d8cfc4] bg-[#e8ddd3] px-4 py-2.5 text-sm text-foreground outline-none placeholder:text-muted focus:border-[#b69272] transition-colors"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-foreground">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="w-full rounded border border-[#d8cfc4] bg-[#e8ddd3] px-4 py-2.5 text-sm text-foreground outline-none placeholder:text-muted focus:border-[#b69272] transition-colors"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="telefono" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-foreground">
-                Teléfono <span className="font-normal normal-case tracking-normal text-muted">(Opcional)</span>
-              </label>
-              <input
-                id="telefono"
-                name="telefono"
-                type="tel"
-                className="w-full rounded border border-[#d8cfc4] bg-[#e8ddd3] px-4 py-2.5 text-sm text-foreground outline-none placeholder:text-muted focus:border-[#b69272] transition-colors"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="mensaje" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-foreground">
-                Mensaje <span className="font-normal normal-case tracking-normal text-muted">(Opcional)</span>
-              </label>
-              <textarea
-                id="mensaje"
-                name="mensaje"
-                rows={5}
-                className="w-full resize-none rounded border border-[#d8cfc4] bg-[#e8ddd3] px-4 py-2.5 text-sm text-foreground outline-none placeholder:text-muted focus:border-[#b69272] transition-colors"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full rounded bg-foreground px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-opacity hover:opacity-80"
-            >
-              Enviar
-            </button>
-          </form>
+          <ContactForm />
         </div>
       </div>
     </SiteContainer>

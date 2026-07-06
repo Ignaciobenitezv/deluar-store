@@ -5,6 +5,7 @@ type SendEmailInput = {
   to: string;
   subject: string;
   html: string;
+  replyTo?: string;
 };
 
 let resendClient: Resend | null = null;
@@ -31,6 +32,7 @@ export async function sendEmail(input: SendEmailInput) {
     to: input.to,
     subject: input.subject,
     html: input.html,
+    replyTo: input.replyTo,
   });
 
   if (response.error) {
