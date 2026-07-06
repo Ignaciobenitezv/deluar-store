@@ -27,10 +27,24 @@ type CategoryPageProps = {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: CategoryPageProps): Promise<Metadata> {
   const { categorySlug, subcategorySlug } = await params;
   const subcategory = subcategorySlug?.[0] ?? "";
-  const catalog = await getCategoryCatalogPageData(categorySlug, subcategory);
+  const resolvedSearchParams = await searchParams;
+  const minPrice = parseNumericSearchParam(resolvedSearchParams?.minPrice);
+  const maxPrice = parseNumericSearchParam(resolvedSearchParams?.maxPrice);
+  const inStock = parseBooleanSearchParam(resolvedSearchParams?.inStock);
+  const sort = parseSortSearchParam(resolvedSearchParams?.sort);
+  const hasActiveFilters = Boolean(
+    typeof minPrice === "number" || typeof maxPrice === "number" || inStock || sort,
+  );
+  const catalog = await getCategoryCatalogPageData(categorySlug, subcategory, {
+    minPrice,
+    maxPrice,
+    inStock,
+    sort,
+  });
 
   if (!catalog) {
     return buildMetadata({
@@ -45,6 +59,7 @@ export async function generateMetadata({
     title: catalog.title,
     description: catalog.description,
     path: `/productos/${categorySlug}${subcategory ? `/${subcategory}` : ""}`,
+    noIndex: hasActiveFilters,
   });
 }
 

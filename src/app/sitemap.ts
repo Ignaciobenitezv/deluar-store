@@ -38,6 +38,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 0.9,
     },
+    {
+      url: `${siteConfig.url}/como-comprar`,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${siteConfig.url}/contacto`,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${siteConfig.url}/politica-de-devolucion`,
+      changeFrequency: "yearly",
+      priority: 0.4,
+    },
   ];
 
   try {

@@ -28,7 +28,7 @@ export async function generateMetadata({
     if (!product) {
       return buildMetadata({
         title: "Producto",
-        description: "Detalle de producto de DELUAR.",
+        description: "No encontramos este producto en DELUAR.",
         path: `/productos/detalle/${productSlug}`,
         noIndex: true,
       });
@@ -37,14 +37,16 @@ export async function generateMetadata({
     return buildMetadata({
       title: product.seo?.title || product.title,
       description:
-        product.seo?.description || product.shortDescription || "Producto de DELUAR.",
+        product.seo?.description ||
+        product.shortDescription ||
+        `Descubre ${product.title} en DELUAR.`,
       path: `/productos/detalle/${productSlug}`,
       image: getSanityImageUrl(product.images?.[0], 1200, 630),
     });
   } catch {
     return buildMetadata({
       title: "Producto",
-      description: "Detalle de producto de DELUAR.",
+      description: "Detalle de producto no disponible en DELUAR.",
       path: `/productos/detalle/${productSlug}`,
     });
   }

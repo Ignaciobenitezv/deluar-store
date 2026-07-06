@@ -117,12 +117,21 @@ export async function generateMetadata({
     inStock: parseBooleanSearchParam(resolvedSearchParams?.inStock),
     sort: parseSortSearchParam(resolvedSearchParams?.sort),
   };
+  const hasActiveFilters = Boolean(
+    filters.q ||
+      typeof filters.minPrice === "number" ||
+      typeof filters.maxPrice === "number" ||
+      filters.color ||
+      filters.inStock ||
+      filters.sort,
+  );
   const catalog = await getCatalogPageData(filters);
 
   return buildMetadata({
     title: catalog.title,
     description: catalog.description,
-    path: buildProductsPath(filters),
+    path: "/productos",
+    noIndex: hasActiveFilters,
   });
 }
 

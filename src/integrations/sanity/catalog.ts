@@ -183,7 +183,7 @@ export const getCatalogPageData = cache(async (filters: CatalogFilters = {}): Pr
       title: normalizedQuery ? `Resultados para: ${normalizedQuery}` : "Productos",
       description: normalizedQuery
         ? `Productos de DELUAR que coinciden con "${normalizedQuery}".`
-        : "Seleccion de objetos y textiles para hogar y decoracion curados para DELUAR.",
+        : "Explora el catalogo de DELUAR con textiles, bazar y decoracion para el hogar.",
       products: sortedProducts.map(mapProductToCatalogCard),
       categories: categories.length
         ? categories.map(mapCategoryToSummary)
@@ -194,7 +194,7 @@ export const getCatalogPageData = cache(async (filters: CatalogFilters = {}): Pr
       title: normalizedQuery ? `Resultados para: ${normalizedQuery}` : "Productos",
       description: normalizedQuery
         ? `Productos de DELUAR que coinciden con "${normalizedQuery}".`
-        : "Seleccion de objetos y textiles para hogar y decoracion curados para DELUAR.",
+        : "Explora el catalogo de DELUAR con textiles, bazar y decoracion para el hogar.",
       products: [],
       categories: getFallbackCategorySummary(),
     };
@@ -250,7 +250,7 @@ export async function getCategoryCatalogPageData(
   return {
     title: fallbackSubcategory?.label || fallbackCategory.label,
     description:
-      "Esta categoria ya esta preparada para consumir productos reales desde Sanity.",
+      "Explora esta categoria de DELUAR y sus productos destacados.",
     products: [],
     categories: [getFallbackCategorySummary().find((item) => item.slug === categorySlug)!],
   };
