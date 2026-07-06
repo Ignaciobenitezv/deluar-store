@@ -8,6 +8,18 @@ export type UnicobrosMappedStatus = {
 
 export function mapUnicobrosStatus(code: number | undefined): UnicobrosMappedStatus {
   switch (code) {
+    case 0:
+    case 1:
+      return { orderStatus: "PENDING_PAYMENT", paymentStatus: "PENDING", category: "pending" };
+    case 2:
+    case 3:
+    case 4:
+    case 100:
+    case 201:
+    case 600:
+    case 605:
+    case 800:
+      return { orderStatus: "PENDING_PAYMENT", paymentStatus: "PENDING", category: "review" };
     case 200:
     case 210:
     case 300:
@@ -15,14 +27,6 @@ export function mapUnicobrosStatus(code: number | undefined): UnicobrosMappedSta
     case 302:
     case 303:
       return { orderStatus: "PAID", paymentStatus: "APPROVED", category: "approved" };
-    case 1:
-    case 2:
-    case 3:
-      return { orderStatus: "PENDING_PAYMENT", paymentStatus: "PENDING", category: "pending" };
-    case 100:
-    case 201:
-      return { orderStatus: "PENDING_PAYMENT", paymentStatus: "PENDING", category: "review" };
-    case 0:
     case 401:
     case 402:
     case 601:
@@ -47,9 +51,7 @@ export function mapUnicobrosStatus(code: number | undefined): UnicobrosMappedSta
     case 417:
     case 500:
     case 501:
-    case 600:
     case 604:
-    case 605:
       return { orderStatus: "PAYMENT_FAILED", paymentStatus: "REJECTED", category: "failed" };
     default:
       return { orderStatus: "PENDING_PAYMENT", paymentStatus: "PENDING", category: "review" };

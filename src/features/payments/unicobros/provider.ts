@@ -10,6 +10,7 @@ import type { UnicobrosCreateCheckoutRequest } from "@/features/payments/unicobr
 import crypto from "node:crypto";
 
 import { Prisma } from "@/generated/prisma/client";
+import { logger } from "@/lib/logger";
 
 function validateUnicobrosConfiguration() {
   if (!env.unicobrosApiKey) {
@@ -72,6 +73,8 @@ function buildCheckoutPayload(order: Order, reference: string): UnicobrosCreateC
     customer: {
       email: readString(order.customer.email),
       name: readString(`${order.customer.firstName} ${order.customer.lastName}`.trim()),
+      // TODO: Confirm with Unicobros whether identification may be omitted.
+      // The current fallback to orderNumber is a temporary compatibility risk.
       identification: extractIdentification(order.customer.notes, order.orderNumber),
     },
     test: String(env.unicobrosTest).toLowerCase() === "true",
@@ -106,9 +109,9 @@ export const unicobrosProvider: PaymentProvider = {
     const payload = buildCheckoutPayload(order, reference);
 
     try {
-      console.info("UNICOBROS_CREATE_CHECKOUT_REQUEST", buildCheckoutLogPayload(payload));
+      logger.debug("unicobros.checkout.request", buildCheckoutLogPayload(payload));
       const response = await createUnicobrosCheckout(payload);
-      console.info("UNICOBROS_CREATE_CHECKOUT_RESPONSE", {
+      logger.debug("unicobros.checkout.response", {
         data: {
           id: response.providerPaymentId,
           url: response.checkoutUrl,

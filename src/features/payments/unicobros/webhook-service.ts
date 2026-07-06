@@ -105,12 +105,8 @@ function buildDedupeKey(
   payload: unknown,
 ) {
   const basis =
-    [
-      parsed.externalReference,
-      mappedStatus.category,
-    ]
-      .filter(Boolean)
-      .join(":") || stableJson(payload);
+    [parsed.externalReference, mappedStatus.category].filter(Boolean).join(":") ||
+    stableJson(payload);
 
   return `unicobros:${crypto.createHash("sha256").update(basis).digest("hex")}`;
 }
@@ -202,15 +198,6 @@ async function sendPaymentApprovedEmailsForOrder(orderId: string) {
   await sendPaymentApprovedEmails(order);
 }
 
-function logJson(level: "info" | "error", event: string, payload: Record<string, unknown>) {
-  if (level === "error") {
-    console.error(event, payload);
-    return;
-  }
-
-  console.info(event, payload);
-}
-
 async function createWebhookEventLock(params: {
   dedupeKey: string;
   parsed: ParsedUnicobrosWebhook;
@@ -247,44 +234,10 @@ export async function handleUnicobrosWebhook(params: {
   const mappedStatus = mapUnicobrosStatus(parsed.rawStatusCode);
   const dedupeKey = buildDedupeKey(parsed, mappedStatus, params.payload);
 
-  logJson("info", "WEBHOOK_RECEIVED", {
-    dedupeKey,
-    externalReference: parsed.externalReference ?? null,
-    providerEventId: parsed.providerEventId ?? null,
-    providerPaymentId: parsed.providerPaymentId ?? null,
-    rawProviderStatusCode: parsed.rawStatusCode ?? null,
-    rawProviderStatusText: parsed.rawStatusText ?? null,
-    rawProviderStatusMessage: parsed.rawStatusMessage ?? null,
-    paymentUpdated: parsed.paymentUpdated ?? null,
-    transactionId: parsed.transactionId ?? null,
-    checkoutUid: parsed.checkoutUid ?? null,
-    mappedOrderStatus: mappedStatus.orderStatus,
-    mappedPaymentStatus: mappedStatus.paymentStatus,
-  });
-
-  logJson("info", "STATUS_MAPPER", {
-    rawStatusCode: parsed.rawStatusCode ?? null,
-    normalizedStatusCode: parsed.rawStatusCode ?? null,
-    mappedOrderStatus: mappedStatus.orderStatus,
-    mappedPaymentStatus: mappedStatus.paymentStatus,
-    category: mappedStatus.category,
-  });
-
-  const { lookup, order } = await findOrderByReference(parsed.externalReference);
+  const { order } = await findOrderByReference(parsed.externalReference);
   const wasAlreadyPaid = order ? isPaidOrder(order) : false;
   const shouldApprove = shouldApproveOrder(mappedStatus);
   const shouldApplyStateChange = Boolean(order && !wasAlreadyPaid);
-
-  logJson("info", "ORDER_LOOKUP", {
-    referenceOriginal: lookup.referenceOriginal,
-    referenceNormalized: lookup.referenceNormalized,
-    orderNumberCandidate: lookup.orderNumberCandidate,
-    orderFound: Boolean(order),
-    orderId: order?.id ?? null,
-    orderNumber: order?.orderNumber ?? null,
-    currentStatus: order?.status ?? null,
-    currentPaymentStatus: order?.paymentStatus ?? null,
-  });
 
   if (!order) {
     logger.warn("payments.unicobros.webhook.order_not_found", {
@@ -292,16 +245,6 @@ export async function handleUnicobrosWebhook(params: {
       externalReference: parsed.externalReference ?? null,
     });
   }
-
-  const existingEvent = await prisma.paymentWebhookEvent.findUnique({
-    where: { dedupeKey },
-  });
-
-  logJson("info", "EVENT_DEDUPE", {
-    dedupeKey,
-    eventAlreadyExists: Boolean(existingEvent),
-    eventCreated: false,
-  });
 
   try {
     await createWebhookEventLock({
@@ -313,12 +256,10 @@ export async function handleUnicobrosWebhook(params: {
     });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-      logJson("info", "EVENT_DEDUPE", {
+      logger.debug("payments.unicobros.webhook.duplicated", {
         dedupeKey,
         orderId: order?.id ?? null,
         externalReference: parsed.externalReference ?? null,
-        eventAlreadyExists: true,
-        eventCreated: false,
       });
 
       return {
@@ -333,48 +274,19 @@ export async function handleUnicobrosWebhook(params: {
     throw error;
   }
 
-  logJson("info", "EVENT_DEDUPE", {
-    dedupeKey,
-    eventAlreadyExists: Boolean(existingEvent),
-    eventCreated: true,
-  });
-
   let stockDiscounted = false;
   let stockSkippedReason: string | undefined;
   let orderUpdated = false;
 
   if (order?.id && shouldApprove && !wasAlreadyPaid) {
-    logJson("info", "STOCK", {
-      shouldDiscount: true,
-      items: order.items.map((item) => ({
-        productId: item.productId,
-        productSlug: item.productSlug,
-        quantity: item.quantity,
-      })),
-    });
     try {
       await decrementSanityStock(mapOrderItemsToInventoryItems(order));
       stockDiscounted = true;
-      logJson("info", "STOCK", {
-        shouldDiscount: true,
-        items: order.items.length,
-        result: "discount_succeeded",
-      });
     } catch (error) {
       stockSkippedReason = isInsufficientStockError(error)
         ? "insufficient_stock_or_revision_conflict"
         : "stock_discount_failed";
 
-      logJson("error", "STOCK", {
-        shouldDiscount: true,
-        items: order.items.map((item) => ({
-          productId: item.productId,
-          productSlug: item.productSlug,
-          quantity: item.quantity,
-        })),
-        result: "discount_failed",
-        error: error instanceof Error ? error.message : "unknown_error",
-      });
       logger.error("payments.unicobros.webhook.stock_discount_failed", {
         dedupeKey,
         orderId: order.id,
@@ -411,16 +323,6 @@ export async function handleUnicobrosWebhook(params: {
           providerPaymentId: order.providerPaymentId ?? parsed.providerPaymentId ?? undefined,
           externalPaymentId: parsed.providerPaymentId ?? order.externalPaymentId ?? undefined,
         };
-
-        logJson("info", "ORDER_UPDATE", {
-          shouldApplyState: shouldApplyStateChange,
-          previousStatus: order.status,
-          nextStatus: shouldApplyStateChange ? mappedStatus.orderStatus : order.status,
-          previousPaymentStatus: order.paymentStatus,
-          nextPaymentStatus: shouldApplyStateChange
-            ? mappedStatus.paymentStatus
-            : order.paymentStatus,
-        });
 
         if (shouldApplyStateChange || !order.rawProviderStatus) {
           nextData.rawProviderStatus = parsed.rawStatusText ?? undefined;
@@ -492,7 +394,7 @@ export async function handleUnicobrosWebhook(params: {
     };
   }
 
-  logger.info("payments.unicobros.webhook.processed", {
+  logger.debug("payments.unicobros.webhook.processed", {
     dedupeKey,
     orderId: order?.id ?? null,
     externalReference: parsed.externalReference ?? null,
@@ -507,34 +409,18 @@ export async function handleUnicobrosWebhook(params: {
     paymentUpdated: orderUpdated,
   });
 
-  const shouldSendEmails = Boolean(order?.id && shouldApprove && orderUpdated);
-  logJson("info", "EMAILS", {
-    shouldSendEmails,
-    customerEmail: order?.customer?.email ?? null,
-    ownerEmailConfigured: Boolean(process.env.EMAIL_ADMIN_TO),
-    result: shouldSendEmails ? "pending" : "skipped",
-  });
-
   if (order?.id && shouldApprove && orderUpdated) {
     try {
       await sendPaymentApprovedEmailsForOrder(order.id);
-      logJson("info", "EMAILS", {
-        shouldSendEmails: true,
-        customerEmail: order.customer.email,
-        ownerEmailConfigured: Boolean(process.env.EMAIL_ADMIN_TO),
-        result: "sent",
-      });
     } catch (error) {
-      logJson("error", "EMAILS", {
-        shouldSendEmails: true,
-        customerEmail: order.customer.email,
-        ownerEmailConfigured: Boolean(process.env.EMAIL_ADMIN_TO),
-        result: "failed",
+      logger.error("payments.unicobros.webhook.payment_approved_emails_failed", {
+        dedupeKey,
+        orderId: order.id,
         error: error instanceof Error ? error.message : "unknown_error",
       });
     }
   } else {
-    logger.info("payments.unicobros.webhook.payment_approved_emails_skipped", {
+    logger.debug("payments.unicobros.webhook.payment_approved_emails_skipped", {
       dedupeKey,
       orderId: order?.id ?? null,
       reason: !shouldApprove
