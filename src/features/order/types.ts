@@ -1,5 +1,5 @@
 import type { CheckoutFormValues } from "@/features/checkout/types";
-import type { PaymentMethod } from "@/features/payments/types";
+import type { PaymentMethod, EnabledCheckoutPaymentMethod } from "@/features/payments/types";
 import type { ShippingMethod } from "@/features/shipping/shipping";
 
 export type OrderStatus =
@@ -70,7 +70,7 @@ export type CreateOrderInput = {
   customer?: Partial<CheckoutFormValues>;
   items?: CreateOrderItemInput[];
   shippingMethod?: ShippingMethod;
-  paymentMethod?: PaymentMethod;
+  paymentMethod?: EnabledCheckoutPaymentMethod;
 };
 
 export type CreateOrderResult =

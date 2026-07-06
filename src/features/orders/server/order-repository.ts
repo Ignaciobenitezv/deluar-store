@@ -56,8 +56,6 @@ function toPrismaPaymentMethod(paymentMethod: EnabledCheckoutPaymentMethod) {
   switch (paymentMethod) {
     case PAYMENT_METHODS.TRANSFER:
       return "TRANSFER" as const;
-    case PAYMENT_METHODS.GETNET:
-      return "GETNET" as const;
     case PAYMENT_METHODS.UNICOBROS:
       return "UNICOBROS" as const;
     case PAYMENT_METHODS.GOCUOTAS:
@@ -70,8 +68,6 @@ function toPrismaPaymentProvider(paymentMethod: EnabledCheckoutPaymentMethod) {
   switch (paymentMethod) {
     case PAYMENT_METHODS.TRANSFER:
       return null;
-    case PAYMENT_METHODS.GETNET:
-      return "GETNET" as const;
     case PAYMENT_METHODS.UNICOBROS:
       return "UNICOBROS" as const;
     case PAYMENT_METHODS.GOCUOTAS:
@@ -174,31 +170,6 @@ export async function markOrderWithGoCuotasCheckout(params: {
       paymentProvider: "GOCUOTAS",
       paymentStatus: "PENDING",
       externalReference: params.externalReference,
-      checkoutUrl: params.checkoutUrl,
-      rawProviderStatus: params.rawProviderStatus,
-    },
-    include: orderInclude,
-  });
-
-  return mapPersistedOrderToCheckoutOrder(order);
-}
-
-export async function markOrderWithGetnetCheckout(params: {
-  orderId: string;
-  paymentIntentId: string;
-  checkoutUrl: string;
-  rawProviderStatus?: string;
-  externalReference: string;
-}) {
-  const order = await prisma.order.update({
-    where: { id: params.orderId },
-    data: {
-      status: "PENDING_PAYMENT",
-      paymentMethod: "GETNET",
-      paymentProvider: "GETNET",
-      paymentStatus: "PENDING",
-      externalReference: params.externalReference,
-      providerPaymentId: params.paymentIntentId,
       checkoutUrl: params.checkoutUrl,
       rawProviderStatus: params.rawProviderStatus,
     },

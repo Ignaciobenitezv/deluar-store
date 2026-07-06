@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { CheckoutFormErrors, CheckoutFormValues } from "@/features/checkout/types";
 import {
-  isGetnetEnabled,
   isUnicobrosEnabled,
   PAYMENT_METHODS,
 } from "@/features/payments/types";
@@ -364,13 +363,6 @@ export function CheckoutForm({
                         "Checkout externo seguro con redireccion al proveedor.",
                     },
                   ]
-                : []),
-              ...(isGetnetEnabled
-                ? [{
-                    value: PAYMENT_METHODS.GETNET,
-                    title: "Getnet",
-                    description: "Checkout alojado por Getnet. Redireccion segura sin capturar tarjeta.",
-                  }]
                 : []),
               {
                 value: PAYMENT_METHODS.TRANSFER,

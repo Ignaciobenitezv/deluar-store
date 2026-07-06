@@ -5,7 +5,6 @@ import {
   PAYMENT_METHODS,
   normalizeCheckoutPaymentMethod,
   isEnabledCheckoutPaymentMethod,
-  isGetnetEnabled,
   isUnicobrosEnabled,
 } from "@/features/payments/types";
 import {
@@ -93,10 +92,6 @@ export function normalizeOrderShippingMethod(input: CreateOrderInput["shippingMe
 export function validateOrderPaymentMethod(paymentMethod: unknown) {
   if (paymentMethod === undefined || paymentMethod === null || paymentMethod === "") {
     return [];
-  }
-
-  if (paymentMethod === PAYMENT_METHODS.GETNET && !isGetnetEnabled) {
-    return ["Getnet no esta habilitado en este entorno."];
   }
 
   if (paymentMethod === PAYMENT_METHODS.UNICOBROS && !isUnicobrosEnabled) {

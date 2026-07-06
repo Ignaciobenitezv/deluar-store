@@ -374,7 +374,7 @@ function getPaymentMethodLabel(method: string) {
     case PAYMENT_METHODS.TRANSFER:
       return "Transferencia";
     case PAYMENT_METHODS.GETNET:
-      return "Getnet";
+      return "Metodo legado";
     case PAYMENT_METHODS.GOCUOTAS:
       return "GoCuotas";
     case "MERCADO_PAGO":

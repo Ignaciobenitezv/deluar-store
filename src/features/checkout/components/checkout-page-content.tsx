@@ -51,10 +51,6 @@ export function CheckoutPageContent({
       return "Unicobros";
     }
 
-    if (paymentMethod === PAYMENT_METHODS.GETNET) {
-      return "Getnet";
-    }
-
     return "GoCuotas";
   };
 
@@ -79,7 +75,7 @@ export function CheckoutPageContent({
         Boolean(result.order.id) &&
         Boolean(result.order.orderNumber) &&
         ((result.order.paymentMethod !== PAYMENT_METHODS.GOCUOTAS &&
-          result.order.paymentMethod !== PAYMENT_METHODS.GETNET) ||
+          result.order.paymentMethod !== PAYMENT_METHODS.UNICOBROS) ||
           Boolean(result.order.checkoutUrl));
 
       if (canClearCart && clearedOrderIdRef.current !== result.order.id) {
@@ -100,7 +96,6 @@ export function CheckoutPageContent({
   useEffect(() => {
     if (
       (createdOrder?.paymentMethod === PAYMENT_METHODS.GOCUOTAS ||
-        createdOrder?.paymentMethod === PAYMENT_METHODS.GETNET ||
         createdOrder?.paymentMethod === PAYMENT_METHODS.UNICOBROS) &&
       createdOrder.checkoutUrl
     ) {

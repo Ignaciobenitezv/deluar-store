@@ -1,11 +1,7 @@
 import type { CheckoutFormValues } from "@/features/checkout/types";
-import type { PaymentMethod } from "@/features/payments/types";
+import type { EnabledCheckoutPaymentMethod } from "@/features/payments/types";
 import type { CreateOrderResult, Order } from "@/features/order/types";
 import type { ShippingMethod } from "@/features/shipping/shipping";
-import type {
-  GetnetInitPaymentResponse,
-  GetnetInitPaymentRequest,
-} from "@/integrations/getnet/types";
 
 type CreateCheckoutOrderInput = {
   customer: CheckoutFormValues;
@@ -14,7 +10,7 @@ type CreateCheckoutOrderInput = {
     quantity: number;
   }[];
   shippingMethod?: ShippingMethod;
-  paymentMethod?: PaymentMethod;
+  paymentMethod?: EnabledCheckoutPaymentMethod;
 };
 
 export async function createCheckoutOrder(
@@ -44,40 +40,5 @@ export async function createCheckoutOrder(
 
   return {
     order: result.order,
-  };
-}
-
-export async function initGetnetCheckoutPayment(
-  input: GetnetInitPaymentRequest,
-): Promise<{ payment: GetnetInitPaymentResponse }> {
-  const response = await fetch("/api/payments/getnet/init", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(input),
-  });
-
-  const result = (await response.json()) as
-    | {
-        ok: true;
-        payment: GetnetInitPaymentResponse;
-      }
-    | {
-        ok?: false;
-        errors?: string[];
-      };
-
-  if (!response.ok || !("ok" in result) || !result.ok) {
-    const errors =
-      "errors" in result && Array.isArray(result.errors) && result.errors.length > 0
-        ? result.errors
-        : ["No se pudo iniciar el pago con Getnet."];
-
-    throw new Error(errors.join(" "));
-  }
-
-  return {
-    payment: result.payment,
   };
 }

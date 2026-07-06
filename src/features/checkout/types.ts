@@ -1,4 +1,4 @@
-import type { PaymentMethod } from "@/features/payments/types";
+import type { EnabledCheckoutPaymentMethod } from "@/features/payments/types";
 import type { ShippingMethod } from "@/features/shipping/shipping";
 
 export type CheckoutFormValues = {
@@ -12,7 +12,7 @@ export type CheckoutFormValues = {
   postalCode: string;
   notes: string;
   shippingMethod: ShippingMethod;
-  paymentMethod: PaymentMethod;
+  paymentMethod: EnabledCheckoutPaymentMethod;
 };
 
 export type CheckoutFormErrors = Partial<Record<keyof CheckoutFormValues, string>>;
