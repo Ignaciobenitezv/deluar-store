@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { mapProductToCatalogCard } from "@/features/catalog/mappers";
 import { SiteContainer } from "@/components/layout/site-container";
 import { HomeCampaignBanner } from "@/features/home/components/home-campaign-banner";
 import { HomeBenefitsStrip } from "@/features/home/components/home-benefits-strip";
@@ -12,7 +11,6 @@ import { HomeHeroSlider } from "@/features/home/components/home-hero-slider";
 import { HomeNewsletterBanner } from "@/features/home/components/home-newsletter-banner";
 import type {
   HomeCategoryRailItem,
-  HomeCategoryShowcaseItem,
   HomeHeroSlide,
 } from "@/features/home/types";
 import { buildMetadata } from "@/lib/seo";
@@ -31,15 +29,6 @@ import type {
   ProductDocument,
   SiteSettingsDocument,
 } from "@/types/cms";
-
-const SHOWCASE_CATEGORY_ORDER = ["cocina", "dormitorio", "living", "bano"];
-
-function normalizeSlug(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-}
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
@@ -67,52 +56,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 function buildHomeSlides(homePage: Awaited<ReturnType<typeof getHomePageData>>): HomeHeroSlide[] {
   return homePage.heroSlides.length > 0 ? homePage.heroSlides : [homePage.hero];
-}
-
-async function buildHomeCategoryShowcase(
-  homePage: Awaited<ReturnType<typeof getHomePageData>>,
-): Promise<HomeCategoryShowcaseItem[]> {
-  try {
-    const categoryBySlug = new Map(
-      homePage.categories.map((category) => [normalizeSlug(category.slug), category]),
-    );
-
-    const selectedCategories = SHOWCASE_CATEGORY_ORDER.map((slug) => categoryBySlug.get(slug)).filter(
-      (category): category is NonNullable<typeof category> => Boolean(category),
-    );
-
-    const showcaseItems = await Promise.all(
-      selectedCategories.map(async (category) => {
-        const productDocuments = await sanityFetch<ProductDocument[]>(productsByCategoryQuery, {
-          categorySlug: category.slug,
-          subcategorySlug: "",
-        });
-        const products = productDocuments.map(mapProductToCatalogCard);
-        const showcaseImage =
-          productDocuments.find((product) => product.images?.[0]?.image?.asset?._ref)?.images?.[0];
-        const featuredFallbackProduct = homePage.featuredProducts.find(
-          (product) =>
-            normalizeSlug(product.categorySlug) === normalizeSlug(category.slug) && product.imageUrl,
-        );
-
-        return {
-          id: category.id,
-          title: category.title,
-          slug: category.slug,
-          description: category.description,
-          href: category.href,
-          imageUrl:
-            getSanityImageUrl(showcaseImage, 1400, 1560) ?? featuredFallbackProduct?.imageUrl ?? null,
-          imageAlt: showcaseImage?.alt || featuredFallbackProduct?.imageAlt || category.title,
-          products,
-        };
-      }),
-    );
-
-    return showcaseItems.filter((item) => item.products.length > 0);
-  } catch {
-    return [];
-  }
 }
 
 async function buildHomeCategoryRail(): Promise<HomeCategoryRailItem[]> {
@@ -150,7 +93,6 @@ export default async function StoreIndexPage() {
   const homePage = await getHomePageData();
   const heroSlides = buildHomeSlides(homePage);
   const categoryRailItems = await buildHomeCategoryRail();
-  await buildHomeCategoryShowcase(homePage);
 
   return (
     <>
