@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { CatalogSort } from "@/features/catalog/types";
 
@@ -23,6 +23,8 @@ export function CatalogSortDrawer({ sort }: CatalogSortDrawerProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const previousActiveElementRef = useRef<HTMLElement | null>(null);
   const activeSort = sort ?? "best-selling";
   const currentQuery = useMemo(
     () => new URLSearchParams(searchParams.toString()),
@@ -35,6 +37,34 @@ export function CatalogSortDrawer({ sort }: CatalogSortDrawerProps) {
     setIsOpen(false);
     router.push(`${pathname}?${nextQuery.toString()}`, { scroll: false });
   };
+
+  const closeDrawer = useCallback(() => {
+    setIsOpen(false);
+    previousActiveElementRef.current?.focus();
+    previousActiveElementRef.current = null;
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    previousActiveElementRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeDrawer();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.requestAnimationFrame(() => closeButtonRef.current?.focus());
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [closeDrawer, isOpen]);
 
   return (
     <>
@@ -52,17 +82,23 @@ export function CatalogSortDrawer({ sort }: CatalogSortDrawerProps) {
             type="button"
             aria-label="Cerrar ordenar"
             className="absolute inset-0 bg-black/30"
-            onClick={() => setIsOpen(false)}
+            onClick={closeDrawer}
           />
 
-          <div className="absolute right-0 top-0 h-dvh w-full max-w-[420px] bg-white shadow-xl">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="catalog-sort-drawer-title"
+            className="absolute right-0 top-0 h-dvh w-full max-w-[420px] bg-white shadow-xl"
+          >
             <div className="flex h-16 items-center justify-between border-b border-neutral-200 px-5">
-              <h2 className="text-base font-medium text-foreground">Ordenar</h2>
+              <h2 id="catalog-sort-drawer-title" className="text-base font-medium text-foreground">Ordenar</h2>
               <button
                 type="button"
                 aria-label="Cerrar ordenar"
-                className="inline-flex h-10 w-10 items-center justify-center text-foreground"
-                onClick={() => setIsOpen(false)}
+                ref={closeButtonRef}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
+                onClick={closeDrawer}
               >
                 X
               </button>
@@ -77,7 +113,7 @@ export function CatalogSortDrawer({ sort }: CatalogSortDrawerProps) {
                     key={option.value}
                     type="button"
                     onClick={() => handleSelect(option.value)}
-                    className="flex w-full items-center justify-between px-5 py-4 text-left text-sm text-foreground transition hover:bg-neutral-50"
+                    className="flex w-full items-center justify-between px-5 py-4 text-left text-sm text-foreground transition hover:bg-neutral-50 focus-visible:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-accent-strong)]"
                   >
                     <span>{option.label}</span>
                     <span className={isActive ? "text-foreground" : "invisible"}>

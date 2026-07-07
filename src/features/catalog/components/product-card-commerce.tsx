@@ -84,7 +84,11 @@ export function ProductCardCta({
       type="button"
       onClick={handleClick}
       disabled={isPending}
-      className={cn(ctaClassName, "disabled:cursor-wait disabled:opacity-60", className)}
+      className={cn(
+        ctaClassName,
+        "disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
+        className,
+      )}
     >
       {label}
     </button>
@@ -112,7 +116,11 @@ export function ProductCardActions({
       <Link
         href={product.productHref}
         onClick={(event) => event.stopPropagation()}
-        className={cn(ctaClassName, buttonClassName)}
+        className={cn(
+          ctaClassName,
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
+          buttonClassName,
+        )}
       >
         {viewLabel}
       </Link>

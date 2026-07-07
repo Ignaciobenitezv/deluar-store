@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useCart } from "@/features/cart/cart-context";
@@ -9,11 +9,17 @@ import { CartSummary } from "@/features/cart/components/cart-summary";
 
 export function CartDrawer() {
   const { items, isOpen, closeCart } = useCart();
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const previousActiveElementRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!isOpen) {
       return;
     }
+
+    previousActiveElementRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -31,6 +37,7 @@ export function CartDrawer() {
     document.documentElement.style.overflow = "hidden";
     document.documentElement.style.overscrollBehavior = "none";
     window.addEventListener("keydown", handleKeyDown);
+    window.requestAnimationFrame(() => closeButtonRef.current?.focus());
 
     return () => {
       document.body.style.overflow = previousBodyOverflow;
@@ -39,6 +46,8 @@ export function CartDrawer() {
       document.documentElement.style.overscrollBehavior =
         previousDocumentOverscrollBehavior;
       window.removeEventListener("keydown", handleKeyDown);
+      previousActiveElementRef.current?.focus();
+      previousActiveElementRef.current = null;
     };
   }, [closeCart, isOpen]);
 
@@ -58,7 +67,7 @@ export function CartDrawer() {
       <aside
         aria-modal="true"
         role="dialog"
-        aria-label="Carrito"
+        aria-labelledby="cart-drawer-title"
         onClick={(event) => event.stopPropagation()}
         className="pointer-events-auto fixed right-0 top-0 z-[90] flex h-dvh w-full flex-col overflow-hidden border-l border-border/70 bg-[#fbf8f4] shadow-[-18px_0_50px_rgba(58,40,26,0.12)] transition-transform duration-300 sm:w-[27rem] sm:max-w-[27rem] lg:w-[28rem] lg:max-w-[28rem]"
       >
@@ -68,15 +77,16 @@ export function CartDrawer() {
               <p className="text-[0.68rem] uppercase tracking-[0.22em] text-muted">
                 Carrito
               </p>
-              <h2 className="text-xl font-semibold tracking-[0.02em] text-foreground">
+              <h2 id="cart-drawer-title" className="text-xl font-semibold tracking-[0.02em] text-foreground">
                 Tus productos
               </h2>
             </div>
             <button
               type="button"
+              ref={closeButtonRef}
               onClick={closeCart}
               aria-label="Cerrar carrito"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/80 bg-white/70 text-sm text-muted transition-colors hover:text-foreground"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/80 bg-white/70 text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
             >
               X
             </button>
@@ -105,7 +115,7 @@ export function CartDrawer() {
             <Link
               href="/productos"
               onClick={closeCart}
-              className="inline-flex min-h-12 items-center justify-center rounded-full border border-border bg-surface px-6 text-sm uppercase tracking-[0.22em] text-foreground transition-colors hover:border-foreground/25"
+              className="inline-flex min-h-12 items-center justify-center rounded-full border border-border bg-surface px-6 text-sm uppercase tracking-[0.22em] text-foreground transition-colors hover:border-foreground/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
             >
               Explorar productos
             </Link>

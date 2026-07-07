@@ -30,7 +30,7 @@ export function CartTrigger({ variant = "desktop" }: CartTriggerProps) {
       onClick={toggleCart}
       aria-label="Abrir carrito"
       className={cn(
-        "relative inline-flex items-center justify-center transition-colors",
+        "relative inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
         variant === "desktop"
           ? "h-10 rounded-full border border-neutral-200 bg-white px-4 text-neutral-900 hover:border-[#e8e0d8]"
           : "h-9 w-9 text-foreground hover:text-[var(--color-accent-strong)]",

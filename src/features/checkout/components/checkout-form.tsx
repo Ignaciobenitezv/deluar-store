@@ -58,11 +58,12 @@ function Field({
   onChange,
 }: FieldProps) {
   const sharedClassName = cn(
-    "w-full rounded-[1.2rem] border bg-white/86 px-4 py-3.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted/70",
+    "w-full rounded-[1.2rem] border bg-white/86 px-4 py-3.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
     error
       ? "border-[var(--color-accent-strong)]/55 bg-[rgba(167,88,60,0.03)]"
       : "border-border/80 focus:border-foreground/30",
   );
+  const errorId = `${id}-error`;
 
   return (
     <label className="space-y-2.5">
@@ -75,6 +76,8 @@ function Field({
           id={id}
           value={value}
           rows={4}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? errorId : undefined}
           onChange={(event) => onChange(id, event.target.value)}
           className={cn(sharedClassName, "min-h-30 resize-none")}
         />
@@ -82,12 +85,16 @@ function Field({
         <input
           id={id}
           value={value}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? errorId : undefined}
           onChange={(event) => onChange(id, event.target.value)}
           className={sharedClassName}
         />
       )}
       {error ? (
-        <p className="text-sm leading-6 text-[var(--color-accent-strong)]">{error}</p>
+        <p id={errorId} className="text-sm leading-6 text-[var(--color-accent-strong)]">
+          {error}
+        </p>
       ) : null}
     </label>
   );
@@ -246,9 +253,9 @@ export function CheckoutForm({
                     value={option.value}
                     checked={isSelected}
                     onChange={() => handleShippingMethodChange(option.value)}
-                    className="sr-only"
+                    className="peer sr-only"
                   />
-                  <span className="flex items-start justify-between gap-4">
+                  <span className="flex items-start justify-between gap-4 rounded-[1.1rem] outline-none transition focus-within:ring-2 focus-within:ring-[var(--color-accent-strong)] focus-within:ring-offset-2">
                     <span className="flex items-start gap-3">
                       <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-foreground/25">
                         {isSelected ? (
@@ -388,9 +395,9 @@ export function CheckoutForm({
                     value={option.value}
                     checked={isSelected}
                     onChange={() => handlePaymentMethodChange(option.value)}
-                    className="sr-only"
+                    className="peer sr-only"
                   />
-                  <span className="flex items-start gap-3">
+                  <span className="flex items-start gap-3 rounded-[1.1rem] outline-none transition focus-within:ring-2 focus-within:ring-[var(--color-accent-strong)] focus-within:ring-offset-2">
                     <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-foreground/25">
                       {isSelected ? (
                         <span className="h-2 w-2 rounded-full bg-[var(--color-accent-strong)]" />
@@ -421,7 +428,8 @@ export function CheckoutForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex min-h-14 w-full items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white shadow-[0_18px_44px_rgba(167,88,60,0.2)] transition-all hover:translate-y-[-1px] hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+          aria-busy={isSubmitting}
+          className="inline-flex min-h-14 w-full items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white shadow-[0_18px_44px_rgba(167,88,60,0.2)] transition-all hover:translate-y-[-1px] hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
         >
           {isSubmitting ? "Creando orden..." : submitLabel}
         </button>

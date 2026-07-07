@@ -28,7 +28,8 @@ export function CartLineItem({ item }: CartLineItemProps) {
       <Link
         href={item.productHref}
         onClick={closeCart}
-        className="relative h-[5.5rem] w-[5.5rem] overflow-hidden rounded-[0.75rem] bg-[#efe5d8] sm:h-24 sm:w-24"
+        aria-label={`Ver ${item.title}`}
+        className="relative h-[5.5rem] w-[5.5rem] overflow-hidden rounded-[0.75rem] bg-[#efe5d8] sm:h-24 sm:w-24 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
       >
         {item.imageUrl ? (
           <Image
@@ -50,7 +51,7 @@ export function CartLineItem({ item }: CartLineItemProps) {
           <Link
             href={item.productHref}
             onClick={closeCart}
-            className="block break-words text-sm font-medium leading-5 text-foreground"
+            className="block break-words text-sm font-medium leading-5 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
           >
             {item.title}
           </Link>
@@ -78,7 +79,7 @@ export function CartLineItem({ item }: CartLineItemProps) {
               type="button"
               aria-label={`Reducir cantidad de ${item.title}`}
               onClick={() => setItemQuantity(item.id, item.quantity - 1)}
-              className="inline-flex h-8 w-8 items-center justify-center text-sm text-muted transition-colors hover:text-foreground"
+              className="inline-flex h-8 w-8 items-center justify-center text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
             >
               -
             </button>
@@ -90,7 +91,7 @@ export function CartLineItem({ item }: CartLineItemProps) {
               aria-label={`Aumentar cantidad de ${item.title}`}
               onClick={() => setItemQuantity(item.id, item.quantity + 1)}
               disabled={isAtStockLimit}
-              className="inline-flex h-8 w-8 items-center justify-center text-sm text-muted transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-35"
+              className="inline-flex h-8 w-8 items-center justify-center text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-35"
             >
               +
             </button>
@@ -98,8 +99,9 @@ export function CartLineItem({ item }: CartLineItemProps) {
 
           <button
             type="button"
+            aria-label={`Quitar ${item.title}`}
             onClick={() => removeItem(item.id)}
-            className="text-[0.68rem] uppercase tracking-[0.16em] text-muted transition-colors hover:text-foreground"
+            className="text-[0.68rem] uppercase tracking-[0.16em] text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
           >
             Quitar
           </button>

@@ -84,8 +84,9 @@ export function SiteHeader({ navigation }: SiteHeaderProps) {
               type="search"
               name="q"
               placeholder="Buscar productos"
+              aria-label="Buscar productos"
               className={cn(
-                "w-full rounded-full border border-neutral-200 bg-[#f7f4ef] px-4 pr-10 text-[13px] text-foreground outline-none placeholder:text-[12px] placeholder:text-muted transition-all duration-300 ease-in-out",
+                "w-full rounded-full border border-neutral-200 bg-[#f7f4ef] px-4 pr-10 text-[13px] text-foreground outline-none placeholder:text-[12px] placeholder:text-muted transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
                 isScrolled ? "h-9" : "h-10",
               )}
             />
@@ -112,8 +113,9 @@ export function SiteHeader({ navigation }: SiteHeaderProps) {
                 type="search"
                 name="q"
                 placeholder="Buscar"
+                aria-label="Buscar productos"
                 className={cn(
-                  "w-full rounded-full border border-neutral-200 bg-[#faf6f1] px-4 pr-10 text-sm text-foreground outline-none placeholder:text-muted transition-all duration-300 ease-in-out",
+                  "w-full rounded-full border border-neutral-200 bg-[#faf6f1] px-4 pr-10 text-sm text-foreground outline-none placeholder:text-muted transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
                   isScrolled ? "h-9" : "h-[38px]",
                 )}
               />

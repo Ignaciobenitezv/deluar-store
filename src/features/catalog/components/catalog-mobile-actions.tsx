@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { CatalogCategorySummary, CatalogSort } from "@/features/catalog/types";
 
@@ -56,6 +56,8 @@ export function CatalogMobileActions({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [openSheet, setOpenSheet] = useState<SheetMode>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const previousActiveElementRef = useRef<HTMLElement | null>(null);
   const currentParams = useMemo(
     () => new URLSearchParams(searchParams.toString()),
     [searchParams],
@@ -70,6 +72,34 @@ export function CatalogMobileActions({
     setOpenSheet(null);
     router.push(queryString ? `${path}?${queryString}` : path, { scroll: false });
   };
+
+  const closeSheet = useCallback(() => {
+    setOpenSheet(null);
+    previousActiveElementRef.current?.focus();
+    previousActiveElementRef.current = null;
+  }, []);
+
+  useEffect(() => {
+    if (!openSheet) {
+      return;
+    }
+
+    previousActiveElementRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeSheet();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.requestAnimationFrame(() => closeButtonRef.current?.focus());
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [closeSheet, openSheet]);
 
   const applySort = (nextSort: CatalogSort) => {
     const nextParams = new URLSearchParams(currentParams.toString());
@@ -140,19 +170,28 @@ export function CatalogMobileActions({
             type="button"
             aria-label="Cerrar panel"
             className="fixed inset-0 z-[90] bg-black/40 lg:hidden"
-            onClick={() => setOpenSheet(null)}
+            onClick={closeSheet}
           />
 
-          <div className="fixed inset-x-0 bottom-0 z-[100] max-h-[70dvh] overflow-hidden rounded-t-[24px] bg-white lg:hidden">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={openSheet === "sort" ? "catalog-mobile-sort-title" : "catalog-mobile-filters-title"}
+            className="fixed inset-x-0 bottom-0 z-[100] max-h-[70dvh] overflow-hidden rounded-t-[24px] bg-white lg:hidden"
+          >
             <div className="flex h-16 items-center justify-between border-b border-neutral-200 px-5">
-              <h2 className="text-base font-medium text-foreground">
+              <h2
+                id={openSheet === "sort" ? "catalog-mobile-sort-title" : "catalog-mobile-filters-title"}
+                className="text-base font-medium text-foreground"
+              >
                 {openSheet === "sort" ? "Ordenar" : "Filtros"}
               </h2>
               <button
                 type="button"
                 aria-label="Cerrar panel"
-                className="inline-flex h-10 w-10 items-center justify-center text-foreground"
-                onClick={() => setOpenSheet(null)}
+                ref={closeButtonRef}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
+                onClick={closeSheet}
               >
                 X
               </button>
@@ -182,7 +221,7 @@ export function CatalogMobileActions({
                     <button
                       type="button"
                       onClick={applyStock}
-                      className="flex w-full items-center justify-between text-left text-sm text-foreground"
+                      className="flex w-full items-center justify-between text-left text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-accent-strong)]"
                     >
                       <span>En stock</span>
                       <CheckIcon visible={inStock} />
@@ -196,7 +235,7 @@ export function CatalogMobileActions({
                     <button
                       type="button"
                       onClick={() => applyPrice({ maxPrice: 10000 })}
-                      className="flex w-full items-center justify-between text-left text-sm text-foreground"
+                      className="flex w-full items-center justify-between text-left text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-accent-strong)]"
                     >
                       <span>Hasta $10.000</span>
                       <CheckIcon visible={isPriceRangeActive({ maxPrice: "10000" })} />
@@ -204,7 +243,7 @@ export function CatalogMobileActions({
                     <button
                       type="button"
                       onClick={() => applyPrice({ minPrice: 10000, maxPrice: 30000 })}
-                      className="flex w-full items-center justify-between text-left text-sm text-foreground"
+                      className="flex w-full items-center justify-between text-left text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-accent-strong)]"
                     >
                       <span>$10.000 a $30.000</span>
                       <CheckIcon
@@ -214,7 +253,7 @@ export function CatalogMobileActions({
                     <button
                       type="button"
                       onClick={() => applyPrice({ minPrice: 30000 })}
-                      className="flex w-full items-center justify-between text-left text-sm text-foreground"
+                      className="flex w-full items-center justify-between text-left text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-accent-strong)]"
                     >
                       <span>Mas de $30.000</span>
                       <CheckIcon visible={isPriceRangeActive({ minPrice: "30000" })} />
@@ -230,7 +269,7 @@ export function CatalogMobileActions({
                         key={category.id}
                         type="button"
                         onClick={() => applyCategory(category.href)}
-                        className="flex w-full items-center justify-between text-left text-sm text-foreground"
+                        className="flex w-full items-center justify-between text-left text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-accent-strong)]"
                       >
                         <span>{category.title}</span>
                         <CheckIcon visible={category.slug === activeCategorySlug} />
