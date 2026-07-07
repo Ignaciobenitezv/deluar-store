@@ -73,8 +73,6 @@ function buildCheckoutPayload(order: Order, reference: string): UnicobrosCreateC
     customer: {
       email: readString(order.customer.email),
       name: readString(`${order.customer.firstName} ${order.customer.lastName}`.trim()),
-      // TODO: Confirm with Unicobros whether identification may be omitted.
-      // The current fallback to orderNumber is a temporary compatibility risk.
       identification: extractIdentification(order.customer.notes, order.orderNumber),
     },
     test: String(env.unicobrosTest).toLowerCase() === "true",
