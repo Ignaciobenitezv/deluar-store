@@ -1,9 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
+import {
+  getNavigationActiveBranchIds,
+  isCatalogPathActive,
+} from "@/features/catalog/hierarchy";
 import type { StorefrontNavigation } from "@/types/navigation";
 
 type MobileNavigationProps = {
@@ -11,40 +23,162 @@ type MobileNavigationProps = {
   buttonClassName?: string;
 };
 
+type NavigationNode = {
+  id: string;
+  label: string;
+  href: string;
+  items?: NavigationNode[];
+};
+
+type MobileCatalogTreeProps = {
+  nodes: NavigationNode[];
+  expandedNodeIds: string[];
+  level?: number;
+  onToggleNode: (nodeId: string) => void;
+  onNavigate: () => void;
+  pathname: string;
+};
+
+function MobileCatalogTree({
+  nodes,
+  expandedNodeIds,
+  level = 0,
+  onToggleNode,
+  onNavigate,
+  pathname,
+}: MobileCatalogTreeProps) {
+  if (nodes.length === 0) {
+    return null;
+  }
+
+  return (
+    <ul className={level === 0 ? "flex flex-col" : "mt-3 grid gap-2 border-t border-neutral-200 pt-3"}>
+      {nodes.map((node) => {
+        const hasChildren = (node.items ?? []).length > 0;
+        const isExpanded = expandedNodeIds.includes(node.id);
+        const isActive = isCatalogPathActive(pathname, node.href);
+        const panelId = `mobile-catalog-node-${node.id}`;
+
+        return (
+          <li
+            key={node.id}
+            className={level === 0 ? "border-b border-neutral-100 last:border-b-0" : "last:border-b-0"}
+          >
+            <div
+              className={
+                level === 0
+                  ? "flex items-center justify-between gap-3 px-4 py-4"
+                  : "flex items-center justify-between gap-3"
+              }
+            >
+              <Link
+                href={node.href}
+                className={cn(
+                  "min-w-0 flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
+                  level === 0 && "text-[15px] tracking-[0.02em]",
+                  level > 0 && "text-sm leading-6 text-neutral-700",
+                  isActive && "font-medium text-neutral-950",
+                )}
+                onClick={onNavigate}
+              >
+                {node.label}
+              </Link>
+
+              {hasChildren ? (
+                <button
+                  type="button"
+                  aria-expanded={isExpanded}
+                  aria-controls={panelId}
+                  aria-label={isExpanded ? `Contraer ${node.label}` : `Expandir ${node.label}`}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
+                  onClick={() => onToggleNode(node.id)}
+                >
+                  <span
+                    className={cn(
+                      "text-lg leading-none transition-transform",
+                      isExpanded && "rotate-90",
+                    )}
+                  >
+                    &gt;
+                  </span>
+                </button>
+              ) : null}
+            </div>
+
+            {hasChildren && isExpanded ? (
+              <div
+                id={panelId}
+                className={level === 0 ? "border-t border-neutral-100 bg-neutral-50" : "ml-4"}
+              >
+                <MobileCatalogTree
+                  nodes={node.items ?? []}
+                  expandedNodeIds={expandedNodeIds}
+                  level={level + 1}
+                  onToggleNode={onToggleNode}
+                  onNavigate={onNavigate}
+                  pathname={pathname}
+                />
+              </div>
+            ) : null}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 export function MobileNavigation({ navigation, buttonClassName }: MobileNavigationProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isProductsOpen, setIsProductsOpen] = useState(false);
-  const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(null);
+  const [expandedNodeIds, setExpandedNodeIds] = useState<string[]>([]);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const previousActiveElementRef = useRef<HTMLElement | null>(null);
+  const pathname = usePathname();
   const isMounted = useSyncExternalStore(
     () => () => undefined,
     () => true,
     () => false,
   );
 
-  const toggleCategory = (categoryId: string) => {
-    setExpandedCategoryId((current) =>
-      current === categoryId ? null : categoryId,
+  const activeBranchIds = useMemo(
+    () => getNavigationActiveBranchIds(navigation.categories, pathname),
+    [navigation.categories, pathname],
+  );
+
+  const toggleNode = (nodeId: string) => {
+    setExpandedNodeIds((current) =>
+      current.includes(nodeId)
+        ? current.filter((currentId) => currentId !== nodeId)
+        : [...current, nodeId],
     );
   };
 
   const closeMenu = useCallback(() => {
     setIsOpen(false);
     setIsProductsOpen(false);
-    setExpandedCategoryId(null);
+    setExpandedNodeIds([]);
     previousActiveElementRef.current?.focus();
     previousActiveElementRef.current = null;
   }, []);
+
+  const toggleProductsPanel = () => {
+    if (isProductsOpen) {
+      setIsProductsOpen(false);
+      setExpandedNodeIds([]);
+      return;
+    }
+
+    setExpandedNodeIds(activeBranchIds);
+    setIsProductsOpen(true);
+  };
 
   useEffect(() => {
     if (!isOpen) {
       return;
     }
 
-    previousActiveElementRef.current = document.activeElement instanceof HTMLElement
-      ? document.activeElement
-      : null;
+    previousActiveElementRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         closeMenu();
@@ -95,10 +229,7 @@ export function MobileNavigation({ navigation, buttonClassName }: MobileNavigati
         <nav aria-label="Navegacion mobile" className="py-3">
           <ul className="flex flex-col">
             {navigation.primary.map((item) => (
-              <li
-                key={item.id}
-                className="border-b border-neutral-100 last:border-b-0"
-              >
+              <li key={item.id} className="border-b border-neutral-100 last:border-b-0">
                 {item.id === "productos" ? (
                   <>
                     <div className="flex items-center justify-between gap-3 px-4 py-4">
@@ -115,7 +246,7 @@ export function MobileNavigation({ navigation, buttonClassName }: MobileNavigati
                         aria-controls="mobile-products-panel"
                         aria-label={isProductsOpen ? "Contraer productos" : "Expandir productos"}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
-                        onClick={() => setIsProductsOpen((current) => !current)}
+                        onClick={toggleProductsPanel}
                       >
                         <span
                           className={cn(
@@ -123,77 +254,21 @@ export function MobileNavigation({ navigation, buttonClassName }: MobileNavigati
                             isProductsOpen ? "rotate-90" : "rotate-0",
                           )}
                         >
-                          ›
+                          &gt;
                         </span>
                       </button>
                     </div>
 
                     {isProductsOpen ? (
-                      <ul
-                        id="mobile-products-panel"
-                        className="border-t border-neutral-100 bg-neutral-50"
-                      >
-                        {navigation.categories.map((category) => (
-                          <li
-                            key={category.id}
-                            className="border-b border-neutral-100 px-4 py-3 last:border-b-0"
-                          >
-                            <div className="flex items-center justify-between gap-3">
-                              <Link
-                                href={category.href}
-                                className="min-w-0 flex-1 text-sm font-medium tracking-[0.02em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
-                                onClick={closeMenu}
-                              >
-                                {category.label}
-                              </Link>
-                              {category.items.length > 0 ? (
-                                <button
-                                  type="button"
-                                  aria-expanded={expandedCategoryId === category.id}
-                                  aria-controls={`mobile-category-${category.id}`}
-                                  aria-label={
-                                    expandedCategoryId === category.id
-                                      ? `Contraer ${category.label}`
-                                      : `Expandir ${category.label}`
-                                  }
-                                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
-                                  onClick={() => toggleCategory(category.id)}
-                                >
-                                  <span
-                                    className={cn(
-                                      "text-lg leading-none transition-transform",
-                                      expandedCategoryId === category.id &&
-                                        "rotate-90",
-                                    )}
-                                  >
-                                    ›
-                                  </span>
-                                </button>
-                              ) : null}
-                            </div>
-
-                            {category.items.length > 0 &&
-                            expandedCategoryId === category.id ? (
-                              <ul
-                                id={`mobile-category-${category.id}`}
-                                className="mt-3 grid gap-2 border-t border-neutral-200 pt-3"
-                              >
-                                {category.items.map((subCategory) => (
-                                  <li key={subCategory.id}>
-                                    <Link
-                                      href={subCategory.href}
-                                      className="block text-sm leading-6 text-neutral-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
-                                      onClick={closeMenu}
-                                    >
-                                      {subCategory.label}
-                                    </Link>
-                                  </li>
-                                ))}
-                              </ul>
-                            ) : null}
-                          </li>
-                        ))}
-                      </ul>
+                      <div id="mobile-products-panel" className="border-t border-neutral-100 bg-neutral-50">
+                        <MobileCatalogTree
+                          nodes={navigation.categories}
+                          expandedNodeIds={expandedNodeIds}
+                          onToggleNode={toggleNode}
+                          onNavigate={closeMenu}
+                          pathname={pathname}
+                        />
+                      </div>
                     ) : null}
                   </>
                 ) : (
@@ -227,9 +302,19 @@ export function MobileNavigation({ navigation, buttonClassName }: MobileNavigati
         onClick={() => (isOpen ? closeMenu() : setIsOpen(true))}
       >
         <span className="flex w-[18px] flex-col gap-[4px]">
-          <span className={cn("h-px w-full bg-current transition-transform", isOpen && "translate-y-[5px] rotate-45")} />
+          <span
+            className={cn(
+              "h-px w-full bg-current transition-transform",
+              isOpen && "translate-y-[5px] rotate-45",
+            )}
+          />
           <span className={cn("h-px w-full bg-current transition-opacity", isOpen && "opacity-0")} />
-          <span className={cn("h-px w-full bg-current transition-transform", isOpen && "-translate-y-[5px] -rotate-45")} />
+          <span
+            className={cn(
+              "h-px w-full bg-current transition-transform",
+              isOpen && "-translate-y-[5px] -rotate-45",
+            )}
+          />
         </span>
       </button>
       {isMounted ? createPortal(mobilePanel, document.body) : null}

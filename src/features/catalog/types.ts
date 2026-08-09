@@ -34,9 +34,32 @@ export type CatalogCategorySummary = {
   href: string;
 };
 
+export type CatalogHierarchyNode = {
+  _id: string;
+  _type: "category" | "subcategory";
+  title: string;
+  slug: {
+    current: string;
+  };
+  description?: string;
+  order?: number;
+  subcategories?: CatalogHierarchyNode[];
+};
+
+export type CatalogHierarchyResolution = {
+  rootCategory: CatalogHierarchyNode;
+  currentNode: CatalogHierarchyNode;
+  ancestors: CatalogHierarchyNode[];
+  descendantIds: string[];
+  depth: 0 | 1 | 2;
+  href: string;
+  pathSegments: string[];
+};
+
 export type CatalogPageData = {
   title: string;
   description?: string;
+  childCategories: CatalogCategorySummary[];
   products: CatalogProductCard[];
   categories: CatalogCategorySummary[];
 };

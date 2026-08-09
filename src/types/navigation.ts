@@ -6,6 +6,7 @@ export type NavigationLink = {
 
 export type NavigationCategoryItem = NavigationLink & {
   cmsKey?: string;
+  items?: NavigationCategoryItem[];
 };
 
 export type NavigationCategory = NavigationLink & {

@@ -85,7 +85,7 @@ export type SubcategoryDocument = {
   _type: "subcategory";
   title: string;
   slug: Slug;
-  parentCategory: CategoryDocument;
+  parentCategory: CategoryDocument | SubcategoryDocument;
   description?: string;
   order?: number;
 };

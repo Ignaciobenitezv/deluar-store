@@ -6,6 +6,7 @@ import { CatalogEmptyState } from "@/features/catalog/components/catalog-empty-s
 import { CatalogMobileActions } from "@/features/catalog/components/catalog-mobile-actions";
 import { ProductGrid } from "@/features/catalog/components/product-grid";
 import { CatalogSortDrawer } from "@/features/catalog/components/catalog-sort-drawer";
+import { buildCatalogHref } from "@/features/catalog/hierarchy";
 import type { CatalogSort } from "@/features/catalog/types";
 import { getCatalogPageData, getCategoryCatalogPageData } from "@/integrations/sanity/catalog";
 import { buildMetadata } from "@/lib/seo";
@@ -30,7 +31,7 @@ export async function generateMetadata({
   searchParams,
 }: CategoryPageProps): Promise<Metadata> {
   const { categorySlug, subcategorySlug } = await params;
-  const subcategory = subcategorySlug?.[0] ?? "";
+  const subcategorySegments = subcategorySlug ?? [];
   const resolvedSearchParams = await searchParams;
   const minPrice = parseNumericSearchParam(resolvedSearchParams?.minPrice);
   const maxPrice = parseNumericSearchParam(resolvedSearchParams?.maxPrice);
@@ -39,7 +40,15 @@ export async function generateMetadata({
   const hasActiveFilters = Boolean(
     typeof minPrice === "number" || typeof maxPrice === "number" || inStock || sort,
   );
-  const catalog = await getCategoryCatalogPageData(categorySlug, subcategory, {
+  if (subcategorySegments.length > 2) {
+    return buildMetadata({
+      title: "Categoria",
+      description: "Seccion de productos de DELUAR.",
+      path: buildCatalogHref([categorySlug, ...subcategorySegments]),
+      noIndex: true,
+    });
+  }
+  const catalog = await getCategoryCatalogPageData(categorySlug, subcategorySegments, {
     minPrice,
     maxPrice,
     inStock,
@@ -50,7 +59,7 @@ export async function generateMetadata({
     return buildMetadata({
       title: "Categoria",
       description: "Seccion de productos de DELUAR.",
-      path: `/productos/${categorySlug}${subcategory ? `/${subcategory}` : ""}`,
+      path: buildCatalogHref([categorySlug, ...subcategorySegments]),
       noIndex: true,
     });
   }
@@ -58,7 +67,7 @@ export async function generateMetadata({
   return buildMetadata({
     title: catalog.title,
     description: catalog.description,
-    path: `/productos/${categorySlug}${subcategory ? `/${subcategory}` : ""}`,
+    path: buildCatalogHref([categorySlug, ...subcategorySegments]),
     noIndex: hasActiveFilters,
   });
 }
@@ -136,16 +145,58 @@ function buildCategoryPath(basePath: string, params: {
   return queryString ? `${basePath}?${queryString}` : basePath;
 }
 
+function ChildCategoriesSection({
+  title,
+  childCategories,
+}: {
+  title: string;
+  childCategories: Array<{
+    id: string;
+    title: string;
+    href: string;
+  }>;
+}) {
+  if (childCategories.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="rounded-3xl border border-neutral-200 bg-neutral-50/80 p-4 shadow-[0_1px_0_rgba(255,255,255,0.6)_inset] sm:p-5">
+      <div className="mb-4 flex items-end justify-between gap-3">
+        <div className="space-y-1">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Subcategorias</p>
+          <h3 className="text-base font-medium text-foreground sm:text-lg">{title}</h3>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        {childCategories.map((child) => (
+          <Link
+            key={child.id}
+            href={child.href}
+            className="group flex min-h-[84px] items-center justify-center rounded-2xl border border-neutral-200 bg-white px-4 py-4 text-center text-sm font-medium text-foreground transition duration-200 hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-[0_10px_24px_rgba(0,0,0,0.06)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
+          >
+            <span className="line-clamp-2">{child.title}</span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { categorySlug, subcategorySlug } = await params;
-  const subcategory = subcategorySlug?.[0] ?? "";
+  const subcategorySegments = subcategorySlug ?? [];
   const resolvedSearchParams = await searchParams;
   const minPrice = parseNumericSearchParam(resolvedSearchParams?.minPrice);
   const maxPrice = parseNumericSearchParam(resolvedSearchParams?.maxPrice);
   const inStock = parseBooleanSearchParam(resolvedSearchParams?.inStock);
   const sort = parseSortSearchParam(resolvedSearchParams?.sort);
+  if (subcategorySegments.length > 2) {
+    notFound();
+  }
   const [catalog, allCatalog] = await Promise.all([
-    getCategoryCatalogPageData(categorySlug, subcategory, {
+    getCategoryCatalogPageData(categorySlug, subcategorySegments, {
       minPrice,
       maxPrice,
       inStock,
@@ -158,7 +209,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     notFound();
   }
 
-  const basePath = `/productos/${categorySlug}${subcategory ? `/${subcategory}` : ""}`;
+  const basePath = buildCatalogHref([categorySlug, ...subcategorySegments]);
   const currentFilters = {
     minPrice,
     maxPrice,
@@ -289,7 +340,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
               <div className="flex items-end justify-between gap-4 border-b border-neutral-200 pb-4">
                 <div className="space-y-2">
                   <p className="text-xs uppercase tracking-[0.18em] text-neutral-500">
-                    {subcategory ? "Subcategoria" : "Categoria"}
+                    {subcategorySegments.length > 0 ? "Subcategoria" : "Categoria"}
                   </p>
                   <h2 className="text-[2rem] font-medium tracking-[0.01em] text-foreground">
                     {catalog.title}
@@ -297,6 +348,11 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                 </div>
                 <CatalogSortDrawer sort={sort} />
               </div>
+
+              <ChildCategoriesSection
+                title={catalog.title}
+                childCategories={catalog.childCategories}
+              />
 
               {catalog.products.length > 0 ? (
                 <ProductGrid products={catalog.products} variant="desktopCatalog" />
@@ -329,7 +385,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
 
             <div className="absolute bottom-5 left-4 right-4 text-white">
               <p className="text-[11px] uppercase tracking-[0.16em] text-white/85">
-                Inicio / {subcategory ? "Subcategoria" : "Categoria"}
+                Inicio / {subcategorySegments.length > 0 ? "Subcategoria" : "Categoria"}
               </p>
               <h1 className="mt-2 text-[1.9rem] font-medium tracking-[0.01em]">
                 {catalog.title}
@@ -343,6 +399,13 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
             categories={allCatalog.categories}
             sort={sort}
           />
+
+          <div className="w-full px-1.5 lg:px-0">
+            <ChildCategoriesSection
+              title={catalog.title}
+              childCategories={catalog.childCategories}
+            />
+          </div>
 
           <div className="w-full px-1.5 lg:px-0">
             {catalog.products.length > 0 ? (

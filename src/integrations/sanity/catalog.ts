@@ -11,21 +11,24 @@ import type {
   CatalogSort,
   ProductDetailData,
 } from "@/features/catalog/types";
+import {
+  buildCatalogHref,
+  resolveCatalogHierarchy,
+  type CatalogHierarchyNode,
+} from "@/features/catalog/hierarchy";
 import { sanityFetch } from "@/integrations/sanity/client";
 import {
   allProductsQuery,
   categoryBySlugQuery,
   categoryTreeQuery,
+  catalogProductsByHierarchyQuery,
   productBySlugQuery,
-  productsByCategoryQuery,
   relatedProductFallbackGroupsQuery,
   searchProductsQuery,
 } from "@/integrations/sanity/queries";
-import type { CategoryDocument, ProductDocument, SubcategoryDocument } from "@/types/cms";
+import type { ProductDocument } from "@/types/cms";
 
-type CategoryWithSubcategories = CategoryDocument & {
-  subcategories?: SubcategoryDocument[];
-};
+type CategoryWithSubcategories = CatalogHierarchyNode;
 
 type CatalogFilters = {
   q?: string;
@@ -59,9 +62,46 @@ function getFallbackCategory(slug: string) {
 }
 
 function getFallbackSubcategory(categorySlug: string, subcategorySlug: string) {
-  return storefrontNavigation.categories
-    .find((category) => category.cmsKey === categorySlug)
-    ?.items.find((item) => item.cmsKey === subcategorySlug);
+  type FallbackNode = {
+    label: string;
+    href: string;
+    cmsKey?: string;
+    items?: FallbackNode[];
+  };
+
+  function findSubcategory(nodes: FallbackNode[], slug: string): FallbackNode | undefined {
+    for (const node of nodes) {
+      if (node.cmsKey === slug) {
+        return node;
+      }
+
+      const nestedMatch = node.items?.length ? findSubcategory(node.items, slug) : undefined;
+
+      if (nestedMatch) {
+        return nestedMatch;
+      }
+    }
+
+    return undefined;
+  }
+
+  return findSubcategory(
+    storefrontNavigation.categories.filter((category) => category.cmsKey === categorySlug),
+    subcategorySlug,
+  );
+}
+
+function mapHierarchyNodeToSummary(
+  node: CatalogHierarchyNode,
+  pathSegments: string[],
+): CatalogCategorySummary {
+  return {
+    id: node._id,
+    title: node.title,
+    slug: node.slug.current,
+    description: node.description,
+    href: buildCatalogHref(pathSegments),
+  };
 }
 
 function matchesCatalogFilters(product: ProductDocument, filters: CatalogFilters) {
@@ -184,6 +224,7 @@ export const getCatalogPageData = cache(async (filters: CatalogFilters = {}): Pr
       description: normalizedQuery
         ? `Productos de DELUAR que coinciden con "${normalizedQuery}".`
         : "Explora el catalogo de DELUAR con textiles, bazar y decoracion para el hogar.",
+      childCategories: [],
       products: sortedProducts.map(mapProductToCatalogCard),
       categories: categories.length
         ? categories.map(mapCategoryToSummary)
@@ -195,6 +236,7 @@ export const getCatalogPageData = cache(async (filters: CatalogFilters = {}): Pr
       description: normalizedQuery
         ? `Productos de DELUAR que coinciden con "${normalizedQuery}".`
         : "Explora el catalogo de DELUAR con textiles, bazar y decoracion para el hogar.",
+      childCategories: [],
       products: [],
       categories: getFallbackCategorySummary(),
     };
@@ -203,33 +245,42 @@ export const getCatalogPageData = cache(async (filters: CatalogFilters = {}): Pr
 
 export async function getCategoryCatalogPageData(
   categorySlug: string,
-  subcategorySlug = "",
+  subcategorySlugs: string[] = [],
   filters: CatalogFilters = {},
 ): Promise<CatalogPageData | null> {
   try {
-    const [category, products] = await Promise.all([
-      sanityFetch<CategoryWithSubcategories | null>(categoryBySlugQuery, { slug: categorySlug }),
-      sanityFetch<ProductDocument[]>(productsByCategoryQuery, {
-        categorySlug,
-        subcategorySlug,
-      }),
-    ]);
+    const category = await sanityFetch<CategoryWithSubcategories | null>(categoryBySlugQuery, {
+      slug: categorySlug,
+    });
 
     if (category) {
-      const matchedSubcategory = subcategorySlug
-        ? category.subcategories?.find((item) => item.slug.current === subcategorySlug)
-        : undefined;
+      const resolution = resolveCatalogHierarchy([category], categorySlug, subcategorySlugs);
+
+      if (!resolution) {
+        return null;
+      }
+
+      const products = await sanityFetch<ProductDocument[]>(catalogProductsByHierarchyQuery, {
+        categorySlug,
+        includeRootProducts: resolution.depth === 0,
+        subcategoryIds: resolution.depth === 0
+          ? resolution.descendantIds
+          : [resolution.currentNode._id, ...resolution.descendantIds],
+      });
+
+      const filteredProducts = products.filter((product) => matchesCatalogFilters(product, filters));
+      const sortedProducts = sortProducts(filteredProducts, filters.sort);
 
       return {
-        title: matchedSubcategory ? matchedSubcategory.title : category.title,
+        title: resolution.currentNode.title,
         description:
-          matchedSubcategory?.description ||
-          category.description ||
+          resolution.currentNode.description ||
+          resolution.rootCategory.description ||
           "Coleccion curada para explorar productos por categoria.",
-        products: sortProducts(
-          products.filter((product) => matchesCatalogFilters(product, filters)),
-          filters.sort,
-        ).map(mapProductToCatalogCard),
+        childCategories: (resolution.currentNode.subcategories ?? []).map((child) =>
+          mapHierarchyNodeToSummary(child, [...resolution.pathSegments, child.slug.current]),
+        ),
+        products: sortedProducts.map(mapProductToCatalogCard),
         categories: [mapCategoryToSummary(category)],
       };
     }
@@ -243,14 +294,15 @@ export async function getCategoryCatalogPageData(
     return null;
   }
 
-  const fallbackSubcategory = subcategorySlug
-    ? getFallbackSubcategory(categorySlug, subcategorySlug)
+  const fallbackSubcategory = subcategorySlugs.at(-1)
+    ? getFallbackSubcategory(categorySlug, subcategorySlugs.at(-1)!)
     : undefined;
 
   return {
     title: fallbackSubcategory?.label || fallbackCategory.label,
     description:
       "Explora esta categoria de DELUAR y sus productos destacados.",
+    childCategories: [],
     products: [],
     categories: [getFallbackCategorySummary().find((item) => item.slug === categorySlug)!],
   };

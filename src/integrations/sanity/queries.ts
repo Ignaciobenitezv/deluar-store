@@ -15,7 +15,16 @@ export const categoryTreeQuery = groq`
         title,
         slug,
         description,
-        order
+        order,
+        "subcategories": *[_type == "subcategory" && references(^._id)]
+          | order(coalesce(order, 999) asc, title asc) {
+            _id,
+            _type,
+            title,
+            slug,
+            description,
+            order
+          }
       }
   }
 `;
@@ -94,7 +103,16 @@ export const categoryBySlugQuery = groq`
         title,
         slug,
         description,
-        order
+        order,
+        "subcategories": *[_type == "subcategory" && references(^._id)]
+          | order(coalesce(order, 999) asc, title asc) {
+            _id,
+            _type,
+            title,
+            slug,
+            description,
+            order
+          }
       }
   }
 `;
@@ -104,6 +122,18 @@ export const productsByCategoryQuery = groq`
     _type == "product" &&
     category->slug.current == $categorySlug &&
     ($subcategorySlug == "" || subcategory->slug.current == $subcategorySlug)
+  ] | order(isFeatured desc, _createdAt desc) [0...48]
+  ${productCardQuery}
+`;
+
+export const catalogProductsByHierarchyQuery = groq`
+  *[
+    _type == "product" &&
+    category->slug.current == $categorySlug &&
+    (
+      ($includeRootProducts == true && !defined(subcategory)) ||
+      (defined(subcategory) && subcategory._ref in $subcategoryIds)
+    )
   ] | order(isFeatured desc, _createdAt desc) [0...48]
   ${productCardQuery}
 `;

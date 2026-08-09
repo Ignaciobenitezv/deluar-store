@@ -2,8 +2,10 @@
 
 import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import type { NavigationCategory, NavigationLink } from "@/types/navigation";
+import { isCatalogPathActive } from "@/features/catalog/hierarchy";
 
 const baseLinkClassName =
   "text-sm tracking-[0.08em] text-foreground/78 transition-colors duration-200 hover:text-foreground";
@@ -15,10 +17,60 @@ type ProductsDropdownProps = {
   categories: NavigationCategory[];
 };
 
+type DropdownTreeProps = {
+  items: NavigationCategory["items"];
+  pathname: string;
+  depth?: number;
+};
+
+function DropdownTree({ items, pathname, depth = 0 }: DropdownTreeProps) {
+  if (items.length === 0) {
+    return null;
+  }
+
+  return (
+    <ul
+      className={cn(
+        "space-y-2.5",
+        depth > 0 && "mt-2 border-l border-[#e3d8cb] pl-4",
+        depth > 1 && "space-y-2",
+      )}
+    >
+      {items.map((item) => {
+        const isActive = isCatalogPathActive(pathname, item.href);
+        const hasChildren = (item.items ?? []).length > 0;
+
+        return (
+          <li key={item.id} className="space-y-2">
+            <Link
+              href={item.href}
+              className={cn(
+                dropdownLinkHoverClassName,
+                "inline-block leading-6",
+                depth === 0 && "text-[0.94rem]",
+                depth === 1 && "text-[0.92rem]",
+                depth >= 2 && "text-[0.88rem]",
+                isActive && "font-medium text-[#2f211b]",
+              )}
+            >
+              {item.label}
+            </Link>
+
+            {hasChildren ? (
+              <DropdownTree items={item.items ?? []} pathname={pathname} depth={depth + 1} />
+            ) : null}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 export function ProductsDropdown({ item, categories }: ProductsDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const pathname = usePathname();
 
   const open = useCallback(() => {
     if (closeTimer.current) {
@@ -99,26 +151,13 @@ export function ProductsDropdown({ item, categories }: ProductsDropdownProps) {
                   className={cn(
                     dropdownLinkHoverClassName,
                     "inline-block text-[0.9rem] font-medium tracking-[0.08em]",
+                    isCatalogPathActive(pathname, category.href) && "text-[#2f211b]",
                   )}
                 >
                   {category.label}
                 </Link>
                 {category.items.length > 0 ? (
-                  <ul className="space-y-2.5">
-                    {category.items.map((subCategory) => (
-                      <li key={subCategory.id}>
-                        <Link
-                          href={subCategory.href}
-                          className={cn(
-                            dropdownLinkHoverClassName,
-                            "inline-block text-[0.94rem] leading-6",
-                          )}
-                        >
-                          {subCategory.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
+                  <DropdownTree items={category.items} pathname={pathname} />
                 ) : (
                   <p className="text-[0.94rem] leading-6 text-foreground/64">
                     Seleccion curada para regalar.

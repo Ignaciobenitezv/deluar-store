@@ -1,4 +1,5 @@
 import { getSanityImageUrl } from "@/integrations/sanity/image";
+import { buildCatalogHref } from "@/features/catalog/hierarchy";
 import type {
   CatalogCategorySummary,
   CatalogProductCard,
@@ -6,10 +7,17 @@ import type {
   ProductDetailData,
 } from "@/features/catalog/types";
 import type {
-  CategoryDocument,
   ProductColorVariantDocument,
   ProductDocument,
+  Slug,
 } from "@/types/cms";
+
+type CategorySummarySource = {
+  _id: string;
+  title: string;
+  slug: Slug;
+  description?: string;
+};
 
 export function mapProductToCatalogCard(product: ProductDocument): CatalogProductCard {
   const categorySlug = product.category.slug.current;
@@ -37,13 +45,13 @@ export function mapProductToCatalogCard(product: ProductDocument): CatalogProduc
   };
 }
 
-export function mapCategoryToSummary(category: CategoryDocument): CatalogCategorySummary {
+export function mapCategoryToSummary(category: CategorySummarySource): CatalogCategorySummary {
   return {
     id: category._id,
     title: category.title,
     slug: category.slug.current,
     description: category.description,
-    href: `/productos/${category.slug.current}`,
+    href: buildCatalogHref([category.slug.current]),
   };
 }
 

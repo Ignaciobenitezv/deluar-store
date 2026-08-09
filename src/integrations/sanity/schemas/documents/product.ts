@@ -1,9 +1,134 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
+import groq from "groq";
+import { env } from "@/lib/env";
 import { createUniqueSlugValidation } from "../utils/slug";
 
 type ProductReferenceDocument = {
   category?: { _ref?: string };
 };
+
+type ValidationReferenceValue = {
+  _ref?: string;
+} | null | undefined;
+
+type ValidationDocument = {
+  category?: { _ref?: string };
+};
+
+type ValidationClient = {
+  fetch: <T>(query: string, params?: Record<string, unknown>) => Promise<T>;
+  withConfig?: (config: { perspective?: "drafts" }) => ValidationClient;
+};
+
+type ValidationContext = {
+  document?: unknown;
+  getClient?: (options: { apiVersion: string }) => ValidationClient;
+};
+
+type ProductSubcategoryValidationResult =
+  | {
+      kind: "ok";
+    }
+  | {
+      kind: "integrity";
+      message: string;
+    }
+  | {
+      kind: "infrastructure";
+      message: string;
+    };
+
+const productSubcategoryQuery = groq`
+  *[_id == $subcategoryId][0]{
+    _id,
+    _type,
+    "parentCategory": parentCategory->{
+      _id,
+      _type,
+      "parentCategory": parentCategory->{
+        _id,
+        _type
+      }
+    }
+  }
+`;
+
+function getHierarchyClient(context: ValidationContext) {
+  if (!context.getClient) {
+    return null;
+  }
+
+  const client = context.getClient({ apiVersion: env.sanityApiVersion });
+  return typeof client.withConfig === "function"
+    ? client.withConfig({ perspective: "drafts" })
+    : client;
+}
+
+async function inspectProductSubcategoryCoherence(
+  value: ValidationReferenceValue,
+  context: ValidationContext,
+): Promise<ProductSubcategoryValidationResult> {
+  const document = context.document as ValidationDocument | undefined;
+  const categoryId = document?.category?._ref;
+  const subcategoryId = value?._ref;
+
+  if (!categoryId || !subcategoryId) {
+    return { kind: "ok" };
+  }
+
+  const client = getHierarchyClient(context);
+  if (!client) {
+    return {
+      kind: "infrastructure",
+      message: "No se pudo validar la subcategoria en este momento. Reintentala en unos segundos.",
+    };
+  }
+
+  try {
+    const subcategory = await client.fetch<
+      | {
+          _id: string;
+          _type: "subcategory";
+          parentCategory?: {
+            _id: string;
+            _type: "category" | "subcategory";
+            parentCategory?: {
+              _id: string;
+              _type: "category" | "subcategory";
+            };
+          };
+        }
+      | null
+    >(productSubcategoryQuery, {
+      subcategoryId,
+    });
+
+    if (!subcategory) {
+      return {
+        kind: "integrity",
+        message: "La subcategoria seleccionada ya no existe o no se pudo resolver.",
+      };
+    }
+
+    if (subcategory.parentCategory?._id === categoryId) {
+      return { kind: "ok" };
+    }
+
+    if (subcategory.parentCategory?.parentCategory?._id === categoryId) {
+      return { kind: "ok" };
+    }
+
+    return {
+      kind: "integrity",
+      message: "La subcategoria seleccionada no pertenece a la categoria elegida.",
+    };
+  } catch {
+    return {
+      kind: "infrastructure",
+      message: "No se pudo validar la subcategoria en este momento. Reintentala en unos segundos.",
+    };
+  }
+}
 
 function formatPreviewPrice(value?: number) {
   if (typeof value !== "number" || Number.isNaN(value)) {
@@ -73,7 +198,7 @@ export const productSchema = defineType({
       name: "subcategory",
       title: "Subcategoria",
       description:
-        "Opcional. Solo muestra subcategorias de la categoria elegida y ayuda a ordenar el catalogo.",
+        "Opcional. Solo muestra subcategorias de la categoria elegida, incluyendo nivel 1 y nivel 2.",
       type: "reference",
       fieldset: "general",
       to: [{ type: "subcategory" }],
@@ -86,11 +211,32 @@ export const productSchema = defineType({
           }
 
           return {
-            filter: "parentCategory._ref == $categoryId",
+            filter:
+              'parentCategory._ref == $categoryId || parentCategory->parentCategory._ref == $categoryId',
             params: { categoryId },
           };
         },
       },
+      validation: (rule) => [
+        rule.custom((value, context) =>
+          inspectProductSubcategoryCoherence(value, context).then((result) => {
+            if (result.kind === "integrity") {
+              return result.message;
+            }
+
+            return true;
+          }),
+        ),
+        rule.custom((value, context) =>
+          inspectProductSubcategoryCoherence(value, context).then((result) => {
+            if (result.kind === "infrastructure") {
+              return result.message;
+            }
+
+            return true;
+          }),
+        ).warning(),
+      ],
     }),
     defineField({
       name: "shortDescription",
