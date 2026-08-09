@@ -45,6 +45,27 @@ export type ProductColorVariantDocument = {
   stock?: number;
 };
 
+export type ProductVariantAttributeDocument = {
+  _key?: string;
+  _type: "productVariantAttribute";
+  name: "Color" | "Tamaño" | "Modelo" | "Talle";
+  value: string;
+};
+
+export type ProductVariantDocument = {
+  _key?: string;
+  _type: "productVariant";
+  title: string;
+  value: string;
+  attributes?: ProductVariantAttributeDocument[];
+  images?: SanityImageWithAlt[];
+  sku?: string;
+  basePrice?: number;
+  transferPrice?: number;
+  stock?: number;
+  isActive?: boolean;
+};
+
 export type Seo = {
   title?: string;
   description?: string;
@@ -108,6 +129,7 @@ export type ProductDocument = {
   subcategory?: SubcategoryDocument;
   images: SanityImageWithAlt[];
   colorVariants?: ProductColorVariantDocument[];
+  variants?: ProductVariantDocument[];
   basePrice: number;
   transferPrice?: number;
   stock: number;

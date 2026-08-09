@@ -280,10 +280,19 @@ export const productSchema = defineType({
       name: "colorVariants",
       title: "Variantes de color",
       description:
-        "Opcional. Si lo completas, la tienda mostrara un selector de color con miniaturas e imagenes propias.",
+        "Legacy temporal. Mantener solo para compatibilidad con productos existentes.",
       type: "array",
       fieldset: "variants",
       of: [defineArrayMember({ type: "productColorVariant" })],
+    }),
+    defineField({
+      name: "variants",
+      title: "Variantes",
+      description:
+        "Modelo preferido para variantes genericas. Permite Color, Tamaño, Modelo y Talle.",
+      type: "array",
+      fieldset: "variants",
+      of: [defineArrayMember({ type: "productVariant" })],
     }),
     defineField({
       name: "basePrice",

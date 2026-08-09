@@ -7,6 +7,8 @@ import { staticPageSchema } from "./schemas/documents/static-page";
 import { subcategorySchema } from "./schemas/documents/subcategory";
 import { imageWithAltSchema } from "./schemas/objects/image-with-alt";
 import { productColorVariantSchema } from "./schemas/objects/product-color-variant";
+import { productVariantSchema } from "./schemas/objects/product-variant";
+import { productVariantAttributeSchema } from "./schemas/objects/product-variant-attribute";
 import { productAttributeSchema } from "./schemas/objects/product-attribute";
 import { seoSchema } from "./schemas/objects/seo";
 import { homeHeroSlideSchema } from "./schemas/objects/home-hero-slide";
@@ -16,6 +18,8 @@ export const schemaTypes = [
   imageWithAltSchema,
   homeHeroSlideSchema,
   productColorVariantSchema,
+  productVariantAttributeSchema,
+  productVariantSchema,
   productAttributeSchema,
   categorySchema,
   subcategorySchema,
