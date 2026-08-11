@@ -1,5 +1,4 @@
-import Image from "next/image";
-import Link from "next/link";
+﻿import Link from "next/link";
 import {
   formatInstallmentPrice,
   formatProductPrice,
@@ -7,6 +6,7 @@ import {
 import {
   ProductCardActions,
 } from "@/features/catalog/components/product-card-commerce";
+import { ProductCardImageStack } from "@/features/catalog/components/product-card-image-stack";
 import type { HomeCampaignFeatured } from "@/features/home/types";
 
 type HomeCampaignFeaturedProductsProps = {
@@ -34,30 +34,14 @@ export function HomeCampaignFeaturedProducts({
           >
             <Link href={product.productHref} className="block">
               <div className="relative aspect-square overflow-hidden bg-neutral-100 p-3 sm:h-[22.5rem] sm:bg-[#f1e9de] sm:p-0 lg:h-[23.7rem]">
-                {product.imageUrl ? (
-                  <>
-                    <Image
-                      src={product.imageUrl}
-                      alt={product.imageAlt}
-                      fill
-                      sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                      className="h-full w-full object-cover transition-[opacity,transform] duration-300 group-hover:scale-[1.015] group-hover:opacity-0"
-                    />
-                    {product.hoverImageUrl ? (
-                      <Image
-                        src={product.hoverImageUrl}
-                        alt={product.hoverImageAlt || product.imageAlt}
-                        fill
-                        sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                        className="h-full w-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                      />
-                    ) : null}
-                  </>
-                ) : (
-                  <div className="flex h-full items-center justify-center px-4 text-center text-[0.62rem] uppercase tracking-[0.18em] text-muted">
-                    Sin imagen
-                  </div>
-                )}
+                <ProductCardImageStack
+                  imageUrl={product.imageUrl}
+                  imageAlt={product.imageAlt}
+                  hoverImageUrl={product.hoverImageUrl}
+                  sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                  imageClassName="object-cover"
+                  placeholder={<div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(235,223,206,0.94),rgba(206,186,166,0.92))]" />}
+                />
               </div>
             </Link>
 

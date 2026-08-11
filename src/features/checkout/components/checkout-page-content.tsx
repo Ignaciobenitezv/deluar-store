@@ -64,6 +64,11 @@ export function CheckoutPageContent({
         items: items.map((item) => ({
           slug: item.slug,
           quantity: item.quantity,
+          variantId: item.variantId,
+          variantValue: item.variantValue,
+          variantLabel: item.variantLabel,
+          variantAttributes: item.variantAttributes,
+          variantSku: item.sku,
         })),
         shippingMethod: values.shippingMethod,
         paymentMethod: values.paymentMethod,

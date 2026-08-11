@@ -1,16 +1,12 @@
 import { getSanityImageUrl } from "@/integrations/sanity/image";
 import { buildCatalogHref } from "@/features/catalog/hierarchy";
+import { hasSelectableProductVariants, normalizeProductVariants } from "@/features/catalog/variant-normalizer";
 import type {
   CatalogCategorySummary,
   CatalogProductCard,
-  ProductColorVariant,
   ProductDetailData,
 } from "@/features/catalog/types";
-import type {
-  ProductColorVariantDocument,
-  ProductDocument,
-  Slug,
-} from "@/types/cms";
+import type { ProductDocument, Slug } from "@/types/cms";
 
 type CategorySummarySource = {
   _id: string;
@@ -22,8 +18,9 @@ type CategorySummarySource = {
 export function mapProductToCatalogCard(product: ProductDocument): CatalogProductCard {
   const categorySlug = product.category.slug.current;
   const productSlug = product.slug.current;
-  const image = product.images[0];
-  const hoverImage = product.images[1];
+  const images = product.images ?? [];
+  const image = images[0];
+  const hoverImage = images[1];
 
   return {
     id: product._id,
@@ -41,7 +38,7 @@ export function mapProductToCatalogCard(product: ProductDocument): CatalogProduc
     categoryTitle: product.category.title,
     subcategorySlug: product.subcategory?.slug.current,
     productHref: `/productos/detalle/${productSlug}`,
-    hasSelectableOptions: (product.colorVariants ?? []).length > 0,
+    hasSelectableOptions: hasSelectableProductVariants(product),
   };
 }
 
@@ -83,38 +80,12 @@ function extractPortableTextParagraphs(value: unknown[] | undefined) {
     .filter(Boolean);
 }
 
-function mapColorVariant(
-  variant: ProductColorVariantDocument,
-  productTitle: string,
-): ProductColorVariant {
-  const images = (variant.images ?? []).map((image) => ({
-    url: getSanityImageUrl(image, 1200, 1500),
-    alt: image.alt || `${productTitle} ${variant.title}`,
-  }));
-  const primaryImage = variant.images?.[0];
-  const thumbnail = variant.thumbnail ?? primaryImage;
-
-  return {
-    id: variant._key || variant.value,
-    title: variant.title,
-    value: variant.value,
-    thumbnailUrl: getSanityImageUrl(thumbnail, 320, 400),
-    thumbnailAlt: thumbnail?.alt || `${productTitle} ${variant.title}`,
-    images,
-    primaryImageUrl: getSanityImageUrl(primaryImage, 1200, 1500),
-    primaryImageAlt: primaryImage?.alt || `${productTitle} ${variant.title}`,
-    sku: variant.sku,
-    basePrice: variant.basePrice,
-    transferPrice: variant.transferPrice,
-    stock: variant.stock,
-  };
-}
-
 export function mapProductToDetail(
   product: ProductDocument,
   relatedProducts: ProductDocument[] = [],
 ): ProductDetailData {
   const primaryImage = product.images?.[0];
+  const variants = normalizeProductVariants(product);
 
   return {
     id: product._id,
@@ -138,9 +109,7 @@ export function mapProductToDetail(
     })),
     primaryImageUrl: getSanityImageUrl(primaryImage, 1200, 1500),
     primaryImageAlt: primaryImage?.alt || product.title,
-    colorVariants: (product.colorVariants ?? []).map((variant) =>
-      mapColorVariant(variant, product.title),
-    ),
+    variants,
     productHref: `/productos/detalle/${product.slug.current}`,
     relatedProducts: relatedProducts.map(mapProductToCatalogCard),
   };

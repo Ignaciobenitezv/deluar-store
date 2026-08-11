@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import type { OrderStatus, PaymentStatus, Prisma } from "@/generated/prisma/client";
 import { sendPaymentApprovedEmails } from "@/features/emails/email-service";
 import {
+  prepareSanityStockTargets,
   decrementSanityStock,
   isInsufficientStockError,
   restoreSanityStock,
@@ -246,6 +247,11 @@ function mapOrderItemsToInventoryItems(order: GoCuotasWebhookOrder) {
     slug: item.productSlug,
     title: item.productName,
     quantity: item.quantity,
+    variantId: item.variantId,
+    variantValue: item.variantValue,
+    variantLabel: item.variantLabel,
+    variantAttributes: item.variantAttributes,
+    variantSku: item.variantSku,
   }));
 }
 
@@ -372,6 +378,7 @@ export async function handleGoCuotasWebhook(params: {
 
   let stockDiscounted = false;
   let stockSkippedReason: string | undefined;
+  let stockTargets: Awaited<ReturnType<typeof prepareSanityStockTargets>> | null = null;
 
   if (order?.id && isApproval) {
     if (wasAlreadyPaid) {
@@ -383,7 +390,8 @@ export async function handleGoCuotasWebhook(params: {
       });
     } else {
       try {
-        await decrementSanityStock(mapOrderItemsToInventoryItems(order));
+        stockTargets = await prepareSanityStockTargets(mapOrderItemsToInventoryItems(order));
+        await decrementSanityStock(stockTargets);
         stockDiscounted = true;
         logger.info("payments.gocuotas.webhook.stock_discounted", {
           dedupeKey,
@@ -493,9 +501,9 @@ export async function handleGoCuotasWebhook(params: {
       }
     });
   } catch (error) {
-    if (stockDiscounted && order?.id) {
+    if (stockDiscounted && order?.id && stockTargets) {
       try {
-        await restoreSanityStock(mapOrderItemsToInventoryItems(order));
+        await restoreSanityStock(stockTargets);
         logger.warn("payments.gocuotas.webhook.stock_restored_after_update_failure", {
           dedupeKey,
           orderId: order.id,

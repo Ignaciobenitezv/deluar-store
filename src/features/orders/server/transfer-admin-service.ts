@@ -1,5 +1,6 @@
 import { sendPaymentApprovedEmails } from "@/features/emails/email-service";
 import {
+  prepareSanityStockTargets,
   decrementSanityStock,
   INSUFFICIENT_STOCK_ERROR_MESSAGE,
   InventoryWriteUnavailableError,
@@ -35,6 +36,11 @@ function mapOrderItemsToInventoryItems(order: Order) {
     slug: item.productSlug,
     title: item.title,
     quantity: item.quantity,
+    variantId: item.variantId,
+    variantValue: item.variantValue,
+    variantLabel: item.variantLabel,
+    variantAttributes: item.variantAttributes,
+    variantSku: item.variantSku,
   }));
 }
 
@@ -73,7 +79,8 @@ export async function markTransferOrderAsPaid(
   }
 
   try {
-    await decrementSanityStock(mapOrderItemsToInventoryItems(order));
+    const stockTargets = await prepareSanityStockTargets(mapOrderItemsToInventoryItems(order));
+    await decrementSanityStock(stockTargets);
   } catch (error) {
     if (isInsufficientStockError(error)) {
       logger.warn("admin.orders.mark_paid.inventory_failed", {

@@ -1,4 +1,5 @@
 import type { Order } from "@/features/order/types";
+import { getOrderItemVariantDisplayLines } from "@/features/order/order-item-display";
 import { getShippingMethodLabel } from "@/features/shipping/shipping";
 
 const currencyFormatter = new Intl.NumberFormat("es-AR", {
@@ -103,6 +104,24 @@ export function renderEmailLayout(params: {
 }
 
 export function renderItemsTable(order: Order) {
+  const renderVariantDetails = (item: Order["items"][number]) => {
+    const lines = getOrderItemVariantDisplayLines(item);
+
+    if (!lines.length) {
+      return "";
+    }
+
+    return `
+            <div style="margin-top:6px;font-size:12px;line-height:1.6;color:#7a6256;">
+              ${lines
+                .map(
+                  (line) =>
+                    `<div><strong>${escapeHtml(line.label)}:</strong> ${escapeHtml(line.value)}</div>`,
+                )
+                .join("")}
+            </div>`;
+  };
+
   const rows = order.items
     .map(
       (item) => `
@@ -110,6 +129,7 @@ export function renderItemsTable(order: Order) {
           <td style="padding:12px 0;border-bottom:1px solid #eee4dd;">
             <div style="font-weight:600;color:#2f241f;">${escapeHtml(item.title)}</div>
             <div style="font-size:13px;color:#7a6256;">${escapeHtml(item.productSlug)}</div>
+            ${renderVariantDetails(item)}
           </td>
           <td align="center" style="padding:12px 8px;border-bottom:1px solid #eee4dd;color:#2f241f;">${item.quantity}</td>
           <td align="right" style="padding:12px 0;border-bottom:1px solid #eee4dd;color:#2f241f;">${formatCurrency(item.lineTotal)}</td>

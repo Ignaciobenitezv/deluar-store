@@ -30,10 +30,20 @@ export type OrderItem = {
   title: string;
   imageUrl: string | null;
   imageAlt: string;
+  variantId?: string;
+  variantValue?: string;
+  variantLabel?: string;
+  variantAttributes?: OrderItemVariantAttribute[];
+  variantSku?: string;
   quantity: number;
   unitPrice: number;
   transferPrice?: number;
   lineTotal: number;
+};
+
+export type OrderItemVariantAttribute = {
+  name: string;
+  value: string;
 };
 
 export type Order = {
@@ -64,6 +74,11 @@ export type CreateOrderItemInput = {
   title?: string;
   basePrice?: number;
   transferPrice?: number;
+  variantId?: string;
+  variantValue?: string;
+  variantLabel?: string;
+  variantAttributes?: OrderItemVariantAttribute[];
+  variantSku?: string;
 };
 
 export type CreateOrderInput = {

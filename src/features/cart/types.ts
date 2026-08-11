@@ -1,3 +1,5 @@
+import type { ProductVariantAttribute } from "@/features/catalog/types";
+
 export type CartItem = {
   id: string;
   productId?: string;
@@ -11,6 +13,7 @@ export type CartItem = {
   variantId?: string;
   variantLabel?: string;
   variantValue?: string;
+  variantAttributes?: ProductVariantAttribute[];
   sku?: string;
   quantity: number;
   productHref: string;

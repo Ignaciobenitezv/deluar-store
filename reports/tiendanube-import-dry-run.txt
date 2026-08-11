@@ -1,0 +1,62 @@
+Tiendanube import dry-run
+Generated at: 2026-08-10T02:16:49.759Z
+Source file: E:\deluar-store\imports\tiendanube-4147750-17859311121905920727825559417 (1).csv
+
+Summary
+- Rows: 588
+- Products: 471
+- Create: 457
+- Update: 9
+- Blocked: 5
+- Skip: 0
+- Categories reusable: 25
+- Categories planned-create: 25
+- Sanity writes: 0
+
+Blocked: 5
+- botella-de-aluminio-500ml | Falta el título.
+- gaveta-calada-cromada-30x14cm | Falta el título.
+- noix-24-5-1az5h | La categoría es inválida.
+- perchero-gardenia-40x15cm | Falta el título.
+- utensilios-1nswj | La categoría es inválida.
+
+Updates: 9
+- alfombra-bambi-60x45cm | diff=shortDescription, stock
+- alfombra-juana-petit-170x95cm | diff=basePrice, stock, seoTitle, seoDescription
+- alfombra-mar-80x50cm-algodon | diff=shortDescription, stock, subcategorySlug
+- camino-de-mesa-aleli-de-gasa-190x35cm | diff=basePrice, stock, seoTitle, seoDescription
+- canasto-seagrass-3-medidas | diff=title, shortDescription, descriptionText, isActive, variants
+- juegox6-taza-plato-250ml | diff=categorySlug, subcategorySlug
+- planta-artificial-80x13cm-grande | diff=shortDescription, descriptionText, stock
+- plato-de-sitio-black-37cm | diff=descriptionText, stock
+- set-de-bano-4pzs-blanco | diff=shortDescription, descriptionText, stock, subcategorySlug
+
+Planned create categories: 25
+- 1. category bajamos-los-precios-aprovecha
+- 1. category black-deluar
+- 1. category dia-del-padre
+- 1. category hot-sale
+- 1. category navidad
+- 1. category productos-para-aprovechar
+- 2. subcategory articulos-para-bano <= bano
+- 2. subcategory cestos-para-bano <= bano
+- 2. subcategory cortinas <= bano
+- 2. subcategory bazar <= cocina
+- 2. subcategory alfombras-para-salida-de-cama <= dormitorio
+- 2. subcategory mantas-frazadas-acolchados <= dormitorio
+- 2. subcategory sabanas-y-ajustables <= dormitorio
+- 2. subcategory portavelas-y-bandejas <= velas-y-accesorios
+- 3. subcategory aceiteros-saleros-azucareras-especieros <= cocina/bazar
+- 3. subcategory bandejas-bowls-tablas <= cocina/bazar
+- 3. subcategory cubiertos-vajilla <= cocina/bazar
+- 3. subcategory frascos <= cocina/bazar
+- 3. subcategory organizacion-cocina <= cocina/bazar
+- 3. subcategory secaplatos <= cocina/bazar
+- 3. subcategory tazas-y-platitos <= cocina/bazar
+- 3. subcategory vasos-copas <= cocina/bazar
+- 3. subcategory 1-1-2 <= dormitorio/sabanas-y-ajustables
+- 3. subcategory 2-1-2-queen <= dormitorio/sabanas-y-ajustables
+- 3. subcategory king <= dormitorio/sabanas-y-ajustables
+
+Warnings: 399
+Errors: 11

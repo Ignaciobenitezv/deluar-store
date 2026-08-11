@@ -3,10 +3,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { getCatalogPageData } from "@/integrations/sanity/catalog";
 import { CatalogEmptyState } from "@/features/catalog/components/catalog-empty-state";
+import { CatalogPageSizeSelector } from "@/features/catalog/components/catalog-page-size-selector";
 import { CatalogMobileActions } from "@/features/catalog/components/catalog-mobile-actions";
+import { CatalogPaginationControls } from "@/features/catalog/components/catalog-pagination";
 import { ProductGrid } from "@/features/catalog/components/product-grid";
 import { CatalogSortDrawer } from "@/features/catalog/components/catalog-sort-drawer";
 import type { CatalogSort } from "@/features/catalog/types";
+import {
+  buildCatalogPageSizeHref,
+  buildCatalogPageHref,
+  parseCatalogPageSizeSearchParam,
+  parseCatalogPageSearchParam,
+} from "@/features/catalog/pagination";
 import { buildMetadata } from "@/lib/seo";
 
 type ProductSearchParams = {
@@ -16,6 +24,8 @@ type ProductSearchParams = {
   color?: string | string[];
   inStock?: string | string[];
   sort?: string | string[];
+  page?: string | string[];
+  perPage?: string | string[];
 };
 
 type ProductsPageProps = {
@@ -73,6 +83,8 @@ function buildProductsPath(params: {
   color?: string;
   inStock?: boolean;
   sort?: CatalogSort;
+  page?: number;
+  perPage?: number;
 }) {
   const search = new URLSearchParams();
 
@@ -100,9 +112,13 @@ function buildProductsPath(params: {
     search.set("sort", params.sort);
   }
 
+  if (typeof params.perPage === "number" && params.perPage !== 24) {
+    search.set("perPage", String(params.perPage));
+  }
+
   const queryString = search.toString();
 
-  return queryString ? `/productos?${queryString}` : "/productos";
+  return queryString ? `/productos?${queryString}#catalog-grid` : "/productos#catalog-grid";
 }
 
 export async function generateMetadata({
@@ -116,6 +132,8 @@ export async function generateMetadata({
     color: getSingleSearchParam(resolvedSearchParams?.color)?.trim() ?? "",
     inStock: parseBooleanSearchParam(resolvedSearchParams?.inStock),
     sort: parseSortSearchParam(resolvedSearchParams?.sort),
+    page: parseCatalogPageSearchParam(resolvedSearchParams?.page),
+    perPage: parseCatalogPageSizeSearchParam(resolvedSearchParams?.perPage),
   };
   const hasActiveFilters = Boolean(
     filters.q ||
@@ -126,11 +144,16 @@ export async function generateMetadata({
       filters.sort,
   );
   const catalog = await getCatalogPageData(filters);
+  const canonicalPath = hasActiveFilters
+    ? "/productos"
+    : catalog.pagination.currentPage > 1
+      ? buildCatalogPageHref("/productos", {}, catalog.pagination.currentPage)
+      : "/productos";
 
   return buildMetadata({
     title: catalog.title,
     description: catalog.description,
-    path: "/productos",
+    path: canonicalPath,
     noIndex: hasActiveFilters,
   });
 }
@@ -143,6 +166,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const color = getSingleSearchParam(resolvedSearchParams?.color)?.trim() ?? "";
   const inStock = parseBooleanSearchParam(resolvedSearchParams?.inStock);
   const sort = parseSortSearchParam(resolvedSearchParams?.sort);
+  const page = parseCatalogPageSearchParam(resolvedSearchParams?.page);
+  const perPage = parseCatalogPageSizeSearchParam(resolvedSearchParams?.perPage);
   const currentFilters = {
     q: query,
     minPrice,
@@ -150,6 +175,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     color,
     inStock,
     sort,
+    page,
+    perPage,
   };
   const hasActiveFilters = Boolean(
     query || typeof minPrice === "number" || typeof maxPrice === "number" || inStock || color,
@@ -191,6 +218,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     color,
     inStock,
     sort,
+    page,
+    perPage,
   });
 
   return (
@@ -219,7 +248,10 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                     <ul className="space-y-3 text-sm text-foreground">
                       {catalog.categories.map((category) => (
                         <li key={category.id}>
-                          <Link href={category.href} className="transition hover:underline">
+                          <Link
+                            href={`${buildCatalogPageSizeHref(category.href, {}, perPage)}#catalog-grid`}
+                            className="transition hover:underline"
+                          >
                             {category.title}
                           </Link>
                         </li>
@@ -232,7 +264,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                       <h2 className="text-xs uppercase tracking-[0.2em] text-neutral-400">Filtrar por</h2>
                       {hasActiveFilters ? (
                         <Link
-                          href="/productos"
+                          href={`${buildCatalogPageSizeHref("/productos", {}, perPage)}#catalog-grid`}
                           className="text-xs text-neutral-500 transition hover:underline"
                         >
                           Limpiar filtros
@@ -293,21 +325,31 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                     {query ? `Resultados para: ${query}` : "Productos"}
                   </h2>
                 </div>
-                <CatalogSortDrawer sort={sort} />
+                <div className="flex items-center gap-3">
+                  <CatalogPageSizeSelector variant="desktop" />
+                  <CatalogSortDrawer sort={sort} />
+                </div>
               </div>
 
-              {catalog.products.length > 0 ? (
-                <ProductGrid products={catalog.products} variant="desktopCatalog" />
-              ) : (
-                <CatalogEmptyState
-                  title={query ? "No encontramos productos para tu busqueda" : "Todavia no hay productos publicados"}
-                  description={
-                    query
-                      ? `No hay productos que coincidan con "${query}".`
-                      : "Cuando cargues productos en Sanity, esta grilla mostrara automaticamente el catalogo real de DELUAR."
-                  }
+              <div id="catalog-grid" className="space-y-6 scroll-mt-24">
+                {catalog.products.length > 0 ? (
+                  <ProductGrid products={catalog.products} variant="desktopCatalog" />
+                ) : (
+                  <CatalogEmptyState
+                    title={query ? "No encontramos productos para tu busqueda" : "Todavia no hay productos publicados"}
+                    description={
+                      query
+                        ? `No hay productos que coincidan con "${query}".`
+                        : "Cuando cargues productos en Sanity, esta grilla mostrara automaticamente el catalogo real de DELUAR."
+                    }
+                  />
+                )}
+                <CatalogPaginationControls
+                  basePath="/productos"
+                  searchParams={resolvedSearchParams ?? {}}
+                  pagination={catalog.pagination}
                 />
-              )}
+              </div>
             </div>
           </div>
         </div>
@@ -346,7 +388,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             sort={sort}
           />
 
-          <div className="w-full px-1.5">
+          <div id="catalog-grid" className="w-full space-y-6 px-1.5 scroll-mt-24">
             {catalog.products.length > 0 ? (
               <ProductGrid products={catalog.products} variant="catalogMobile" />
             ) : (
@@ -359,6 +401,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 }
               />
             )}
+            <CatalogPaginationControls
+              basePath="/productos"
+              searchParams={resolvedSearchParams ?? {}}
+              pagination={catalog.pagination}
+            />
           </div>
         </section>
       </div>

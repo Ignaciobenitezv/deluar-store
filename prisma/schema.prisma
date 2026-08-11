@@ -191,6 +191,11 @@ model OrderItem {
   productId         String
   productName       String
   productSlug       String
+  variantId         String?
+  variantValue      String?
+  variantLabel      String?
+  variantAttributes Json?
+  variantSku        String?
   quantity          Int
   unitPrice         Decimal          @db.Decimal(12, 2)
   transferPrice     Decimal?         @db.Decimal(12, 2)

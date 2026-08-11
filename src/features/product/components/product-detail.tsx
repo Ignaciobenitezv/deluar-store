@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { ProductGrid } from "@/features/catalog/components/product-grid";
 import { ProductCard } from "@/features/catalog/components/product-card";
 import type { ProductDetailData } from "@/features/catalog/types";
+import { formatVariantAttributeSummary } from "@/features/catalog/variant-normalizer";
 import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import { useCart } from "@/features/cart/cart-context";
 import { ProductGallery } from "@/features/product/components/product-gallery";
@@ -24,14 +25,14 @@ type ProductDetailProps = {
 
 export function ProductDetail({ product }: ProductDetailProps) {
   const { items: cartItems } = useCart();
-  const [activeVariantId, setActiveVariantId] = useState("");
+  const [activeVariantId, setActiveVariantId] = useState(() => product.variants[0]?.id ?? "");
   const [quantity, setQuantity] = useState(1);
   const [descOpen, setDescOpen] = useState(true);
   const relatedScrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
-  const activeVariant = product.colorVariants.find((v) => v.id === activeVariantId);
+  const activeVariant = product.variants.find((v) => v.id === activeVariantId) ?? product.variants[0];
   const activeStock = activeVariant?.stock ?? product.stock;
   const activeBasePrice = activeVariant?.basePrice ?? product.basePrice;
   const activeTransferPrice = activeVariant?.transferPrice ?? product.transferPrice;
@@ -120,16 +121,21 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
           <div className="h-px bg-border/50" />
 
-          {product.colorVariants.length > 0 ? (
+          {product.variants.length > 0 ? (
             <div className="space-y-3">
               <p className="text-[0.7rem] uppercase tracking-[0.22em] text-muted">
-                Color:{" "}
+                Variante:{" "}
                 <span className="text-foreground">
                   {activeVariant?.title ?? "Sin seleccionar"}
                 </span>
               </p>
+              {activeVariant?.attributes.length ? (
+                <p className="text-[0.72rem] leading-5 text-muted">
+                  {formatVariantAttributeSummary(activeVariant.attributes)}
+                </p>
+              ) : null}
               <div className="flex flex-wrap gap-2">
-                {product.colorVariants.map((variant) => (
+                {product.variants.map((variant) => (
                   <button
                     key={variant.id}
                     type="button"
@@ -137,7 +143,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
                       setActiveVariantId(variant.id);
                       setQuantity(1);
                     }}
-                    aria-label={`Color ${variant.title}`}
+                    aria-label={
+                      variant.attributeSummary
+                        ? `Variante ${variant.attributeSummary}`
+                        : `Variante ${variant.title}`
+                    }
                     className={`relative h-14 w-11 overflow-hidden rounded border transition-all ${
                       activeVariant?.id === variant.id
                         ? "border-foreground/50 ring-1 ring-foreground/15"
@@ -168,9 +178,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
               }`}
             />
             <span className="text-sm text-muted">
-              {hasStock
-                ? `Stock disponible: ${activeStock}`
-                : "Sin stock disponible"}
+              {hasStock ? "En stock" : "Sin stock"}
             </span>
           </div>
 
@@ -218,6 +226,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                     variantValue: activeVariant?.value,
                     sku: activeVariant?.sku,
                     productHref: product.productHref,
+                    variantAttributes: activeVariant?.attributes,
                   }}
                 />
               </div>

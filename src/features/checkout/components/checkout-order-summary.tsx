@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/features/cart/cart-context";
+import { getOrderItemVariantDisplayLines } from "@/features/order/order-item-display";
 import {
   calculateShippingCost,
   getShippingMethodLabel,
@@ -15,6 +16,29 @@ function formatPrice(value: number) {
     currency: "ARS",
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+function VariantDetails({
+  lines,
+}: {
+  lines: ReturnType<typeof getOrderItemVariantDisplayLines>;
+}) {
+  if (!lines.length) {
+    return null;
+  }
+
+  return (
+    <div className="space-y-1 text-[0.78rem] leading-5 text-muted">
+      {lines.map((line) => (
+        <p key={`${line.label}-${line.value}`}>
+          <span className="font-medium uppercase tracking-[0.14em] text-foreground">
+            {line.label}:
+          </span>{" "}
+          {line.value}
+        </p>
+      ))}
+    </div>
+  );
 }
 
 type CheckoutOrderSummaryProps = {
@@ -60,23 +84,24 @@ export function CheckoutOrderSummary({ shippingMethod }: CheckoutOrderSummaryPro
               )}
             </div>
 
-            <div className="space-y-2">
-              <div className="space-y-1">
-                <p className="text-[0.68rem] uppercase tracking-[0.18em] text-muted">
-                  Producto
-                </p>
+              <div className="space-y-2">
+                <div className="space-y-1">
+                  <p className="text-[0.68rem] uppercase tracking-[0.18em] text-muted">
+                    Producto
+                  </p>
                 <Link
                   href={item.productHref}
                   className="block text-sm font-medium leading-6 text-foreground"
-                >
-                  {item.title}
-                </Link>
-              </div>
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="text-sm text-muted">Cantidad: {item.quantity}</p>
-                <p className="text-sm font-medium text-foreground">
-                  {formatPrice(item.basePrice * item.quantity)}
-                </p>
+                  >
+                    {item.title}
+                  </Link>
+                </div>
+                <VariantDetails lines={getOrderItemVariantDisplayLines(item)} />
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-sm text-muted">Cantidad: {item.quantity}</p>
+                  <p className="text-sm font-medium text-foreground">
+                    {formatPrice(item.basePrice * item.quantity)}
+                  </p>
               </div>
               {item.transferPrice ? (
                 <div className="rounded-[1rem] bg-[rgba(167,88,60,0.07)] px-3 py-2">

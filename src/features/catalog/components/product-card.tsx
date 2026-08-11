@@ -1,5 +1,4 @@
-import Image from "next/image";
-import Link from "next/link";
+﻿import Link from "next/link";
 import { cn } from "@/lib/utils";
 import {
   formatInstallmentPrice,
@@ -8,6 +7,7 @@ import {
 import {
   ProductCardActions,
 } from "@/features/catalog/components/product-card-commerce";
+import { ProductCardImageStack } from "@/features/catalog/components/product-card-image-stack";
 import type { CatalogProductCard } from "@/features/catalog/types";
 
 function formatPrice(value: number) {
@@ -50,22 +50,16 @@ export function ProductCard({
               : "aspect-square rounded-none bg-neutral-100 p-3 sm:bg-[#efe5d8] sm:p-0",
           )}
         >
-          {product.imageUrl ? (
-            <Image
-              src={product.imageUrl}
-              alt={product.imageAlt}
-              fill
-              sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 100vw"
-              className={cn(
-                "h-full w-full rounded-none transition-transform duration-500 group-hover:scale-[1.03]",
-                isCatalogMobile ? "object-cover" : "object-contain sm:object-cover",
-              )}
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center px-6 text-center text-sm uppercase tracking-[0.24em] text-muted">
-              Sin imagen
-            </div>
-          )}
+          <ProductCardImageStack
+            imageUrl={product.imageUrl}
+            imageAlt={product.imageAlt}
+            hoverImageUrl={product.hoverImageUrl}
+            sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 100vw"
+            imageClassName={cn(
+              isCatalogMobile ? "object-cover" : "object-contain sm:object-cover",
+            )}
+            placeholderClassName="text-sm uppercase tracking-[0.24em] text-muted"
+          />
         </div>
       </Link>
 
@@ -88,9 +82,7 @@ export function ProductCard({
         </div>
 
         <div className="space-y-1 sm:space-y-0.5">
-          <p
-            className="text-sm font-semibold text-neutral-900 sm:text-base"
-          >
+          <p className="text-sm font-semibold text-neutral-900 sm:text-base">
             {formatPrice(product.basePrice)}
           </p>
           {showCommerceEnhancements ? (

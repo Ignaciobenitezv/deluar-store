@@ -7,6 +7,10 @@ import { sendOrderCreatedEmails } from "@/features/emails/email-service";
 import {
   INSUFFICIENT_STOCK_ERROR_MESSAGE,
 } from "@/features/inventory/inventory-service";
+import {
+  isVariantStockTargetResolutionError,
+  resolveVariantStockTarget,
+} from "@/features/inventory/variant-stock-target";
 import type { CreateOrderInput, CreateOrderResult } from "@/features/order/types";
 import { resolvePaymentProvider } from "@/features/payments/registry";
 import {
@@ -76,8 +80,10 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
   const pricingErrors: string[] = [];
   let hasStockError = false;
 
-  const orderItems = normalizedItems.map((item) => {
+  const orderItems = normalizedItems.map((item, index) => {
+    const sourceItem = input.items?.[index];
     const product = productMap.get(item.slug);
+    let stockTarget: ReturnType<typeof resolveVariantStockTarget> | null = null;
 
     if (!product) {
       logger.warn("checkout.order.create.product_missing", {
@@ -87,11 +93,37 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
       return null;
     }
 
-    if (item.quantity > product.stock) {
+    try {
+      stockTarget = resolveVariantStockTarget(product, {
+        quantity: item.quantity,
+        variantId: sourceItem?.variantId,
+        variantValue: sourceItem?.variantValue,
+        variantLabel: sourceItem?.variantLabel,
+        variantSku: sourceItem?.variantSku,
+        variantAttributes: sourceItem?.variantAttributes,
+      });
+    } catch (error) {
+      if (isVariantStockTargetResolutionError(error)) {
+        logger.warn("checkout.order.create.variant_unavailable", {
+          productSlug: product.slug.current,
+          variantId: sourceItem?.variantId ?? null,
+          variantValue: sourceItem?.variantValue ?? null,
+          reason: error.reason,
+        });
+        hasStockError = true;
+        return null;
+      }
+
+      throw error;
+    }
+
+    if (item.quantity > stockTarget.stock) {
       logger.warn("checkout.order.create.insufficient_stock", {
         productSlug: product.slug.current,
+        variantId: stockTarget.variant?.key ?? null,
         requestedQuantity: item.quantity,
-        availableStock: product.stock,
+        availableStock: stockTarget.stock,
+        stockSource: stockTarget.stockSource,
       });
       hasStockError = true;
       return null;
@@ -106,6 +138,11 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
       title: product.title,
       imageUrl: getSanityImageUrl(primaryImage, 640, 800),
       imageAlt: primaryImage?.alt || product.title,
+      variantId: sourceItem?.variantId,
+      variantValue: sourceItem?.variantValue,
+      variantLabel: sourceItem?.variantLabel,
+      variantAttributes: sourceItem?.variantAttributes,
+      variantSku: sourceItem?.variantSku,
       quantity: item.quantity,
       unitPrice,
       transferPrice: product.transferPrice,

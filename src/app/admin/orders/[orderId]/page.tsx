@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { markTransferOrderPaidAction } from "@/app/admin/orders/actions";
 import { requireAdminSession } from "@/features/admin/auth";
+import { getOrderItemVariantDisplayLines } from "@/features/order/order-item-display";
 import { getOrderById } from "@/features/orders/server/order-repository";
 import { PAYMENT_METHODS } from "@/features/payments/types";
 import { getShippingMethodLabel } from "@/features/shipping/shipping";
@@ -53,6 +54,29 @@ function DetailRow({
     <div>
       <p className="text-xs uppercase tracking-[0.16em] text-muted">{label}</p>
       <p className="mt-1 text-sm font-medium text-foreground">{value || "-"}</p>
+    </div>
+  );
+}
+
+function VariantDetails({
+  lines,
+}: {
+  lines: ReturnType<typeof getOrderItemVariantDisplayLines>;
+}) {
+  if (!lines.length) {
+    return null;
+  }
+
+  return (
+    <div className="mt-3 space-y-1 text-xs leading-5 text-muted">
+      {lines.map((line) => (
+        <p key={`${line.label}-${line.value}`}>
+          <span className="font-medium uppercase tracking-[0.14em] text-foreground">
+            {line.label}:
+          </span>{" "}
+          {line.value}
+        </p>
+      ))}
     </div>
   );
 }
@@ -194,6 +218,7 @@ export default async function AdminOrderDetailPage({
                     Transferencia: {formatPrice(item.transferPrice)}
                   </p>
                 ) : null}
+                <VariantDetails lines={getOrderItemVariantDisplayLines(item)} />
               </div>
               <div className="text-left sm:text-right">
                 <p className="text-xs uppercase tracking-[0.16em] text-muted">Total</p>

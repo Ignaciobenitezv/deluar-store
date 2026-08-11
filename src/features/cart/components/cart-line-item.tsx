@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/features/cart/cart-context";
 import type { CartItem } from "@/features/cart/types";
+import { formatVariantAttributeSummary } from "@/features/catalog/variant-normalizer";
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat("es-AR", {
@@ -57,7 +58,12 @@ export function CartLineItem({ item }: CartLineItemProps) {
           </Link>
           {item.variantLabel ? (
             <p className="text-[0.68rem] uppercase tracking-[0.18em] text-muted">
-              Color: {item.variantLabel}
+              {item.variantLabel}
+            </p>
+          ) : null}
+          {item.variantAttributes?.length ? (
+            <p className="text-[0.68rem] uppercase tracking-[0.18em] text-muted">
+              {formatVariantAttributeSummary(item.variantAttributes)}
             </p>
           ) : null}
           <p className="text-sm font-medium text-foreground">{formatPrice(item.basePrice)}</p>
@@ -68,7 +74,7 @@ export function CartLineItem({ item }: CartLineItemProps) {
           ) : null}
           {hasStockLimit ? (
             <p className="text-[0.72rem] leading-4 text-muted">
-              Stock disponible: {stockLimit}
+              {stockLimit > 0 ? "En stock" : "Sin stock"}
             </p>
           ) : null}
         </div>

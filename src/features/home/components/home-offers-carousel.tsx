@@ -1,13 +1,13 @@
-"use client";
+﻿"use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   formatInstallmentPrice,
   formatProductPrice,
 } from "@/features/catalog/components/product-card-formatting";
+import { ProductCardImageStack } from "@/features/catalog/components/product-card-image-stack";
 import type { CatalogProductCard } from "@/features/catalog/types";
 import { cn } from "@/lib/utils";
 
@@ -49,11 +49,14 @@ function OfferPreviewCard({
       )}
     >
       <div className="relative aspect-[0.9/1] bg-[#eadfce]">
-        {product.imageUrl ? (
-          <Image src={product.imageUrl} alt={product.imageAlt} fill sizes="16rem" className="object-cover" />
-        ) : (
-          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(235,223,206,0.94),rgba(206,186,166,0.92))]" />
-        )}
+        <ProductCardImageStack
+          imageUrl={product.imageUrl}
+          imageAlt={product.imageAlt}
+          hoverImageUrl={product.hoverImageUrl}
+          sizes="16rem"
+          imageClassName="object-cover"
+          placeholder={<div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(235,223,206,0.94),rgba(206,186,166,0.92))]" />}
+        />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(24,18,14,0.08),rgba(24,18,14,0.38))]" />
         <div className="absolute inset-x-0 bottom-0 p-5 text-left text-white">
           <p className="text-[0.64rem] uppercase tracking-[0.22em] text-white/68">Oferta</p>
@@ -144,17 +147,14 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                 className="absolute inset-0 z-10 grid w-full grid-cols-[minmax(18rem,0.95fr)_minmax(20rem,1.05fr)] overflow-hidden rounded-[2.25rem] border border-[#dcc8b4]/72 bg-[linear-gradient(180deg,rgba(255,251,246,0.98),rgba(244,236,227,0.94))] shadow-[0_28px_60px_rgba(58,40,26,0.08)]"
               >
                 <div className="relative min-h-[36rem] bg-[#eadfce]">
-                  {activeProduct.imageUrl ? (
-                    <Image
-                      src={activeProduct.imageUrl}
-                      alt={activeProduct.imageAlt}
-                      fill
-                      sizes="(min-width: 1280px) 34rem, 50vw"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(235,223,206,0.98),rgba(201,181,160,0.92))]" />
-                  )}
+                  <ProductCardImageStack
+                    imageUrl={activeProduct.imageUrl}
+                    imageAlt={activeProduct.imageAlt}
+                    hoverImageUrl={activeProduct.hoverImageUrl}
+                    sizes="(min-width: 1280px) 34rem, 50vw"
+                    imageClassName="object-cover"
+                    placeholder={<div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(235,223,206,0.98),rgba(201,181,160,0.92))]" />}
+                  />
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(24,18,14,0.02),rgba(24,18,14,0.22))]" />
                 </div>
 
@@ -245,17 +245,14 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                 className="absolute inset-0 flex flex-col overflow-hidden rounded-[1.9rem] border border-[#dcc8b4]/72 bg-[linear-gradient(180deg,rgba(255,251,246,0.98),rgba(244,236,227,0.94))] shadow-[0_20px_40px_rgba(58,40,26,0.07)]"
               >
                 <div className="relative h-[260px] bg-[#eadfce] sm:h-[300px]">
-                  {activeProduct.imageUrl ? (
-                    <Image
-                      src={activeProduct.imageUrl}
-                      alt={activeProduct.imageAlt}
-                      fill
-                      sizes="(max-width: 640px) 100vw, 90vw"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(235,223,206,0.98),rgba(201,181,160,0.92))]" />
-                  )}
+                  <ProductCardImageStack
+                    imageUrl={activeProduct.imageUrl}
+                    imageAlt={activeProduct.imageAlt}
+                    hoverImageUrl={activeProduct.hoverImageUrl}
+                    sizes="(max-width: 640px) 100vw, 90vw"
+                    imageClassName="object-cover"
+                    placeholder={<div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(235,223,206,0.98),rgba(201,181,160,0.92))]" />}
+                  />
                 </div>
 
                 <div className="flex flex-1 flex-col justify-between gap-4 p-4">

@@ -1,0 +1,32 @@
+cortina-1gbhk | low | descriptionText
+kit-duvet-1vk25 | low | descriptionText
+set-latas-pij1a | low | descriptionText
+cuadros-1kagv | low | descriptionText
+florero-1kfxy | low | descriptionText
+florero-k5vj7 | low | descriptionText
+florero-1szw2 | low | descriptionText
+florero-fkkxc | low | descriptionText
+florero-wjze1 | low | descriptionText
+florero-oadk2 | low | descriptionText
+alfombra-bano-antideslizante-wntbs | low | descriptionText
+felpudo-vjmzp | low | descriptionText
+funda-almohada-1impd | low | descriptionText
+alfombra-bano-1gz0i | low | descriptionText
+tacho-5l-escobilla-blanco-bchzo | low | descriptionText
+posavasos-x4-gaudi-1x1co | low | descriptionText
+posavasos-x4-helzinki-19a7e | low | descriptionText
+setx3-cestos-rusticos-con-plastico-interior-hrwvy | low | descriptionText
+adorno-renos-13x13cm-kg921 | low | descriptionText
+bandeja-de-melamina-27x27cm-yram4 | low | descriptionText
+arbol-de-navidad-30cm-8ab1k | low | descriptionText
+arbol-de-navidad-30cm-7kyt1 | low | descriptionText
+alfombra-bambi-60x45cm | medium | shortDescription, stock
+box-mama-white | low | descriptionText
+juegox6-taza-plato-250ml | low | categorySlug, subcategorySlug
+plato-de-sitio-black-37cm | medium | descriptionText, stock
+planta-artificial-80x13cm-grande | medium | shortDescription, descriptionText, stock
+set-de-bano-4pzs-blanco | medium | shortDescription, descriptionText, stock, subcategorySlug
+alfombra-mar-80x50cm-algodon | medium | shortDescription, stock, subcategorySlug
+canasto-seagrass-3-medidas | medium | title, shortDescription, descriptionText, isActive, variants
+alfombra-juana-petit-170x95cm | medium | basePrice, stock, seoTitle, seoDescription
+camino-de-mesa-aleli-de-gasa-190x35cm | medium | basePrice, stock, seoTitle, seoDescription

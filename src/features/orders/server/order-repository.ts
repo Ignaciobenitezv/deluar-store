@@ -26,6 +26,11 @@ type PersistOrderInput = {
     productSlug: string;
     title: string;
     imageUrl: string | null;
+    variantId?: string;
+    variantValue?: string;
+    variantLabel?: string;
+    variantAttributes?: Prisma.InputJsonValue;
+    variantSku?: string;
     quantity: number;
     unitPrice: number;
     transferPrice?: number;
@@ -117,6 +122,11 @@ export async function saveOrder(input: PersistOrderInput): Promise<Order> {
             productId: item.productId,
             productName: item.title,
             productSlug: item.productSlug,
+            variantId: item.variantId,
+            variantValue: item.variantValue,
+            variantLabel: item.variantLabel,
+            variantAttributes: item.variantAttributes,
+            variantSku: item.variantSku,
             quantity: item.quantity,
             unitPrice: decimal(item.unitPrice),
             transferPrice:

@@ -5,6 +5,9 @@ import {
   mapProductToCatalogCard,
   mapProductToDetail,
 } from "@/features/catalog/mappers";
+import {
+  normalizeProductVariants,
+} from "@/features/catalog/variant-normalizer";
 import type {
   CatalogCategorySummary,
   CatalogPageData,
@@ -16,6 +19,7 @@ import {
   resolveCatalogHierarchy,
   type CatalogHierarchyNode,
 } from "@/features/catalog/hierarchy";
+import { paginateCatalogItems } from "@/features/catalog/pagination";
 import { sanityFetch } from "@/integrations/sanity/client";
 import {
   allProductsQuery,
@@ -37,6 +41,8 @@ type CatalogFilters = {
   inStock?: boolean;
   color?: string;
   sort?: CatalogSort;
+  page?: number;
+  perPage?: number;
 };
 
 type RelatedProductFallbackGroups = {
@@ -119,11 +125,17 @@ function matchesCatalogFilters(product: ProductDocument, filters: CatalogFilters
 
   if (filters.color) {
     const normalizedColor = filters.color.trim().toLowerCase();
-    const hasColorVariant = (product.colorVariants ?? []).some((variant) => {
-      const title = variant.title?.trim().toLowerCase() ?? "";
-      const value = variant.value?.trim().toLowerCase() ?? "";
+    const hasColorVariant = normalizeProductVariants(product).some((variant) => {
+      const tokens = [
+        variant.title,
+        variant.value,
+        ...variant.attributes.map((attribute) => attribute.name),
+        ...variant.attributes.map((attribute) => attribute.value),
+      ]
+        .map((token) => token.trim().toLowerCase())
+        .filter(Boolean);
 
-      return title === normalizedColor || value === normalizedColor;
+      return tokens.some((token) => token === normalizedColor);
     });
 
     if (!hasColorVariant) {
@@ -218,28 +230,35 @@ export const getCatalogPageData = cache(async (filters: CatalogFilters = {}): Pr
     ]);
     const filteredProducts = products.filter((product) => matchesCatalogFilters(product, filters));
     const sortedProducts = sortProducts(filteredProducts, filters.sort);
+    const paginatedProducts = paginateCatalogItems(sortedProducts, filters.page, filters.perPage);
 
-    return {
-      title: normalizedQuery ? `Resultados para: ${normalizedQuery}` : "Productos",
-      description: normalizedQuery
-        ? `Productos de DELUAR que coinciden con "${normalizedQuery}".`
-        : "Explora el catalogo de DELUAR con textiles, bazar y decoracion para el hogar.",
-      childCategories: [],
-      products: sortedProducts.map(mapProductToCatalogCard),
-      categories: categories.length
-        ? categories.map(mapCategoryToSummary)
-        : getFallbackCategorySummary(),
+      return {
+        title: normalizedQuery ? `Resultados para: ${normalizedQuery}` : "Productos",
+        description: normalizedQuery
+          ? `Productos de DELUAR que coinciden con "${normalizedQuery}".`
+          : "Explora el catalogo de DELUAR con textiles, bazar y decoracion para el hogar.",
+        childCategories: [],
+        subcategoryTreeRoot: undefined,
+        products: paginatedProducts.items.map(mapProductToCatalogCard),
+        categories: categories.length
+          ? categories.map(mapCategoryToSummary)
+          : getFallbackCategorySummary(),
+      pagination: paginatedProducts.pagination,
     };
   } catch {
-    return {
-      title: normalizedQuery ? `Resultados para: ${normalizedQuery}` : "Productos",
-      description: normalizedQuery
-        ? `Productos de DELUAR que coinciden con "${normalizedQuery}".`
-        : "Explora el catalogo de DELUAR con textiles, bazar y decoracion para el hogar.",
-      childCategories: [],
-      products: [],
-      categories: getFallbackCategorySummary(),
-    };
+    const paginatedProducts = paginateCatalogItems([], filters.page, filters.perPage);
+
+      return {
+        title: normalizedQuery ? `Resultados para: ${normalizedQuery}` : "Productos",
+        description: normalizedQuery
+          ? `Productos de DELUAR que coinciden con "${normalizedQuery}".`
+          : "Explora el catalogo de DELUAR con textiles, bazar y decoracion para el hogar.",
+        childCategories: [],
+        subcategoryTreeRoot: undefined,
+        products: [],
+        categories: getFallbackCategorySummary(),
+        pagination: paginatedProducts.pagination,
+      };
   }
 });
 
@@ -270,6 +289,7 @@ export async function getCategoryCatalogPageData(
 
       const filteredProducts = products.filter((product) => matchesCatalogFilters(product, filters));
       const sortedProducts = sortProducts(filteredProducts, filters.sort);
+      const paginatedProducts = paginateCatalogItems(sortedProducts, filters.page, filters.perPage);
 
       return {
         title: resolution.currentNode.title,
@@ -280,8 +300,10 @@ export async function getCategoryCatalogPageData(
         childCategories: (resolution.currentNode.subcategories ?? []).map((child) =>
           mapHierarchyNodeToSummary(child, [...resolution.pathSegments, child.slug.current]),
         ),
-        products: sortedProducts.map(mapProductToCatalogCard),
+        subcategoryTreeRoot: resolution.rootCategory,
+        products: paginatedProducts.items.map(mapProductToCatalogCard),
         categories: [mapCategoryToSummary(category)],
+        pagination: paginatedProducts.pagination,
       };
     }
   } catch {
@@ -303,8 +325,10 @@ export async function getCategoryCatalogPageData(
     description:
       "Explora esta categoria de DELUAR y sus productos destacados.",
     childCategories: [],
+    subcategoryTreeRoot: undefined,
     products: [],
     categories: [getFallbackCategorySummary().find((item) => item.slug === categorySlug)!],
+    pagination: paginateCatalogItems([], filters.page, filters.perPage).pagination,
   };
 }
 

@@ -1,5 +1,74 @@
 import groq from "groq";
 
+const variantCardProjection = groq`
+  variants[]{
+    _key,
+    title,
+    value,
+    isActive,
+    attributes[]{
+      name,
+      value
+    }
+  },
+  colorVariants[]{
+    _key,
+    title,
+    value
+  }
+`;
+
+const variantDetailProjection = groq`
+  variants[]{
+    _key,
+    _type,
+    title,
+    value,
+    attributes[]{
+      _key,
+      _type,
+      name,
+      value
+    },
+    images,
+    sku,
+    basePrice,
+    transferPrice,
+    stock,
+    isActive
+  },
+  colorVariants[]{
+    _key,
+    _type,
+    title,
+    value,
+    thumbnail,
+    images,
+    sku,
+    basePrice,
+    transferPrice,
+    stock
+  }
+`;
+
+const variantStockProjection = groq`
+  variants[]{
+    _key,
+    title,
+    value,
+    stock,
+    isActive,
+    sku
+  },
+  colorVariants[]{
+    _key,
+    title,
+    value,
+    stock,
+    sku
+  }
+`;
+
 export const categoryTreeQuery = groq`
   *[_type == "category"] | order(coalesce(order, 999) asc, title asc) {
     _id,
@@ -47,10 +116,7 @@ export const productCardQuery = groq`
     showInNewIn,
     newInOrder,
     images,
-    colorVariants[]{
-      title,
-      value
-    },
+    ${variantCardProjection},
     attributes[]{
       label,
       value
@@ -71,7 +137,7 @@ export const productCardQuery = groq`
 `;
 
 export const allProductsQuery = groq`
-  *[_type == "product"] | order(isFeatured desc, _createdAt desc) [0...48]
+  *[_type == "product"] | order(isFeatured desc, _createdAt desc)
   ${productCardQuery}
 `;
 
@@ -80,11 +146,11 @@ export const searchProductsQuery = groq`
     _type == "product" &&
     (
       $q == "" ||
-      title match $pattern ||
-      coalesce(shortDescription, "") match $pattern ||
-      pt::text(description) match $pattern
-    )
-  ] | order(isFeatured desc, _createdAt desc) [0...48]
+    title match $pattern ||
+    coalesce(shortDescription, "") match $pattern ||
+    pt::text(description) match $pattern
+  )
+  ] | order(isFeatured desc, _createdAt desc)
   ${productCardQuery}
 `;
 
@@ -126,6 +192,16 @@ export const productsByCategoryQuery = groq`
   ${productCardQuery}
 `;
 
+export const homeCategoryRepresentativeProductQuery = groq`
+  *[
+    _type == "product" &&
+    category->slug.current == $categorySlug &&
+    count(images[defined(image.asset._ref) && image.asset._ref != $placeholderAssetRef]) > 0
+  ] | order(isFeatured desc, _createdAt desc)[0]{
+    "representativeImage": images[defined(image.asset._ref) && image.asset._ref != $placeholderAssetRef][0]
+  }
+`;
+
 export const catalogProductsByHierarchyQuery = groq`
   *[
     _type == "product" &&
@@ -134,7 +210,7 @@ export const catalogProductsByHierarchyQuery = groq`
       ($includeRootProducts == true && !defined(subcategory)) ||
       (defined(subcategory) && subcategory._ref in $subcategoryIds)
     )
-  ] | order(isFeatured desc, _createdAt desc) [0...48]
+  ] | order(isFeatured desc, _createdAt desc)
   ${productCardQuery}
 `;
 
@@ -166,10 +242,7 @@ export const newInProductsQuery = groq`
     showInNewIn,
     newInOrder,
     images,
-    colorVariants[]{
-      title,
-      value
-    },
+    ${variantCardProjection},
     attributes,
     category->{
       _id,
@@ -201,18 +274,7 @@ export const productBySlugQuery = groq`
     isFeatured,
     isOnOffer,
     images,
-    colorVariants[]{
-      _key,
-      _type,
-      title,
-      value,
-      thumbnail,
-      images,
-      sku,
-      basePrice,
-      transferPrice,
-      stock
-    },
+    ${variantDetailProjection},
     attributes,
     seo,
     category->{
@@ -280,6 +342,7 @@ export const productsBySlugsQuery = groq`
     images,
     attributes,
     seo,
+    ${variantStockProjection},
     category->{
       _id,
       _type,
@@ -294,6 +357,17 @@ export const productsBySlugsQuery = groq`
       slug,
       description
     }
+  }
+`;
+
+export const inventoryProductsByIdsQuery = groq`
+  *[_type == "product" && (_id in $ids || slug.current in $slugs)] {
+    _id,
+    _rev,
+    slug,
+    title,
+    stock,
+    ${variantStockProjection}
   }
 `;
 
@@ -387,6 +461,7 @@ export const homePageQuery = groq`
       showInNewIn,
       newInOrder,
       images,
+      ${variantCardProjection},
       category->{
         _id,
         _type,
@@ -418,6 +493,7 @@ export const homePageQuery = groq`
       showInNewIn,
       newInOrder,
       images,
+      ${variantCardProjection},
       category->{
         _id,
         _type,
@@ -446,18 +522,7 @@ export const homePageQuery = groq`
       showInNewIn,
       newInOrder,
       images,
-      colorVariants[]{
-        _key,
-        _type,
-        title,
-        value,
-        thumbnail,
-        images,
-        sku,
-        basePrice,
-        transferPrice,
-        stock
-      },
+      ${variantDetailProjection},
       attributes,
       seo,
       category->{

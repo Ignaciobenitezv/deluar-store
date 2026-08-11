@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "import:tiendanube": "node ./scripts/import-tiendanube.mjs",
     "sanity": "sanity",
     "sanity:dev": "sanity dev"
   },

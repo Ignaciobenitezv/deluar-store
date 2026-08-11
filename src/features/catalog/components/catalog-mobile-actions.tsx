@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { CatalogPageSizeSelector } from "@/features/catalog/components/catalog-page-size-selector";
 import type { CatalogCategorySummary, CatalogSort } from "@/features/catalog/types";
 
 type CatalogMobileActionsProps = {
@@ -70,7 +71,7 @@ export function CatalogMobileActions({
   const navigateWithParams = (path: string, nextParams: URLSearchParams) => {
     const queryString = nextParams.toString();
     setOpenSheet(null);
-    router.push(queryString ? `${path}?${queryString}` : path, { scroll: false });
+    router.push(queryString ? `${path}?${queryString}#catalog-grid` : `${path}#catalog-grid`);
   };
 
   const closeSheet = useCallback(() => {
@@ -104,12 +105,14 @@ export function CatalogMobileActions({
   const applySort = (nextSort: CatalogSort) => {
     const nextParams = new URLSearchParams(currentParams.toString());
     nextParams.set("sort", nextSort);
+    nextParams.delete("page");
     navigateWithParams(basePath, nextParams);
   };
 
   const applyStock = () => {
     const nextParams = new URLSearchParams(currentParams.toString());
     nextParams.set("inStock", "true");
+    nextParams.delete("page");
     navigateWithParams(basePath, nextParams);
   };
 
@@ -128,11 +131,14 @@ export function CatalogMobileActions({
       nextParams.delete("maxPrice");
     }
 
+    nextParams.delete("page");
     navigateWithParams(basePath, nextParams);
   };
 
   const applyCategory = (href: string) => {
-    navigateWithParams(href, new URLSearchParams(currentParams.toString()));
+    const nextParams = new URLSearchParams(currentParams.toString());
+    nextParams.delete("page");
+    navigateWithParams(href, nextParams);
   };
 
   const isPriceRangeActive = (range: { minPrice?: string; maxPrice?: string }) =>
@@ -156,12 +162,16 @@ export function CatalogMobileActions({
           type="button"
           onClick={() => setOpenSheet("sort")}
           className="inline-flex items-center gap-2 underline"
-        >
+          >
           <span className="h-4 w-4">
             <SortIcon />
           </span>
           Ordenar
         </button>
+      </div>
+
+      <div className="pb-3">
+        <CatalogPageSizeSelector variant="mobile" />
       </div>
 
       {openSheet ? (

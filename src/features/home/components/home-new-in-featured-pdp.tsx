@@ -276,9 +276,9 @@ function HomeNewInFeaturedPdpContent({
                 </div>
               </div>
 
-              <div className="mt-2 text-[0.74rem] text-muted">
-                {hasStock ? `Stock disponible: ${product.stock}` : "Sin stock disponible"}
-              </div>
+            <div className="mt-2 text-[0.74rem] text-muted">
+              {hasStock ? "En stock" : "Sin stock"}
+            </div>
 
               <Link
                 href={product.productHref}

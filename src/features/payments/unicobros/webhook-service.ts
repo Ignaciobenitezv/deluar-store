@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import { Prisma } from "@/generated/prisma/client";
 import { sendPaymentApprovedEmails } from "@/features/emails/email-service";
 import {
+  prepareSanityStockTargets,
   decrementSanityStock,
   isInsufficientStockError,
   restoreSanityStock,
@@ -182,6 +183,11 @@ function mapOrderItemsToInventoryItems(order: UnicobrosWebhookOrder) {
     slug: item.productSlug,
     title: item.productName,
     quantity: item.quantity,
+    variantId: item.variantId,
+    variantValue: item.variantValue,
+    variantLabel: item.variantLabel,
+    variantAttributes: item.variantAttributes,
+    variantSku: item.variantSku,
   }));
 }
 
@@ -277,10 +283,12 @@ export async function handleUnicobrosWebhook(params: {
   let stockDiscounted = false;
   let stockSkippedReason: string | undefined;
   let orderUpdated = false;
+  let stockTargets: Awaited<ReturnType<typeof prepareSanityStockTargets>> | null = null;
 
   if (order?.id && shouldApprove && !wasAlreadyPaid) {
     try {
-      await decrementSanityStock(mapOrderItemsToInventoryItems(order));
+      stockTargets = await prepareSanityStockTargets(mapOrderItemsToInventoryItems(order));
+      await decrementSanityStock(stockTargets);
       stockDiscounted = true;
     } catch (error) {
       stockSkippedReason = isInsufficientStockError(error)
@@ -347,9 +355,9 @@ export async function handleUnicobrosWebhook(params: {
       }
     });
   } catch (error) {
-    if (stockDiscounted && order?.id) {
+    if (stockDiscounted && order?.id && stockTargets) {
       try {
-        await restoreSanityStock(mapOrderItemsToInventoryItems(order));
+        await restoreSanityStock(stockTargets);
         logger.warn("payments.unicobros.webhook.stock_restored_after_update_failure", {
           dedupeKey,
           orderId: order.id,
@@ -370,7 +378,9 @@ export async function handleUnicobrosWebhook(params: {
 
   if (stockDiscounted && order?.id && !orderUpdated) {
     try {
-      await restoreSanityStock(mapOrderItemsToInventoryItems(order));
+      if (stockTargets) {
+        await restoreSanityStock(stockTargets);
+      }
       logger.warn("payments.unicobros.webhook.stock_restored_after_skipped_update", {
         dedupeKey,
         orderId: order.id,

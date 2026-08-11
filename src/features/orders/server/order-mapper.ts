@@ -70,6 +70,16 @@ function splitFullName(fullName: string) {
   };
 }
 
+function toVariantAttributes(
+  value: Prisma.JsonValue | null,
+): CheckoutOrder["items"][number]["variantAttributes"] {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+
+  return value as CheckoutOrder["items"][number]["variantAttributes"];
+}
+
 export function mapPersistedOrderToCheckoutOrder(order: PersistedOrder): CheckoutOrder {
   const customerName = splitFullName(order.customer.fullName);
 
@@ -92,6 +102,11 @@ export function mapPersistedOrderToCheckoutOrder(order: PersistedOrder): Checkou
       title: item.productName,
       imageUrl: item.imageUrl,
       imageAlt: item.productName,
+      variantId: item.variantId ?? undefined,
+      variantValue: item.variantValue ?? undefined,
+      variantLabel: item.variantLabel ?? undefined,
+      variantAttributes: toVariantAttributes(item.variantAttributes),
+      variantSku: item.variantSku ?? undefined,
       quantity: item.quantity,
       unitPrice: toNumber(item.unitPrice),
       transferPrice: item.transferPrice ? toNumber(item.transferPrice) : undefined,

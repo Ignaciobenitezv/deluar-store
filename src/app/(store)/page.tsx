@@ -20,15 +20,18 @@ import { getHomePageData } from "@/integrations/sanity/home";
 import {
   categoryTreeQuery,
   homePageQuery,
-  productsByCategoryQuery,
+  homeCategoryRepresentativeProductQuery,
   siteSettingsQuery,
 } from "@/integrations/sanity/queries";
 import type {
   CategoryDocument,
   HomePageDocument,
-  ProductDocument,
   SiteSettingsDocument,
+  SanityImageWithAlt,
 } from "@/types/cms";
+
+const TIENDANUBE_PLACEHOLDER_IMAGE_ASSET_REF =
+  "image-6b2cf67d136ed1727e2c54e0988ed6a3e75cc8cd-1200x1500-png";
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
@@ -64,13 +67,14 @@ async function buildHomeCategoryRail(): Promise<HomeCategoryRailItem[]> {
 
     const categoryItems = await Promise.all(
       categories.map(async (category) => {
-        const productDocuments = await sanityFetch<ProductDocument[]>(productsByCategoryQuery, {
+        const representativeProduct = await sanityFetch<{
+          representativeImage?: SanityImageWithAlt;
+        } | null>(homeCategoryRepresentativeProductQuery, {
           categorySlug: category.slug.current,
-          subcategorySlug: "",
+          placeholderAssetRef: TIENDANUBE_PLACEHOLDER_IMAGE_ASSET_REF,
         });
 
-        const representativeImage =
-          productDocuments.find((product) => product.images?.[0]?.image?.asset?._ref)?.images?.[0];
+        const representativeImage = representativeProduct?.representativeImage;
 
         return {
           id: category._id,

@@ -34,8 +34,9 @@ export function CatalogSortDrawer({ sort }: CatalogSortDrawerProps) {
   const handleSelect = (nextSort: CatalogSort) => {
     const nextQuery = new URLSearchParams(currentQuery.toString());
     nextQuery.set("sort", nextSort);
+    nextQuery.delete("page");
     setIsOpen(false);
-    router.push(`${pathname}?${nextQuery.toString()}`, { scroll: false });
+    router.push(`${pathname}?${nextQuery.toString()}#catalog-grid`);
   };
 
   const closeDrawer = useCallback(() => {

@@ -3,19 +3,31 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CatalogEmptyState } from "@/features/catalog/components/catalog-empty-state";
+import { CatalogPageSizeSelector } from "@/features/catalog/components/catalog-page-size-selector";
 import { CatalogMobileActions } from "@/features/catalog/components/catalog-mobile-actions";
+import { CatalogPaginationControls } from "@/features/catalog/components/catalog-pagination";
+import { CatalogSidebarSubcategoryTree } from "@/features/catalog/components/catalog-sidebar-subcategory-tree";
 import { ProductGrid } from "@/features/catalog/components/product-grid";
 import { CatalogSortDrawer } from "@/features/catalog/components/catalog-sort-drawer";
 import { buildCatalogHref } from "@/features/catalog/hierarchy";
 import type { CatalogSort } from "@/features/catalog/types";
 import { getCatalogPageData, getCategoryCatalogPageData } from "@/integrations/sanity/catalog";
+import {
+  buildCatalogPageSizeHref,
+  buildCatalogPageHref,
+  parseCatalogPageSizeSearchParam,
+  parseCatalogPageSearchParam,
+} from "@/features/catalog/pagination";
 import { buildMetadata } from "@/lib/seo";
 
 type CategorySearchParams = {
+  q?: string | string[];
   minPrice?: string | string[];
   maxPrice?: string | string[];
   inStock?: string | string[];
   sort?: string | string[];
+  page?: string | string[];
+  perPage?: string | string[];
 };
 
 type CategoryPageProps = {
@@ -33,6 +45,8 @@ export async function generateMetadata({
   const { categorySlug, subcategorySlug } = await params;
   const subcategorySegments = subcategorySlug ?? [];
   const resolvedSearchParams = await searchParams;
+  const page = parseCatalogPageSearchParam(resolvedSearchParams?.page);
+  const perPage = parseCatalogPageSizeSearchParam(resolvedSearchParams?.perPage);
   const minPrice = parseNumericSearchParam(resolvedSearchParams?.minPrice);
   const maxPrice = parseNumericSearchParam(resolvedSearchParams?.maxPrice);
   const inStock = parseBooleanSearchParam(resolvedSearchParams?.inStock);
@@ -53,13 +67,22 @@ export async function generateMetadata({
     maxPrice,
     inStock,
     sort,
+    page,
+    perPage,
   });
+  const basePath = buildCatalogHref([categorySlug, ...subcategorySegments]);
+  const currentPage = catalog?.pagination.currentPage ?? 1;
+  const canonicalPath = hasActiveFilters
+    ? basePath
+    : currentPage > 1
+      ? buildCatalogPageHref(basePath, {}, currentPage)
+      : basePath;
 
   if (!catalog) {
     return buildMetadata({
       title: "Categoria",
       description: "Seccion de productos de DELUAR.",
-      path: buildCatalogHref([categorySlug, ...subcategorySegments]),
+      path: canonicalPath,
       noIndex: true,
     });
   }
@@ -67,7 +90,7 @@ export async function generateMetadata({
   return buildMetadata({
     title: catalog.title,
     description: catalog.description,
-    path: buildCatalogHref([categorySlug, ...subcategorySegments]),
+    path: canonicalPath,
     noIndex: hasActiveFilters,
   });
 }
@@ -121,6 +144,8 @@ function buildCategoryPath(basePath: string, params: {
   maxPrice?: number;
   inStock?: boolean;
   sort?: CatalogSort;
+  page?: number;
+  perPage?: number;
 }) {
   const search = new URLSearchParams();
 
@@ -140,54 +165,21 @@ function buildCategoryPath(basePath: string, params: {
     search.set("sort", params.sort);
   }
 
+  if (typeof params.perPage === "number" && params.perPage !== 24) {
+    search.set("perPage", String(params.perPage));
+  }
+
   const queryString = search.toString();
 
   return queryString ? `${basePath}?${queryString}` : basePath;
-}
-
-function ChildCategoriesSection({
-  title,
-  childCategories,
-}: {
-  title: string;
-  childCategories: Array<{
-    id: string;
-    title: string;
-    href: string;
-  }>;
-}) {
-  if (childCategories.length === 0) {
-    return null;
-  }
-
-  return (
-    <section className="rounded-3xl border border-neutral-200 bg-neutral-50/80 p-4 shadow-[0_1px_0_rgba(255,255,255,0.6)_inset] sm:p-5">
-      <div className="mb-4 flex items-end justify-between gap-3">
-        <div className="space-y-1">
-          <p className="text-[11px] uppercase tracking-[0.18em] text-neutral-500">Subcategorias</p>
-          <h3 className="text-base font-medium text-foreground sm:text-lg">{title}</h3>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        {childCategories.map((child) => (
-          <Link
-            key={child.id}
-            href={child.href}
-            className="group flex min-h-[84px] items-center justify-center rounded-2xl border border-neutral-200 bg-white px-4 py-4 text-center text-sm font-medium text-foreground transition duration-200 hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-[0_10px_24px_rgba(0,0,0,0.06)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
-          >
-            <span className="line-clamp-2">{child.title}</span>
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
 }
 
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { categorySlug, subcategorySlug } = await params;
   const subcategorySegments = subcategorySlug ?? [];
   const resolvedSearchParams = await searchParams;
+  const page = parseCatalogPageSearchParam(resolvedSearchParams?.page);
+  const perPage = parseCatalogPageSizeSearchParam(resolvedSearchParams?.perPage);
   const minPrice = parseNumericSearchParam(resolvedSearchParams?.minPrice);
   const maxPrice = parseNumericSearchParam(resolvedSearchParams?.maxPrice);
   const inStock = parseBooleanSearchParam(resolvedSearchParams?.inStock);
@@ -201,6 +193,8 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       maxPrice,
       inStock,
       sort,
+      page,
+      perPage,
     }),
     getCatalogPageData({}),
   ]);
@@ -215,6 +209,8 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     maxPrice,
     inStock,
     sort,
+    page,
+    perPage,
   };
   const hasActiveFilters = Boolean(
     typeof minPrice === "number" || typeof maxPrice === "number" || inStock,
@@ -266,13 +262,21 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                   ) : null}
                 </div>
 
+                <CatalogSidebarSubcategoryTree
+                  rootNode={catalog.subcategoryTreeRoot}
+                  defaultOpen={subcategorySegments.length > 0}
+                />
+
                 <div className="space-y-8">
                   <div className="space-y-3">
                     <h2 className="text-xs uppercase tracking-[0.2em] text-neutral-400">Categorias</h2>
                     <ul className="space-y-3 text-sm text-foreground">
                       {allCatalog.categories.map((category) => (
                         <li key={category.id}>
-                          <Link href={category.href} className="transition hover:underline">
+                          <Link
+                            href={`${buildCatalogPageSizeHref(category.href, {}, perPage)}#catalog-grid`}
+                            className="transition hover:underline"
+                          >
                             {category.title}
                           </Link>
                         </li>
@@ -285,7 +289,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                       <h2 className="text-xs uppercase tracking-[0.2em] text-neutral-400">Filtrar por</h2>
                       {hasActiveFilters ? (
                         <Link
-                          href={basePath}
+                          href={`${buildCatalogPageSizeHref(basePath, {}, perPage)}#catalog-grid`}
                           className="text-xs text-neutral-500 transition hover:underline"
                         >
                           Limpiar filtros
@@ -346,22 +350,27 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                     {catalog.title}
                   </h2>
                 </div>
-                <CatalogSortDrawer sort={sort} />
+                <div className="flex items-center gap-3">
+                  <CatalogPageSizeSelector variant="desktop" />
+                  <CatalogSortDrawer sort={sort} />
+                </div>
               </div>
 
-              <ChildCategoriesSection
-                title={catalog.title}
-                childCategories={catalog.childCategories}
-              />
-
-              {catalog.products.length > 0 ? (
-                <ProductGrid products={catalog.products} variant="desktopCatalog" />
-              ) : (
-                <CatalogEmptyState
-                  title="No hay productos publicados en esta seccion"
-                  description="La estructura ya esta conectada. Cuando publiques productos en Sanity para esta categoria, apareceran automaticamente aqui."
+              <div id="catalog-grid" className="space-y-6 scroll-mt-24">
+                {catalog.products.length > 0 ? (
+                  <ProductGrid products={catalog.products} variant="desktopCatalog" />
+                ) : (
+                  <CatalogEmptyState
+                    title="No hay productos publicados en esta seccion"
+                    description="La estructura ya esta conectada. Cuando publiques productos en Sanity para esta categoria, apareceran automaticamente aqui."
+                  />
+                )}
+                <CatalogPaginationControls
+                  basePath={basePath}
+                  searchParams={resolvedSearchParams ?? {}}
+                  pagination={catalog.pagination}
                 />
-              )}
+              </div>
             </div>
           </div>
         </div>
@@ -401,13 +410,14 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
           />
 
           <div className="w-full px-1.5 lg:px-0">
-            <ChildCategoriesSection
-              title={catalog.title}
-              childCategories={catalog.childCategories}
+            <CatalogSidebarSubcategoryTree
+              rootNode={catalog.subcategoryTreeRoot}
+              defaultOpen={subcategorySegments.length > 0}
+              variant="mobile"
             />
           </div>
 
-          <div className="w-full px-1.5 lg:px-0">
+          <div id="catalog-grid" className="w-full space-y-6 px-1.5 lg:px-0 scroll-mt-24">
             {catalog.products.length > 0 ? (
               <ProductGrid products={catalog.products} />
             ) : (
@@ -416,6 +426,11 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                 description="La estructura ya esta conectada. Cuando publiques productos en Sanity para esta categoria, apareceran automaticamente aqui."
               />
             )}
+            <CatalogPaginationControls
+              basePath={basePath}
+              searchParams={resolvedSearchParams ?? {}}
+              pagination={catalog.pagination}
+            />
           </div>
         </section>
       </div>

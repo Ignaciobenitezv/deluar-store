@@ -1,12 +1,12 @@
-"use client";
+﻿"use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
 import {
   formatInstallmentPrice,
   formatProductPrice,
 } from "@/features/catalog/components/product-card-formatting";
+import { ProductCardImageStack } from "@/features/catalog/components/product-card-image-stack";
 import type { HomeNewInProduct } from "@/features/home/types";
 
 type HomeNewInStripProps = {
@@ -130,17 +130,14 @@ export function HomeNewInStrip({
                 className="group flex h-[9.75rem] cursor-pointer"
               >
                 <div className="relative h-[9.75rem] w-[9.25rem] shrink-0 bg-[#efe6da]">
-                  {product.imageUrl ? (
-                    <Image
-                      src={product.imageUrl}
-                      alt={product.imageAlt}
-                      fill
-                      sizes="136px"
-                      className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-[linear-gradient(180deg,#f5efe7_0%,#e8ddd1_100%)]" />
-                  )}
+                  <ProductCardImageStack
+                    imageUrl={product.imageUrl}
+                    imageAlt={product.imageAlt}
+                    hoverImageUrl={product.hoverImageUrl}
+                    sizes="136px"
+                    imageClassName="object-cover"
+                    placeholder={<div className="absolute inset-0 bg-[linear-gradient(180deg,#f5efe7_0%,#e8ddd1_100%)]" />}
+                  />
                 </div>
 
                 <div className="min-w-0 flex-1 space-y-1 px-4 py-4">

@@ -1,14 +1,15 @@
 import type { CheckoutFormValues } from "@/features/checkout/types";
 import type { EnabledCheckoutPaymentMethod } from "@/features/payments/types";
-import type { CreateOrderResult, Order } from "@/features/order/types";
+import type {
+  CreateOrderItemInput,
+  CreateOrderResult,
+  Order,
+} from "@/features/order/types";
 import type { ShippingMethod } from "@/features/shipping/shipping";
 
 type CreateCheckoutOrderInput = {
   customer: CheckoutFormValues;
-  items: {
-    slug: string;
-    quantity: number;
-  }[];
+  items: CreateOrderItemInput[];
   shippingMethod?: ShippingMethod;
   paymentMethod?: EnabledCheckoutPaymentMethod;
 };
