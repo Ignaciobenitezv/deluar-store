@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import {
   formatInstallmentPrice,
@@ -28,15 +28,16 @@ export function ProductCard({
   const isDesktopCatalog = variant === "desktopCatalog";
   const isCatalogMobile = variant === "catalogMobile";
   const isDefaultCatalog = variant === "default";
+  const isCatalogVariant = isDesktopCatalog || isCatalogMobile;
+  const hasStock = product.stock > 0;
+  const stockLabel = hasStock ? "EN STOCK" : "SIN STOCK";
 
   return (
     <article
       className={cn(
-        "group",
-        isDesktopCatalog &&
-          "overflow-hidden rounded-[10px] border border-neutral-200/50 bg-neutral-50/30 shadow-none",
-        isCatalogMobile &&
-          "overflow-hidden rounded-[8px] border border-neutral-200/40 bg-neutral-50/20 shadow-none",
+        "group h-full",
+        isCatalogVariant &&
+          "flex flex-col overflow-hidden rounded-[12px] border border-[#e7d9c9] bg-white shadow-none",
         isDefaultCatalog &&
           "overflow-hidden rounded-[8px] border border-neutral-200/40 bg-neutral-50/20 shadow-none sm:rounded-[10px] sm:border-neutral-200/50 sm:bg-neutral-50/30",
       )}
@@ -46,17 +47,23 @@ export function ProductCard({
           className={cn(
             "relative w-full overflow-hidden",
             isCatalogMobile
-              ? "aspect-square rounded-none bg-[#efe5d8]"
-              : "aspect-square rounded-none bg-neutral-100 p-3 sm:bg-[#efe5d8] sm:p-0",
+              ? "aspect-[1.28/1] bg-[#f4eadf]"
+              : isDesktopCatalog
+                ? "aspect-[1.28/1] bg-[#f4eadf]"
+                : "aspect-square rounded-none bg-neutral-100 p-3 sm:bg-[#efe5d8] sm:p-0",
           )}
         >
           <ProductCardImageStack
             imageUrl={product.imageUrl}
             imageAlt={product.imageAlt}
             hoverImageUrl={product.hoverImageUrl}
-            sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 100vw"
+            sizes={
+              isCatalogVariant
+                ? "(min-width: 1280px) 33vw, (min-width: 768px) 33vw, 100vw"
+                : "(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 100vw"
+            }
             imageClassName={cn(
-              isCatalogMobile ? "object-cover" : "object-contain sm:object-cover",
+              isCatalogVariant ? "object-cover" : "object-contain sm:object-cover",
             )}
             placeholderClassName="text-sm uppercase tracking-[0.24em] text-muted"
           />
@@ -65,8 +72,8 @@ export function ProductCard({
 
       <div
         className={cn(
-          isDesktopCatalog
-            ? "space-y-1.5 px-3 pb-4 pt-3"
+          isCatalogVariant
+            ? "flex flex-1 flex-col gap-1.5 px-3 pb-3 pt-3"
             : "space-y-1 px-1.5 pb-2 pt-2 sm:space-y-1.5 sm:px-3 sm:pb-4 sm:pt-3",
         )}
       >
@@ -74,23 +81,55 @@ export function ProductCard({
           <Link href={product.productHref} className="block">
             <h2
               title={product.title}
-              className="truncate text-sm font-medium text-neutral-800"
+              className={cn(
+                "font-semibold text-neutral-900",
+                isCatalogVariant
+                  ? "min-h-[2.6rem] line-clamp-2 text-[0.92rem] leading-[1.18]"
+                  : "truncate text-sm",
+              )}
             >
               {product.title}
             </h2>
           </Link>
         </div>
 
-        <div className="space-y-1 sm:space-y-0.5">
-          <p className="text-sm font-semibold text-neutral-900 sm:text-base">
+        <div className={cn(isCatalogVariant ? "min-h-[2.7rem]" : "")}>
+          {product.shortDescription ? (
+            <p
+              className={cn(
+                "text-[11px] leading-5 text-neutral-500",
+                isCatalogVariant
+                  ? "line-clamp-2 text-[0.84rem] leading-5"
+                  : "line-clamp-2",
+              )}
+            >
+              {product.shortDescription}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="space-y-0.5">
+          <p className="text-[0.96rem] font-semibold leading-none text-neutral-900">
             {formatPrice(product.basePrice)}
           </p>
           {showCommerceEnhancements ? (
-            <p className="text-[11px] leading-tight text-neutral-500 sm:text-xs">
+            <p className="text-[11px] leading-tight text-neutral-500">
               6 cuotas sin interés de {formatInstallmentPrice(product.basePrice)}
             </p>
           ) : null}
-          {!isDesktopCatalog && product.transferPrice ? (
+          {isCatalogVariant ? (
+            <span
+              className={cn(
+                "inline-flex w-fit items-center rounded-[5px] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.16em]",
+                hasStock
+                  ? "bg-[#f1e2d2] text-[#5b4033]"
+                  : "bg-neutral-100 text-neutral-500",
+              )}
+            >
+              {stockLabel}
+            </span>
+          ) : null}
+          {!isCatalogVariant && product.transferPrice ? (
             <p
               className={cn(
                 "text-[11px] leading-tight sm:hidden",
@@ -108,7 +147,7 @@ export function ProductCard({
               {formatPrice(product.transferPrice)}
             </p>
           ) : null}
-          {product.transferPrice ? (
+          {!isCatalogVariant && product.transferPrice ? (
             <p
               className={cn(
                 "mt-1 hidden text-xs sm:block sm:text-sm",
@@ -123,18 +162,28 @@ export function ProductCard({
         </div>
 
         {showCommerceEnhancements ? (
-          <div>
+          <div className="mt-auto pt-2">
             <ProductCardActions
               product={product}
-              addLabel="Añadir"
-              viewLabel="Ver"
+              addLabel="Agregar al carrito"
+              viewLabel="Ver producto"
+              outOfStockLabel="Sin stock"
+              variant={isCatalogVariant ? "catalog" : "default"}
               className={cn(
-                "w-full items-center overflow-hidden pt-2",
-                product.hasSelectableOptions
+                isCatalogVariant
+                  ? "w-full overflow-hidden"
+                  : "w-full items-center overflow-hidden pt-2",
+                !isCatalogVariant && product.hasSelectableOptions
                   ? "justify-end"
-                  : "justify-between gap-1.5",
+                  : !isCatalogVariant
+                    ? "justify-between gap-1.5"
+                    : undefined,
               )}
-              buttonClassName="h-7 min-w-0 px-2.5 text-[10px] sm:px-2.5 sm:text-[10px]"
+              buttonClassName={
+                isCatalogVariant
+                  ? "w-full min-w-0 !text-white"
+                  : "h-7 min-w-0 px-2.5 text-[10px] sm:px-2.5 sm:text-[10px]"
+              }
             />
           </div>
         ) : null}

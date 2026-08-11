@@ -43,7 +43,7 @@ function PaginationLink({
       href={href}
       className={`${baseClassName} ${
         active
-          ? "border-foreground bg-foreground text-white"
+          ? "border-[#A88772] bg-[#A88772] text-[#2f241b]"
           : "border-neutral-200 bg-white text-foreground hover:border-neutral-300 hover:bg-neutral-50"
       }`}
       aria-current={active ? "page" : undefined}

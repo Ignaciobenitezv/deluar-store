@@ -8,9 +8,15 @@ type ProductGridProps = {
 
 export function ProductGrid({ products, variant = "default" }: ProductGridProps) {
   return (
-    <section className={variant === "desktopCatalog" ? "grid grid-cols-4 gap-6" : "grid w-full grid-cols-2 gap-x-4 gap-y-6"}>
+    <section
+      className={
+        variant === "desktopCatalog"
+          ? "grid grid-cols-3 gap-4"
+          : "grid w-full grid-cols-2 gap-x-4 gap-y-6"
+      }
+    >
       {products.map((product) => (
-        <div key={product.id} className="w-full min-w-0">
+        <div key={product.id} className="h-full w-full min-w-0">
           <ProductCard product={product} variant={variant} />
         </div>
       ))}

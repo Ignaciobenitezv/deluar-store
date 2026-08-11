@@ -56,7 +56,7 @@ export function CatalogPageSizeSelector({ variant = "desktop" }: CatalogPageSize
               className={cn(
                 "inline-flex min-h-8 min-w-10 items-center justify-center rounded-full px-3 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
                 isActive
-                  ? "bg-foreground text-white"
+                  ? "bg-[#A88772] text-[#2f241b]"
                   : "text-neutral-500 hover:bg-neutral-50 hover:text-foreground",
               )}
             >

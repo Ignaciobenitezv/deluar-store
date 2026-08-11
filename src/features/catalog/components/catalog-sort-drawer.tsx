@@ -72,9 +72,21 @@ export function CatalogSortDrawer({ sort }: CatalogSortDrawerProps) {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="inline-flex h-10 items-center rounded-full border border-neutral-200 bg-white px-4 text-sm text-foreground"
+        className="inline-flex h-10 items-center gap-2 rounded-full border border-neutral-200 bg-white px-4 text-sm text-foreground"
       >
         Ordenar
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 16 16"
+          className="h-3.5 w-3.5 text-neutral-500"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="m4 6 4 4 4-4" />
+        </svg>
       </button>
 
       {isOpen ? (
