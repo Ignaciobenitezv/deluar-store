@@ -22,9 +22,9 @@ export type ProductCardCommerceData = {
 type ProductCardCommerceVariant = "default" | "catalog";
 
 const catalogCtaBase =
-  "inline-flex h-10 w-full appearance-none items-center justify-center rounded-[6px] bg-[#5f4033] px-5 font-sans text-center text-[11px] font-medium normal-case tracking-normal whitespace-nowrap leading-none text-white shadow-[0_8px_18px_rgba(91,64,51,0.1)] transition duration-200 hover:bg-[#67493b] hover:shadow-[0_10px_22px_rgba(91,64,51,0.14)]";
+  "inline-flex h-10 w-full appearance-none items-center justify-center rounded-[6px] bg-[#5f4033] px-5 font-sans text-center text-[11px] font-medium normal-case tracking-normal whitespace-nowrap leading-none text-[#f6efe7] shadow-[0_8px_18px_rgba(91,64,51,0.1)] transition duration-200 hover:bg-[#67493b] hover:shadow-[0_10px_22px_rgba(91,64,51,0.14)]";
 
-const catalogCtaLabelBase = "text-[11px] font-medium leading-none tracking-normal text-white";
+const catalogCtaLabelBase = "text-[11px] font-medium leading-none tracking-normal";
 
 function renderCatalogCtaLabel(label: string) {
   return <span className={catalogCtaLabelBase}>{label}</span>;
@@ -62,7 +62,7 @@ function getCtaClassName(variant: ProductCardCommerceVariant) {
 export function ProductCardCta({
   product,
   className,
-  label = "Añadir al carrito",
+  label = "Agregar al carrito",
   variant = "default",
   outOfStockLabel = "Sin stock",
 }: ProductCardCtaProps) {

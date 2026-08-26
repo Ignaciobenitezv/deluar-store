@@ -1,6 +1,9 @@
 import crypto from "node:crypto";
 import type { OrderStatus, PaymentStatus, Prisma } from "@/generated/prisma/client";
-import { sendPaymentApprovedEmails } from "@/features/emails/email-service";
+import {
+  sendPaymentApprovedEmails,
+  sendPaymentStockFailureAlertEmail,
+} from "@/features/emails/email-service";
 import {
   prepareSanityStockTargets,
   decrementSanityStock,
@@ -8,6 +11,7 @@ import {
   restoreSanityStock,
 } from "@/features/inventory/inventory-service";
 import { getOrderById } from "@/features/orders/server/order-repository";
+import { recordAnalyticsPurchaseCompleted } from "@/features/analytics/server/lifecycle";
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
 
@@ -237,6 +241,10 @@ function isPaidOrder(order: GoCuotasWebhookOrder) {
   return order.status === "PAID" || order.paymentStatus === "APPROVED";
 }
 
+function isTerminalPaymentFailureOrder(order: GoCuotasWebhookOrder) {
+  return order.status === "PAYMENT_FAILED" || order.paymentStatus === "REJECTED";
+}
+
 function shouldApproveOrder(mappedStatus: GoCuotasMappedStatus) {
   return mappedStatus.orderStatus === "PAID" && mappedStatus.paymentStatus === "APPROVED";
 }
@@ -320,7 +328,7 @@ export async function handleGoCuotasWebhook(params: {
   const wasAlreadyPaid = order ? isPaidOrder(order) : false;
 
   if (existingEvent) {
-    if (isApproval && order?.id && !wasAlreadyPaid) {
+    if (isApproval && order?.id && !wasAlreadyPaid && !isTerminalPaymentFailureOrder(order)) {
       logger.warn("payments.gocuotas.webhook.retry_existing_unprocessed_event", {
         dedupeKey,
         eventId: existingEvent.id,
@@ -410,32 +418,63 @@ export async function handleGoCuotasWebhook(params: {
           error: error instanceof Error ? error.message : "unknown_error",
         });
 
-        if (existingEvent) {
-          await prisma.paymentWebhookEvent.update({
-            where: { id: existingEvent.id },
+        await prisma.$transaction(async (tx) => {
+          if (existingEvent) {
+            await tx.paymentWebhookEvent.update({
+              where: { id: existingEvent.id },
+              data: {
+                providerEventId: parsed.providerEventId,
+                providerPaymentId: parsed.providerPaymentId,
+                externalReference: parsed.externalReference,
+                orderId: order.id,
+                payload: safePayload as never,
+                headers: safeHeaders as never,
+                processedAt: new Date(),
+              },
+            });
+          } else {
+            await tx.paymentWebhookEvent.create({
+              data: {
+                provider: "gocuotas",
+                dedupeKey,
+                providerEventId: parsed.providerEventId,
+                providerPaymentId: parsed.providerPaymentId,
+                externalReference: parsed.externalReference,
+                orderId: order.id,
+                payload: safePayload as never,
+                headers: safeHeaders as never,
+                processedAt: new Date(),
+              },
+            });
+          }
+
+          await tx.order.updateMany({
+            where: {
+              id: order.id,
+              status: {
+                in: ["CREATED", "PENDING_PAYMENT"],
+              },
+            },
             data: {
-              providerEventId: parsed.providerEventId,
-              providerPaymentId: parsed.providerPaymentId,
-              externalReference: parsed.externalReference,
-              orderId: order.id,
-              payload: safePayload as never,
-              headers: safeHeaders as never,
-              processedAt: new Date(),
+              status: "PAYMENT_FAILED",
+              paymentStatus: "REJECTED",
+              paymentProvider: "GOCUOTAS",
+              rawProviderStatus: "approved_payment_stock_unavailable",
             },
           });
+        });
+
+        const updatedOrder = await getOrderById(order.id);
+
+        if (updatedOrder) {
+          await sendPaymentStockFailureAlertEmail({
+            order: updatedOrder,
+            provider: "gocuotas",
+          });
         } else {
-          await prisma.paymentWebhookEvent.create({
-            data: {
-              provider: "gocuotas",
-              dedupeKey,
-              providerEventId: parsed.providerEventId,
-              providerPaymentId: parsed.providerPaymentId,
-              externalReference: parsed.externalReference,
-              orderId: order.id,
-              payload: safePayload as never,
-              headers: safeHeaders as never,
-              processedAt: new Date(),
-            },
+          logger.error("payments.gocuotas.webhook.stock_failure_order_reload_failed", {
+            dedupeKey,
+            orderId: order.id,
           });
         }
 
@@ -535,6 +574,12 @@ export async function handleGoCuotasWebhook(params: {
     stockSkippedReason,
     paymentUpdated: Boolean(order?.id && !(isApproval && wasAlreadyPaid)),
   });
+
+  if (order?.id && isApproval) {
+    await recordAnalyticsPurchaseCompleted({
+      orderId: order.id,
+    });
+  }
 
   if (order?.id && isApproval && !wasAlreadyPaid) {
     await sendPaymentApprovedEmailsForOrder({

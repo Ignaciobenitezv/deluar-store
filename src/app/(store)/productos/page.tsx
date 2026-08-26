@@ -392,14 +392,14 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             {catalog.products.length > 0 ? (
               <ProductGrid products={catalog.products} variant="catalogMobile" />
             ) : (
-              <CatalogEmptyState
-                title={query ? "No encontramos productos para tu busqueda" : "Todavia no hay productos publicados"}
-                description={
-                  query
+                <CatalogEmptyState
+                  title={query ? "No encontramos productos para tu busqueda" : "Todavia no hay productos publicados"}
+                  description={
+                    query
                     ? `No hay productos que coincidan con "${query}".`
                     : "Cuando cargues productos en Sanity, esta grilla mostrara automaticamente el catalogo real de DELUAR."
-                }
-              />
+                  }
+                />
             )}
             <CatalogPaginationControls
               basePath="/productos"

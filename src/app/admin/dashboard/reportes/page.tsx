@@ -11,7 +11,7 @@ import { formatDashboardDateTime } from "@/features/admin/dashboard/lib/dashboar
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Reportes | DOTCOM Commerce Dashboard",
+  title: "Reportes | Panel de comercio de DOTCOM",
 };
 
 type AdminDashboardReportsPageProps = {
@@ -33,7 +33,7 @@ export default async function AdminDashboardReportsPage({
     "Exportar clientes",
     "Exportar pagos",
     "Exportar envíos",
-    "Exportar dashboard completo",
+    "Exportar panel completo",
     "Reportes PDF",
     "Reportes CSV/Excel",
     "Reportes programados",
@@ -54,7 +54,7 @@ export default async function AdminDashboardReportsPage({
             <LockedMetricCard
               key={item}
               title={item}
-              description="Disponible en una futura versión del dashboard."
+              description="Disponible en una futura versión del panel."
             />
           ))}
         </div>
@@ -62,4 +62,3 @@ export default async function AdminDashboardReportsPage({
     </DashboardShell>
   );
 }
-

@@ -128,11 +128,11 @@ function HomeNewInFeaturedPdpContent({
                           setThumbnailStartIndex(index - visibleThumbnailCount + 1);
                         }
                       }}
-                      className={`relative h-[5.8rem] w-[4.5rem] shrink-0 overflow-hidden rounded-[0.35rem] border bg-[#efe6da] transition-colors duration-200 ${
-                        index === safeIndex
-                          ? "border-[#cfb79e]"
-                          : "border-[#e8dfd5] hover:border-[#dbcdbf]"
-                      }`}
+              className={`relative h-[5.8rem] w-[4.5rem] shrink-0 overflow-hidden rounded-[0.35rem] border bg-[#efe6da] transition-colors duration-200 ${
+                index === safeIndex
+                  ? "border-[#cfb79e]"
+                  : "border-[#e8dfd5] hover:border-[#dbcdbf]"
+              }`}
                     >
                       {image.url ? (
                         <Image

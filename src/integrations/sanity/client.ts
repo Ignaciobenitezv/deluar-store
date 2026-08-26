@@ -34,6 +34,11 @@ export const sanityReadClient = sanityConfig.readToken
     })
   : sanityClient;
 
+export const sanityFreshClient = createConfiguredClient({
+  useCdn: false,
+  token: sanityConfig.readToken,
+});
+
 export const sanityWriteClient = sanityConfig.writeToken
   ? createConfiguredClient({
       useCdn: false,
@@ -47,6 +52,16 @@ export async function sanityFetch<T>(
   options: { useToken?: boolean } = {},
 ) {
   const client = options.useToken ? sanityReadClient : sanityClient;
+
+  if (!client) {
+    throw new Error("Sanity is not configured.");
+  }
+
+  return client.fetch<T>(query, params);
+}
+
+export async function sanityFreshFetch<T>(query: string, params: QueryParams = {}) {
+  const client = sanityFreshClient ?? sanityReadClient ?? sanityClient;
 
   if (!client) {
     throw new Error("Sanity is not configured.");

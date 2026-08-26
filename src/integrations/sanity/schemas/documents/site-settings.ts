@@ -2,10 +2,10 @@ import { defineField, defineType } from "sanity";
 
 export const siteSettingsSchema = defineType({
   name: "siteSettings",
-  title: "Configuracion del sitio",
+  title: "Configuración del sitio",
   type: "document",
   groups: [
-    { name: "general", title: "General", default: true },
+    { name: "general", title: "Información general", default: true },
     { name: "contact", title: "Contacto" },
     { name: "seo", title: "SEO" },
   ],
@@ -13,10 +13,10 @@ export const siteSettingsSchema = defineType({
     defineField({
       name: "title",
       title: "Nombre interno",
-      description: "Solo para identificar este documento dentro del Studio.",
+      description: "Solo para identificar este documento dentro del estudio.",
       type: "string",
       group: "general",
-      initialValue: "Configuracion principal",
+      initialValue: "Configuración principal",
       validation: (rule) => rule.required(),
     }),
     defineField({
@@ -29,7 +29,7 @@ export const siteSettingsSchema = defineType({
     }),
     defineField({
       name: "siteDescription",
-      title: "Descripcion del sitio",
+      title: "Descripción del sitio",
       description:
         "Resumen general de la tienda para usar como referencia y SEO base.",
       type: "text",
@@ -39,15 +39,15 @@ export const siteSettingsSchema = defineType({
     }),
     defineField({
       name: "contactEmail",
-      title: "Email de contacto",
+      title: "Correo electrónico de contacto",
       description: "Correo principal para consultas.",
       type: "string",
       group: "contact",
     }),
     defineField({
       name: "whatsappNumber",
-      title: "Numero de WhatsApp",
-      description: "Numero de contacto comercial.",
+      title: "Número de WhatsApp",
+      description: "Número de contacto comercial.",
       type: "string",
       group: "contact",
     }),
@@ -55,7 +55,7 @@ export const siteSettingsSchema = defineType({
       name: "seo",
       title: "SEO por defecto",
       description:
-        "Configuracion base para buscadores cuando una pagina no tenga SEO propio.",
+        "Configuración base para buscadores cuando una página no tenga SEO propio.",
       type: "seo",
       group: "seo",
     }),

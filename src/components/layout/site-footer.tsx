@@ -18,7 +18,7 @@ const paymentMethods = [
   { src: "/payment-methods/mastercarddebito.png", alt: "Mastercard debito" },
   { src: "/payment-methods/naranja.png", alt: "Naranja" },
   { src: "/payment-methods/nativa.png", alt: "Nativa" },
-  { src: "/payment-methods/other.png", alt: "Other" },
+  { src: "/payment-methods/other.png", alt: "Otro" },
   { src: "/payment-methods/visa.png", alt: "Visa" },
   { src: "/payment-methods/visadebito.png", alt: "Visa debito" },
 ];
@@ -73,7 +73,7 @@ export function SiteFooter({ navigation }: SiteFooterProps) {
               <span className="text-sm font-semibold uppercase tracking-[0.18em] text-white">
                 Seguinos
               </span>
-              <span className="text-lg text-white">{isOpen("social") ? "−" : "+"}</span>
+              <span className="text-lg text-white">{isOpen("social") ? "" : "+"}</span>
             </button>
             {isOpen("social") ? (
               <div className="space-y-5 pb-5 pt-4 text-sm text-white/70">
@@ -109,7 +109,7 @@ export function SiteFooter({ navigation }: SiteFooterProps) {
               <span className="text-sm font-semibold uppercase tracking-[0.18em] text-white">
                 Nuestros productos
               </span>
-              <span className="text-lg text-white">{isOpen("products") ? "−" : "+"}</span>
+              <span className="text-lg text-white">{isOpen("products") ? "" : "+"}</span>
             </button>
             {isOpen("products") ? (
               <div className="pb-5 pt-4 text-sm text-white/70">
@@ -135,7 +135,7 @@ export function SiteFooter({ navigation }: SiteFooterProps) {
               <span className="text-sm font-semibold uppercase tracking-[0.18em] text-white">
                 Contactanos
               </span>
-              <span className="text-lg text-white">{isOpen("contact") ? "−" : "+"}</span>
+              <span className="text-lg text-white">{isOpen("contact") ? "" : "+"}</span>
             </button>
             {isOpen("contact") ? (
               <div className="pb-5 pt-4 text-sm text-white/70">
@@ -157,7 +157,7 @@ export function SiteFooter({ navigation }: SiteFooterProps) {
               <span className="text-sm font-semibold uppercase tracking-[0.18em] text-white">
                 Medios de pago
               </span>
-              <span className="text-lg text-white">{isOpen("payments") ? "−" : "+"}</span>
+              <span className="text-lg text-white">{isOpen("payments") ? "" : "+"}</span>
             </button>
             {isOpen("payments") ? (
               <div className="pb-5 pt-4 text-sm text-white/70">
@@ -183,16 +183,16 @@ export function SiteFooter({ navigation }: SiteFooterProps) {
 
           <div className="space-y-5 pt-8">
             <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-white">
-              Newsletter
+              Novedades
             </h2>
             <form className="space-y-3">
               <label className="sr-only" htmlFor="footer-newsletter-email-mobile">
-                Email
+                Correo electrónico
               </label>
               <input
                 id="footer-newsletter-email-mobile"
                 type="email"
-                placeholder="Tu email"
+                placeholder="Tu correo"
                 className="h-11 w-full border border-white/14 bg-transparent px-4 text-sm text-white outline-none transition placeholder:text-neutral-500 focus:border-white/30"
               />
               <button
@@ -281,16 +281,16 @@ export function SiteFooter({ navigation }: SiteFooterProps) {
 
           <div className="space-y-5">
             <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-white">
-              Newsletter
+              Novedades
             </h2>
             <form className="space-y-3">
               <label className="sr-only" htmlFor="footer-newsletter-email">
-                Email
+                Correo electrónico
               </label>
               <input
                 id="footer-newsletter-email"
                 type="email"
-                placeholder="Tu email"
+                placeholder="Tu correo"
                 className="h-11 w-full border border-white/14 bg-transparent px-4 text-sm text-white outline-none transition placeholder:text-neutral-500 focus:border-white/30"
               />
               <button

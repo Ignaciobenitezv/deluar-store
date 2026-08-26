@@ -1,10 +1,29 @@
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-import { PAYMENT_METHODS } from "@/features/payments/types";
 import {
   SHIPPING_METHODS,
   type ShippingMethod,
 } from "@/features/shipping/shipping";
+import { adminProductsInventoryQuery } from "@/integrations/sanity/admin-queries";
+import { sanityFreshFetch } from "@/integrations/sanity/client";
+import {
+  getAdminPaymentMethodLabel,
+  getAdminPaymentStatusLabel,
+  getAdminOrderStatusLabel,
+  getAdminShippingMethodLabel,
+} from "@/features/admin/lib/admin-order-labels";
+import {
+  resolveAdminProductEffectiveStock,
+  resolveAdminProductStockSummary,
+  type AdminProductStockSource,
+} from "@/features/admin/products/lib/product-stock";
+import {
+  isCancelledOrder,
+  isFailedOrder,
+  isFulfilledOrder,
+  isPaidOrder,
+  isPendingPaymentOrder,
+} from "@/features/orders/server/order-state-helpers";
 
 const ARGENTINA_TIME_ZONE = "America/Argentina/Buenos_Aires";
 const ARGENTINA_UTC_OFFSET_MS = 3 * 60 * 60 * 1000;
@@ -12,44 +31,16 @@ const LOW_STOCK_THRESHOLD = 5;
 
 export const DASHBOARD_PERIODS = {
   today: { label: "Hoy", days: 1 },
-  "7d": { label: "Ultimos 7 dias", days: 7 },
-  "30d": { label: "Ultimos 30 dias", days: 30 },
-  "90d": { label: "Ultimos 90 dias", days: 90 },
+  "7d": { label: "Últimos 7 días", days: 7 },
+  "30d": { label: "Últimos 30 días", days: 30 },
+  "90d": { label: "Últimos 90 días", days: 90 },
 } as const;
 
 export type DashboardPeriod = keyof typeof DASHBOARD_PERIODS;
 
-type DashboardOrder = {
-  status: string;
-  paymentStatus: string;
-  createdAt: Date;
-  total: Prisma.Decimal;
-  shippingCost: Prisma.Decimal;
-  paymentMethod: string;
-  shippingMethod: string;
-  customer: {
-    fullName: string;
-    email: string;
-  };
-  shippingAddress: {
-    province: string;
-    city: string;
-  } | null;
-  items: {
-    productId: string;
-    productName: string;
-    productSlug: string;
-    quantity: number;
-    unitPrice: Prisma.Decimal;
-  }[];
-};
-
-type InventoryProduct = {
+type InventoryProduct = AdminProductStockSource & {
   sanityProductId: string;
-  title: string;
   slug: string;
-  stock: number;
-  trackInventory: boolean;
 };
 
 export type DashboardMetrics = {
@@ -87,6 +78,11 @@ export type DashboardMetrics = {
     cancelledOrders: number;
     fulfilledOrders: number;
     paidPendingPreparationOrders: number;
+    orderStatusBreakdown: {
+      status: string;
+      label: string;
+      orders: number;
+    }[];
     paymentStatusBreakdown: {
       status: string;
       label: string;
@@ -121,6 +117,11 @@ export type DashboardMetrics = {
       productName: string;
       productSlug: string;
       stock: number;
+    }[];
+    stockDistribution: {
+      status: "in_stock" | "low_stock" | "out_of_stock";
+      label: string;
+      products: number;
     }[];
   };
   customers: {
@@ -245,14 +246,6 @@ const customerOrderSelect = {
   },
 } satisfies Prisma.OrderSelect;
 
-const productSelect = {
-  sanityProductId: true,
-  title: true,
-  slug: true,
-  stock: true,
-  trackInventory: true,
-} satisfies Prisma.ProductSelect;
-
 function toNumber(value: Prisma.Decimal | number) {
   return typeof value === "number" ? value : value.toNumber();
 }
@@ -317,34 +310,6 @@ function normalizeDashboardPeriod(value: string | undefined): DashboardPeriod {
   return value in DASHBOARD_PERIODS ? (value as DashboardPeriod) : "30d";
 }
 
-function isPaidOrder(order: DashboardOrder) {
-  return (
-    order.status === "PAID" ||
-    order.status === "FULFILLED" ||
-    order.paymentStatus === "APPROVED"
-  );
-}
-
-function isPendingPaymentOrder(order: DashboardOrder) {
-  return order.status === "PENDING_PAYMENT" || order.paymentStatus === "PENDING";
-}
-
-function isFailedOrder(order: DashboardOrder) {
-  return (
-    order.status === "PAYMENT_FAILED" ||
-    order.paymentStatus === "REJECTED" ||
-    order.paymentStatus === "CHARGED_BACK"
-  );
-}
-
-function isCancelledOrder(order: DashboardOrder) {
-  return order.status === "CANCELLED" || order.paymentStatus === "CANCELLED";
-}
-
-function isFulfilledOrder(order: DashboardOrder) {
-  return order.status === "FULFILLED";
-}
-
 function normalizeShippingMethod(method: string): ShippingMethod {
   if (
     method === SHIPPING_METHODS.HOME_DELIVERY ||
@@ -357,55 +322,6 @@ function normalizeShippingMethod(method: string): ShippingMethod {
   return SHIPPING_METHODS.HOME_DELIVERY;
 }
 
-function getShippingMethodLabel(method: ShippingMethod) {
-  switch (method) {
-    case SHIPPING_METHODS.CITY_BRANCH:
-      return "Envío a sucursal";
-    case SHIPPING_METHODS.RESISTANCE_PICKUP:
-      return "Retiro en Resistencia";
-    case SHIPPING_METHODS.HOME_DELIVERY:
-    default:
-      return "Envío a domicilio";
-  }
-}
-
-function getPaymentMethodLabel(method: string) {
-  switch (method) {
-    case PAYMENT_METHODS.TRANSFER:
-      return "Transferencia";
-    case PAYMENT_METHODS.GETNET:
-      return "Metodo legado";
-    case PAYMENT_METHODS.GOCUOTAS:
-      return "GoCuotas";
-    case "MERCADO_PAGO":
-    case "mercado_pago":
-      return "Mercado Pago";
-    default:
-      return method;
-  }
-}
-
-function getPaymentStatusLabel(status: string) {
-  switch (status) {
-    case "APPROVED":
-      return "Aprobado";
-    case "PENDING":
-      return "Pendiente";
-    case "REJECTED":
-      return "Fallido";
-    case "CANCELLED":
-      return "Cancelado";
-    case "REFUNDED":
-      return "Reintegrado";
-    case "CHARGED_BACK":
-      return "Contracargo";
-    case "NOT_STARTED":
-      return "No iniciado";
-    default:
-      return status;
-  }
-}
-
 function maskEmail(email: string) {
   const [localPart, domain = ""] = email.split("@");
 
@@ -415,17 +331,6 @@ function maskEmail(email: string) {
 
   const visible = localPart.slice(0, Math.min(2, localPart.length));
   return `${visible}***@${domain}`;
-}
-
-function findProductInventory(
-  products: InventoryProduct[],
-  productId: string,
-  productSlug: string,
-) {
-  return (
-    products.find((product) => product.sanityProductId === productId) ??
-    products.find((product) => product.slug === productSlug)
-  );
 }
 
 function createOrderPeriodFilter(start: Date, end: Date) {
@@ -458,10 +363,7 @@ export async function getDashboardMetrics(
       select: customerOrderSelect,
       orderBy: { createdAt: "asc" },
     }),
-    prisma.product.findMany({
-      select: productSelect,
-      orderBy: [{ trackInventory: "desc" }, { stock: "asc" }, { title: "asc" }],
-    }),
+    sanityFreshFetch<InventoryProduct[]>(adminProductsInventoryQuery),
   ]);
 
   const ordersCreated = ordersInPeriod.length;
@@ -531,6 +433,10 @@ export async function getDashboardMetrics(
     string,
     { status: string; label: string; orders: number }
   >();
+  const orderStatusStats = new Map<
+    string,
+    { status: string; label: string; orders: number }
+  >();
   const shippingMethodStats = new Map<
     ShippingMethod,
     {
@@ -586,11 +492,19 @@ export async function getDashboardMetrics(
 
     const paymentStatus = paymentStatusStats.get(order.paymentStatus) ?? {
       status: order.paymentStatus,
-      label: getPaymentStatusLabel(order.paymentStatus),
+      label: getAdminPaymentStatusLabel(order.paymentStatus),
       orders: 0,
     };
     paymentStatus.orders += 1;
     paymentStatusStats.set(order.paymentStatus, paymentStatus);
+
+    const orderStatus = orderStatusStats.get(order.status) ?? {
+      status: order.status,
+      label: getAdminOrderStatusLabel(order.status),
+      orders: 0,
+    };
+    orderStatus.orders += 1;
+    orderStatusStats.set(order.status, orderStatus);
 
     if (paidOrder) {
       const orderRevenue = toNumber(order.total);
@@ -622,7 +536,7 @@ export async function getDashboardMetrics(
       cityStats.set(cityKey, cityEntry);
 
       const paymentMethod = order.paymentMethod ?? "GOCUOTAS";
-      const paymentMethodLabel = getPaymentMethodLabel(paymentMethod);
+      const paymentMethodLabel = getAdminPaymentMethodLabel(paymentMethod);
       const paymentMethodEntry = paymentMethodStats.get(paymentMethod) ?? {
         method: paymentMethod,
         label: paymentMethodLabel,
@@ -652,7 +566,7 @@ export async function getDashboardMetrics(
       const shippingMethod = normalizeShippingMethod(order.shippingMethod);
       const shippingMethodEntry = shippingMethodStats.get(shippingMethod) ?? {
         method: shippingMethod,
-        label: getShippingMethodLabel(shippingMethod),
+        label: getAdminShippingMethodLabel(shippingMethod),
         orders: 0,
         revenue: 0,
         shippingCostTotal: 0,
@@ -710,6 +624,10 @@ export async function getDashboardMetrics(
     .filter((customer) => customer.revenue > 0)
     .slice(0, 10);
 
+  const inventoryStockSummary = new Map(
+    currentProducts.map((product) => [product.sanityProductId, resolveAdminProductStockSummary(product)] as const),
+  );
+
   const topSold = [...productStats.values()]
     .sort((left, right) => {
       if (right.unitsSold !== left.unitsSold) {
@@ -721,9 +639,7 @@ export async function getDashboardMetrics(
     .slice(0, 50)
     .map((product) => ({
       ...product,
-      stock:
-        findProductInventory(currentProducts, product.productId, product.productSlug)?.stock ??
-        undefined,
+      stock: inventoryStockSummary.get(product.productId)?.stockValue ?? undefined,
     }));
 
   const topRevenue = [...productStats.values()]
@@ -737,35 +653,68 @@ export async function getDashboardMetrics(
     .slice(0, 50)
     .map((product) => ({
       ...product,
-      stock:
-        findProductInventory(currentProducts, product.productId, product.productSlug)?.stock ??
-        undefined,
+      stock: inventoryStockSummary.get(product.productId)?.stockValue ?? undefined,
     }));
 
   const lowStockAll = currentProducts
-    .filter((product) => product.trackInventory && product.stock > 0 && product.stock <= LOW_STOCK_THRESHOLD)
     .map((product) => ({
-      productId: product.sanityProductId,
-      productName: product.title,
-      productSlug: product.slug,
-      stock: product.stock,
+      product,
+      stockValue: resolveAdminProductEffectiveStock(product),
+    }))
+    .filter(
+      ({ stockValue }) =>
+        typeof stockValue === "number" && stockValue > 0 && stockValue <= LOW_STOCK_THRESHOLD,
+    )
+    .map((product) => ({
+      productId: product.product.sanityProductId,
+      productName: product.product.title,
+      productSlug: product.product.slug,
+      stock: product.stockValue ?? 0,
     }))
     .sort((left, right) => left.stock - right.stock || left.productName.localeCompare(right.productName));
 
   const outOfStockAll = currentProducts
-    .filter((product) => product.trackInventory && product.stock <= 0)
     .map((product) => ({
-      productId: product.sanityProductId,
-      productName: product.title,
-      productSlug: product.slug,
-      stock: product.stock,
+      product,
+      stockValue: resolveAdminProductEffectiveStock(product),
+    }))
+    .filter(({ stockValue }) => typeof stockValue === "number" && stockValue <= 0)
+    .map((product) => ({
+      productId: product.product.sanityProductId,
+      productName: product.product.title,
+      productSlug: product.product.slug,
+      stock: product.stockValue ?? 0,
     }))
     .sort((left, right) => left.productName.localeCompare(right.productName));
 
   const lowStock = lowStockAll.slice(0, 10);
   const outOfStock = outOfStockAll.slice(0, 10);
+  const stockDistribution = [
+    {
+      status: "in_stock" as const,
+      label: "Con stock",
+      products: currentProducts.filter((product) => {
+        const stockValue = resolveAdminProductEffectiveStock(product);
+        return typeof stockValue === "number" && stockValue > LOW_STOCK_THRESHOLD;
+      }).length,
+    },
+    {
+      status: "low_stock" as const,
+      label: "Stock bajo",
+      products: lowStockAll.length,
+    },
+    {
+      status: "out_of_stock" as const,
+      label: "Sin stock",
+      products: outOfStockAll.length,
+    },
+  ];
 
   const paymentStatusBreakdown = [...paymentStatusStats.values()].sort(
+    (left, right) => right.orders - left.orders || left.label.localeCompare(right.label),
+  );
+
+  const orderStatusBreakdown = [...orderStatusStats.values()].sort(
     (left, right) => right.orders - left.orders || left.label.localeCompare(right.label),
   );
 
@@ -785,9 +734,9 @@ export async function getDashboardMetrics(
     "Visitas",
     "Vistas de producto",
     "Carritos",
-    "Checkout iniciado real",
-    "Abandono de checkout",
-    "UTM source / medium / campaign",
+    "Finalización de compra iniciada real",
+    "Abandono de la finalización de compra",
+    "Fuente / medio / campaña de UTM",
     "Dispositivo",
   ];
 
@@ -828,6 +777,7 @@ export async function getDashboardMetrics(
       cancelledOrders,
       fulfilledOrders,
       paidPendingPreparationOrders,
+      orderStatusBreakdown,
       paymentStatusBreakdown,
     },
     products: {
@@ -835,6 +785,7 @@ export async function getDashboardMetrics(
       topRevenue,
       lowStock,
       outOfStock,
+      stockDistribution,
     },
     customers: {
       uniqueCustomers: customerStats.size,
@@ -860,7 +811,7 @@ export async function getDashboardMetrics(
       ),
     },
     payments: {
-      methods: paymentMethodStats.size
+      methods: paymentMethodStats.size > 0
         ? [...paymentMethodStats.values()].sort(
             (left, right) => right.orders - left.orders || right.revenue - left.revenue,
           )

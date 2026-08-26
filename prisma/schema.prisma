@@ -43,6 +43,30 @@ enum PaymentStatus {
   CHARGED_BACK
 }
 
+enum AnalyticsEventType {
+  SESSION_STARTED
+  PAGE_VIEWED
+  PRODUCT_VIEWED
+  ADD_TO_CART
+  REMOVE_FROM_CART
+  CART_VIEWED
+  CHECKOUT_STARTED
+  CHECKOUT_INFO_COMPLETED
+  ORDER_CREATED
+  PURCHASE_COMPLETED
+  CART_ABANDONED
+  CHECKOUT_ABANDONED
+}
+
+enum AnalyticsCartStatus {
+  ACTIVE
+  CHECKOUT_STARTED
+  ORDER_CREATED
+  PURCHASED
+  CART_ABANDONED
+  CHECKOUT_ABANDONED
+}
+
 model Customer {
   id                String            @id @default(uuid()) @db.Uuid
   fullName          String
@@ -54,6 +78,77 @@ model Customer {
 
   @@index([email])
   @@index([createdAt])
+}
+
+model User {
+  id            String     @id @default(uuid()) @db.Uuid
+  name          String
+  email         String     @unique
+  emailVerified Boolean    @default(false)
+  image         String?
+  role          String     @default("user")
+  banned        Boolean    @default(false)
+  banReason     String?
+  banExpires    DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+
+  @@index([role])
+  @@index([createdAt])
+  @@map("user")
+}
+
+model Session {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @db.Uuid
+  token         String   @unique
+  expiresAt     DateTime
+  ipAddress     String?
+  userAgent     String?
+  impersonatedBy String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("session")
+}
+
+model Account {
+  id                    String   @id @default(uuid()) @db.Uuid
+  userId                String   @db.Uuid
+  issuer                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt   DateTime?
+  refreshTokenExpiresAt  DateTime?
+  scope                 String?
+  idToken               String?
+  password              String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([issuer, accountId])
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id          String   @id @default(uuid()) @db.Uuid
+  identifier   String
+  value        String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }
 
 model ShippingAddress {
@@ -86,6 +181,105 @@ model ProductSnapshot {
   @@index([sanityProductId])
   @@index([slug])
   @@index([createdAt])
+}
+
+model AnalyticsVisitor {
+  id         String            @id @default(uuid()) @db.Uuid
+  visitorId  String            @unique @db.Uuid
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  lastSeenAt DateTime
+  sessions   AnalyticsSession[]
+  events     AnalyticsEvent[]
+  carts      AnalyticsCart[]
+
+  @@index([createdAt])
+  @@index([lastSeenAt])
+}
+
+model AnalyticsSession {
+  id          String            @id @default(uuid()) @db.Uuid
+  sessionId   String            @unique @db.Uuid
+  visitorId   String            @db.Uuid
+  startedAt   DateTime          @default(now())
+  lastSeenAt  DateTime
+  landingPage String
+  referrer    String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmTerm     String?
+  utmContent  String?
+  visitor     AnalyticsVisitor  @relation(fields: [visitorId], references: [visitorId], onDelete: Cascade)
+  events      AnalyticsEvent[]
+  carts       AnalyticsCart[]
+
+  @@index([visitorId])
+  @@index([startedAt])
+  @@index([lastSeenAt])
+}
+
+model AnalyticsEvent {
+  id         String             @id @default(uuid()) @db.Uuid
+  eventId    String             @unique @db.Uuid
+  dedupeKey  String?            @unique
+  type       AnalyticsEventType
+  visitorId  String             @db.Uuid
+  sessionId  String             @db.Uuid
+  cartId     String?            @db.Uuid
+  orderId    String?            @db.Uuid
+  productId  String?
+  variantId  String?
+  path       String?
+  url        String?
+  metadata   Json?
+  createdAt  DateTime           @default(now())
+  visitor    AnalyticsVisitor   @relation(fields: [visitorId], references: [visitorId], onDelete: Cascade)
+  session    AnalyticsSession   @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
+  analyticsCart AnalyticsCart?  @relation("AnalyticsCartEvents", fields: [cartId], references: [cartId], onDelete: SetNull)
+  order      Order?             @relation("OrderAnalyticsEvents", fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([visitorId])
+  @@index([sessionId])
+  @@index([cartId])
+  @@index([orderId])
+  @@index([type, createdAt])
+  @@index([productId])
+  @@index([variantId])
+  @@index([createdAt])
+}
+
+model AnalyticsCart {
+  id                     String               @id @default(uuid()) @db.Uuid
+  cartId                 String               @unique @db.Uuid
+  visitorId              String               @db.Uuid
+  sessionId              String?              @db.Uuid
+  status                 AnalyticsCartStatus  @default(ACTIVE)
+  itemCount              Int                  @default(0)
+  subtotal               Decimal              @default(0) @db.Decimal(12, 2)
+  itemsSnapshot          Json
+  lastActivityAt         DateTime
+  checkoutStartedAt      DateTime?
+  checkoutInfoCompletedAt DateTime?
+  convertedOrderId       String?              @unique @db.Uuid
+  convertedAt            DateTime?
+  purchaseCompletedAt    DateTime?
+  abandonedAt            DateTime?
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+  visitor                AnalyticsVisitor     @relation(fields: [visitorId], references: [visitorId], onDelete: Cascade)
+  session                AnalyticsSession?    @relation(fields: [sessionId], references: [sessionId], onDelete: SetNull)
+  convertedOrder         Order?               @relation(fields: [convertedOrderId], references: [id], onDelete: SetNull)
+  events                 AnalyticsEvent[]     @relation("AnalyticsCartEvents")
+
+  @@index([status])
+  @@index([status, lastActivityAt])
+  @@index([lastActivityAt])
+  @@index([abandonedAt])
+  @@index([purchaseCompletedAt])
+  @@index([visitorId])
+  @@index([sessionId])
+  @@index([convertedOrderId])
 }
 
 model Product {
@@ -131,6 +325,8 @@ model Order {
   webhookEvents     MercadoPagoWebhookEvent[]
   paymentWebhookEvents PaymentWebhookEvent[]
   emailLogs         EmailLog[]
+  analyticsCart     AnalyticsCart?
+  analyticsEvents   AnalyticsEvent[]        @relation("OrderAnalyticsEvents")
 
   @@index([customerId])
   @@index([shippingAddressId])

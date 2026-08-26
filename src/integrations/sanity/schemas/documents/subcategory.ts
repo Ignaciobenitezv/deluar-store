@@ -91,7 +91,7 @@ async function inspectParentCategory(
   if (selectedParentId === currentDocumentId) {
     return {
       kind: "integrity",
-      message: "Una subcategoria no puede ser padre de si misma.",
+      message: "Una subcategoría no puede ser padre de sí misma.",
     };
   }
 
@@ -99,7 +99,7 @@ async function inspectParentCategory(
   if (!client) {
     return {
       kind: "infrastructure",
-      message: "No se pudo validar la jerarquia en este momento. Reintentala en unos segundos.",
+      message: "No se pudo validar la jerarquía en este momento. Reintentá en unos segundos.",
     };
   }
 
@@ -118,7 +118,7 @@ async function inspectParentCategory(
     if (!parent) {
       return {
         kind: "integrity",
-        message: "El padre seleccionado ya no existe o no se pudo resolver.",
+        message: "La categoría padre seleccionada ya no existe o no se pudo resolver.",
       };
     }
 
@@ -133,18 +133,18 @@ async function inspectParentCategory(
     if (parent._type === "subcategory" && parent.parentType === "subcategory") {
       return {
         kind: "integrity",
-        message: "Una subcategoria de nivel 2 no puede ser padre de otra subcategoria.",
+        message: "Una subcategoría de nivel 2 no puede ser padre de otra subcategoría.",
       };
     }
 
     return {
       kind: "integrity",
-      message: "El padre seleccionado no es valido para esta subcategoria.",
+      message: "La categoría padre seleccionada no es válida para esta subcategoría.",
     };
   } catch {
     return {
       kind: "infrastructure",
-      message: "No se pudo validar la jerarquia en este momento. Reintentala en unos segundos.",
+      message: "No se pudo validar la jerarquía en este momento. Reintentá en unos segundos.",
     };
   }
 }
@@ -171,13 +171,13 @@ function buildParentCategoryFilter(documentId?: string) {
 
 export const subcategorySchema = defineType({
   name: "subcategory",
-  title: "Subcategorias",
+  title: "Subcategorías",
   type: "document",
   fields: [
     defineField({
       name: "title",
       title: "Nombre",
-      description: "Nombre visible dentro de la categoria principal.",
+      description: "Nombre visible dentro de la categoría principal.",
       type: "string",
       validation: (rule) => rule.required().min(2).max(120),
     }),
@@ -185,16 +185,16 @@ export const subcategorySchema = defineType({
       name: "slug",
       title: "URL",
       description:
-        "Se genera automaticamente desde el nombre. Cambialo solo si necesitas corregir la URL.",
+        "Se genera automáticamente desde el nombre. Cambialo solo si necesitas corregir la URL.",
       type: "slug",
       options: { source: "title", maxLength: 96 },
-      validation: (rule) => rule.required().custom(createUniqueSlugValidation("subcategory", "La subcategoria")),
+      validation: (rule) => rule.required().custom(createUniqueSlugValidation("subcategory", "La subcategoría")),
     }),
     defineField({
       name: "parentCategory",
-      title: "Categoria principal",
+      title: "Categoría principal",
       description:
-        "Selecciona una categoria raiz o una subcategoria de nivel 1 como padre.",
+        "Selecciona una categoría raíz o una subcategoría de nivel 1 como padre.",
       type: "reference",
       to: [{ type: "category" }, { type: "subcategory" }],
       options: {
@@ -220,15 +220,15 @@ export const subcategorySchema = defineType({
     }),
     defineField({
       name: "description",
-      title: "Descripcion",
-      description: "Texto opcional para ampliar el contexto de la subcategoria.",
+      title: "Descripción",
+      description: "Texto opcional para ampliar el contexto de la subcategoría.",
       type: "text",
       rows: 3,
     }),
     defineField({
       name: "order",
       title: "Orden",
-      description: "Numero opcional para ordenar las subcategorias.",
+      description: "Número opcional para ordenar las subcategorías.",
       type: "number",
       validation: (rule) => rule.integer().min(0),
     }),

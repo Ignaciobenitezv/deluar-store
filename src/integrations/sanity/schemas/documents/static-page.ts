@@ -2,7 +2,7 @@ import { defineArrayMember, defineField, defineType } from "sanity";
 
 export const staticPageSchema = defineType({
   name: "staticPage",
-  title: "Paginas",
+  title: "Páginas",
   type: "document",
   groups: [
     { name: "content", title: "Contenido", default: true },
@@ -11,8 +11,8 @@ export const staticPageSchema = defineType({
   fields: [
     defineField({
       name: "title",
-      title: "Nombre de la pagina",
-      description: "Titulo principal de la pagina.",
+      title: "Nombre de la página",
+      description: "Título principal de la página.",
       type: "string",
       group: "content",
       validation: (rule) => rule.required(),
@@ -20,7 +20,7 @@ export const staticPageSchema = defineType({
     defineField({
       name: "slug",
       title: "URL",
-      description: "Direccion publica de esta pagina dentro del sitio.",
+      description: "Dirección pública de esta página dentro del sitio.",
       type: "slug",
       group: "content",
       options: { source: "title", maxLength: 96 },
@@ -37,7 +37,7 @@ export const staticPageSchema = defineType({
     defineField({
       name: "body",
       title: "Contenido",
-      description: "Contenido principal de la pagina.",
+      description: "Contenido principal de la página.",
       type: "array",
       group: "content",
       of: [defineArrayMember({ type: "block" })],
@@ -47,7 +47,7 @@ export const staticPageSchema = defineType({
       name: "seo",
       title: "SEO",
       description:
-        "Completa estos datos si quieres personalizar titulo y descripcion para buscadores.",
+        "Completa estos datos si querés personalizar título y descripción para buscadores.",
       type: "seo",
       group: "seo",
     }),

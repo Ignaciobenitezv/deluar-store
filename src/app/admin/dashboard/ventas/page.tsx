@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ChartCard } from "@/features/admin/dashboard/components/chart-card";
+import { DashboardRevenueChart } from "@/features/admin/dashboard/components/charts/dashboard-revenue-chart";
 import { DashboardShell } from "@/features/admin/dashboard/components/dashboard-shell";
 import { EmptyState } from "@/features/admin/dashboard/components/empty-state";
 import { KpiCard } from "@/features/admin/dashboard/components/kpi-card";
@@ -20,7 +21,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Ventas | DOTCOM Commerce Dashboard",
+  title: "Ventas | Panel de comercio de DOTCOM",
 };
 
 type AdminDashboardSalesPageProps = {
@@ -29,33 +30,12 @@ type AdminDashboardSalesPageProps = {
   }>;
 };
 
-function formatTicket(value: number) {
-  return formatDashboardPrice(value);
-}
-
-function barWidth(value: number, max: number) {
-  if (max <= 0) {
-    return "8%";
-  }
-
-  return `${Math.max(8, (value / max) * 100)}%`;
-}
-
 export default async function AdminDashboardSalesPage({ searchParams }: AdminDashboardSalesPageProps) {
   const resolvedSearchParams = await searchParams;
   const period = normalizeDashboardPeriodValue(resolvedSearchParams?.period);
   const metrics = await getDashboardMetrics(period);
   const lastUpdated = formatDashboardDateTime(new Date());
 
-  const dailySeries = metrics.sales.daily.slice(-7);
-  const activeDailySeries = dailySeries.filter(
-    (item) => item.revenue > 0 || item.paidOrders > 0 || item.unitsSold > 0,
-  );
-  const mobileDailySeries = (activeDailySeries.length > 0 ? activeDailySeries : dailySeries).slice(0, 3);
-  const hiddenMobileDays = Math.max(0, dailySeries.length - mobileDailySeries.length);
-  const maxRevenue = Math.max(...dailySeries.map((item) => item.revenue), 1);
-  const maxOrders = Math.max(...dailySeries.map((item) => item.paidOrders), 1);
-  const maxUnits = Math.max(...dailySeries.map((item) => item.unitsSold), 1);
   const bestDays = [...metrics.sales.daily]
     .filter((item) => item.revenue > 0)
     .sort((left, right) => right.revenue - left.revenue)
@@ -105,7 +85,7 @@ export default async function AdminDashboardSalesPage({ searchParams }: AdminDas
         />
         <KpiCard
           title="Ticket promedio"
-          value={formatTicket(metrics.summary.averageTicket)}
+          value={formatDashboardPrice(metrics.summary.averageTicket)}
           description="Promedio sobre órdenes pagadas del período."
           tone="warning"
         />
@@ -120,94 +100,9 @@ export default async function AdminDashboardSalesPage({ searchParams }: AdminDas
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <ChartCard
           title="Evolución de ventas"
-          description="Últimos 7 días visibles. En mobile se muestra un resumen compacto."
+          description="Evolución del período activo con métricas reales."
         >
-          <div className="space-y-3">
-            <div className="flex items-center justify-between gap-3 text-xs text-slate-500">
-              <span className="sm:hidden">{mobileDailySeries.length} días visibles</span>
-              <span className="hidden sm:inline">
-                Mostrando {dailySeries.length} de {metrics.sales.daily.length} días
-              </span>
-              <span>Facturación, pedidos y unidades</span>
-            </div>
-
-            <div className="space-y-2 sm:hidden">
-              {mobileDailySeries.map((item) => (
-                <div key={item.date} className="rounded-[16px] border border-slate-200/70 bg-white px-3 py-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-slate-900">{formatDashboardShortDate(item.date)}</p>
-                      <p className="mt-1 text-[11px] text-slate-500">
-                        {formatDashboardNumber(item.paidOrders)} pedidos · {formatDashboardNumber(item.unitsSold)} uds.
-                      </p>
-                    </div>
-                    <p className="shrink-0 text-sm font-semibold text-slate-950">
-                      {formatDashboardPrice(item.revenue)}
-                    </p>
-                  </div>
-                  <div className="mt-2 h-1 overflow-hidden rounded-full bg-slate-100">
-                    <div className="h-full rounded-full bg-sky-400" style={{ width: barWidth(item.revenue, maxRevenue) }} />
-                  </div>
-                </div>
-              ))}
-              {hiddenMobileDays > 0 ? (
-                <p className="px-1 text-xs text-slate-500">Ver detalle en desktop · +{hiddenMobileDays} días más</p>
-              ) : null}
-            </div>
-
-            <div className="hidden space-y-3 sm:block">
-              {dailySeries.map((item) => (
-                <div key={item.date} className="rounded-[18px] border border-slate-200/70 bg-white px-4 py-4 transition-colors hover:bg-slate-50">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-slate-900">{formatDashboardShortDate(item.date)}</p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        {formatDashboardNumber(item.paidOrders)} pedidos · {formatDashboardNumber(item.unitsSold)} uds.
-                      </p>
-                    </div>
-                    <p className="text-sm font-semibold text-slate-950">{formatDashboardPrice(item.revenue)}</p>
-                  </div>
-
-                  <div className="mt-4 grid gap-2">
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-slate-400">
-                        <span>Facturación</span>
-                        <span>{formatDashboardPrice(item.revenue)}</span>
-                      </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
-                        <div className="h-full rounded-full bg-sky-400" style={{ width: barWidth(item.revenue, maxRevenue) }} />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-slate-400">
-                        <span>Pedidos</span>
-                        <span>{formatDashboardNumber(item.paidOrders)}</span>
-                      </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
-                        <div className="h-full rounded-full bg-emerald-400" style={{ width: barWidth(item.paidOrders, maxOrders) }} />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-slate-400">
-                        <span>Unidades</span>
-                        <span>{formatDashboardNumber(item.unitsSold)}</span>
-                      </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
-                        <div className="h-full rounded-full bg-amber-400" style={{ width: barWidth(item.unitsSold, maxUnits) }} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {metrics.sales.daily.length > dailySeries.length ? (
-                <p className="text-xs text-slate-500">
-                  Resumen compacto. El resto del período se prioriza en vistas específicas.
-                </p>
-              ) : null}
-            </div>
-          </div>
+          <DashboardRevenueChart data={metrics.sales.daily} />
         </ChartCard>
 
         <RankingCard

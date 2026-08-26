@@ -15,10 +15,10 @@ export const productColorVariantSchema = defineType({
   title: "Variante de color",
   type: "object",
   fieldsets: [
-    { name: "general", title: "Informacion general" },
+    { name: "general", title: "Información general" },
     {
       name: "media",
-      title: "Imagenes",
+      title: "Imágenes",
       options: { collapsible: true, collapsed: true },
     },
     {
@@ -36,7 +36,7 @@ export const productColorVariantSchema = defineType({
     defineField({
       name: "title",
       title: "Nombre visible",
-      description: "Nombre que vera la persona que compra.",
+      description: "Nombre que verá la persona que compra.",
       placeholder: "Ej: Beige",
       type: "string",
       fieldset: "general",
@@ -55,7 +55,7 @@ export const productColorVariantSchema = defineType({
     defineField({
       name: "sku",
       title: "SKU interno",
-      description: "Opcional. Codigo interno si tu operacion lo necesita.",
+      description: "Opcional. Código interno si tu operación lo necesita.",
       placeholder: "Ej: VAR-BEIGE",
       type: "string",
       fieldset: "general",
@@ -63,14 +63,14 @@ export const productColorVariantSchema = defineType({
     defineField({
       name: "thumbnail",
       title: "Miniatura",
-      description: "Opcional. Si no cargas una, se usara la primera imagen de la variante.",
+      description: "Opcional. Si no cargás una, se usará la primera imagen de la variante.",
       type: "imageWithAlt",
       fieldset: "media",
     }),
     defineField({
       name: "images",
-      title: "Imagenes de la variante",
-      description: "Carga al menos una imagen para este color. Esta galeria se mostrara al cliente.",
+      title: "Imágenes de la variante",
+      description: "Cargá al menos una imagen para este color. Esta galería se mostrará al cliente.",
       type: "array",
       fieldset: "media",
       of: [defineArrayMember({ type: "imageWithAlt" })],
@@ -79,7 +79,7 @@ export const productColorVariantSchema = defineType({
     defineField({
       name: "basePrice",
       title: "Precio",
-      description: "Opcional. Si no lo completas, la tienda usara el precio general del producto.",
+      description: "Opcional. Si no lo completás, la tienda usará el precio general del producto.",
       placeholder: "Ej: 95000",
       type: "number",
       fieldset: "prices",
@@ -88,7 +88,7 @@ export const productColorVariantSchema = defineType({
     defineField({
       name: "transferPrice",
       title: "Precio por transferencia",
-      description: "Opcional. Si no lo completas, se usara el precio general por transferencia.",
+      description: "Opcional. Si no lo completás, se usará el precio general por transferencia.",
       placeholder: "Ej: 85000",
       type: "number",
       fieldset: "prices",
@@ -97,7 +97,7 @@ export const productColorVariantSchema = defineType({
     defineField({
       name: "stock",
       title: "Stock",
-      description: "Opcional. Si no se completa, se usara el stock general del producto.",
+      description: "Opcional. Si no se completa, se usará el stock general del producto.",
       placeholder: "Ej: 1",
       type: "number",
       fieldset: "inventory",

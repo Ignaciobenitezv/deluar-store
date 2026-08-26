@@ -13,6 +13,7 @@ import {
   getOrderById,
   markTransferOrderPaid,
 } from "@/features/orders/server/order-repository";
+import { recordAnalyticsPurchaseCompleted } from "@/features/analytics/server/lifecycle";
 
 type MarkTransferOrderPaidResult =
   | {
@@ -112,6 +113,9 @@ export async function markTransferOrderAsPaid(
   }
 
   const updatedOrder = await markTransferOrderPaid(order.id);
+  await recordAnalyticsPurchaseCompleted({
+    orderId: updatedOrder.id,
+  });
   await sendPaymentApprovedEmails(updatedOrder);
 
   logger.info("admin.orders.mark_paid.succeeded", {

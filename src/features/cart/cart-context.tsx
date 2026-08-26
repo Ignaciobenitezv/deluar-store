@@ -8,6 +8,11 @@ import {
   useReducer,
   type ReactNode,
 } from "react";
+import {
+  trackAddToCart,
+  trackRemoveFromCart,
+} from "@/features/analytics/client/track-event";
+import { clearAnalyticsCartId } from "@/features/analytics/client/cart-utils";
 import type { CartItem, CartProductInput, CartState, CartTotals } from "@/features/cart/types";
 
 const CART_STORAGE_KEY = "deluar-cart";
@@ -80,6 +85,53 @@ function clampCartItemToStock(item: CartItem) {
     stock: stockLimit,
     quantity: clampQuantityToStock(item.quantity, stockLimit),
   };
+}
+
+function buildNextItemsAfterAdd(
+  items: CartItem[],
+  product: CartProductInput,
+  nextQuantity: number,
+) {
+  const existingItemIndex = items.findIndex((item) => item.id === product.id);
+  const nextItem = {
+    ...product,
+    quantity: nextQuantity,
+  };
+
+  if (existingItemIndex >= 0) {
+    return items.map((item) =>
+      item.id === product.id
+        ? {
+            ...item,
+            ...product,
+            quantity: nextQuantity,
+          }
+        : item,
+    );
+  }
+
+  return [...items, nextItem];
+}
+
+function buildNextItemsAfterRemoval(items: CartItem[], id: string) {
+  return items.filter((item) => item.id !== id);
+}
+
+function buildNextItemsAfterQuantityChange(
+  items: CartItem[],
+  id: string,
+  quantity: number,
+) {
+  return items
+    .map((item) =>
+      item.id === id
+        ? {
+            ...item,
+            quantity: clampQuantityToStock(quantity, normalizeStock(item.stock)),
+          }
+        : item,
+    )
+    .filter((item) => item.quantity > 0);
 }
 
 function cartReducer(state: CartState, action: CartAction): CartState {
@@ -234,8 +286,23 @@ export function CartProvider({ children }: CartProviderProps) {
         const stockLimit = normalizeStock(product.stock ?? existingItem?.stock);
         const requestedQuantity = (existingItem?.quantity ?? 0) + requestedAddQuantity;
         const nextQuantity = clampQuantityToStock(requestedQuantity, stockLimit);
+        const actualAddedQuantity = Math.max(0, nextQuantity - (existingItem?.quantity ?? 0));
+        const nextItems = buildNextItemsAfterAdd(state.items, product, nextQuantity);
 
         dispatch({ type: "add", payload: { ...product, stock: stockLimit, quantity } });
+
+        if (actualAddedQuantity > 0) {
+          trackAddToCart({
+            productId: product.productId ?? product.id,
+            variantId: product.variantId,
+            quantity: actualAddedQuantity,
+            unitPrice: product.basePrice,
+            sku: product.sku,
+            productSlug: product.slug,
+            productTitle: product.title,
+            items: nextItems,
+          });
+        }
 
         return {
           quantity: nextQuantity,
@@ -245,14 +312,43 @@ export function CartProvider({ children }: CartProviderProps) {
           wasRejected: nextQuantity <= 0,
         };
       },
-      removeItem: (id) => dispatch({ type: "remove", payload: { id } }),
+      removeItem: (id) => {
+        const item = state.items.find((cartItem) => cartItem.id === id);
+
+        if (item) {
+          trackRemoveFromCart({
+            productId: item.productId ?? item.id,
+            variantId: item.variantId,
+            quantityRemoved: item.quantity,
+            sku: item.sku,
+            productSlug: item.slug,
+            productTitle: item.title,
+            items: buildNextItemsAfterRemoval(state.items, id),
+          });
+        }
+
+        dispatch({ type: "remove", payload: { id } });
+      },
       setItemQuantity: (id, quantity) => {
         const item = state.items.find((cartItem) => cartItem.id === id);
         const stockLimit = normalizeStock(item?.stock);
         const requestedQuantity = Math.max(0, Math.trunc(quantity));
         const nextQuantity = clampQuantityToStock(requestedQuantity, stockLimit);
+        const nextItems = buildNextItemsAfterQuantityChange(state.items, id, quantity);
 
         dispatch({ type: "setQuantity", payload: { id, quantity } });
+
+        if (item && nextQuantity < item.quantity) {
+          trackRemoveFromCart({
+            productId: item.productId ?? item.id,
+            variantId: item.variantId,
+            quantityRemoved: item.quantity - nextQuantity,
+            sku: item.sku,
+            productSlug: item.slug,
+            productTitle: item.title,
+            items: nextItems,
+          });
+        }
 
         return {
           quantity: nextQuantity,
@@ -264,6 +360,7 @@ export function CartProvider({ children }: CartProviderProps) {
       },
       clearCart: () => {
         window.localStorage.removeItem(CART_STORAGE_KEY);
+        clearAnalyticsCartId();
         dispatch({ type: "clear" });
       },
       openCart: () => dispatch({ type: "open" }),

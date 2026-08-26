@@ -80,7 +80,7 @@ async function inspectProductSubcategoryCoherence(
   if (!client) {
     return {
       kind: "infrastructure",
-      message: "No se pudo validar la subcategoria en este momento. Reintentala en unos segundos.",
+      message: "No se pudo validar la subcategoría en este momento. Reintentá en unos segundos.",
     };
   }
 
@@ -106,7 +106,7 @@ async function inspectProductSubcategoryCoherence(
     if (!subcategory) {
       return {
         kind: "integrity",
-        message: "La subcategoria seleccionada ya no existe o no se pudo resolver.",
+        message: "La subcategoría seleccionada ya no existe o no se pudo resolver.",
       };
     }
 
@@ -120,12 +120,12 @@ async function inspectProductSubcategoryCoherence(
 
     return {
       kind: "integrity",
-      message: "La subcategoria seleccionada no pertenece a la categoria elegida.",
+      message: "La subcategoría seleccionada no pertenece a la categoría elegida.",
     };
   } catch {
     return {
       kind: "infrastructure",
-      message: "No se pudo validar la subcategoria en este momento. Reintentala en unos segundos.",
+      message: "No se pudo validar la subcategoría en este momento. Reintentá en unos segundos.",
     };
   }
 }
@@ -145,10 +145,10 @@ export const productSchema = defineType({
   title: "Productos",
   type: "document",
   fieldsets: [
-    { name: "general", title: "Informacion general" },
+    { name: "general", title: "Información general" },
     { name: "prices", title: "Precios" },
     { name: "inventory", title: "Inventario" },
-    { name: "images", title: "Imagenes" },
+    { name: "images", title: "Imágenes" },
     {
       name: "variants",
       title: "Variantes",
@@ -179,7 +179,7 @@ export const productSchema = defineType({
       name: "slug",
       title: "URL",
       description:
-        "Se genera automaticamente desde el nombre. Puedes ajustarlo si necesitas corregir la URL.",
+        "Se genera automáticamente desde el nombre. Podés ajustarlo si necesitás corregir la URL.",
       type: "slug",
       fieldset: "general",
       options: { source: "title", maxLength: 96 },
@@ -187,8 +187,8 @@ export const productSchema = defineType({
     }),
     defineField({
       name: "category",
-      title: "Categoria",
-      description: "Selecciona la categoria principal donde aparecera este producto.",
+      title: "Categoría",
+      description: "Seleccioná la categoría principal donde aparecerá este producto.",
       type: "reference",
       fieldset: "general",
       to: [{ type: "category" }],
@@ -196,9 +196,9 @@ export const productSchema = defineType({
     }),
     defineField({
       name: "subcategory",
-      title: "Subcategoria",
+      title: "Subcategoría",
       description:
-        "Opcional. Solo muestra subcategorias de la categoria elegida, incluyendo nivel 1 y nivel 2.",
+        "Opcional. Solo muestra subcategorías de la categoría elegida, incluyendo nivel 1 y nivel 2.",
       type: "reference",
       fieldset: "general",
       to: [{ type: "subcategory" }],
@@ -240,8 +240,8 @@ export const productSchema = defineType({
     }),
     defineField({
       name: "shortDescription",
-      title: "Descripcion corta",
-      description: "Resumen breve para cards, listados y destacados. Usa una sola idea clara.",
+      title: "Descripción corta",
+      description: "Resumen breve para tarjetas, listados y destacados. Usá una sola idea clara.",
       placeholder: "Ej: Textil decorativo para living en tono natural.",
       type: "text",
       rows: 3,
@@ -250,9 +250,9 @@ export const productSchema = defineType({
     }),
     defineField({
       name: "description",
-      title: "Descripcion completa",
+      title: "Descripción completa",
       description:
-        "Contenido principal del producto. Incluye detalles, materiales, cuidados y cualquier dato util para la compra.",
+        "Contenido principal del producto. Incluye detalles, materiales, cuidados y cualquier dato útil para la compra.",
       type: "array",
       fieldset: "general",
       of: [defineArrayMember({ type: "block" })],
@@ -260,17 +260,17 @@ export const productSchema = defineType({
     }),
     defineField({
       name: "attributes",
-      title: "Caracteristicas",
-      description: "Datos opcionales como material, color, medidas o terminacion.",
+      title: "Características",
+      description: "Datos opcionales como material, color, medidas o terminación.",
       type: "array",
       fieldset: "general",
       of: [defineArrayMember({ type: "productAttribute" })],
     }),
     defineField({
       name: "images",
-      title: "Imagenes",
+      title: "Imágenes",
       description:
-        "Carga una o mas imagenes del producto. La primera se usa como principal en la tienda.",
+        "Cargá una o más imágenes del producto. La primera se usa como principal en la tienda.",
       type: "array",
       fieldset: "images",
       of: [defineArrayMember({ type: "imageWithAlt" })],
@@ -280,7 +280,7 @@ export const productSchema = defineType({
       name: "colorVariants",
       title: "Variantes de color",
       description:
-        "Legacy temporal. Mantener solo para compatibilidad con productos existentes.",
+        "Campo temporal mantenido por compatibilidad con productos existentes.",
       type: "array",
       fieldset: "variants",
       of: [defineArrayMember({ type: "productColorVariant" })],
@@ -289,7 +289,7 @@ export const productSchema = defineType({
       name: "variants",
       title: "Variantes",
       description:
-        "Modelo preferido para variantes genericas. Permite Color, Tamaño, Modelo y Talle.",
+        "Modelo preferido para variantes genéricas. Permite Color, Tamaño, Modelo y Talle.",
       type: "array",
       fieldset: "variants",
       of: [defineArrayMember({ type: "productVariant" })],
@@ -297,7 +297,7 @@ export const productSchema = defineType({
     defineField({
       name: "basePrice",
       title: "Precio de lista",
-      description: "Precio principal que vera el cliente en la tienda.",
+      description: "Precio principal que verá el cliente en la tienda.",
       placeholder: "Ej: 100000",
       type: "number",
       fieldset: "prices",
@@ -307,7 +307,7 @@ export const productSchema = defineType({
       name: "transferPrice",
       title: "Precio por transferencia",
       description:
-        "Opcional. Completa este valor si ofreces un precio especial por transferencia.",
+        "Opcional. Completá este valor si ofrecés un precio especial por transferencia.",
       placeholder: "Ej: 90000",
       type: "number",
       fieldset: "prices",
@@ -316,7 +316,7 @@ export const productSchema = defineType({
     defineField({
       name: "stock",
       title: "Stock disponible",
-      description: "Cantidad disponible para la venta. Usa cero si no hay unidades.",
+      description: "Cantidad disponible para la venta. Usá cero si no hay unidades.",
       placeholder: "Ej: 3",
       type: "number",
       fieldset: "inventory",
@@ -326,15 +326,15 @@ export const productSchema = defineType({
     defineField({
       name: "isActive",
       title: "Visible en tienda",
-      description: "Si esta desactivado, el producto no se muestra en la tienda.",
+      description: "Si está desactivado, el producto no se muestra en la tienda.",
       type: "boolean",
       fieldset: "inventory",
       initialValue: true,
     }),
     defineField({
       name: "isFeatured",
-      title: "Destacado en home",
-      description: "Activalo si quieres usar este producto en secciones destacadas.",
+      title: "Destacado en portada",
+      description: "Activálo si querés usar este producto en secciones destacadas.",
       type: "boolean",
       fieldset: "promotions",
       initialValue: false,
@@ -343,24 +343,24 @@ export const productSchema = defineType({
       name: "isOnOffer",
       title: "Visible en ofertas",
       description:
-        "Activalo si quieres que este producto aparezca en el carrusel de ofertas de la portada.",
+        "Activálo si querés que este producto aparezca en el carrusel de ofertas de la portada.",
       type: "boolean",
       fieldset: "promotions",
       initialValue: false,
     }),
     defineField({
       name: "showInNewIn",
-      title: "Visible en New In",
+      title: "Visible en Lo nuevo",
       description:
-        "Activalo si quieres que este producto aparezca en la seccion New In del home.",
+        "Activalo si querés que este producto aparezca en la sección Lo nuevo de la portada.",
       type: "boolean",
       fieldset: "promotions",
       initialValue: false,
     }),
     defineField({
       name: "newInOrder",
-      title: "Prioridad en New In",
-      description: "Menor numero = aparece antes en la seccion New In.",
+      title: "Prioridad en Lo nuevo",
+      description: "Menor número = aparece antes en la sección Lo nuevo.",
       type: "number",
       fieldset: "promotions",
       hidden: ({ document }) => !document?.showInNewIn,
@@ -369,7 +369,7 @@ export const productSchema = defineType({
       name: "seo",
       title: "SEO del producto",
       description:
-        "Opcional. Personaliza como se muestra el producto en buscadores y redes.",
+        "Opcional. Personalizá cómo se muestra el producto en buscadores y redes.",
       type: "seo",
       fieldset: "seo",
     }),

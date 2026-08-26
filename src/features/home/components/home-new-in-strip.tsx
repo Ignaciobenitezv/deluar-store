@@ -131,6 +131,7 @@ export function HomeNewInStrip({
               >
                 <div className="relative h-[9.75rem] w-[9.25rem] shrink-0 bg-[#efe6da]">
                   <ProductCardImageStack
+                    images={product.images}
                     imageUrl={product.imageUrl}
                     imageAlt={product.imageAlt}
                     hoverImageUrl={product.hoverImageUrl}

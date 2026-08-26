@@ -89,7 +89,7 @@ function mapLegacyColorVariant(
   const value = isNonEmptyString(variant.value) ? variant.value : title;
   const images = buildVariantImages(variant.images, product.title, title);
   const primaryImage = variant.images?.[0] ?? product.images?.[0];
-  const thumbnailSource = variant.thumbnail ?? primaryImage;
+  const thumbnailSource = variant.thumbnail ? primaryImage : undefined;
 
   return buildVariantViewModel({
     id: variant._key || variant.value || title,
@@ -154,7 +154,7 @@ export function normalizeProductVariants(
   >,
 ) {
   const hasGenericVariants = (product.variants ?? []).length > 0;
-  const source = hasGenericVariants ? product.variants ?? [] : product.colorVariants ?? [];
+  const source = (hasGenericVariants ? product.variants : product.colorVariants) ?? [];
 
   const normalizedVariants = source
     .map((variant) =>

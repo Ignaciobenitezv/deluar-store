@@ -10,9 +10,7 @@ function formatPreviewPrice(value?: number) {
   }).format(value)}`;
 }
 
-function formatVariantAttributes(
-  attributes: unknown,
-) {
+function formatVariantAttributes(attributes: unknown) {
   if (!Array.isArray(attributes) || attributes.length === 0) {
     return "Sin atributos";
   }
@@ -50,10 +48,10 @@ export const productVariantSchema = defineType({
   title: "Variante",
   type: "object",
   fieldsets: [
-    { name: "general", title: "Informacion general" },
+    { name: "general", title: "Información general" },
     {
       name: "media",
-      title: "Imagenes",
+      title: "Imágenes",
       options: { collapsible: true, collapsed: true },
     },
     {
@@ -71,7 +69,7 @@ export const productVariantSchema = defineType({
     defineField({
       name: "title",
       title: "Nombre visible",
-      description: "Nombre comercial que vera la persona que compra.",
+      description: "Nombre comercial que verá la persona que compra.",
       placeholder: "Ej: King Size",
       type: "string",
       fieldset: "general",
@@ -81,7 +79,7 @@ export const productVariantSchema = defineType({
       name: "value",
       title: "Identificador interno",
       description:
-        "Valor estable para identificar esta variante en carrito, ordenes e importacion.",
+        "Valor estable para identificar esta variante en carrito, órdenes e importación.",
       placeholder: "king-size",
       type: "string",
       fieldset: "general",
@@ -90,7 +88,7 @@ export const productVariantSchema = defineType({
     defineField({
       name: "attributes",
       title: "Atributos",
-      description: "Agrega los atributos necesarios para describir esta variante.",
+      description: "Agregá los atributos necesarios para describir esta variante.",
       type: "array",
       fieldset: "general",
       of: [defineArrayMember({ type: "productVariantAttribute" })],
@@ -99,16 +97,16 @@ export const productVariantSchema = defineType({
     defineField({
       name: "sku",
       title: "SKU interno",
-      description: "Opcional. Codigo interno si tu operacion lo necesita.",
+      description: "Opcional. Código interno si tu operación lo necesita.",
       placeholder: "Ej: VAR-KING-BEIGE",
       type: "string",
       fieldset: "general",
     }),
     defineField({
       name: "images",
-      title: "Imagenes",
+      title: "Imágenes",
       description:
-        "Opcional. Si no cargas imagenes, la variante seguira siendo valida para el importador.",
+        "Opcional. Si no cargás imágenes, la variante seguirá siendo válida para el importador.",
       type: "array",
       fieldset: "media",
       of: [defineArrayMember({ type: "imageWithAlt" })],
@@ -116,7 +114,7 @@ export const productVariantSchema = defineType({
     defineField({
       name: "basePrice",
       title: "Precio de lista",
-      description: "Opcional. Si no lo completas, podra heredar el precio del producto.",
+      description: "Opcional. Si no lo completás, podrá heredar el precio del producto.",
       placeholder: "Ej: 100000",
       type: "number",
       fieldset: "prices",
@@ -125,7 +123,7 @@ export const productVariantSchema = defineType({
     defineField({
       name: "transferPrice",
       title: "Precio por transferencia",
-      description: "Opcional. Si no lo completas, podra heredar el precio del producto.",
+      description: "Opcional. Si no lo completás, podrá heredar el precio del producto.",
       placeholder: "Ej: 90000",
       type: "number",
       fieldset: "prices",
@@ -135,7 +133,7 @@ export const productVariantSchema = defineType({
       name: "stock",
       title: "Stock disponible",
       description:
-        "Opcional. Si esta presente, sera la fuente de verdad para esta variante.",
+        "Opcional. Si está presente, será la fuente de verdad para esta variante.",
       placeholder: "Ej: 3",
       type: "number",
       fieldset: "inventory",
@@ -144,7 +142,7 @@ export const productVariantSchema = defineType({
     defineField({
       name: "isActive",
       title: "Visible en tienda",
-      description: "Si esta desactivada, la variante no se mostrara en la tienda.",
+      description: "Si está desactivada, la variante no se mostrará en la tienda.",
       type: "boolean",
       fieldset: "inventory",
       initialValue: true,

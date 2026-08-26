@@ -72,7 +72,7 @@ function CatalogSidebarTreeNode({
             onClick={() => onToggleNode(node._id)}
             className={cn(buttonClassName, isExpanded && "text-[#2f211b]")}
           >
-            <span aria-hidden="true">{isExpanded ? "−" : "+"}</span>
+            <span aria-hidden="true">{isExpanded ? "" : "+"}</span>
           </button>
         ) : null}
       </div>
@@ -168,7 +168,7 @@ function CatalogSidebarSubcategoryTreeContent({
             isMobile ? "h-8 w-8 text-[1.15rem]" : "h-6 w-6 text-[1rem]",
           )}
         >
-          <span aria-hidden="true">{isSectionOpen ? "−" : "+"}</span>
+          <span aria-hidden="true">{isSectionOpen ? "" : "+"}</span>
         </button>
       </div>
 

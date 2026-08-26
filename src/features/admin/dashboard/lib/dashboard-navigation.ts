@@ -9,11 +9,25 @@ export const dashboardPeriods: Record<DashboardPeriodValue, { label: string }> =
 
 export const dashboardNavigation: DashboardNavItem[] = [
   {
+    id: "home",
+    label: "Panel",
+    href: "/admin",
+    description: "Acceso rápido a los módulos principales",
+    group: "principal",
+  },
+  {
     id: "overview",
     label: "Resumen",
     href: "/admin/dashboard",
-    description: "Visión general del ecommerce",
+    description: "Visión general del comercio electrónico",
     group: "principal",
+  },
+  {
+    id: "catalog",
+    label: "Productos",
+    href: "/admin/productos",
+    description: "Gestión operativa del catálogo",
+    group: "catalog",
   },
   {
     id: "sales",
@@ -24,14 +38,28 @@ export const dashboardNavigation: DashboardNavItem[] = [
   },
   {
     id: "checkout",
-    label: "Checkout",
+    label: "Finalización de compra",
     href: "/admin/dashboard/checkout",
     description: "Conversión y embudo",
     group: "commerce",
   },
   {
+    id: "conversion",
+    label: "Conversión",
+    href: "/admin/dashboard/conversion",
+    description: "Funnel, abandono y pago",
+    group: "commerce",
+  },
+  {
+    id: "abandoned-carts",
+    label: "Carritos abandonados",
+    href: "/admin/dashboard/abandoned-carts",
+    description: "Listado y detalle operativo",
+    group: "commerce",
+  },
+  {
     id: "products",
-    label: "Productos",
+    label: "Análisis de productos",
     href: "/admin/dashboard/productos",
     description: "Ranking, stock y mix",
     group: "commerce",
@@ -68,7 +96,7 @@ export const dashboardNavigation: DashboardNavItem[] = [
     id: "marketing",
     label: "Marketing",
     href: "/admin/dashboard/marketing",
-    description: "Tracking futuro",
+    description: "Seguimiento futuro",
     group: "future",
   },
   {
@@ -79,4 +107,3 @@ export const dashboardNavigation: DashboardNavItem[] = [
     group: "future",
   },
 ];
-

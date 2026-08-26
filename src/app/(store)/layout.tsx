@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { SiteShell } from "@/components/layout/site-shell";
+import { StorefrontAnalyticsBridge } from "@/features/analytics/components/storefront-analytics-bridge";
 import { CartProvider } from "@/features/cart/cart-context";
 
 type StoreLayoutProps = {
@@ -9,6 +10,9 @@ type StoreLayoutProps = {
 export default async function StoreLayout({ children }: StoreLayoutProps) {
   return (
     <CartProvider>
+      <Suspense fallback={null}>
+        <StorefrontAnalyticsBridge />
+      </Suspense>
       <SiteShell>{children}</SiteShell>
     </CartProvider>
   );

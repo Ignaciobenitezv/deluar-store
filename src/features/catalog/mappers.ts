@@ -1,6 +1,7 @@
 import { getSanityImageUrl } from "@/integrations/sanity/image";
 import { buildCatalogHref } from "@/features/catalog/hierarchy";
 import { hasSelectableProductVariants, normalizeProductVariants } from "@/features/catalog/variant-normalizer";
+import { logger } from "@/lib/logger";
 import type {
   CatalogCategorySummary,
   CatalogProductCard,
@@ -22,6 +23,13 @@ export function mapProductToCatalogCard(product: ProductDocument): CatalogProduc
   const image = images[0];
   const hoverImage = images[1];
 
+  logger.debug("storefront.product_visibility", {
+    id: product._id,
+    slug: productSlug,
+    isActive: product.isActive,
+    rev: product._rev,
+  });
+
   return {
     id: product._id,
     title: product.title,
@@ -34,6 +42,12 @@ export function mapProductToCatalogCard(product: ProductDocument): CatalogProduc
     imageAlt: image?.alt || product.title,
     hoverImageUrl: getSanityImageUrl(hoverImage),
     hoverImageAlt: hoverImage?.alt || product.title,
+    images: images
+      .map((image) => ({
+        url: getSanityImageUrl(image),
+        alt: image?.alt || product.title,
+      }))
+      .filter((image) => Boolean(image.url)),
     categorySlug,
     categoryTitle: product.category.title,
     subcategorySlug: product.subcategory?.slug.current,

@@ -24,6 +24,10 @@ type MapHomePageDataInput = {
   siteSettings: SiteSettingsDocument | null;
 };
 
+function isVisibleProduct(product: ProductDocument) {
+  return product.isActive !== false;
+}
+
 function mapProductToHomeNewIn(product: ProductDocument): HomeNewInProduct {
   const card = mapProductToCatalogCard(product);
 
@@ -54,13 +58,25 @@ export function mapHomePageData({
     homePage?.featuredProducts && homePage.featuredProducts.length > 0
       ? homePage.featuredProducts
       : featuredProducts;
+  const visibleSelectedFeaturedProducts = selectedFeaturedProducts.filter(isVisibleProduct);
+  const visibleFeaturedProducts = featuredProducts.filter(isVisibleProduct);
+  const visibleNewInProducts = newInProducts.filter(isVisibleProduct);
+  const visibleOfferProducts = offerProducts.filter(isVisibleProduct);
+  const visibleSpotlightProduct =
+    homePage?.spotlightProduct && isVisibleProduct(homePage.spotlightProduct)
+      ? homePage.spotlightProduct
+      : null;
+  const effectiveFeaturedProducts =
+    visibleSelectedFeaturedProducts.length > 0
+      ? visibleSelectedFeaturedProducts
+      : visibleFeaturedProducts;
 
   const selectedCategories =
     homePage?.featuredCategories && homePage.featuredCategories.length > 0
       ? homePage.featuredCategories
       : categories.slice(0, 4);
 
-  const fallbackHeroImage = homePage?.heroImage ?? selectedFeaturedProducts[0]?.images?.[0];
+  const fallbackHeroImage = homePage?.heroImage ?? effectiveFeaturedProducts[0]?.images?.[0];
 
   const heroSlides = (homePage?.heroSlides ?? [])
     .filter((slide) => slide.isActive !== false)
@@ -117,7 +133,7 @@ export function mapHomePageData({
             },
           ],
     categories: selectedCategories.map(mapCategoryToSummary),
-    featuredProducts: selectedFeaturedProducts.map(mapProductToCatalogCard),
+    featuredProducts: effectiveFeaturedProducts.map(mapProductToCatalogCard),
     campaignFeatured: {
       title: homePage?.campaignFeaturedTitle || "Selecciones para regalar y renovar tu casa",
       text:
@@ -125,31 +141,31 @@ export function mapHomePageData({
         "Una curaduria de productos destacados para campanas especiales, regalos y selecciones tematicas.",
       ctaLabel: homePage?.campaignFeaturedCtaLabel || undefined,
       ctaHref: homePage?.campaignFeaturedCtaHref || undefined,
-      products: featuredProducts.map(mapProductToCatalogCard),
+      products: visibleFeaturedProducts.map(mapProductToCatalogCard),
     },
-    newInProducts: newInProducts.map(mapProductToHomeNewIn),
-    spotlightProduct: homePage?.spotlightProduct
+    newInProducts: visibleNewInProducts.map(mapProductToHomeNewIn),
+    spotlightProduct: visibleSpotlightProduct
       ? {
-          id: homePage.spotlightProduct._id,
-          slug: homePage.spotlightProduct.slug.current,
-          title: homePage.spotlightProduct.title,
-          shortDescription: homePage.spotlightProduct.shortDescription,
-          basePrice: homePage.spotlightProduct.basePrice,
-          transferPrice: homePage.spotlightProduct.transferPrice,
-          stock: homePage.spotlightProduct.stock,
-          productHref: `/productos/detalle/${homePage.spotlightProduct.slug.current}`,
-          images: (homePage.spotlightProduct.images ?? []).map((image) => ({
+          id: visibleSpotlightProduct._id,
+          slug: visibleSpotlightProduct.slug.current,
+          title: visibleSpotlightProduct.title,
+          shortDescription: visibleSpotlightProduct.shortDescription,
+          basePrice: visibleSpotlightProduct.basePrice,
+          transferPrice: visibleSpotlightProduct.transferPrice,
+          stock: visibleSpotlightProduct.stock,
+          productHref: `/productos/detalle/${visibleSpotlightProduct.slug.current}`,
+          images: (visibleSpotlightProduct.images ?? []).map((image) => ({
             url: getSanityImageUrl(image, 1200, 1500),
-            alt: image.alt || homePage.spotlightProduct?.title || "",
+            alt: image.alt || visibleSpotlightProduct.title || "",
           })),
-          categoryTitle: homePage.spotlightProduct.category.title,
-          attributes: (homePage.spotlightProduct.attributes ?? []).map((attribute) => ({
+          categoryTitle: visibleSpotlightProduct.category.title,
+          attributes: (visibleSpotlightProduct.attributes ?? []).map((attribute) => ({
             label: attribute.label,
             value: attribute.value,
           })),
         }
       : null,
-    offerProducts: offerProducts.map(mapProductToCatalogCard),
+    offerProducts: visibleOfferProducts.map(mapProductToCatalogCard),
     promo: {
       title: homePage?.promoTitle || "Compra con calma, elegi con tiempo.",
       text:

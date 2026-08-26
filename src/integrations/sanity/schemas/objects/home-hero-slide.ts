@@ -2,7 +2,7 @@ import { defineField, defineType } from "sanity";
 
 export const homeHeroSlideSchema = defineType({
   name: "homeHeroSlide",
-  title: "Slide de hero",
+  title: "Diapositiva principal",
   type: "object",
   fields: [
     defineField({
@@ -12,7 +12,7 @@ export const homeHeroSlideSchema = defineType({
     }),
     defineField({
       name: "title",
-      title: "Titulo principal",
+      title: "Título principal",
       type: "string",
       validation: (rule) => rule.required().min(2).max(140),
     }),
@@ -25,38 +25,38 @@ export const homeHeroSlideSchema = defineType({
     }),
     defineField({
       name: "desktopImage",
-      title: "Imagen desktop",
+      title: "Imagen para escritorio",
       type: "imageWithAlt",
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: "mobileImage",
-      title: "Imagen mobile",
+      title: "Imagen para móvil",
       type: "imageWithAlt",
     }),
     defineField({
       name: "primaryCtaLabel",
-      title: "Texto CTA principal",
+      title: "Texto del botón principal",
       type: "string",
     }),
     defineField({
       name: "primaryCtaHref",
-      title: "Link CTA principal",
+      title: "Enlace del botón principal",
       type: "string",
     }),
     defineField({
       name: "secondaryCtaLabel",
-      title: "Texto CTA secundario",
+      title: "Texto del botón secundario",
       type: "string",
     }),
     defineField({
       name: "secondaryCtaHref",
-      title: "Link CTA secundario",
+      title: "Enlace del botón secundario",
       type: "string",
     }),
     defineField({
       name: "isActive",
-      title: "Slide activo",
+      title: "Diapositiva activa",
       type: "boolean",
       initialValue: true,
     }),

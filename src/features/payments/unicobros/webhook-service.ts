@@ -1,7 +1,10 @@
 import crypto from "node:crypto";
 
 import { Prisma } from "@/generated/prisma/client";
-import { sendPaymentApprovedEmails } from "@/features/emails/email-service";
+import {
+  sendPaymentApprovedEmails,
+  sendPaymentStockFailureAlertEmail,
+} from "@/features/emails/email-service";
 import {
   prepareSanityStockTargets,
   decrementSanityStock,
@@ -9,7 +12,14 @@ import {
   restoreSanityStock,
 } from "@/features/inventory/inventory-service";
 import { getOrderById } from "@/features/orders/server/order-repository";
+import {
+  getUnicobrosOperationByUid,
+  searchUnicobrosOperationsByReference,
+  validateUnicobrosOperationAgainstOrder,
+  type UnicobrosOperationSnapshot,
+} from "@/features/payments/unicobros/client";
 import { mapUnicobrosStatus } from "@/features/payments/unicobros/status-mapper";
+import { recordAnalyticsPurchaseCompleted } from "@/features/analytics/server/lifecycle";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 
@@ -24,6 +34,29 @@ type ParsedUnicobrosWebhook = {
   transactionId?: string;
   checkoutUid?: string;
 };
+
+type UnicobrosVerificationFailureReason =
+  | "missing_lookup_uid"
+  | "lookup_failed"
+  | "operation_not_found"
+  | "operation_not_approved"
+  | "reference_mismatch"
+  | "amount_mismatch"
+  | "currency_mismatch";
+
+type UnicobrosVerificationResult =
+  | {
+      ok: true;
+      source: "uid" | "reference";
+      snapshot: UnicobrosOperationSnapshot;
+      lookupUid: string | null;
+    }
+  | {
+      ok: false;
+      reason: UnicobrosVerificationFailureReason;
+      lookupUid: string | null;
+      details?: string;
+    };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -85,6 +118,98 @@ function parsePayload(payload: unknown): ParsedUnicobrosWebhook {
   };
 }
 
+function getOrderExpectedReference(order: UnicobrosWebhookOrder) {
+  return (order.externalReference ?? order.orderNumber).trim();
+}
+
+function getUnicobrosLookupUid(
+  order: UnicobrosWebhookOrder,
+  parsed: ParsedUnicobrosWebhook,
+) {
+  return (
+    order.providerPaymentId?.trim() ||
+    parsed.checkoutUid?.trim() ||
+    parsed.providerPaymentId?.trim() ||
+    null
+  );
+}
+
+function validateSnapshotAgainstOrder(
+  snapshot: UnicobrosOperationSnapshot,
+  order: UnicobrosWebhookOrder,
+) {
+  return validateUnicobrosOperationAgainstOrder({
+    snapshot,
+    reference: getOrderExpectedReference(order),
+    total: order.total.toNumber(),
+    currency: "ARS",
+  });
+}
+
+async function verifyUnicobrosApproval(
+  order: UnicobrosWebhookOrder,
+  parsed: ParsedUnicobrosWebhook,
+): Promise<UnicobrosVerificationResult> {
+  const lookupUid = getUnicobrosLookupUid(order, parsed);
+  const failureDetails: string[] = [];
+
+  if (lookupUid) {
+    try {
+      const snapshot = await getUnicobrosOperationByUid(lookupUid);
+      const validation = validateSnapshotAgainstOrder(snapshot, order);
+
+      if (validation.ok) {
+        return {
+          ok: true,
+          source: "uid",
+          snapshot,
+          lookupUid,
+        };
+      }
+
+      failureDetails.push(validation.reason);
+    } catch (error) {
+      failureDetails.push(error instanceof Error ? error.message : "lookup_failed");
+    }
+  }
+
+  try {
+    const snapshots = await searchUnicobrosOperationsByReference(getOrderExpectedReference(order));
+
+    for (const snapshot of snapshots) {
+      const validation = validateSnapshotAgainstOrder(snapshot, order);
+
+      if (validation.ok) {
+        return {
+          ok: true,
+          source: "reference",
+          snapshot,
+          lookupUid,
+        };
+      }
+
+      failureDetails.push(validation.reason);
+    }
+
+    return {
+      ok: false,
+      reason: snapshots.length > 0 ? "reference_mismatch" : "operation_not_found",
+      lookupUid,
+      details: failureDetails.length > 0 ? failureDetails.join(" | ") : undefined,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      reason: lookupUid ? "lookup_failed" : "missing_lookup_uid",
+      lookupUid,
+      details: [
+        ...failureDetails,
+        error instanceof Error ? error.message : "search_failed",
+      ].join(" | "),
+    };
+  }
+}
+
 function stableJson(value: unknown): string {
   if (Array.isArray(value)) {
     return `[${value.map(stableJson).join(",")}]`;
@@ -100,14 +225,39 @@ function stableJson(value: unknown): string {
   return JSON.stringify(value);
 }
 
+function digestStablePayload(payload: unknown) {
+  return crypto.createHash("sha256").update(stableJson(payload)).digest("hex");
+}
+
+function readNormalizedIdentifier(value?: string) {
+  const normalized = value?.trim();
+
+  return normalized ? normalized : null;
+}
+
 function buildDedupeKey(
   parsed: ParsedUnicobrosWebhook,
-  mappedStatus: ReturnType<typeof mapUnicobrosStatus>,
   payload: unknown,
 ) {
+  const providerPaymentId = readNormalizedIdentifier(parsed.providerPaymentId);
+  const providerEventId = readNormalizedIdentifier(parsed.providerEventId);
+  const checkoutUid = readNormalizedIdentifier(parsed.checkoutUid);
+  const transactionId = readNormalizedIdentifier(parsed.transactionId);
+  const externalReference = readNormalizedIdentifier(parsed.externalReference);
+  const payloadDigest = digestStablePayload(payload);
+
   const basis =
-    [parsed.externalReference, mappedStatus.category].filter(Boolean).join(":") ||
-    stableJson(payload);
+    providerPaymentId
+      ? `payment:${providerPaymentId}`
+      : providerEventId
+        ? `event:${providerEventId}`
+        : checkoutUid
+          ? `checkout:${checkoutUid}`
+          : transactionId
+            ? `transaction:${transactionId}`
+            : externalReference
+              ? `reference:${externalReference}:${payloadDigest}`
+              : `payload:${payloadDigest}`;
 
   return `unicobros:${crypto.createHash("sha256").update(basis).digest("hex")}`;
 }
@@ -232,18 +382,28 @@ async function deleteWebhookEvent(dedupeKey: string) {
   });
 }
 
+async function markWebhookEventProcessed(dedupeKey: string) {
+  await prisma.paymentWebhookEvent.update({
+    where: { dedupeKey },
+    data: {
+      processedAt: new Date(),
+    },
+  });
+}
+
 export async function handleUnicobrosWebhook(params: {
   headers: Record<string, string>;
   payload: unknown;
 }) {
   const parsed = parsePayload(params.payload);
   const mappedStatus = mapUnicobrosStatus(parsed.rawStatusCode);
-  const dedupeKey = buildDedupeKey(parsed, mappedStatus, params.payload);
+  const dedupeKey = buildDedupeKey(parsed, params.payload);
 
   const { order } = await findOrderByReference(parsed.externalReference);
   const wasAlreadyPaid = order ? isPaidOrder(order) : false;
   const shouldApprove = shouldApproveOrder(mappedStatus);
   const shouldApplyStateChange = Boolean(order && !wasAlreadyPaid);
+  let approvedVerification: UnicobrosVerificationResult | null = null;
 
   if (!order) {
     logger.warn("payments.unicobros.webhook.order_not_found", {
@@ -286,6 +446,31 @@ export async function handleUnicobrosWebhook(params: {
   let stockTargets: Awaited<ReturnType<typeof prepareSanityStockTargets>> | null = null;
 
   if (order?.id && shouldApprove && !wasAlreadyPaid) {
+    approvedVerification = await verifyUnicobrosApproval(order, parsed);
+
+    if (!approvedVerification.ok) {
+      stockSkippedReason = approvedVerification.reason;
+
+      logger.warn("payments.unicobros.webhook.provider_validation_failed", {
+        dedupeKey,
+        orderId: order.id,
+        reason: approvedVerification.reason,
+        lookupUid: approvedVerification.lookupUid,
+        details: approvedVerification.details ?? null,
+        externalReference: parsed.externalReference ?? null,
+      });
+
+      await markWebhookEventProcessed(dedupeKey).catch(() => null);
+
+      return {
+        duplicated: false,
+        linkedOrderId: order.id,
+        paymentUpdated: false,
+        stockDiscounted: false,
+        stockSkippedReason,
+      };
+    }
+
     try {
       stockTargets = await prepareSanityStockTargets(mapOrderItemsToInventoryItems(order));
       await decrementSanityStock(stockTargets);
@@ -301,6 +486,58 @@ export async function handleUnicobrosWebhook(params: {
         reason: stockSkippedReason,
         error: error instanceof Error ? error.message : "unknown_error",
       });
+
+      await prisma.$transaction(async (tx) => {
+        await tx.paymentWebhookEvent.update({
+          where: { dedupeKey },
+          data: {
+            providerEventId: parsed.providerEventId,
+            providerPaymentId: parsed.providerPaymentId,
+            externalReference: parsed.externalReference,
+            orderId: order.id,
+            payload: params.payload as never,
+            headers: params.headers as never,
+            processedAt: new Date(),
+          },
+        });
+
+        await tx.order.updateMany({
+          where: {
+            id: order.id,
+            status: {
+              in: ["CREATED", "PENDING_PAYMENT"],
+            },
+          },
+          data: {
+            status: "PAYMENT_FAILED",
+            paymentStatus: "REJECTED",
+            paymentProvider: "UNICOBROS",
+            rawProviderStatus: "approved_payment_stock_unavailable",
+          },
+        });
+      });
+
+      const updatedOrder = await getOrderById(order.id);
+
+      if (updatedOrder) {
+        await sendPaymentStockFailureAlertEmail({
+          order: updatedOrder,
+          provider: "unicobros",
+        });
+      } else {
+        logger.error("payments.unicobros.webhook.stock_failure_order_reload_failed", {
+          dedupeKey,
+          orderId: order.id,
+        });
+      }
+
+      return {
+        duplicated: false,
+        linkedOrderId: order.id,
+        paymentUpdated: false,
+        stockDiscounted: false,
+        stockSkippedReason,
+      };
     }
   } else if (order?.id && shouldApprove && wasAlreadyPaid) {
     stockSkippedReason = "order_already_paid";
@@ -333,7 +570,8 @@ export async function handleUnicobrosWebhook(params: {
         };
 
         if (shouldApplyStateChange || !order.rawProviderStatus) {
-          nextData.rawProviderStatus = parsed.rawStatusText ?? undefined;
+          nextData.rawProviderStatus =
+            approvedVerification?.snapshot.statusText ?? parsed.rawStatusText ?? undefined;
         }
 
         if (shouldApplyStateChange) {
@@ -417,7 +655,14 @@ export async function handleUnicobrosWebhook(params: {
     stockDiscounted,
     stockSkippedReason,
     paymentUpdated: orderUpdated,
+    verificationSource: approvedVerification?.ok ? approvedVerification.source : null,
   });
+
+  if (order?.id && shouldApprove && orderUpdated) {
+    await recordAnalyticsPurchaseCompleted({
+      orderId: order.id,
+    });
+  }
 
   if (order?.id && shouldApprove && orderUpdated) {
     try {

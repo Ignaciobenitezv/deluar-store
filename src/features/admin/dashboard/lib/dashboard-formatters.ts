@@ -18,11 +18,17 @@ export function formatDashboardPercent(value: number) {
   }).format(Number.isFinite(value) ? value : 0)}%`;
 }
 
-export function formatDashboardDateTime(value: Date) {
+export function formatDashboardDateTime(value: Date | string | number | null | undefined, fallback = "—") {
+  const date = value instanceof Date ? value : new Date(value ?? "");
+
+  if (!Number.isFinite(date.getTime())) {
+    return fallback;
+  }
+
   return new Intl.DateTimeFormat("es-AR", {
     dateStyle: "medium",
     timeStyle: "short",
-  }).format(value);
+  }).format(date);
 }
 
 export function formatDashboardShortDate(value: string) {

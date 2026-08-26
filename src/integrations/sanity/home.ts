@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { mapHomePageData } from "@/features/home/mappers";
 import type { HomePageData } from "@/features/home/types";
-import { sanityFetch } from "@/integrations/sanity/client";
+import { sanityFetch, sanityFreshFetch } from "@/integrations/sanity/client";
 import {
   categoryTreeQuery,
   featuredProductsQuery,
@@ -23,11 +23,11 @@ export const getHomePageData = cache(async (): Promise<HomePageData> => {
   try {
     const [homePage, categories, featuredProducts, newInProducts, offerProducts, promoSettings, siteSettings] =
       await Promise.all([
-        sanityFetch<HomePageDocument | null>(homePageQuery),
+        sanityFreshFetch<HomePageDocument | null>(homePageQuery),
         sanityFetch<CategoryDocument[]>(categoryTreeQuery),
-        sanityFetch<ProductDocument[]>(featuredProductsQuery),
-        sanityFetch<ProductDocument[]>(newInProductsQuery),
-        sanityFetch<ProductDocument[]>(offerProductsQuery),
+        sanityFreshFetch<ProductDocument[]>(featuredProductsQuery),
+        sanityFreshFetch<ProductDocument[]>(newInProductsQuery),
+        sanityFreshFetch<ProductDocument[]>(offerProductsQuery),
         sanityFetch<PromoSettingsDocument | null>(promoSettingsQuery),
         sanityFetch<SiteSettingsDocument | null>(siteSettingsQuery),
       ]);

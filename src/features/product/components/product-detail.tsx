@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { ProductViewTracker } from "@/features/analytics/components/product-view-tracker";
 import { ProductGrid } from "@/features/catalog/components/product-grid";
 import { ProductCard } from "@/features/catalog/components/product-card";
 import type { ProductDetailData } from "@/features/catalog/types";
@@ -78,6 +79,12 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
   return (
     <div className="space-y-20 pt-6 pb-0">
+      <ProductViewTracker
+        productId={product.id}
+        productSlug={product.slug}
+        variantId={activeVariant?.id ?? null}
+      />
+
       <section className="grid gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)] lg:items-start lg:gap-14">
         <ProductGallery images={activeImages} title={product.title} />
 

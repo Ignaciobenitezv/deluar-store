@@ -176,7 +176,7 @@ export function CheckoutForm({
           Completa tus datos
         </h2>
         <p className="max-w-2xl text-sm leading-7 text-muted sm:text-base">
-          Ingresa la informacion de contacto y entrega para que podamos preparar tu
+          Ingresá la información de contacto y entrega para que podamos preparar tu
           orden correctamente antes del paso de pago.
         </p>
       </div>
@@ -206,14 +206,14 @@ export function CheckoutForm({
           />
           <Field
             id="email"
-            label="Email"
+            label="Correo electrónico"
             value={values.email}
             error={errors.email}
             onChange={handleChange}
           />
           <Field
             id="phone"
-            label="Telefono"
+            label="Teléfono"
             value={values.phone}
             error={errors.phone}
             onChange={handleChange}
@@ -225,13 +225,13 @@ export function CheckoutForm({
         <div className="space-y-1">
           <p className="text-xs uppercase tracking-[0.22em] text-muted">Entrega</p>
           <h3 className="text-xl font-semibold tracking-[0.03em] text-foreground">
-            Direccion de envio
+            Dirección de envío
           </h3>
         </div>
 
         <div className="space-y-3">
           <p className="text-sm font-medium tracking-[0.01em] text-foreground">
-            Metodo de envio *
+            Método de envío *
           </p>
           <div className="grid gap-3">
             {shippingOptions.map((option) => {
@@ -288,7 +288,7 @@ export function CheckoutForm({
 
         {isPickupMethod ? (
           <div className="rounded-[1.2rem] border border-border/75 bg-white/78 px-4 py-4 text-sm leading-7 text-muted">
-            Podes retirar tu pedido en Resistencia, Chaco. Luego coordinaremos por
+            Podés retirar tu pedido en Resistencia, Chaco. Luego coordinaremos por
             WhatsApp el punto y horario de retiro.
           </div>
         ) : null}
@@ -298,7 +298,7 @@ export function CheckoutForm({
             <div className="sm:col-span-2">
               <Field
                 id="address"
-                label="Direccion"
+                label="Dirección"
                 value={values.address}
                 error={errors.address}
                 onChange={handleChange}
@@ -326,7 +326,7 @@ export function CheckoutForm({
           {showLocationFields ? (
             <Field
               id="postalCode"
-              label="Codigo postal"
+              label="Código postal"
               value={values.postalCode}
               error={errors.postalCode}
               onChange={handleChange}
@@ -351,7 +351,7 @@ export function CheckoutForm({
           <div className="space-y-1">
             <p className="text-xs uppercase tracking-[0.22em] text-muted">Medio de pago</p>
             <p className="text-sm leading-7 text-muted">
-              Elegi como queres dejar preparado el pago de tu orden.
+              Elegí cómo querés dejar preparado el pago de tu orden.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -359,7 +359,7 @@ export function CheckoutForm({
               {
                 value: PAYMENT_METHODS.GOCUOTAS,
                 title: "GoCuotas",
-                description: "Tarjetas en cuotas con checkout externo seguro.",
+                description: "Tarjetas en cuotas con pago externo seguro.",
               },
               ...(isUnicobrosEnabled
                 ? [
@@ -367,7 +367,7 @@ export function CheckoutForm({
                       value: PAYMENT_METHODS.UNICOBROS,
                       title: "Unicobros",
                       description:
-                        "Checkout externo seguro con redireccion al proveedor.",
+                        "Pago externo seguro con redirección al proveedor.",
                     },
                   ]
                 : []),
@@ -422,7 +422,7 @@ export function CheckoutForm({
           <p className="text-xs uppercase tracking-[0.22em] text-muted">Siguiente paso</p>
           <p className="text-sm leading-7 text-muted">
             Primero creamos tu orden y luego preparamos el inicio de pago. Si falta
-            algun dato, te lo vamos a indicar aca.
+            algún dato, te lo vamos a indicar acá.
           </p>
         </div>
         <button

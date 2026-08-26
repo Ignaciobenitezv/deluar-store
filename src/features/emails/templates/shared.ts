@@ -8,6 +8,12 @@ const currencyFormatter = new Intl.NumberFormat("es-AR", {
   maximumFractionDigits: 0,
 });
 
+const dateTimeFormatter = new Intl.DateTimeFormat("es-AR", {
+  dateStyle: "short",
+  timeStyle: "short",
+  timeZone: "America/Argentina/Buenos_Aires",
+});
+
 const paymentMethodLabels: Record<Order["paymentMethod"], string> = {
   gocuotas: "GoCuotas",
   transfer: "Transferencia bancaria",
@@ -47,6 +53,10 @@ export function escapeHtml(value: string | number | undefined | null) {
 
 export function formatCurrency(value: number) {
   return currencyFormatter.format(value);
+}
+
+export function formatDateTime(value: string | Date) {
+  return dateTimeFormatter.format(new Date(value));
 }
 
 export function formatPaymentMethod(method: Order["paymentMethod"]) {
@@ -155,6 +165,7 @@ export function renderOrderSummary(order: Order) {
     <div style="background:#fbf8f5;border:1px solid #eadfd7;border-radius:12px;padding:16px;margin:20px 0;">
       <div style="font-size:14px;line-height:1.7;color:#2f241f;">
         <div><strong>Orden:</strong> ${escapeHtml(order.orderNumber)}</div>
+        <div><strong>Subtotal:</strong> ${formatCurrency(order.subtotal)}</div>
         <div><strong>Metodo de pago:</strong> ${escapeHtml(formatPaymentMethod(order.paymentMethod))}</div>
         <div><strong>Metodo de envio:</strong> ${escapeHtml(getShippingMethodLabel(order.shippingMethod))}</div>
         <div><strong>Costo de envio:</strong> ${formatCurrency(order.shippingCost)}</div>

@@ -3,9 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { dashboardNavigation } from "../lib/dashboard-navigation";
+import { dashboardUi } from "../lib/dashboard-ui";
 import { cn } from "@/lib/utils";
 
 function isActivePath(pathname: string, href: string) {
+  if (href === "/admin") {
+    return pathname === href;
+  }
+
   if (href === "/admin/dashboard") {
     return pathname === href;
   }
@@ -15,8 +20,9 @@ function isActivePath(pathname: string, href: string) {
 
 const groupLabels: Record<string, string> = {
   principal: "Principal",
+  catalog: "Catálogo",
   commerce: "Comercio",
-  operations: "Operación",
+  operations: "Operaciones",
   future: "Futuro",
 };
 
@@ -31,14 +37,14 @@ export function DashboardSidebar() {
       accumulator[item.group].push(item);
       return accumulator;
     },
-    { principal: [], commerce: [], operations: [], future: [] },
+    { principal: [], catalog: [], commerce: [], operations: [], future: [] },
   );
 
   return (
-    <nav aria-label="Navegación del dashboard" className="hidden h-full bg-white lg:block">
+    <nav aria-label="Navegación del panel" className="hidden h-full bg-white lg:block">
       <div className="border-b border-slate-200/70 px-5 py-5">
-        <Link href="/admin/dashboard" className="flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900 text-sm font-semibold text-white">
+        <Link href="/admin" className="flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#314158] text-sm font-semibold text-white">
             DC
           </span>
           <span className="min-w-0">
@@ -46,14 +52,14 @@ export function DashboardSidebar() {
               DOTCOM Commerce
             </span>
             <span className="block text-sm font-semibold tracking-[-0.02em] text-slate-900">
-              Dashboard
+              Panel
             </span>
           </span>
         </Link>
       </div>
 
       <div className="space-y-5 px-3 py-4 lg:px-4">
-        {(["principal", "commerce", "operations", "future"] as const).map((groupKey) => {
+        {(["principal", "catalog", "commerce", "operations", "future"] as const).map((groupKey) => {
           const items = grouped[groupKey];
 
           return (
@@ -74,13 +80,16 @@ export function DashboardSidebar() {
                       className={cn(
                         "block rounded-[18px] border px-3.5 py-3 transition",
                         active
-                          ? "border-slate-900 bg-slate-900 text-white shadow-[0_10px_22px_rgba(15,23,42,0.16)]"
+                          ? dashboardUi.softAction
                           : "border-transparent bg-transparent text-slate-700 hover:border-slate-200 hover:bg-slate-50",
                       )}
                     >
                       <span className="block text-sm font-medium">{item.label}</span>
                       <span
-                        className={cn("mt-1 block text-xs leading-5", active ? "text-white/75" : "text-slate-500")}
+                        className={cn(
+                          "mt-1 block text-xs leading-5",
+                          active ? "text-slate-600" : "text-slate-500",
+                        )}
                       >
                         {item.description}
                       </span>

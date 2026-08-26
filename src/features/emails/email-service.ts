@@ -6,6 +6,7 @@ import {
   renderPaymentApprovedEmail,
 } from "@/features/emails/templates/payment-approved";
 import { renderOrderCreatedEmail } from "@/features/emails/templates/order-created";
+import { renderAdminPaymentStockFailedEmail } from "@/features/emails/templates/payment-stock-failed";
 import { hasEmailConfig, sendEmail } from "@/integrations/email/resend";
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
@@ -136,4 +137,21 @@ export async function sendPaymentApprovedEmails(order: Order) {
       template: "admin-payment-approved",
     }),
   ]);
+}
+
+export async function sendPaymentStockFailureAlertEmail(params: {
+  order: Order;
+  provider: NonNullable<Order["paymentProvider"]>;
+}) {
+  await sendTransactionalEmail({
+    eventKey: `payment-stock-failed:admin:${params.provider}:${params.order.id}`,
+    orderId: params.order.id,
+    to: env.emailAdminTo,
+    subject: `ATENCION: pago confirmado sin stock - Pedido ${params.order.orderNumber}`,
+    html: renderAdminPaymentStockFailedEmail({
+      order: params.order,
+      provider: params.provider,
+    }),
+    template: "admin-payment-stock-failed",
+  });
 }

@@ -9,8 +9,16 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/Customer'
+export type * from './models/User'
+export type * from './models/Session'
+export type * from './models/Account'
+export type * from './models/Verification'
 export type * from './models/ShippingAddress'
 export type * from './models/ProductSnapshot'
+export type * from './models/AnalyticsVisitor'
+export type * from './models/AnalyticsSession'
+export type * from './models/AnalyticsEvent'
+export type * from './models/AnalyticsCart'
 export type * from './models/Product'
 export type * from './models/Order'
 export type * from './models/PaymentWebhookEvent'

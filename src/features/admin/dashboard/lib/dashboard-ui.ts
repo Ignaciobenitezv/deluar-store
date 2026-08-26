@@ -2,7 +2,7 @@ import type { DashboardStatBadgeTone, DashboardTone } from "../types/dashboard";
 
 export const dashboardUi = {
   pageBackground: "bg-[#f6f7fb]",
-  pageOuter: "min-h-screen bg-[#f6f7fb] text-foreground overflow-x-clip",
+  pageOuter: "min-h-screen bg-[#f6f7fb] text-foreground",
   shell: "rounded-[24px] border border-slate-200/50 bg-white shadow-[0_10px_22px_rgba(15,23,42,0.03)] sm:rounded-[30px] sm:shadow-[0_12px_28px_rgba(15,23,42,0.035)]",
   surface: "bg-white",
   card: "rounded-[22px] border border-slate-200/50 bg-white shadow-[0_8px_18px_rgba(15,23,42,0.028)] sm:rounded-[26px] sm:shadow-[0_10px_22px_rgba(15,23,42,0.03)]",
@@ -28,6 +28,10 @@ export const dashboardUi = {
   spacingSection: "gap-3 sm:gap-4",
   pill: "inline-flex items-center rounded-full border border-slate-200/60 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500",
   labelPill: "inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600",
+  primaryAction:
+    "border-[#314158] bg-[#314158] text-white shadow-[0_10px_22px_rgba(49,65,88,0.16)] transition hover:border-[#3b4f69] hover:bg-[#3b4f69]",
+  softAction:
+    "border-[#d7e0ea] bg-[#eef3f8] text-[#334155] shadow-[0_8px_16px_rgba(15,23,42,0.04)] transition hover:border-[#c8d4e1] hover:bg-[#e4ebf3]",
   navbarSurface: "bg-white/95 backdrop-blur",
 };
 

@@ -19,6 +19,7 @@ export type CatalogProductCard = {
   imageAlt: string;
   hoverImageUrl?: string | null;
   hoverImageAlt?: string;
+  images: ProductDetailImage[];
   categorySlug: string;
   categoryTitle: string;
   subcategorySlug?: string;

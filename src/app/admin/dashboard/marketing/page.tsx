@@ -14,7 +14,7 @@ import { formatDashboardDateTime } from "@/features/admin/dashboard/lib/dashboar
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Marketing | DOTCOM Commerce Dashboard",
+  title: "Marketing | Panel de comercio de DOTCOM",
 };
 
 type AdminDashboardMarketingPageProps = {
@@ -35,20 +35,20 @@ export default async function AdminDashboardMarketingPage({
   return (
     <DashboardShell
       title="Marketing"
-      subtitle={`Módulo futuro de analytics y adquisición. Requiere tracking avanzado. Período activo: ${DASHBOARD_PERIODS[period].label}.`}
+      subtitle={`Módulo futuro de analítica y adquisición. Requiere seguimiento avanzado. Período activo: ${DASHBOARD_PERIODS[period].label}.`}
       lastUpdated={lastUpdated}
     >
       <section className="grid gap-3 min-[420px]:grid-cols-2 sm:gap-4 xl:grid-cols-4">
         <KpiCard
           title="Estado"
           value="Pendiente"
-          description="No hay tracking avanzado activo."
+          description="No hay seguimiento avanzado activo."
           tone="accent"
         />
         <KpiCard
           title="Datos faltantes"
           value={missingTracking.length.toString()}
-          description="Métricas que dependen de tracking."
+          description="Métricas que dependen de seguimiento."
           tone="warning"
         />
         <KpiCard
@@ -66,12 +66,12 @@ export default async function AdminDashboardMarketingPage({
       </section>
 
       <ChartCard
-        title="Tracking faltante"
+        title="Seguimiento faltante"
         description="Estas son las métricas reales que todavía no existen en el producto."
         emptyState={
           <EmptyState
             title="No hay métricas de marketing disponibles todavía."
-            description="Cuando exista tracking avanzado, este módulo mostrará visitas, UTM, dispositivos y abandono."
+            description="Cuando exista seguimiento avanzado, este módulo mostrará visitas, UTM, dispositivos y abandono."
           />
         }
       >
@@ -80,7 +80,7 @@ export default async function AdminDashboardMarketingPage({
             <LockedMetricCard
               key={item}
               title={item}
-              description="Disponible al activar tracking avanzado."
+              description="Disponible al activar seguimiento avanzado."
             />
           ))}
         </div>

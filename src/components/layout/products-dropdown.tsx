@@ -79,7 +79,7 @@ function DropdownTree({
                     isExpanded && "text-[#2f211b]",
                   )}
                 >
-                  <span aria-hidden="true">{isExpanded ? "−" : "+"}</span>
+                  <span aria-hidden="true">{isExpanded ? "" : "+"}</span>
                 </button>
               ) : null}
             </div>

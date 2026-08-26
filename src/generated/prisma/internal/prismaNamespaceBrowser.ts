@@ -52,8 +52,16 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Customer: 'Customer',
+  User: 'User',
+  Session: 'Session',
+  Account: 'Account',
+  Verification: 'Verification',
   ShippingAddress: 'ShippingAddress',
   ProductSnapshot: 'ProductSnapshot',
+  AnalyticsVisitor: 'AnalyticsVisitor',
+  AnalyticsSession: 'AnalyticsSession',
+  AnalyticsEvent: 'AnalyticsEvent',
+  AnalyticsCart: 'AnalyticsCart',
   Product: 'Product',
   Order: 'Order',
   PaymentWebhookEvent: 'PaymentWebhookEvent',
@@ -89,6 +97,70 @@ export const CustomerScalarFieldEnum = {
 export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
 
 
+export const UserScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  emailVerified: 'emailVerified',
+  image: 'image',
+  role: 'role',
+  banned: 'banned',
+  banReason: 'banReason',
+  banExpires: 'banExpires',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const SessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  expiresAt: 'expiresAt',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  impersonatedBy: 'impersonatedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SessionScalarFieldEnum = (typeof SessionScalarFieldEnum)[keyof typeof SessionScalarFieldEnum]
+
+
+export const AccountScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  issuer: 'issuer',
+  accountId: 'accountId',
+  providerId: 'providerId',
+  accessToken: 'accessToken',
+  refreshToken: 'refreshToken',
+  accessTokenExpiresAt: 'accessTokenExpiresAt',
+  refreshTokenExpiresAt: 'refreshTokenExpiresAt',
+  scope: 'scope',
+  idToken: 'idToken',
+  password: 'password',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AccountScalarFieldEnum = (typeof AccountScalarFieldEnum)[keyof typeof AccountScalarFieldEnum]
+
+
+export const VerificationScalarFieldEnum = {
+  id: 'id',
+  identifier: 'identifier',
+  value: 'value',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
+
+
 export const ShippingAddressScalarFieldEnum = {
   id: 'id',
   customerId: 'customerId',
@@ -115,6 +187,78 @@ export const ProductSnapshotScalarFieldEnum = {
 } as const
 
 export type ProductSnapshotScalarFieldEnum = (typeof ProductSnapshotScalarFieldEnum)[keyof typeof ProductSnapshotScalarFieldEnum]
+
+
+export const AnalyticsVisitorScalarFieldEnum = {
+  id: 'id',
+  visitorId: 'visitorId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  lastSeenAt: 'lastSeenAt'
+} as const
+
+export type AnalyticsVisitorScalarFieldEnum = (typeof AnalyticsVisitorScalarFieldEnum)[keyof typeof AnalyticsVisitorScalarFieldEnum]
+
+
+export const AnalyticsSessionScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  visitorId: 'visitorId',
+  startedAt: 'startedAt',
+  lastSeenAt: 'lastSeenAt',
+  landingPage: 'landingPage',
+  referrer: 'referrer',
+  utmSource: 'utmSource',
+  utmMedium: 'utmMedium',
+  utmCampaign: 'utmCampaign',
+  utmTerm: 'utmTerm',
+  utmContent: 'utmContent'
+} as const
+
+export type AnalyticsSessionScalarFieldEnum = (typeof AnalyticsSessionScalarFieldEnum)[keyof typeof AnalyticsSessionScalarFieldEnum]
+
+
+export const AnalyticsEventScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  dedupeKey: 'dedupeKey',
+  type: 'type',
+  visitorId: 'visitorId',
+  sessionId: 'sessionId',
+  cartId: 'cartId',
+  orderId: 'orderId',
+  productId: 'productId',
+  variantId: 'variantId',
+  path: 'path',
+  url: 'url',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type AnalyticsEventScalarFieldEnum = (typeof AnalyticsEventScalarFieldEnum)[keyof typeof AnalyticsEventScalarFieldEnum]
+
+
+export const AnalyticsCartScalarFieldEnum = {
+  id: 'id',
+  cartId: 'cartId',
+  visitorId: 'visitorId',
+  sessionId: 'sessionId',
+  status: 'status',
+  itemCount: 'itemCount',
+  subtotal: 'subtotal',
+  itemsSnapshot: 'itemsSnapshot',
+  lastActivityAt: 'lastActivityAt',
+  checkoutStartedAt: 'checkoutStartedAt',
+  checkoutInfoCompletedAt: 'checkoutInfoCompletedAt',
+  convertedOrderId: 'convertedOrderId',
+  convertedAt: 'convertedAt',
+  purchaseCompletedAt: 'purchaseCompletedAt',
+  abandonedAt: 'abandonedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AnalyticsCartScalarFieldEnum = (typeof AnalyticsCartScalarFieldEnum)[keyof typeof AnalyticsCartScalarFieldEnum]
 
 
 export const ProductScalarFieldEnum = {
@@ -237,19 +381,19 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-export const JsonNullValueInput = {
-  JsonNull: JsonNull
-} as const
-
-export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
-
-
 export const NullableJsonNullValueInput = {
   DbNull: DbNull,
   JsonNull: JsonNull
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

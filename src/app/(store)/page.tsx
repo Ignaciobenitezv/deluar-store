@@ -15,7 +15,7 @@ import type {
 } from "@/features/home/types";
 import { buildMetadata } from "@/lib/seo";
 import { getSanityImageUrl } from "@/integrations/sanity/image";
-import { sanityFetch } from "@/integrations/sanity/client";
+import { sanityFetch, sanityFreshFetch } from "@/integrations/sanity/client";
 import { getHomePageData } from "@/integrations/sanity/home";
 import {
   categoryTreeQuery,
@@ -36,7 +36,7 @@ const TIENDANUBE_PLACEHOLDER_IMAGE_ASSET_REF =
 export async function generateMetadata(): Promise<Metadata> {
   try {
     const [homePage, siteSettings] = await Promise.all([
-      sanityFetch<HomePageDocument | null>(homePageQuery),
+      sanityFreshFetch<HomePageDocument | null>(homePageQuery),
       sanityFetch<SiteSettingsDocument | null>(siteSettingsQuery),
     ]);
 
@@ -67,7 +67,7 @@ async function buildHomeCategoryRail(): Promise<HomeCategoryRailItem[]> {
 
     const categoryItems = await Promise.all(
       categories.map(async (category) => {
-        const representativeProduct = await sanityFetch<{
+        const representativeProduct = await sanityFreshFetch<{
           representativeImage?: SanityImageWithAlt;
         } | null>(homeCategoryRepresentativeProductQuery, {
           categorySlug: category.slug.current,

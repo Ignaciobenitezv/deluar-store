@@ -37,12 +37,19 @@ function OfferPreviewCard({
   onClick: () => void;
 }) {
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onClick();
+        }
+      }}
       aria-label={`Ver ${direction === "left" ? "oferta anterior" : "oferta siguiente"}: ${product.title}`}
       className={cn(
-        "absolute top-1/2 hidden w-[16rem] -translate-y-1/2 overflow-hidden rounded-[2rem] border border-[#dbc7b2]/55 bg-[linear-gradient(180deg,rgba(252,247,241,0.68),rgba(243,234,225,0.6))] shadow-[0_18px_40px_rgba(58,40,26,0.07)] transition-all duration-500 xl:block",
+        "absolute top-1/2 hidden w-[16rem] -translate-y-1/2 overflow-hidden rounded-[2rem] border border-[#dbc7b2]/55 bg-[linear-gradient(180deg,rgba(252,247,241,0.68),rgba(243,234,225,0.6))] shadow-[0_18px_40px_rgba(58,40,26,0.07)] transition-all duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2 xl:block",
         direction === "left"
           ? "left-0 -translate-x-8 scale-[0.9] opacity-55 blur-[0.4px] hover:-translate-x-6 hover:opacity-70"
           : "right-0 translate-x-8 scale-[0.9] opacity-55 blur-[0.4px] hover:translate-x-6 hover:opacity-70",
@@ -50,6 +57,7 @@ function OfferPreviewCard({
     >
       <div className="relative aspect-[0.9/1] bg-[#eadfce]">
         <ProductCardImageStack
+          images={product.images}
           imageUrl={product.imageUrl}
           imageAlt={product.imageAlt}
           hoverImageUrl={product.hoverImageUrl}
@@ -65,7 +73,7 @@ function OfferPreviewCard({
           </h3>
         </div>
       </div>
-    </button>
+    </div>
   );
 }
 
@@ -148,6 +156,7 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
               >
                 <div className="relative min-h-[36rem] bg-[#eadfce]">
                   <ProductCardImageStack
+                    images={activeProduct.images}
                     imageUrl={activeProduct.imageUrl}
                     imageAlt={activeProduct.imageAlt}
                     hoverImageUrl={activeProduct.hoverImageUrl}
@@ -246,6 +255,7 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
               >
                 <div className="relative h-[260px] bg-[#eadfce] sm:h-[300px]">
                   <ProductCardImageStack
+                    images={activeProduct.images}
                     imageUrl={activeProduct.imageUrl}
                     imageAlt={activeProduct.imageAlt}
                     hoverImageUrl={activeProduct.hoverImageUrl}

@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local temporary files
+.tmp/
+.tmp-edge-profile/
+.tmp-edge-pipe-profile/

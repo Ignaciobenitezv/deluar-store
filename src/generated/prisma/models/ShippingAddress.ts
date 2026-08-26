@@ -437,10 +437,6 @@ export type ShippingAddressUncheckedUpdateManyWithoutCustomerNestedInput = {
   deleteMany?: Prisma.ShippingAddressScalarWhereInput | Prisma.ShippingAddressScalarWhereInput[]
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type ShippingAddressCreateNestedOneWithoutOrdersInput = {
   create?: Prisma.XOR<Prisma.ShippingAddressCreateWithoutOrdersInput, Prisma.ShippingAddressUncheckedCreateWithoutOrdersInput>
   connectOrCreate?: Prisma.ShippingAddressCreateOrConnectWithoutOrdersInput

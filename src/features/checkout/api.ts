@@ -12,7 +12,21 @@ type CreateCheckoutOrderInput = {
   items: CreateOrderItemInput[];
   shippingMethod?: ShippingMethod;
   paymentMethod?: EnabledCheckoutPaymentMethod;
+  analyticsCartId?: string;
 };
+
+export class CheckoutOrderError extends Error {
+  order?: Order;
+  status?: number;
+
+  constructor(message: string, options: { order?: Order; status?: number } = {}) {
+    super(message);
+    this.name = "CheckoutOrderError";
+    Object.setPrototypeOf(this, CheckoutOrderError.prototype);
+    this.order = options.order;
+    this.status = options.status;
+  }
+}
 
 export async function createCheckoutOrder(
   input: CreateCheckoutOrderInput,
@@ -35,8 +49,10 @@ export async function createCheckoutOrder(
       "errors" in result && Array.isArray(result.errors) && result.errors.length > 0
         ? result.errors
         : ["No se pudo crear la orden en este momento."];
-
-    throw new Error(errors.join(" "));
+    throw new CheckoutOrderError(errors.join(" "), {
+      order: "order" in result ? result.order : undefined,
+      status: response.status,
+    });
   }
 
   return {

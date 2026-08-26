@@ -3,10 +3,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { markTransferOrderPaidAction } from "@/app/admin/orders/actions";
 import { requireAdminSession } from "@/features/admin/auth";
+import {
+  getAdminOrderStatusLabel,
+  getAdminPaymentMethodLabel,
+  getAdminPaymentStatusLabel,
+  getAdminShippingMethodLabel,
+} from "@/features/admin/lib/admin-order-labels";
 import { getOrderItemVariantDisplayLines } from "@/features/order/order-item-display";
 import { getOrderById } from "@/features/orders/server/order-repository";
 import { PAYMENT_METHODS } from "@/features/payments/types";
-import { getShippingMethodLabel } from "@/features/shipping/shipping";
 
 export const dynamic = "force-dynamic";
 
@@ -96,7 +101,7 @@ export default async function AdminOrderDetailPage({
           href="/admin/orders"
           className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
         >
-          Volver a ordenes
+          Volver a órdenes
         </Link>
         <h1 className="mt-6 text-2xl font-semibold">Orden no encontrada</h1>
       </main>
@@ -113,7 +118,7 @@ export default async function AdminOrderDetailPage({
             href="/admin/orders"
             className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
           >
-            Volver a ordenes
+            Volver a órdenes
           </Link>
           <h1 className="mt-3 text-2xl font-semibold">Orden {order.orderNumber}</h1>
           <p className="mt-1 text-sm text-muted">{formatDate(order.createdAt)}</p>
@@ -150,33 +155,33 @@ export default async function AdminOrderDetailPage({
               label="Nombre"
               value={`${order.customer.firstName} ${order.customer.lastName}`.trim()}
             />
-            <DetailRow label="Email" value={order.customer.email} />
-            <DetailRow label="Telefono" value={order.customer.phone} />
+            <DetailRow label="Correo electrónico" value={order.customer.email} />
+            <DetailRow label="Teléfono" value={order.customer.phone} />
           </div>
         </div>
 
         <div className="rounded border border-border bg-surface p-4">
-          <h2 className="text-base font-semibold">Envio</h2>
+          <h2 className="text-base font-semibold">Envío</h2>
           <div className="mt-4 space-y-4">
-            <DetailRow label="Metodo" value={getShippingMethodLabel(order.shippingMethod)} />
+            <DetailRow label="Método" value={getAdminShippingMethodLabel(order.shippingMethod)} />
             <DetailRow
               label="Costo"
               value={order.shippingCost === 0 ? "Gratis" : formatPrice(order.shippingCost)}
             />
-            <DetailRow label="Direccion" value={order.shippingAddress.address} />
+            <DetailRow label="Dirección" value={order.shippingAddress.address} />
             <DetailRow label="Depto / piso" value={order.shippingAddress.apartment} />
             <DetailRow label="Localidad" value={order.shippingAddress.city} />
             <DetailRow label="Provincia" value={order.shippingAddress.province} />
-            <DetailRow label="Codigo postal" value={order.shippingAddress.postalCode} />
+            <DetailRow label="Código postal" value={order.shippingAddress.postalCode} />
           </div>
         </div>
 
         <div className="rounded border border-border bg-surface p-4">
           <h2 className="text-base font-semibold">Pago</h2>
           <div className="mt-4 space-y-4">
-            <DetailRow label="Metodo" value={order.paymentMethod} />
-            <DetailRow label="Estado de pago" value={order.paymentStatus} />
-            <DetailRow label="Estado de orden" value={order.status} />
+            <DetailRow label="Método" value={getAdminPaymentMethodLabel(order.paymentMethod)} />
+            <DetailRow label="Estado de pago" value={getAdminPaymentStatusLabel(order.paymentStatus)} />
+            <DetailRow label="Estado de orden" value={getAdminOrderStatusLabel(order.status)} />
             <DetailRow label="Total" value={formatPrice(order.total)} />
           </div>
         </div>
@@ -232,7 +237,7 @@ export default async function AdminOrderDetailPage({
         <div className="border-t border-border px-4 py-4 text-right">
           <p className="text-sm text-muted">Subtotal: {formatPrice(order.subtotal)}</p>
           <p className="mt-1 text-sm text-muted">
-            Envio: {order.shippingCost === 0 ? "Gratis" : formatPrice(order.shippingCost)}
+            Envío: {order.shippingCost === 0 ? "Gratis" : formatPrice(order.shippingCost)}
           </p>
           <p className="mt-1 text-lg font-semibold text-foreground">
             Total: {formatPrice(order.total)}

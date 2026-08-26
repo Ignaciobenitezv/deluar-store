@@ -1,9 +1,14 @@
 export type DashboardPeriodValue = "today" | "7d" | "30d" | "90d";
 
 export type DashboardSectionId =
+  | "home"
   | "overview"
+  | "acquisition"
+  | "catalog"
   | "sales"
   | "checkout"
+  | "conversion"
+  | "abandoned-carts"
   | "products"
   | "customers"
   | "location"
@@ -19,7 +24,7 @@ export type DashboardNavItem = {
   label: string;
   href: string;
   description: string;
-  group: "principal" | "commerce" | "operations" | "future";
+  group: "principal" | "catalog" | "commerce" | "operations" | "future";
 };
 
 export type DashboardRankingItem = {

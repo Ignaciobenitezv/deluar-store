@@ -13,7 +13,7 @@ type CheckoutPendingPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Checkout pendiente",
+  title: "Finalización de compra pendiente",
 };
 
 export default async function CheckoutPendingPage({
@@ -25,7 +25,7 @@ export default async function CheckoutPendingPage({
   return (
     <section className="mx-auto max-w-3xl px-6 py-16">
       <div className="space-y-5 rounded-[1.5rem] border border-border/80 bg-surface px-6 py-8">
-        <p className="text-xs uppercase tracking-[0.24em] text-muted">Checkout</p>
+        <p className="text-xs uppercase tracking-[0.24em] text-muted">Finalización de compra</p>
         <h1 className="text-3xl font-semibold tracking-[0.03em] text-foreground">
           Estamos esperando la confirmación
         </h1>

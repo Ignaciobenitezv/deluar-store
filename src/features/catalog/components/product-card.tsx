@@ -42,33 +42,33 @@ export function ProductCard({
           "overflow-hidden rounded-[8px] border border-neutral-200/40 bg-neutral-50/20 shadow-none sm:rounded-[10px] sm:border-neutral-200/50 sm:bg-neutral-50/30",
       )}
     >
-      <Link href={product.productHref} className="block">
-        <div
-          className={cn(
-            "relative w-full overflow-hidden",
-            isCatalogMobile
+      <div
+        className={cn(
+          "relative w-full overflow-hidden",
+          isCatalogMobile
+            ? "aspect-[1.28/1] bg-[#f4eadf]"
+            : isDesktopCatalog
               ? "aspect-[1.28/1] bg-[#f4eadf]"
-              : isDesktopCatalog
-                ? "aspect-[1.28/1] bg-[#f4eadf]"
-                : "aspect-square rounded-none bg-neutral-100 p-3 sm:bg-[#efe5d8] sm:p-0",
+              : "aspect-square rounded-none bg-neutral-100 p-3 sm:bg-[#efe5d8] sm:p-0",
+        )}
+      >
+        <ProductCardImageStack
+          href={product.productHref}
+          images={product.images}
+          imageUrl={product.imageUrl}
+          imageAlt={product.imageAlt}
+          hoverImageUrl={product.hoverImageUrl}
+          sizes={
+            isCatalogVariant
+              ? "(min-width: 1280px) 33vw, (min-width: 768px) 33vw, 100vw"
+              : "(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 100vw"
+          }
+          imageClassName={cn(
+            isCatalogVariant ? "object-cover" : "object-contain sm:object-cover",
           )}
-        >
-          <ProductCardImageStack
-            imageUrl={product.imageUrl}
-            imageAlt={product.imageAlt}
-            hoverImageUrl={product.hoverImageUrl}
-            sizes={
-              isCatalogVariant
-                ? "(min-width: 1280px) 33vw, (min-width: 768px) 33vw, 100vw"
-                : "(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 100vw"
-            }
-            imageClassName={cn(
-              isCatalogVariant ? "object-cover" : "object-contain sm:object-cover",
-            )}
-            placeholderClassName="text-sm uppercase tracking-[0.24em] text-muted"
-          />
-        </div>
-      </Link>
+          placeholderClassName="text-sm uppercase tracking-[0.24em] text-muted"
+        />
+      </div>
 
       <div
         className={cn(
@@ -79,14 +79,14 @@ export function ProductCard({
       >
         <div className="w-full overflow-hidden">
           <Link href={product.productHref} className="block">
-            <h2
-              title={product.title}
-              className={cn(
-                "font-semibold text-neutral-900",
-                isCatalogVariant
-                  ? "min-h-[2.6rem] line-clamp-2 text-[0.92rem] leading-[1.18]"
-                  : "truncate text-sm",
-              )}
+      <h2
+        title={product.title}
+        className={cn(
+          "font-semibold text-neutral-900",
+          isCatalogVariant
+            ? "min-h-[2.6rem] line-clamp-2 text-[0.92rem] leading-[1.18]"
+            : "truncate text-sm",
+        )}
             >
               {product.title}
             </h2>
@@ -170,9 +170,7 @@ export function ProductCard({
               outOfStockLabel="Sin stock"
               variant={isCatalogVariant ? "catalog" : "default"}
               className={cn(
-                isCatalogVariant
-                  ? "w-full overflow-hidden"
-                  : "w-full items-center overflow-hidden pt-2",
+                isCatalogVariant ? "w-full overflow-hidden" : "w-full items-center overflow-hidden pt-2",
                 !isCatalogVariant && product.hasSelectableOptions
                   ? "justify-end"
                   : !isCatalogVariant
@@ -181,7 +179,7 @@ export function ProductCard({
               )}
               buttonClassName={
                 isCatalogVariant
-                  ? "w-full min-w-0 !text-white"
+                  ? "w-full min-w-0"
                   : "h-7 min-w-0 px-2.5 text-[10px] sm:px-2.5 sm:text-[10px]"
               }
             />

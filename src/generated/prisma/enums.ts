@@ -55,3 +55,33 @@ export const PaymentStatus = {
 } as const
 
 export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
+
+
+export const AnalyticsEventType = {
+  SESSION_STARTED: 'SESSION_STARTED',
+  PAGE_VIEWED: 'PAGE_VIEWED',
+  PRODUCT_VIEWED: 'PRODUCT_VIEWED',
+  ADD_TO_CART: 'ADD_TO_CART',
+  REMOVE_FROM_CART: 'REMOVE_FROM_CART',
+  CART_VIEWED: 'CART_VIEWED',
+  CHECKOUT_STARTED: 'CHECKOUT_STARTED',
+  CHECKOUT_INFO_COMPLETED: 'CHECKOUT_INFO_COMPLETED',
+  ORDER_CREATED: 'ORDER_CREATED',
+  PURCHASE_COMPLETED: 'PURCHASE_COMPLETED',
+  CART_ABANDONED: 'CART_ABANDONED',
+  CHECKOUT_ABANDONED: 'CHECKOUT_ABANDONED'
+} as const
+
+export type AnalyticsEventType = (typeof AnalyticsEventType)[keyof typeof AnalyticsEventType]
+
+
+export const AnalyticsCartStatus = {
+  ACTIVE: 'ACTIVE',
+  CHECKOUT_STARTED: 'CHECKOUT_STARTED',
+  ORDER_CREATED: 'ORDER_CREATED',
+  PURCHASED: 'PURCHASED',
+  CART_ABANDONED: 'CART_ABANDONED',
+  CHECKOUT_ABANDONED: 'CHECKOUT_ABANDONED'
+} as const
+
+export type AnalyticsCartStatus = (typeof AnalyticsCartStatus)[keyof typeof AnalyticsCartStatus]

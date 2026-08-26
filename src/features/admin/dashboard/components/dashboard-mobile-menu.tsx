@@ -4,9 +4,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { dashboardNavigation } from "../lib/dashboard-navigation";
+import { dashboardUi } from "../lib/dashboard-ui";
 import { cn } from "@/lib/utils";
 
 function isActivePath(pathname: string, href: string) {
+  if (href === "/admin") {
+    return pathname === href;
+  }
+
   if (href === "/admin/dashboard") {
     return pathname === href;
   }
@@ -16,8 +21,9 @@ function isActivePath(pathname: string, href: string) {
 
 const groupLabels: Record<string, string> = {
   principal: "Principal",
+  catalog: "Catálogo",
   commerce: "Comercio",
-  operations: "Operación",
+  operations: "Operaciones",
   future: "Futuro",
 };
 
@@ -53,7 +59,7 @@ export function DashboardMobileMenu() {
       accumulator[item.group].push(item);
       return accumulator;
     },
-    { principal: [], commerce: [], operations: [], future: [] },
+    { principal: [], catalog: [], commerce: [], operations: [], future: [] },
   );
 
   return (
@@ -72,7 +78,7 @@ export function DashboardMobileMenu() {
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
-            className="absolute inset-0 bg-slate-950/30"
+            className="absolute inset-0 bg-[#243247]/30"
             aria-label="Cerrar menú"
             onClick={() => setIsOpen(false)}
           />
@@ -101,7 +107,7 @@ export function DashboardMobileMenu() {
 
             <div className="h-full overflow-y-auto px-4 py-4">
               <div className="space-y-4">
-                {(["principal", "commerce", "operations", "future"] as const).map((groupKey) => {
+                {(["principal", "catalog", "commerce", "operations", "future"] as const).map((groupKey) => {
                   const items = grouped[groupKey];
 
                   return (
@@ -122,7 +128,7 @@ export function DashboardMobileMenu() {
                               className={cn(
                                 "block rounded-[18px] border px-3 py-3 transition",
                                 active
-                                  ? "border-slate-900 bg-slate-900 text-white shadow-[0_10px_22px_rgba(15,23,42,0.16)]"
+                                  ? dashboardUi.softAction
                                   : "border-slate-200/70 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50",
                               )}
                               onClick={() => setIsOpen(false)}
@@ -131,7 +137,7 @@ export function DashboardMobileMenu() {
                               <span
                                 className={cn(
                                   "mt-1 block text-xs leading-5",
-                                  active ? "text-white/75" : "text-slate-500",
+                                  active ? "text-slate-600" : "text-slate-500",
                                 )}
                               >
                                 {item.description}

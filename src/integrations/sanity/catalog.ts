@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { unstable_noStore as noStore } from "next/cache";
 import { storefrontNavigation } from "@/config/navigation/storefront-navigation";
 import {
   mapCategoryToSummary,
@@ -20,7 +21,7 @@ import {
   type CatalogHierarchyNode,
 } from "@/features/catalog/hierarchy";
 import { paginateCatalogItems } from "@/features/catalog/pagination";
-import { sanityFetch } from "@/integrations/sanity/client";
+import { sanityFetch, sanityFreshFetch } from "@/integrations/sanity/client";
 import {
   allProductsQuery,
   categoryBySlugQuery,
@@ -222,7 +223,7 @@ export const getCatalogPageData = cache(async (filters: CatalogFilters = {}): Pr
 
   try {
     const [products, categories] = await Promise.all([
-      sanityFetch<ProductDocument[]>(
+      sanityFreshFetch<ProductDocument[]>(
         normalizedQuery ? searchProductsQuery : allProductsQuery,
         normalizedQuery ? { q: normalizedQuery, pattern: searchPattern } : {},
       ),
@@ -279,7 +280,7 @@ export async function getCategoryCatalogPageData(
         return null;
       }
 
-      const products = await sanityFetch<ProductDocument[]>(catalogProductsByHierarchyQuery, {
+      const products = await sanityFreshFetch<ProductDocument[]>(catalogProductsByHierarchyQuery, {
         categorySlug,
         includeRootProducts: resolution.depth === 0,
         subcategoryIds: resolution.depth === 0
@@ -334,8 +335,10 @@ export async function getCategoryCatalogPageData(
 
 export const getProductDetailData = cache(
   async (slug: string): Promise<ProductDetailData | null> => {
+    noStore();
+
     try {
-      const product = await sanityFetch<ProductDocument | null>(productBySlugQuery, {
+      const product = await sanityFreshFetch<ProductDocument | null>(productBySlugQuery, {
         slug,
       });
 
@@ -343,7 +346,7 @@ export const getProductDetailData = cache(
         return null;
       }
 
-      const relatedProductGroups = await sanityFetch<RelatedProductFallbackGroups>(
+      const relatedProductGroups = await sanityFreshFetch<RelatedProductFallbackGroups>(
         relatedProductFallbackGroupsQuery,
         {
           categorySlug: product.category?.slug.current ?? "",

@@ -6,6 +6,7 @@ import {
   renderEmailLayout,
   renderItemsTable,
   renderOrderSummary,
+  renderShippingBlock,
 } from "@/features/emails/templates/shared";
 
 export function renderPaymentApprovedEmail(order: Order) {
@@ -18,6 +19,8 @@ export function renderPaymentApprovedEmail(order: Order) {
         Hola ${escapeHtml(order.customer.firstName)}, confirmamos el pago de tu pedido. Vamos a preparar tu compra y te contactaremos para coordinar los proximos pasos.
       </p>
       ${renderOrderSummary(order)}
+      <h2 style="margin:22px 0 10px;color:#2f241f;font-size:17px;">Envio</h2>
+      ${renderShippingBlock(order)}
       ${renderItemsTable(order)}
     `,
   });
@@ -41,6 +44,8 @@ export function renderAdminPaymentApprovedEmail(order: Order) {
       </div>
       <h2 style="margin:22px 0 10px;color:#2f241f;font-size:17px;">Cliente</h2>
       ${renderCustomerBlock(order)}
+      <h2 style="margin:22px 0 10px;color:#2f241f;font-size:17px;">Envio</h2>
+      ${renderShippingBlock(order)}
       ${renderItemsTable(order)}
     `,
   });

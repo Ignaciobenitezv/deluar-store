@@ -17,11 +17,11 @@ type SheetMode = "filters" | "sort" | null;
 const sortOptions: Array<{ label: string; value: CatalogSort }> = [
   { label: "Precio: menor a mayor", value: "price-asc" },
   { label: "Precio: mayor a menor", value: "price-desc" },
-  { label: "A - Z", value: "title-asc" },
-  { label: "Z - A", value: "title-desc" },
-  { label: "Mas nuevo al mas viejo", value: "newest" },
-  { label: "Mas viejo al mas nuevo", value: "oldest" },
-  { label: "Mas vendidos", value: "best-selling" },
+  { label: "De la A a la Z", value: "title-asc" },
+  { label: "De la Z a la A", value: "title-desc" },
+  { label: "Más nuevo al más viejo", value: "newest" },
+  { label: "Más viejo al más nuevo", value: "oldest" },
+  { label: "Más vendidos", value: "best-selling" },
 ];
 
 function FiltersIcon() {
@@ -265,14 +265,14 @@ export function CatalogMobileActions({
                       onClick={() => applyPrice({ minPrice: 30000 })}
                       className="flex w-full items-center justify-between text-left text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-accent-strong)]"
                     >
-                      <span>Mas de $30.000</span>
+                      <span>Más de $30.000</span>
                       <CheckIcon visible={isPriceRangeActive({ minPrice: "30000" })} />
                     </button>
                   </div>
 
                   <div className="space-y-3">
                     <h3 className="text-[11px] uppercase tracking-[0.15em] text-neutral-500">
-                      Categoria
+                      Categoría
                     </h3>
                     {categories.map((category) => (
                       <button

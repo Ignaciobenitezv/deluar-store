@@ -3,6 +3,7 @@ import { sanityFetch } from "@/integrations/sanity/client";
 import { productsBySlugsQuery } from "@/integrations/sanity/queries";
 import { logger } from "@/lib/logger";
 import type { ProductDocument } from "@/types/cms";
+import { normalizeProductVariants } from "@/features/catalog/variant-normalizer";
 import { sendOrderCreatedEmails } from "@/features/emails/email-service";
 import {
   INSUFFICIENT_STOCK_ERROR_MESSAGE,
@@ -25,15 +26,50 @@ import {
   validateOrderItems,
 } from "@/features/order/validation";
 import { generateOrderNumber } from "@/features/orders/server/order-number";
+import { linkAnalyticsCartToOrder } from "@/features/analytics/server/cart-link";
 import {
   markOrderWithCheckout,
   markOrderProviderInitFailed,
   saveOrder,
 } from "@/features/orders/server/order-repository";
+import { resolveCommercialUnitPrice } from "@/features/pricing/commercial-pricing";
 import { calculateShippingCost } from "@/features/shipping/shipping";
 
 function buildProductMap(products: ProductDocument[]) {
   return new Map(products.map((product) => [product.slug.current, product]));
+}
+
+function resolveProductCommercialPricing(
+  product: ProductDocument,
+  selection: {
+    variantId?: string | null;
+    variantValue?: string | null;
+  },
+) {
+  const normalizedVariants = normalizeProductVariants(product);
+  const selectedVariant = normalizedVariants.find((variant) => {
+    if (selection.variantId && variant.id === selection.variantId) {
+      return true;
+    }
+
+    if (selection.variantValue && variant.value === selection.variantValue) {
+      return true;
+    }
+
+    return false;
+  });
+
+  if (selectedVariant) {
+    return {
+      basePrice: selectedVariant.basePrice,
+      transferPrice: selectedVariant.transferPrice,
+    };
+  }
+
+  return {
+    basePrice: product.basePrice,
+    transferPrice: product.transferPrice,
+  };
 }
 
 export async function createOrder(input: CreateOrderInput): Promise<CreateOrderResult> {
@@ -130,7 +166,11 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
     }
 
     const primaryImage = product.images?.[0];
-    const unitPrice = product.basePrice;
+    const commercialPrices = resolveProductCommercialPricing(product, {
+      variantId: sourceItem?.variantId,
+      variantValue: sourceItem?.variantValue,
+    });
+    const unitPrice = resolveCommercialUnitPrice(commercialPrices, paymentMethod);
 
     return {
       productId: product._id,
@@ -145,7 +185,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
       variantSku: sourceItem?.variantSku,
       quantity: item.quantity,
       unitPrice,
-      transferPrice: product.transferPrice,
+      transferPrice: commercialPrices.transferPrice,
       lineTotal: unitPrice * item.quantity,
     };
   });
@@ -209,6 +249,13 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
     },
   });
 
+  if (input.analyticsCartId) {
+    await linkAnalyticsCartToOrder({
+      cartId: input.analyticsCartId,
+      orderId: order.id,
+    });
+  }
+
   const paymentProvider = resolvePaymentProvider(paymentMethod);
 
   if (paymentProvider) {
@@ -257,6 +304,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
             ? error.message
             : paymentProvider?.checkoutFailureMessage ?? "No se pudo crear el checkout externo.",
         ],
+        order,
       };
     }
   }

@@ -31,7 +31,5 @@ export function isEnabledCheckoutPaymentMethod(
 export function normalizeCheckoutPaymentMethod(
   value: unknown,
 ): EnabledCheckoutPaymentMethod {
-  return isEnabledCheckoutPaymentMethod(value)
-    ? value
-    : DEFAULT_CHECKOUT_PAYMENT_METHOD;
+  return isEnabledCheckoutPaymentMethod(value) ? value : DEFAULT_CHECKOUT_PAYMENT_METHOD;
 }

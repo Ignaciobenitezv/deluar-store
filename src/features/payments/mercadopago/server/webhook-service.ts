@@ -9,6 +9,7 @@ import {
 } from "@/features/payments/mercadopago/server/order-repository";
 import { getMercadoPagoWebhookEventByDedupeKey } from "@/features/payments/mercadopago/server/webhook-repository";
 import { mapMercadoPagoStatus } from "@/features/payments/mercadopago/server/map-payment-status";
+import { recordAnalyticsPurchaseCompleted } from "@/features/analytics/server/lifecycle";
 
 type MercadoPagoWebhookPayload = {
   id?: string | number;
@@ -110,6 +111,12 @@ export async function handleMercadoPagoWebhook(
           nextOrderStatus: updatedOrder.status,
           nextPaymentStatus: updatedOrder.paymentStatus,
         });
+
+        if (mappedStatus.orderStatus === "PAID" && mappedStatus.paymentStatus === "APPROVED") {
+          await recordAnalyticsPurchaseCompleted({
+            orderId: updatedOrder.id,
+          });
+        }
       }
     });
   } catch (error) {

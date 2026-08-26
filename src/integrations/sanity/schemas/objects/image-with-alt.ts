@@ -2,13 +2,13 @@ import { defineField, defineType } from "sanity";
 
 export const imageWithAltSchema = defineType({
   name: "imageWithAlt",
-  title: "Imagen del producto",
+  title: "Imagen con texto alternativo",
   type: "object",
   fields: [
     defineField({
       name: "image",
       title: "Imagen",
-      description: "Subi una foto clara del producto. La primera imagen suele funcionar como principal.",
+      description: "Subí una foto clara del producto. La primera imagen suele funcionar como principal.",
       type: "image",
       options: {
         hotspot: true,
@@ -18,7 +18,7 @@ export const imageWithAltSchema = defineType({
     defineField({
       name: "alt",
       title: "Texto alternativo",
-      description: "Descripcion breve para accesibilidad y SEO.",
+      description: "Descripción breve para accesibilidad y SEO.",
       placeholder: "Ej: Vista frontal del producto",
       type: "string",
     }),

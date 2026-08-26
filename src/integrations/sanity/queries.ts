@@ -137,13 +137,14 @@ export const productCardQuery = groq`
 `;
 
 export const allProductsQuery = groq`
-  *[_type == "product"] | order(isFeatured desc, _createdAt desc)
+  *[_type == "product" && isActive != false] | order(isFeatured desc, _createdAt desc)
   ${productCardQuery}
 `;
 
 export const searchProductsQuery = groq`
   *[
     _type == "product" &&
+    isActive != false &&
     (
       $q == "" ||
     title match $pattern ||
@@ -186,6 +187,7 @@ export const categoryBySlugQuery = groq`
 export const productsByCategoryQuery = groq`
   *[
     _type == "product" &&
+    isActive != false &&
     category->slug.current == $categorySlug &&
     ($subcategorySlug == "" || subcategory->slug.current == $subcategorySlug)
   ] | order(isFeatured desc, _createdAt desc) [0...48]
@@ -195,6 +197,7 @@ export const productsByCategoryQuery = groq`
 export const homeCategoryRepresentativeProductQuery = groq`
   *[
     _type == "product" &&
+    isActive != false &&
     category->slug.current == $categorySlug &&
     count(images[defined(image.asset._ref) && image.asset._ref != $placeholderAssetRef]) > 0
   ] | order(isFeatured desc, _createdAt desc)[0]{
@@ -205,6 +208,7 @@ export const homeCategoryRepresentativeProductQuery = groq`
 export const catalogProductsByHierarchyQuery = groq`
   *[
     _type == "product" &&
+    isActive != false &&
     category->slug.current == $categorySlug &&
     (
       ($includeRootProducts == true && !defined(subcategory)) ||
@@ -215,17 +219,17 @@ export const catalogProductsByHierarchyQuery = groq`
 `;
 
 export const featuredProductsQuery = groq`
-  *[_type == "product" && isFeatured == true] | order(_createdAt desc) [0...8]
+  *[_type == "product" && isActive != false && isFeatured == true] | order(_createdAt desc) [0...8]
   ${productCardQuery}
 `;
 
 export const offerProductsQuery = groq`
-  *[_type == "product" && isOnOffer == true] | order(isFeatured desc, _updatedAt desc) [0...10]
+  *[_type == "product" && isActive != false && isOnOffer == true] | order(isFeatured desc, _updatedAt desc) [0...10]
   ${productCardQuery}
 `;
 
 export const newInProductsQuery = groq`
-  *[_type == "product" && showInNewIn == true]
+  *[_type == "product" && isActive != false && showInNewIn == true]
     | order(coalesce(newInOrder, 9999) asc, _createdAt desc) [0...8]
   {
     _id,
@@ -260,7 +264,7 @@ export const newInProductsQuery = groq`
 `;
 
 export const productBySlugQuery = groq`
-  *[_type == "product" && slug.current == $slug][0] {
+  *[_type == "product" && slug.current == $slug && isActive != false][0] {
     _id,
     _type,
     title,
@@ -301,7 +305,7 @@ export const relatedProductFallbackGroupsQuery = groq`
       defined(slug.current) &&
       slug.current != $slug &&
       stock > 0 &&
-      (!defined(isActive) || isActive == true) &&
+      isActive != false &&
       $categorySlug != "" &&
       category->slug.current == $categorySlug
     ] | order(isFeatured desc, _createdAt desc) [0...4]
@@ -311,7 +315,7 @@ export const relatedProductFallbackGroupsQuery = groq`
       defined(slug.current) &&
       slug.current != $slug &&
       stock > 0 &&
-      (!defined(isActive) || isActive == true) &&
+      isActive != false &&
       isFeatured == true
     ] | order(_createdAt desc) [0...12]
     ${productCardQuery},
@@ -320,7 +324,7 @@ export const relatedProductFallbackGroupsQuery = groq`
       defined(slug.current) &&
       slug.current != $slug &&
       stock > 0 &&
-      (!defined(isActive) || isActive == true)
+      isActive != false
     ] | order(_createdAt desc) [0...24]
     ${productCardQuery}
   }

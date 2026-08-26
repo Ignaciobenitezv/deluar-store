@@ -67,7 +67,7 @@ export function createUniqueSlugValidation(documentType: string, label: string) 
     );
 
     if (duplicateCount > 0) {
-      return `${label} ya usa esta URL. Cambia el slug para evitar duplicados.`;
+      return `${label} ya usa esta URL. Cambiá el slug para evitar duplicados.`;
     }
 
     return true;

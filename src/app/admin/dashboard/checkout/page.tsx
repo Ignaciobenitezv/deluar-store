@@ -21,7 +21,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Checkout | DOTCOM Commerce Dashboard",
+  title: "Finalización de compra | Panel de comercio de DOTCOM",
 };
 
 type AdminDashboardCheckoutPageProps = {
@@ -91,7 +91,7 @@ export default async function AdminDashboardCheckoutPage({
 
   return (
     <DashboardShell
-      title="Checkout"
+      title="Finalización de compra"
       subtitle={`Vista de conversión basada en órdenes reales. Período activo: ${DASHBOARD_PERIODS[period].label}.`}
       lastUpdated={lastUpdated}
     >
@@ -126,8 +126,8 @@ export default async function AdminDashboardCheckoutPage({
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
         <ChartCard
-          title="Embudo de checkout"
-          description="Embudo parcial basado en órdenes reales. Las etapas intermedias estarán disponibles al activar tracking avanzado."
+          title="Embudo de finalización de compra"
+          description="Embudo parcial basado en órdenes reales. Las etapas intermedias estarán disponibles al activar seguimiento avanzado."
         >
           <div className="space-y-3">
             <StatBadge
@@ -142,16 +142,16 @@ export default async function AdminDashboardCheckoutPage({
             />
             <LockedMetricCard
               title="Datos de entrega"
-              description="Tracking pendiente para agregar pasos intermedios del embudo."
+              description="Seguimiento pendiente para agregar pasos intermedios del embudo."
             />
             <LockedMetricCard
               title="Método de pago"
-              description="Tracking pendiente para segmentar etapas reales del checkout."
+              description="Seguimiento pendiente para segmentar etapas reales de la finalización de compra."
             />
           </div>
           <p className="mt-4 text-xs text-slate-500">
             Embudo parcial basado en órdenes reales. Las etapas intermedias estarán disponibles al
-            activar tracking avanzado.
+            activar seguimiento avanzado.
           </p>
         </ChartCard>
 
@@ -240,4 +240,3 @@ export default async function AdminDashboardCheckoutPage({
     </DashboardShell>
   );
 }
-

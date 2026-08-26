@@ -3,7 +3,7 @@ import { CheckoutPageContent } from "@/features/checkout/components/checkout-pag
 import { isReviewDeployment, reviewPaymentMessage } from "@/lib/deployment";
 
 export const metadata = {
-  title: "Checkout",
+  title: "Finalización de compra",
 };
 
 export default function CheckoutPage() {

@@ -6,13 +6,24 @@ import Link from "next/link";
 import { useCart } from "@/features/cart/cart-context";
 import { CartLineItem } from "@/features/cart/components/cart-line-item";
 import { CartSummary } from "@/features/cart/components/cart-summary";
+import { trackCartViewed } from "@/features/analytics/client/track-event";
 
 export function CartDrawer() {
   const { items, isOpen, closeCart } = useCart();
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const previousActiveElementRef = useRef<HTMLElement | null>(null);
+  const wasOpenRef = useRef(false);
 
   useEffect(() => {
+    if (isOpen && !wasOpenRef.current) {
+      trackCartViewed({
+        items,
+        source: "drawer",
+      });
+    }
+
+    wasOpenRef.current = isOpen;
+
     if (!isOpen) {
       return;
     }
@@ -49,7 +60,7 @@ export function CartDrawer() {
       previousActiveElementRef.current?.focus();
       previousActiveElementRef.current = null;
     };
-  }, [closeCart, isOpen]);
+  }, [closeCart, isOpen, items]);
 
   if (!isOpen || typeof document === "undefined") {
     return null;

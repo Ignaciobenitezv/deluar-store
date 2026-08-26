@@ -1,21 +1,37 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { createAdminSession, clearAdminSession } from "@/features/admin/auth";
-import { env } from "@/lib/env";
+import { isBetterAuthAdminRole, signOutBetterAuthSession } from "@/features/admin/better-auth";
+import { auth } from "@/lib/auth";
 
 export async function loginAdminAction(formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
 
-  if (!env.adminSecret || password !== env.adminSecret) {
+  if (!email || !password) {
     redirect("/admin/login?error=1");
   }
 
-  await createAdminSession();
-  redirect("/admin/orders");
-}
+  const requestHeaders = await headers();
 
-export async function logoutAdminAction() {
-  await clearAdminSession();
-  redirect("/admin/login");
+  try {
+    const { user } = await auth.api.signInEmail({
+      body: {
+        email,
+        password,
+        rememberMe: true,
+      },
+      headers: requestHeaders,
+    });
+
+    if (!isBetterAuthAdminRole(user.role)) {
+      await signOutBetterAuthSession(requestHeaders);
+      redirect("/admin/login?error=1");
+    }
+
+    redirect("/admin");
+  } catch {
+    redirect("/admin/login?error=1");
+  }
 }

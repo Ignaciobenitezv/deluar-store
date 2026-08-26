@@ -65,7 +65,7 @@ function ProductMiniCard({
         className={cn(
           "relative block overflow-hidden bg-[#efe5d8]",
           compact
-            ? "aspect-[1/1.02] rounded-[0.85rem]"
+          ? "rounded-[1rem] p-2.5"
             : "aspect-[1/1.03] rounded-[0.95rem] lg:z-10 lg:aspect-[1.08/1]",
           imageClassName,
         )}
@@ -219,9 +219,7 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
 
   const safeIndex = categories.length > 0 ? Math.min(activeIndex, categories.length - 1) : 0;
   const activeCategory = categories[safeIndex];
-  const activeBatchIndex = activeCategory
-    ? batchIndexByCategory[activeCategory.id] ?? 0
-    : 0;
+  const activeBatchIndex = activeCategory ? batchIndexByCategory[activeCategory.id] ?? 0 : 0;
 
   const activeCategoryProducts = useMemo(() => {
     if (!activeCategory) {
@@ -380,12 +378,12 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
               aria-label={`Ver categoria ${category.title}`}
               aria-pressed={index === safeIndex}
               onClick={() => moveToCategory(index)}
-              className={cn(
-                "h-2 rounded-full transition-all duration-300",
-                index === safeIndex
-                  ? "w-6 bg-[var(--color-accent-strong)]"
-                  : "w-2 bg-border/80 hover:bg-border",
-              )}
+                className={cn(
+                  "h-2 rounded-full transition-all duration-300",
+                  index === safeIndex
+                    ? "w-6 bg-[var(--color-accent-strong)]"
+                    : "w-2 bg-border/80 hover:bg-border",
+                )}
             />
           ))}
         </div>

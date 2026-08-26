@@ -31,7 +31,7 @@ function SparklinePlaceholder({
   return (
     <div className="hidden h-12 items-end gap-1.5 sm:flex" aria-hidden="true">
       {normalizedValues.slice(-8).map((value, index) => (
-        <span
+          <span
           key={`${index}-${value}`}
           className={`w-1.5 rounded-full ${toneClasses[tone]}`}
           style={{

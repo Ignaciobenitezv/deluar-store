@@ -4,10 +4,12 @@ import { SiteContainer } from "@/components/layout/site-container";
 import { getProductDetailData } from "@/integrations/sanity/catalog";
 import { buildMetadata } from "@/lib/seo";
 import { ProductDetail } from "@/features/product/components/product-detail";
-import { sanityFetch } from "@/integrations/sanity/client";
+import { sanityFreshFetch } from "@/integrations/sanity/client";
 import { productBySlugQuery } from "@/integrations/sanity/queries";
 import type { ProductDocument } from "@/types/cms";
 import { getSanityImageUrl } from "@/integrations/sanity/image";
+
+export const dynamic = "force-dynamic";
 
 type ProductPageProps = {
   params: Promise<{
@@ -21,7 +23,7 @@ export async function generateMetadata({
   const { productSlug } = await params;
 
   try {
-    const product = await sanityFetch<ProductDocument | null>(productBySlugQuery, {
+    const product = await sanityFreshFetch<ProductDocument | null>(productBySlugQuery, {
       slug: productSlug,
     });
 

@@ -3,13 +3,13 @@ import { createUniqueSlugValidation } from "../utils/slug";
 
 export const categorySchema = defineType({
   name: "category",
-  title: "Categorias",
+  title: "Categorías",
   type: "document",
   fields: [
     defineField({
       name: "title",
       title: "Nombre",
-      description: "Nombre visible en la tienda y en la navegacion.",
+      description: "Nombre visible en la tienda y en la navegación.",
       type: "string",
       validation: (rule) => rule.required().min(2).max(120),
     }),
@@ -17,22 +17,22 @@ export const categorySchema = defineType({
       name: "slug",
       title: "URL",
       description:
-        "Se genera automaticamente desde el nombre. Cambialo solo si necesitas corregir la URL.",
+        "Se genera automáticamente desde el nombre. Cambialo solo si necesitas corregir la URL.",
       type: "slug",
       options: { source: "title", maxLength: 96 },
-      validation: (rule) => rule.required().custom(createUniqueSlugValidation("category", "La categoria")),
+      validation: (rule) => rule.required().custom(createUniqueSlugValidation("category", "La categoría")),
     }),
     defineField({
       name: "description",
-      title: "Descripcion",
-      description: "Texto opcional para describir la categoria.",
+      title: "Descripción",
+      description: "Texto opcional para describir la categoría.",
       type: "text",
       rows: 3,
     }),
     defineField({
       name: "order",
       title: "Orden",
-      description: "Numero opcional para ordenar las categorias en la tienda.",
+      description: "Número opcional para ordenar las categorías en la tienda.",
       type: "number",
       validation: (rule) => rule.integer().min(0),
     }),

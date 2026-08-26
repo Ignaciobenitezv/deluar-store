@@ -15,8 +15,7 @@ export function HomeNewInShowcase({ products }: HomeNewInShowcaseProps) {
   const activeProduct = useMemo(
     () =>
       products.find((product) => product.id === requestedActiveProductId) ??
-      products[0] ??
-      null,
+      products[0] ?? null,
     [requestedActiveProductId, products],
   );
 

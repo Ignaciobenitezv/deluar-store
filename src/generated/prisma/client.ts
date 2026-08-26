@@ -47,6 +47,26 @@ export { Prisma }
  */
 export type Customer = Prisma.CustomerModel
 /**
+ * Model User
+ * 
+ */
+export type User = Prisma.UserModel
+/**
+ * Model Session
+ * 
+ */
+export type Session = Prisma.SessionModel
+/**
+ * Model Account
+ * 
+ */
+export type Account = Prisma.AccountModel
+/**
+ * Model Verification
+ * 
+ */
+export type Verification = Prisma.VerificationModel
+/**
  * Model ShippingAddress
  * 
  */
@@ -56,6 +76,26 @@ export type ShippingAddress = Prisma.ShippingAddressModel
  * 
  */
 export type ProductSnapshot = Prisma.ProductSnapshotModel
+/**
+ * Model AnalyticsVisitor
+ * 
+ */
+export type AnalyticsVisitor = Prisma.AnalyticsVisitorModel
+/**
+ * Model AnalyticsSession
+ * 
+ */
+export type AnalyticsSession = Prisma.AnalyticsSessionModel
+/**
+ * Model AnalyticsEvent
+ * 
+ */
+export type AnalyticsEvent = Prisma.AnalyticsEventModel
+/**
+ * Model AnalyticsCart
+ * 
+ */
+export type AnalyticsCart = Prisma.AnalyticsCartModel
 /**
  * Model Product
  * 

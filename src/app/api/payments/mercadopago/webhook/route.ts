@@ -39,8 +39,7 @@ export async function POST(request: Request) {
         readText(payload.topic) ??
         readText(payload.type) ??
         url.searchParams.get("topic") ??
-        url.searchParams.get("type") ??
-        undefined,
+        url.searchParams.get("type") ?? undefined,
       action: readText(payload.action) ?? undefined,
       data: {
         id:

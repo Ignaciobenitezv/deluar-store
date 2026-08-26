@@ -25,7 +25,7 @@ export function WhatsAppFloatingButton() {
         target="_blank"
       >
         <WhatsAppIcon className="h-5 w-5" />
-        <span>¿Necesitas ayuda?</span>
+        <span>\u00bfNecesitas ayuda??</span>
       </a>
       <a
         aria-label="Consultar por WhatsApp"

@@ -11,7 +11,7 @@ export const promoSettingsSchema = defineType({
     defineField({
       name: "title",
       title: "Nombre interno",
-      description: "Solo para identificar este documento dentro del Studio.",
+      description: "Solo para identificar este documento dentro del estudio.",
       type: "string",
       group: "announcement",
       initialValue: "Promociones principales",
@@ -20,7 +20,7 @@ export const promoSettingsSchema = defineType({
     defineField({
       name: "announcementEnabled",
       title: "Mostrar barra superior",
-      description: "Activa o desactiva la barra de anuncio del header.",
+      description: "Activa o desactiva la barra de anuncio del encabezado.",
       type: "boolean",
       group: "announcement",
       initialValue: true,
@@ -35,15 +35,15 @@ export const promoSettingsSchema = defineType({
     }),
     defineField({
       name: "announcementLinkLabel",
-      title: "Texto del link",
+      title: "Texto del enlace",
       description: "Opcional. Texto del enlace asociado al anuncio.",
       type: "string",
       group: "announcement",
     }),
     defineField({
       name: "announcementLinkUrl",
-      title: "URL del link",
-      description: "Opcional. Direccion a la que debe llevar el anuncio.",
+      title: "URL del enlace",
+      description: "Opcional. Dirección a la que debe llevar el anuncio.",
       type: "string",
       group: "announcement",
     }),

@@ -73,7 +73,7 @@ export default function PoliticaDevolucionPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-foreground">4. ¿Cómo inicio el proceso?</h2>
+            <h2 className="mb-3 text-lg font-semibold text-foreground">4. ¿Cómo inicio el proceso??</h2>
             <p className="mb-3 text-sm leading-relaxed text-muted">
               Es muy simple. Ponete en contacto con nosotros a través de:
             </p>

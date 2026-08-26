@@ -2,29 +2,29 @@ import type { StructureResolver } from "sanity/structure";
 
 export const structure: StructureResolver = (S) =>
   S.list()
-    .title("Studio")
+    .title("Estudio")
     .items([
       S.listItem()
-        .title("Catalogo")
+        .title("Catálogo")
         .child(
           S.list()
-            .title("Catalogo")
+            .title("Catálogo")
             .items([
               S.documentTypeListItem("product").title("Productos"),
-              S.documentTypeListItem("category").title("Categorias"),
-              S.documentTypeListItem("subcategory").title("Subcategorias"),
+              S.documentTypeListItem("category").title("Categorías"),
+              S.documentTypeListItem("subcategory").title("Subcategorías"),
             ]),
         ),
       S.listItem()
-        .title("Configuracion avanzada")
+        .title("Configuración avanzada")
         .child(
           S.list()
-            .title("Configuracion avanzada")
+            .title("Configuración avanzada")
             .items([
-              S.documentTypeListItem("siteSettings").title("Configuracion del sitio (SEO/metadatos)"),
+              S.documentTypeListItem("siteSettings").title("Configuración del sitio (SEO/metadatos)"),
               S.documentTypeListItem("promoSettings").title("Promociones (sin impacto visible)"),
-              S.documentTypeListItem("staticPage").title("Paginas (sin impacto visible)"),
-              S.documentTypeListItem("homePage").title("Pagina de inicio (impacto parcial)"),
+              S.documentTypeListItem("staticPage").title("Páginas (sin impacto visible)"),
+              S.documentTypeListItem("homePage").title("Página de inicio (impacto parcial)"),
             ]),
         ),
     ]);

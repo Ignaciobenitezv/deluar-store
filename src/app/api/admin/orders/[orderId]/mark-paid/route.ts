@@ -1,5 +1,5 @@
 import { markTransferOrderAsPaid } from "@/features/orders/server/transfer-admin-service";
-import { hasAdminSession } from "@/features/admin/auth";
+import { requireAdminSession } from "@/features/admin/auth";
 import { jsonError, jsonSuccess } from "@/lib/http";
 import { logger } from "@/lib/logger";
 
@@ -9,7 +9,9 @@ export async function POST(
 ) {
   const requestId = crypto.randomUUID();
 
-  if (!(await hasAdminSession())) {
+  try {
+    await requireAdminSession(request.headers);
+  } catch {
     logger.warn("api.admin.orders.mark_paid.unauthorized", { requestId });
     return jsonError(["No autorizado."], 401, { requestId });
   }

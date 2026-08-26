@@ -2,8 +2,16 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import {
+  clearAnalyticsCartId,
+  getOrCreateAnalyticsCartId,
+} from "@/features/analytics/client/cart-utils";
+import {
+  trackCheckoutInfoCompleted,
+  trackCheckoutStarted,
+} from "@/features/analytics/client/track-event";
 import { useCart } from "@/features/cart/cart-context";
-import { createCheckoutOrder } from "@/features/checkout/api";
+import { CheckoutOrderError, createCheckoutOrder } from "@/features/checkout/api";
 import { CheckoutForm } from "@/features/checkout/components/checkout-form";
 import { CheckoutOrderSummary } from "@/features/checkout/components/checkout-order-summary";
 import { TransferPaymentInstructions } from "@/features/checkout/components/transfer-payment-instructions";
@@ -14,6 +22,7 @@ import { getOrderStatusLabel } from "@/features/order/status";
 import type { CheckoutFormValues } from "@/features/checkout/types";
 import { PAYMENT_METHODS, type PaymentMethod } from "@/features/payments/types";
 import type { Order } from "@/features/order/types";
+import { resolveCommercialSubtotal } from "@/features/pricing/commercial-pricing";
 import { getShippingMethodLabel } from "@/features/shipping/shipping";
 
 type CheckoutPageContentProps = {
@@ -31,9 +40,9 @@ function formatPrice(value: number) {
 
 export function CheckoutPageContent({
   isReview = false,
-  reviewPaymentMessage = "Esta version es de prueba. Los pagos todavia no estan habilitados.",
+    reviewPaymentMessage = "Esta versión es de prueba. Los pagos todavía no están habilitados.",
 }: CheckoutPageContentProps) {
-  const { items, totals, clearCart } = useCart();
+  const { items, clearCart } = useCart();
   const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
   const [checkoutValues, setCheckoutValues] = useState<CheckoutFormValues>(
     getInitialCheckoutFormValues,
@@ -41,6 +50,8 @@ export function CheckoutPageContent({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const clearedOrderIdRef = useRef<string | null>(null);
+  const hasTrackedCheckoutStartedRef = useRef(false);
+  const effectiveSubtotal = resolveCommercialSubtotal(items, checkoutValues.paymentMethod);
 
   const getPaymentMethodLabel = (paymentMethod: PaymentMethod) => {
     if (paymentMethod === PAYMENT_METHODS.TRANSFER) {
@@ -58,9 +69,15 @@ export function CheckoutPageContent({
     try {
       setIsSubmitting(true);
       setSubmitError(null);
+      trackCheckoutInfoCompleted({
+        items,
+        shippingMethod: values.shippingMethod,
+        paymentMethod: values.paymentMethod,
+      });
 
       const result = await createCheckoutOrder({
         customer: values,
+        analyticsCartId: getOrCreateAnalyticsCartId(),
         items: items.map((item) => ({
           slug: item.slug,
           quantity: item.quantity,
@@ -75,6 +92,7 @@ export function CheckoutPageContent({
       });
 
       setCreatedOrder(result.order);
+      clearAnalyticsCartId();
 
       const canClearCart =
         Boolean(result.order.id) &&
@@ -88,15 +106,30 @@ export function CheckoutPageContent({
         clearCart();
       }
     } catch (error) {
+      if (error instanceof CheckoutOrderError && error.order) {
+        clearAnalyticsCartId();
+      }
+
       setSubmitError(
-        error instanceof Error
-          ? error.message
-          : "No se pudo crear la orden. Intenta nuevamente.",
+        error instanceof CheckoutOrderError ? error.message : "No se pudo crear la orden. Intentá nuevamente.",
       );
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    if (hasTrackedCheckoutStartedRef.current || items.length === 0) {
+      return;
+    }
+
+    hasTrackedCheckoutStartedRef.current = true;
+    trackCheckoutStarted({
+      items,
+      shippingMethod: checkoutValues.shippingMethod,
+      paymentMethod: checkoutValues.paymentMethod,
+    });
+  }, [checkoutValues.paymentMethod, checkoutValues.shippingMethod, items]);
 
   useEffect(() => {
     if (
@@ -130,14 +163,14 @@ export function CheckoutPageContent({
               Tu pedido ya fue creado correctamente
             </h1>
             <p className="text-sm leading-6 text-muted sm:text-base sm:leading-7">
-              La orden ya existe en backend y quedo pendiente de pago con el metodo
-              seleccionado. La integracion externa se conectara en el siguiente paso.
+              La orden ya existe en el sistema y quedó pendiente de pago con el método
+              seleccionado. La integración externa se conectará en el siguiente paso.
             </p>
           </div>
 
           <div className="mt-6 grid gap-4 rounded-[1.5rem] border border-border/75 bg-white/72 p-5 sm:grid-cols-2">
             <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-muted">Numero</p>
+              <p className="text-xs uppercase tracking-[0.22em] text-muted">Número</p>
               <p className="mt-1 text-lg font-medium text-foreground">
                 {createdOrder.orderNumber}
               </p>
@@ -164,19 +197,19 @@ export function CheckoutPageContent({
               </p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-muted">Envio</p>
+              <p className="text-xs uppercase tracking-[0.22em] text-muted">Env??o</p>
               <p className="mt-1 text-sm leading-6 text-foreground">
                 {getShippingMethodLabel(createdOrder.shippingMethod)}
               </p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-muted">Costo envio</p>
+              <p className="text-xs uppercase tracking-[0.22em] text-muted">Costo env??o</p>
               <p className="mt-1 text-sm leading-6 text-foreground">
                 {createdOrder.shippingCost === 0 ? "Gratis" : formatPrice(createdOrder.shippingCost)}
               </p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-muted">Email</p>
+              <p className="text-xs uppercase tracking-[0.22em] text-muted">Correo electr??nico</p>
               <p className="mt-1 text-sm leading-6 text-foreground">
                 {createdOrder.customer.email}
               </p>
@@ -198,16 +231,16 @@ export function CheckoutPageContent({
                 </h2>
                 <p className="text-sm leading-7 text-muted">
                   {createdOrder.checkoutUrl
-                    ? `Estamos abriendo el checkout seguro de ${getPaymentMethodLabel(createdOrder.paymentMethod)}.`
-                    : `La orden quedo preparada para conectar el redirect de ${getPaymentMethodLabel(createdOrder.paymentMethod)}.`}
+                    ? `Estamos abriendo la página segura de pago de ${getPaymentMethodLabel(createdOrder.paymentMethod)}.`
+                    : `La orden quedó preparada para conectar la redirección de ${getPaymentMethodLabel(createdOrder.paymentMethod)}.`}
                 </p>
               </div>
 
               <div className="mt-4 rounded-[1.2rem] border border-border/70 bg-background/80 p-4 text-xs leading-6 text-muted">
-                <p>Metodo: {getPaymentMethodLabel(createdOrder.paymentMethod)}</p>
-                <p>Envio: {getShippingMethodLabel(createdOrder.shippingMethod)}</p>
+                <p>Método: {getPaymentMethodLabel(createdOrder.paymentMethod)}</p>
+                <p>Env?o: {getShippingMethodLabel(createdOrder.shippingMethod)}</p>
                 <p>
-                  Costo envio: {createdOrder.shippingCost === 0 ? "Gratis" : formatPrice(createdOrder.shippingCost)}
+                                    Costo env?o: {createdOrder.shippingCost === 0 ? "Gratis" : formatPrice(createdOrder.shippingCost)}
                 </p>
                 <p>Proveedor: {createdOrder.paymentProvider ?? "Sin proveedor externo"}</p>
                 <p>Estado: {getOrderStatusLabel(createdOrder.status)}</p>
@@ -261,13 +294,13 @@ export function CheckoutPageContent({
     return (
       <section className="rounded-[1.8rem] border border-border/80 bg-surface/92 px-6 py-10 text-center sm:px-10">
         <div className="mx-auto max-w-xl space-y-4">
-          <p className="text-xs uppercase tracking-[0.24em] text-muted">Checkout</p>
+          <p className="text-xs uppercase tracking-[0.24em] text-muted">Finalizaci??n de compra</p>
           <h1 className="text-3xl font-semibold tracking-[0.03em] text-foreground sm:text-4xl">
-            Tu carrito esta vacio
+                        Tu carrito est?? vac??o
           </h1>
           <p className="text-sm leading-7 text-muted sm:text-base">
-            Para avanzar al checkout primero necesitas agregar productos desde el
-            catalogo o el detalle de producto.
+            Para avanzar a la finalización de compra primero necesitas agregar productos
+            desde el catálogo o el detalle de producto.
           </p>
           <Link
             href="/productos"
@@ -285,7 +318,7 @@ export function CheckoutPageContent({
       {isReview ? (
         <section className="rounded-[1.5rem] border border-[var(--color-accent-strong)]/25 bg-[rgba(167,88,60,0.07)] px-6 py-5 sm:px-8">
           <p className="text-xs uppercase tracking-[0.22em] text-[var(--color-accent-strong)]">
-            Version de revision
+                        Versión de revisión
           </p>
           <p className="mt-2 text-sm font-medium leading-7 text-foreground">
             {reviewPaymentMessage}
@@ -295,19 +328,19 @@ export function CheckoutPageContent({
 
       <section className="grid gap-6 rounded-[2rem] border border-border/80 bg-[linear-gradient(180deg,rgba(255,253,249,0.95),rgba(243,236,227,0.92))] px-6 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
         <div className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.24em] text-muted">Checkout</p>
+          <p className="text-xs uppercase tracking-[0.24em] text-muted">Finalización de compra</p>
           <h1 className="text-4xl font-semibold tracking-[0.03em] text-foreground sm:text-[3.1rem] sm:leading-[1.04]">
             Datos para finalizar la compra
           </h1>
           <p className="max-w-2xl text-sm leading-7 text-muted sm:text-base">
-            Completa tus datos, crea tu orden y luego avanzamos al inicio de pago. El
-            flujo ya valida la informacion y te muestra el estado de cada paso.
+            Completá tus datos, creá tu orden y luego avanzamos al inicio de pago. El
+            flujo ya valida la información y te muestra el estado de cada paso.
           </p>
         </div>
         <div className="grid gap-3 rounded-[1.5rem] border border-border/75 bg-white/70 px-5 py-5 text-sm">
           <div className="flex items-center justify-between gap-4">
             <span className="text-muted">Paso 1</span>
-            <span className="font-medium text-foreground">Datos y envio</span>
+            <span className="font-medium text-foreground">Datos y env??o</span>
           </div>
           <div className="flex items-center justify-between gap-4">
             <span className="text-muted">Paso 2</span>
@@ -326,7 +359,7 @@ export function CheckoutPageContent({
             onSubmit={handleCreateOrder}
             onValuesChange={setCheckoutValues}
             isSubmitting={isSubmitting}
-            subtotal={totals.subtotal}
+            subtotal={effectiveSubtotal}
           />
 
           {submitError ? (
@@ -344,9 +377,12 @@ export function CheckoutPageContent({
           ) : null}
         </div>
 
-        <CheckoutOrderSummary shippingMethod={checkoutValues.shippingMethod} />
+        <CheckoutOrderSummary
+          shippingMethod={checkoutValues.shippingMethod}
+          paymentMethod={checkoutValues.paymentMethod}
+          subtotal={effectiveSubtotal}
+        />
       </div>
     </div>
   );
 }
-

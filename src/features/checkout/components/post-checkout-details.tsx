@@ -23,7 +23,7 @@ export function PostCheckoutDetails({
   const rows = [
     context.status ? { label: "Estado", value: context.status } : null,
     context.type ? { label: "Tipo", value: context.type } : null,
-    context.transactionId ? { label: "Transacción", value: context.transactionId } : null,
+    context.transactionId ? { label: "Transacci\u00f3n", value: context.transactionId } : null,
     context.orderNumber ? { label: "Orden", value: context.orderNumber } : null,
   ].filter((row): row is { label: string; value: string } => Boolean(row));
 
@@ -43,7 +43,7 @@ export function PostCheckoutDetails({
         </div>
       ) : (
         <p className="pt-1 text-sm leading-6 text-muted">
-          No se recibieron parámetros extra en la URL.
+          No se recibieron par\u00e1metros extra en la URL.
         </p>
       )}
     </section>

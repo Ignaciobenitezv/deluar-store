@@ -4,6 +4,7 @@ import {
   renderEmailLayout,
   renderItemsTable,
   renderOrderSummary,
+  renderShippingBlock,
 } from "@/features/emails/templates/shared";
 
 export function renderOrderCreatedEmail(order: Order) {
@@ -16,6 +17,8 @@ export function renderOrderCreatedEmail(order: Order) {
         Hola ${escapeHtml(order.customer.firstName)}, tu pedido ya fue registrado. Te avisaremos cuando el pago se confirme.
       </p>
       ${renderOrderSummary(order)}
+      <h2 style="margin:22px 0 10px;color:#2f241f;font-size:17px;">Envio</h2>
+      ${renderShippingBlock(order)}
       ${renderItemsTable(order)}
       <div style="font-size:14px;line-height:1.7;color:#2f241f;">
         <strong>Datos de contacto</strong><br />

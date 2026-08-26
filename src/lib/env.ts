@@ -4,6 +4,8 @@ export const env = {
   sanityProjectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? "",
   sanityDataset: process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production",
   sanityApiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION ?? "2026-04-01",
+  betterAuthSecret: process.env.BETTER_AUTH_SECRET ?? "",
+  betterAuthUrl: process.env.BETTER_AUTH_URL ?? "",
   sanityStudioUrl: process.env.SANITY_STUDIO_URL ?? "",
   sanityReadToken: process.env.SANITY_READ_TOKEN ?? "",
   sanityWriteToken: process.env.SANITY_WRITE_TOKEN ?? "",
@@ -26,7 +28,7 @@ export const env = {
   resendApiKey: process.env.RESEND_API_KEY ?? "",
   emailFrom: process.env.EMAIL_FROM ?? "",
   emailAdminTo: process.env.EMAIL_ADMIN_TO ?? "",
-  adminSecret: process.env.ADMIN_SECRET ?? "",
+  analyticsMaintenanceSecret: process.env.ANALYTICS_MAINTENANCE_SECRET ?? "",
   appLogLevel: process.env.APP_LOG_LEVEL ?? "",
   vercelEnv: process.env.VERCEL_ENV ?? "development",
 } as const;

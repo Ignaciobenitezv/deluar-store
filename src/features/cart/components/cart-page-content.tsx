@@ -1,12 +1,27 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
+import { trackCartViewed } from "@/features/analytics/client/track-event";
 import { CartLineItem } from "@/features/cart/components/cart-line-item";
 import { CartSummary } from "@/features/cart/components/cart-summary";
 import { useCart } from "@/features/cart/cart-context";
 
 export function CartPageContent() {
   const { items } = useCart();
+  const hasTrackedCartViewedRef = useRef(false);
+
+  useEffect(() => {
+    if (hasTrackedCartViewedRef.current || items.length === 0) {
+      return;
+    }
+
+    hasTrackedCartViewedRef.current = true;
+    trackCartViewed({
+      items,
+      source: "page",
+    });
+  }, [items]);
 
   return (
     <div className="space-y-8">

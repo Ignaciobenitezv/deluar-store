@@ -11,11 +11,11 @@ type CatalogSortDrawerProps = {
 const sortOptions: Array<{ label: string; value: CatalogSort }> = [
   { label: "Precio: menor a mayor", value: "price-asc" },
   { label: "Precio: mayor a menor", value: "price-desc" },
-  { label: "A - Z", value: "title-asc" },
-  { label: "Z - A", value: "title-desc" },
-  { label: "Mas nuevo al mas viejo", value: "newest" },
-  { label: "Mas viejo al mas nuevo", value: "oldest" },
-  { label: "Mas vendidos", value: "best-selling" },
+  { label: "De la A a la Z", value: "title-asc" },
+  { label: "De la Z a la A", value: "title-desc" },
+  { label: "Más nuevo al más viejo", value: "newest" },
+  { label: "Más viejo al más nuevo", value: "oldest" },
+  { label: "Más vendidos", value: "best-selling" },
 ];
 
 export function CatalogSortDrawer({ sort }: CatalogSortDrawerProps) {

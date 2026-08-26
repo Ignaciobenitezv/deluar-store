@@ -479,10 +479,6 @@ export type PaymentWebhookEventUncheckedUpdateManyWithoutOrderNestedInput = {
   deleteMany?: Prisma.PaymentWebhookEventScalarWhereInput | Prisma.PaymentWebhookEventScalarWhereInput[]
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type PaymentWebhookEventCreateWithoutOrderInput = {
   id?: string
   provider: string

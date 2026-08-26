@@ -6,13 +6,13 @@ export default function CheckoutSuccessPage() {
   return (
     <section className="mx-auto max-w-3xl px-6 py-16">
       <div className="space-y-4 rounded-[1.5rem] border border-border/80 bg-surface px-6 py-8">
-        <p className="text-xs uppercase tracking-[0.24em] text-muted">Checkout</p>
+        <p className="text-xs uppercase tracking-[0.24em] text-muted">Finalización de compra</p>
         <h1 className="text-3xl font-semibold tracking-[0.03em] text-foreground">
           Pago aprobado
         </h1>
         <OrderStatusBadge status="PAID" />
         <p className="text-sm leading-7 text-muted">
-          Si el webhook ya llego, tu orden quedo confirmada. Si tarda, la vamos a
+          Si el webhook ya llegó, tu orden quedó confirmada. Si tarda, la vamos a
           sincronizar apenas Mercado Pago avise el estado final.
         </p>
         <OrderTimeline status="PAID" />

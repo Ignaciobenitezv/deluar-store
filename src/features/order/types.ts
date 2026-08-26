@@ -86,6 +86,7 @@ export type CreateOrderInput = {
   items?: CreateOrderItemInput[];
   shippingMethod?: ShippingMethod;
   paymentMethod?: EnabledCheckoutPaymentMethod;
+  analyticsCartId?: string;
 };
 
 export type CreateOrderResult =
@@ -97,4 +98,5 @@ export type CreateOrderResult =
       ok: false;
       status: number;
       errors: string[];
+      order?: Order;
     };
