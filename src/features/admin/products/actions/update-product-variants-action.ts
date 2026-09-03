@@ -28,6 +28,7 @@ import {
   adminProductVariantFormSchema,
   parseAdminProductVariantAttributes,
 } from "../validation/variant-editor";
+import type { ProductLogistics } from "@/features/catalog/logistics";
 import type { ProductColorVariantDocument, ProductVariantDocument } from "@/types/cms";
 
 type AdminProductVariantDocument = {
@@ -67,6 +68,7 @@ type CanonicalVariantPatch = {
   stock: number;
   isActive: boolean;
   images?: unknown[];
+  logistics?: ProductLogistics;
 };
 
 function extractFieldErrors(error: unknown) {
@@ -206,6 +208,10 @@ function mapVariantToPatch(
     patch.transferPrice = variant.transferPrice;
   }
 
+  if (variant.logistics) {
+    patch.logistics = variant.logistics;
+  }
+
   if (existingImages && existingImages.length > 0) {
     patch.images = existingImages;
   }
@@ -230,12 +236,17 @@ export async function updateProductVariantsAction(
     rev: String(formData.get("rev") ?? ""),
     operation: String(formData.get("operation") ?? ""),
     variantKey: String(formData.get("variantKey") ?? ""),
+    logisticsMode: String(formData.get("logisticsMode") ?? "inherit"),
     title: String(formData.get("title") ?? ""),
     value: String(formData.get("value") ?? ""),
     sku: formData.get("sku"),
     basePrice: formData.get("basePrice"),
     stock: formData.get("stock"),
     isActive: String(formData.get("isActive") ?? ""),
+    weightGrams: formData.get("weightGrams"),
+    heightCm: formData.get("heightCm"),
+    widthCm: formData.get("widthCm"),
+    depthCm: formData.get("depthCm"),
     attributesJson: String(formData.get("attributesJson") ?? ""),
   };
 
@@ -339,6 +350,15 @@ export async function updateProductVariantsAction(
       isActive: parsed.data.isActive,
       images: targetVariant?.images ?? [],
       source: "variants",
+      logistics:
+        parsed.data.logisticsMode === "custom"
+          ? {
+              weightGrams: parsed.data.weightGrams as number,
+              heightCm: parsed.data.heightCm as number,
+              widthCm: parsed.data.widthCm as number,
+              depthCm: parsed.data.depthCm as number,
+            }
+          : null,
     };
 
     if (targetIndex >= 0) {

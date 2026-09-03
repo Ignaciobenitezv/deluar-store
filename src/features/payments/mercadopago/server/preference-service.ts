@@ -42,7 +42,7 @@ function buildPreferenceBody(order: NonNullable<Awaited<ReturnType<typeof getMer
       customerEmail: order.customer.email,
     },
     payer: {
-      name: order.customer.fullName,
+      name: `${order.customer.firstName} ${order.customer.lastName}`.trim(),
       email: order.customer.email,
       phone: {
         number: order.customer.phone,

@@ -7,6 +7,7 @@ import { categoryTreeQuery } from "@/integrations/sanity/queries";
 import { logger } from "@/lib/logger";
 import type { SanityImageWithAlt } from "@/types/cms";
 import type { ProductColorVariantDocument, ProductVariantDocument } from "@/types/cms";
+import { normalizeProductLogistics } from "@/features/catalog/logistics";
 import { ADMIN_LOW_STOCK_THRESHOLD } from "../lib/product-filters";
 import { resolveAdminProductSlugValue } from "../lib/product-slug";
 import { normalizeAdminProductVariants } from "../lib/variant-editor";
@@ -42,6 +43,12 @@ type AdminProductDetailQueryItem = {
   isOnOffer?: boolean;
   showInNewIn?: boolean;
   newInOrder?: number;
+  logistics?: {
+    weightGrams?: number;
+    heightCm?: number;
+    widthCm?: number;
+    depthCm?: number;
+  };
   seo?: {
     title?: string;
     description?: string;
@@ -156,6 +163,7 @@ export function normalizeProductDetail(product: AdminProductDetailQueryItem): Ad
     basePrice: product.basePrice,
     transferPrice: typeof product.transferPrice === "number" ? product.transferPrice : null,
     stock: Number.isFinite(product.stock) ? product.stock : 0,
+    logistics: normalizeProductLogistics(product.logistics),
     stockLabel: stockSummary.stockLabel,
     stockTone: stockSummary.stockTone,
     variantLabel: variantCount > 0 ? `${variantCount} variantes` : "Sin variantes",

@@ -27,6 +27,16 @@ export type AggregateShippingAddress = {
 export type ShippingAddressMinAggregateOutputType = {
   id: string | null
   customerId: string | null
+  firstName: string | null
+  lastName: string | null
+  dni: string | null
+  email: string | null
+  phone: string | null
+  phoneAreaCode: string | null
+  phoneNumber: string | null
+  street: string | null
+  streetNumber: string | null
+  floor: string | null
   province: string | null
   city: string | null
   postalCode: string | null
@@ -38,6 +48,16 @@ export type ShippingAddressMinAggregateOutputType = {
 export type ShippingAddressMaxAggregateOutputType = {
   id: string | null
   customerId: string | null
+  firstName: string | null
+  lastName: string | null
+  dni: string | null
+  email: string | null
+  phone: string | null
+  phoneAreaCode: string | null
+  phoneNumber: string | null
+  street: string | null
+  streetNumber: string | null
+  floor: string | null
   province: string | null
   city: string | null
   postalCode: string | null
@@ -49,6 +69,16 @@ export type ShippingAddressMaxAggregateOutputType = {
 export type ShippingAddressCountAggregateOutputType = {
   id: number
   customerId: number
+  firstName: number
+  lastName: number
+  dni: number
+  email: number
+  phone: number
+  phoneAreaCode: number
+  phoneNumber: number
+  street: number
+  streetNumber: number
+  floor: number
   province: number
   city: number
   postalCode: number
@@ -62,6 +92,16 @@ export type ShippingAddressCountAggregateOutputType = {
 export type ShippingAddressMinAggregateInputType = {
   id?: true
   customerId?: true
+  firstName?: true
+  lastName?: true
+  dni?: true
+  email?: true
+  phone?: true
+  phoneAreaCode?: true
+  phoneNumber?: true
+  street?: true
+  streetNumber?: true
+  floor?: true
   province?: true
   city?: true
   postalCode?: true
@@ -73,6 +113,16 @@ export type ShippingAddressMinAggregateInputType = {
 export type ShippingAddressMaxAggregateInputType = {
   id?: true
   customerId?: true
+  firstName?: true
+  lastName?: true
+  dni?: true
+  email?: true
+  phone?: true
+  phoneAreaCode?: true
+  phoneNumber?: true
+  street?: true
+  streetNumber?: true
+  floor?: true
   province?: true
   city?: true
   postalCode?: true
@@ -84,6 +134,16 @@ export type ShippingAddressMaxAggregateInputType = {
 export type ShippingAddressCountAggregateInputType = {
   id?: true
   customerId?: true
+  firstName?: true
+  lastName?: true
+  dni?: true
+  email?: true
+  phone?: true
+  phoneAreaCode?: true
+  phoneNumber?: true
+  street?: true
+  streetNumber?: true
+  floor?: true
   province?: true
   city?: true
   postalCode?: true
@@ -168,6 +228,16 @@ export type ShippingAddressGroupByArgs<ExtArgs extends runtime.Types.Extensions.
 export type ShippingAddressGroupByOutputType = {
   id: string
   customerId: string
+  firstName: string | null
+  lastName: string | null
+  dni: string | null
+  email: string | null
+  phone: string | null
+  phoneAreaCode: string | null
+  phoneNumber: string | null
+  street: string | null
+  streetNumber: string | null
+  floor: string | null
   province: string
   city: string
   postalCode: string
@@ -200,6 +270,16 @@ export type ShippingAddressWhereInput = {
   NOT?: Prisma.ShippingAddressWhereInput | Prisma.ShippingAddressWhereInput[]
   id?: Prisma.UuidFilter<"ShippingAddress"> | string
   customerId?: Prisma.UuidFilter<"ShippingAddress"> | string
+  firstName?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  lastName?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  dni?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  email?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  phone?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  phoneAreaCode?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  phoneNumber?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  street?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  streetNumber?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  floor?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
   province?: Prisma.StringFilter<"ShippingAddress"> | string
   city?: Prisma.StringFilter<"ShippingAddress"> | string
   postalCode?: Prisma.StringFilter<"ShippingAddress"> | string
@@ -213,6 +293,16 @@ export type ShippingAddressWhereInput = {
 export type ShippingAddressOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
+  firstName?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastName?: Prisma.SortOrderInput | Prisma.SortOrder
+  dni?: Prisma.SortOrderInput | Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  phoneAreaCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  phoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  street?: Prisma.SortOrderInput | Prisma.SortOrder
+  streetNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  floor?: Prisma.SortOrderInput | Prisma.SortOrder
   province?: Prisma.SortOrder
   city?: Prisma.SortOrder
   postalCode?: Prisma.SortOrder
@@ -229,6 +319,16 @@ export type ShippingAddressWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ShippingAddressWhereInput[]
   NOT?: Prisma.ShippingAddressWhereInput | Prisma.ShippingAddressWhereInput[]
   customerId?: Prisma.UuidFilter<"ShippingAddress"> | string
+  firstName?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  lastName?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  dni?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  email?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  phone?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  phoneAreaCode?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  phoneNumber?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  street?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  streetNumber?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  floor?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
   province?: Prisma.StringFilter<"ShippingAddress"> | string
   city?: Prisma.StringFilter<"ShippingAddress"> | string
   postalCode?: Prisma.StringFilter<"ShippingAddress"> | string
@@ -242,6 +342,16 @@ export type ShippingAddressWhereUniqueInput = Prisma.AtLeast<{
 export type ShippingAddressOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
+  firstName?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastName?: Prisma.SortOrderInput | Prisma.SortOrder
+  dni?: Prisma.SortOrderInput | Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  phoneAreaCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  phoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  street?: Prisma.SortOrderInput | Prisma.SortOrder
+  streetNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  floor?: Prisma.SortOrderInput | Prisma.SortOrder
   province?: Prisma.SortOrder
   city?: Prisma.SortOrder
   postalCode?: Prisma.SortOrder
@@ -259,6 +369,16 @@ export type ShippingAddressScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ShippingAddressScalarWhereWithAggregatesInput | Prisma.ShippingAddressScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"ShippingAddress"> | string
   customerId?: Prisma.UuidWithAggregatesFilter<"ShippingAddress"> | string
+  firstName?: Prisma.StringNullableWithAggregatesFilter<"ShippingAddress"> | string | null
+  lastName?: Prisma.StringNullableWithAggregatesFilter<"ShippingAddress"> | string | null
+  dni?: Prisma.StringNullableWithAggregatesFilter<"ShippingAddress"> | string | null
+  email?: Prisma.StringNullableWithAggregatesFilter<"ShippingAddress"> | string | null
+  phone?: Prisma.StringNullableWithAggregatesFilter<"ShippingAddress"> | string | null
+  phoneAreaCode?: Prisma.StringNullableWithAggregatesFilter<"ShippingAddress"> | string | null
+  phoneNumber?: Prisma.StringNullableWithAggregatesFilter<"ShippingAddress"> | string | null
+  street?: Prisma.StringNullableWithAggregatesFilter<"ShippingAddress"> | string | null
+  streetNumber?: Prisma.StringNullableWithAggregatesFilter<"ShippingAddress"> | string | null
+  floor?: Prisma.StringNullableWithAggregatesFilter<"ShippingAddress"> | string | null
   province?: Prisma.StringWithAggregatesFilter<"ShippingAddress"> | string
   city?: Prisma.StringWithAggregatesFilter<"ShippingAddress"> | string
   postalCode?: Prisma.StringWithAggregatesFilter<"ShippingAddress"> | string
@@ -269,6 +389,16 @@ export type ShippingAddressScalarWhereWithAggregatesInput = {
 
 export type ShippingAddressCreateInput = {
   id?: string
+  firstName?: string | null
+  lastName?: string | null
+  dni?: string | null
+  email?: string | null
+  phone?: string | null
+  phoneAreaCode?: string | null
+  phoneNumber?: string | null
+  street?: string | null
+  streetNumber?: string | null
+  floor?: string | null
   province: string
   city: string
   postalCode: string
@@ -282,6 +412,16 @@ export type ShippingAddressCreateInput = {
 export type ShippingAddressUncheckedCreateInput = {
   id?: string
   customerId: string
+  firstName?: string | null
+  lastName?: string | null
+  dni?: string | null
+  email?: string | null
+  phone?: string | null
+  phoneAreaCode?: string | null
+  phoneNumber?: string | null
+  street?: string | null
+  streetNumber?: string | null
+  floor?: string | null
   province: string
   city: string
   postalCode: string
@@ -293,6 +433,16 @@ export type ShippingAddressUncheckedCreateInput = {
 
 export type ShippingAddressUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dni?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneAreaCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  floor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.StringFieldUpdateOperationsInput | string
   city?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -306,6 +456,16 @@ export type ShippingAddressUpdateInput = {
 export type ShippingAddressUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dni?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneAreaCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  floor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.StringFieldUpdateOperationsInput | string
   city?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -318,6 +478,16 @@ export type ShippingAddressUncheckedUpdateInput = {
 export type ShippingAddressCreateManyInput = {
   id?: string
   customerId: string
+  firstName?: string | null
+  lastName?: string | null
+  dni?: string | null
+  email?: string | null
+  phone?: string | null
+  phoneAreaCode?: string | null
+  phoneNumber?: string | null
+  street?: string | null
+  streetNumber?: string | null
+  floor?: string | null
   province: string
   city: string
   postalCode: string
@@ -328,6 +498,16 @@ export type ShippingAddressCreateManyInput = {
 
 export type ShippingAddressUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dni?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneAreaCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  floor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.StringFieldUpdateOperationsInput | string
   city?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -339,6 +519,16 @@ export type ShippingAddressUpdateManyMutationInput = {
 export type ShippingAddressUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dni?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneAreaCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  floor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.StringFieldUpdateOperationsInput | string
   city?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -360,6 +550,16 @@ export type ShippingAddressOrderByRelationAggregateInput = {
 export type ShippingAddressCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
+  firstName?: Prisma.SortOrder
+  lastName?: Prisma.SortOrder
+  dni?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  phoneAreaCode?: Prisma.SortOrder
+  phoneNumber?: Prisma.SortOrder
+  street?: Prisma.SortOrder
+  streetNumber?: Prisma.SortOrder
+  floor?: Prisma.SortOrder
   province?: Prisma.SortOrder
   city?: Prisma.SortOrder
   postalCode?: Prisma.SortOrder
@@ -371,6 +571,16 @@ export type ShippingAddressCountOrderByAggregateInput = {
 export type ShippingAddressMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
+  firstName?: Prisma.SortOrder
+  lastName?: Prisma.SortOrder
+  dni?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  phoneAreaCode?: Prisma.SortOrder
+  phoneNumber?: Prisma.SortOrder
+  street?: Prisma.SortOrder
+  streetNumber?: Prisma.SortOrder
+  floor?: Prisma.SortOrder
   province?: Prisma.SortOrder
   city?: Prisma.SortOrder
   postalCode?: Prisma.SortOrder
@@ -382,6 +592,16 @@ export type ShippingAddressMaxOrderByAggregateInput = {
 export type ShippingAddressMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
+  firstName?: Prisma.SortOrder
+  lastName?: Prisma.SortOrder
+  dni?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  phoneAreaCode?: Prisma.SortOrder
+  phoneNumber?: Prisma.SortOrder
+  street?: Prisma.SortOrder
+  streetNumber?: Prisma.SortOrder
+  floor?: Prisma.SortOrder
   province?: Prisma.SortOrder
   city?: Prisma.SortOrder
   postalCode?: Prisma.SortOrder
@@ -455,6 +675,16 @@ export type ShippingAddressUpdateOneWithoutOrdersNestedInput = {
 
 export type ShippingAddressCreateWithoutCustomerInput = {
   id?: string
+  firstName?: string | null
+  lastName?: string | null
+  dni?: string | null
+  email?: string | null
+  phone?: string | null
+  phoneAreaCode?: string | null
+  phoneNumber?: string | null
+  street?: string | null
+  streetNumber?: string | null
+  floor?: string | null
   province: string
   city: string
   postalCode: string
@@ -466,6 +696,16 @@ export type ShippingAddressCreateWithoutCustomerInput = {
 
 export type ShippingAddressUncheckedCreateWithoutCustomerInput = {
   id?: string
+  firstName?: string | null
+  lastName?: string | null
+  dni?: string | null
+  email?: string | null
+  phone?: string | null
+  phoneAreaCode?: string | null
+  phoneNumber?: string | null
+  street?: string | null
+  streetNumber?: string | null
+  floor?: string | null
   province: string
   city: string
   postalCode: string
@@ -507,6 +747,16 @@ export type ShippingAddressScalarWhereInput = {
   NOT?: Prisma.ShippingAddressScalarWhereInput | Prisma.ShippingAddressScalarWhereInput[]
   id?: Prisma.UuidFilter<"ShippingAddress"> | string
   customerId?: Prisma.UuidFilter<"ShippingAddress"> | string
+  firstName?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  lastName?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  dni?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  email?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  phone?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  phoneAreaCode?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  phoneNumber?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  street?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  streetNumber?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
+  floor?: Prisma.StringNullableFilter<"ShippingAddress"> | string | null
   province?: Prisma.StringFilter<"ShippingAddress"> | string
   city?: Prisma.StringFilter<"ShippingAddress"> | string
   postalCode?: Prisma.StringFilter<"ShippingAddress"> | string
@@ -517,6 +767,16 @@ export type ShippingAddressScalarWhereInput = {
 
 export type ShippingAddressCreateWithoutOrdersInput = {
   id?: string
+  firstName?: string | null
+  lastName?: string | null
+  dni?: string | null
+  email?: string | null
+  phone?: string | null
+  phoneAreaCode?: string | null
+  phoneNumber?: string | null
+  street?: string | null
+  streetNumber?: string | null
+  floor?: string | null
   province: string
   city: string
   postalCode: string
@@ -529,6 +789,16 @@ export type ShippingAddressCreateWithoutOrdersInput = {
 export type ShippingAddressUncheckedCreateWithoutOrdersInput = {
   id?: string
   customerId: string
+  firstName?: string | null
+  lastName?: string | null
+  dni?: string | null
+  email?: string | null
+  phone?: string | null
+  phoneAreaCode?: string | null
+  phoneNumber?: string | null
+  street?: string | null
+  streetNumber?: string | null
+  floor?: string | null
   province: string
   city: string
   postalCode: string
@@ -555,6 +825,16 @@ export type ShippingAddressUpdateToOneWithWhereWithoutOrdersInput = {
 
 export type ShippingAddressUpdateWithoutOrdersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dni?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneAreaCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  floor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.StringFieldUpdateOperationsInput | string
   city?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -567,6 +847,16 @@ export type ShippingAddressUpdateWithoutOrdersInput = {
 export type ShippingAddressUncheckedUpdateWithoutOrdersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dni?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneAreaCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  floor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.StringFieldUpdateOperationsInput | string
   city?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -577,6 +867,16 @@ export type ShippingAddressUncheckedUpdateWithoutOrdersInput = {
 
 export type ShippingAddressCreateManyCustomerInput = {
   id?: string
+  firstName?: string | null
+  lastName?: string | null
+  dni?: string | null
+  email?: string | null
+  phone?: string | null
+  phoneAreaCode?: string | null
+  phoneNumber?: string | null
+  street?: string | null
+  streetNumber?: string | null
+  floor?: string | null
   province: string
   city: string
   postalCode: string
@@ -587,6 +887,16 @@ export type ShippingAddressCreateManyCustomerInput = {
 
 export type ShippingAddressUpdateWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dni?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneAreaCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  floor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.StringFieldUpdateOperationsInput | string
   city?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -598,6 +908,16 @@ export type ShippingAddressUpdateWithoutCustomerInput = {
 
 export type ShippingAddressUncheckedUpdateWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dni?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneAreaCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  floor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.StringFieldUpdateOperationsInput | string
   city?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -609,6 +929,16 @@ export type ShippingAddressUncheckedUpdateWithoutCustomerInput = {
 
 export type ShippingAddressUncheckedUpdateManyWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dni?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneAreaCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  floor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   province?: Prisma.StringFieldUpdateOperationsInput | string
   city?: Prisma.StringFieldUpdateOperationsInput | string
   postalCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -651,6 +981,16 @@ export type ShippingAddressCountOutputTypeCountOrdersArgs<ExtArgs extends runtim
 export type ShippingAddressSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   customerId?: boolean
+  firstName?: boolean
+  lastName?: boolean
+  dni?: boolean
+  email?: boolean
+  phone?: boolean
+  phoneAreaCode?: boolean
+  phoneNumber?: boolean
+  street?: boolean
+  streetNumber?: boolean
+  floor?: boolean
   province?: boolean
   city?: boolean
   postalCode?: boolean
@@ -665,6 +1005,16 @@ export type ShippingAddressSelect<ExtArgs extends runtime.Types.Extensions.Inter
 export type ShippingAddressSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   customerId?: boolean
+  firstName?: boolean
+  lastName?: boolean
+  dni?: boolean
+  email?: boolean
+  phone?: boolean
+  phoneAreaCode?: boolean
+  phoneNumber?: boolean
+  street?: boolean
+  streetNumber?: boolean
+  floor?: boolean
   province?: boolean
   city?: boolean
   postalCode?: boolean
@@ -677,6 +1027,16 @@ export type ShippingAddressSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
 export type ShippingAddressSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   customerId?: boolean
+  firstName?: boolean
+  lastName?: boolean
+  dni?: boolean
+  email?: boolean
+  phone?: boolean
+  phoneAreaCode?: boolean
+  phoneNumber?: boolean
+  street?: boolean
+  streetNumber?: boolean
+  floor?: boolean
   province?: boolean
   city?: boolean
   postalCode?: boolean
@@ -689,6 +1049,16 @@ export type ShippingAddressSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
 export type ShippingAddressSelectScalar = {
   id?: boolean
   customerId?: boolean
+  firstName?: boolean
+  lastName?: boolean
+  dni?: boolean
+  email?: boolean
+  phone?: boolean
+  phoneAreaCode?: boolean
+  phoneNumber?: boolean
+  street?: boolean
+  streetNumber?: boolean
+  floor?: boolean
   province?: boolean
   city?: boolean
   postalCode?: boolean
@@ -697,7 +1067,7 @@ export type ShippingAddressSelectScalar = {
   notes?: boolean
 }
 
-export type ShippingAddressOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "province" | "city" | "postalCode" | "address" | "apartment" | "notes", ExtArgs["result"]["shippingAddress"]>
+export type ShippingAddressOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "firstName" | "lastName" | "dni" | "email" | "phone" | "phoneAreaCode" | "phoneNumber" | "street" | "streetNumber" | "floor" | "province" | "city" | "postalCode" | "address" | "apartment" | "notes", ExtArgs["result"]["shippingAddress"]>
 export type ShippingAddressInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   orders?: boolean | Prisma.ShippingAddress$ordersArgs<ExtArgs>
@@ -719,6 +1089,16 @@ export type $ShippingAddressPayload<ExtArgs extends runtime.Types.Extensions.Int
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     customerId: string
+    firstName: string | null
+    lastName: string | null
+    dni: string | null
+    email: string | null
+    phone: string | null
+    phoneAreaCode: string | null
+    phoneNumber: string | null
+    street: string | null
+    streetNumber: string | null
+    floor: string | null
     province: string
     city: string
     postalCode: string
@@ -1152,6 +1532,16 @@ export interface Prisma__ShippingAddressClient<T, Null = never, ExtArgs extends 
 export interface ShippingAddressFieldRefs {
   readonly id: Prisma.FieldRef<"ShippingAddress", 'String'>
   readonly customerId: Prisma.FieldRef<"ShippingAddress", 'String'>
+  readonly firstName: Prisma.FieldRef<"ShippingAddress", 'String'>
+  readonly lastName: Prisma.FieldRef<"ShippingAddress", 'String'>
+  readonly dni: Prisma.FieldRef<"ShippingAddress", 'String'>
+  readonly email: Prisma.FieldRef<"ShippingAddress", 'String'>
+  readonly phone: Prisma.FieldRef<"ShippingAddress", 'String'>
+  readonly phoneAreaCode: Prisma.FieldRef<"ShippingAddress", 'String'>
+  readonly phoneNumber: Prisma.FieldRef<"ShippingAddress", 'String'>
+  readonly street: Prisma.FieldRef<"ShippingAddress", 'String'>
+  readonly streetNumber: Prisma.FieldRef<"ShippingAddress", 'String'>
+  readonly floor: Prisma.FieldRef<"ShippingAddress", 'String'>
   readonly province: Prisma.FieldRef<"ShippingAddress", 'String'>
   readonly city: Prisma.FieldRef<"ShippingAddress", 'String'>
   readonly postalCode: Prisma.FieldRef<"ShippingAddress", 'String'>

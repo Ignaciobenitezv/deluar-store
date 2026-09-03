@@ -9,6 +9,7 @@ import {
   getAdminPaymentStatusLabel,
   getAdminShippingMethodLabel,
 } from "@/features/admin/lib/admin-order-labels";
+import { getOrderShipmentAdminData } from "@/features/shipments/server/shipment-service";
 import { getOrderItemVariantDisplayLines } from "@/features/order/order-item-display";
 import { getOrderById } from "@/features/orders/server/order-repository";
 import { PAYMENT_METHODS } from "@/features/payments/types";
@@ -92,7 +93,8 @@ export default async function AdminOrderDetailPage({
   await requireAdminSession();
   const { orderId } = await params;
 
-  const order = await getOrderById(orderId);
+  const data = await getOrderShipmentAdminData(orderId);
+  const order = data?.order ?? null;
 
   if (!order) {
     return (
@@ -168,11 +170,23 @@ export default async function AdminOrderDetailPage({
               label="Costo"
               value={order.shippingCost === 0 ? "Gratis" : formatPrice(order.shippingCost)}
             />
-            <DetailRow label="Dirección" value={order.shippingAddress.address} />
-            <DetailRow label="Depto / piso" value={order.shippingAddress.apartment} />
+            <DetailRow
+              label="Destinatario"
+              value={`${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`.trim()}
+            />
+            <DetailRow label="DNI" value={order.shippingAddress.dni} />
+            <DetailRow label="Correo electrónico" value={order.shippingAddress.email} />
+            <DetailRow label="Teléfono" value={order.shippingAddress.phone} />
+            <DetailRow label="Código de área" value={order.shippingAddress.phoneAreaCode} />
+            <DetailRow label="Número local" value={order.shippingAddress.phoneNumber} />
+            <DetailRow label="Calle" value={order.shippingAddress.street} />
+            <DetailRow label="Número" value={order.shippingAddress.streetNumber} />
+            <DetailRow label="Piso" value={order.shippingAddress.floor} />
+            <DetailRow label="Departamento" value={order.shippingAddress.apartment} />
             <DetailRow label="Localidad" value={order.shippingAddress.city} />
             <DetailRow label="Provincia" value={order.shippingAddress.province} />
             <DetailRow label="Código postal" value={order.shippingAddress.postalCode} />
+            <DetailRow label="Observaciones" value={order.shippingAddress.notes} />
           </div>
         </div>
 

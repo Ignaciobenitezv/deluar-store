@@ -1,4 +1,5 @@
 import { normalizeAdminProductSlug } from "./product-slug";
+import { normalizeProductLogistics, type ProductLogistics } from "@/features/catalog/logistics";
 import type { ProductColorVariantDocument, ProductVariantAttributeDocument, ProductVariantDocument, SanityImageWithAlt } from "@/types/cms";
 
 export const ADMIN_PRODUCT_VARIANT_ATTRIBUTE_NAMES = ["Color", "Tamaño", "Modelo", "Talle"] as const;
@@ -22,6 +23,7 @@ export type AdminProductVariantData = {
   transferPrice: number | null;
   stock: number;
   isActive: boolean;
+  logistics: ProductLogistics | null;
   images: SanityImageWithAlt[];
   source: AdminProductVariantSource;
 };
@@ -35,6 +37,7 @@ type VariantLike = {
   transferPrice?: number;
   stock?: number;
   isActive?: boolean;
+  logistics?: ProductLogistics | null;
   images?: SanityImageWithAlt[];
 };
 
@@ -132,6 +135,7 @@ export function normalizeAdminVariantFromCanonical(
     transferPrice: normalizeNumber(variant.transferPrice),
     stock: Math.max(0, Math.trunc(normalizeNumber(variant.stock) ?? 0)),
     isActive: variant.isActive !== false,
+    logistics: normalizeProductLogistics(variant.logistics),
     images: Array.isArray(variant.images) ? variant.images : [],
     source: "variants",
   };
@@ -154,6 +158,7 @@ export function normalizeAdminVariantFromLegacy(
     transferPrice: normalizeNumber(variant.transferPrice),
     stock: Math.max(0, Math.trunc(normalizeNumber(variant.stock) ?? 0)),
     isActive: true,
+    logistics: null,
     images: Array.isArray(variant.images) ? variant.images : [],
     source: "colorVariants",
   };

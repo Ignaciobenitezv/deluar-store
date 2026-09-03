@@ -1,0 +1,79 @@
+name: Analytics Maintenance
+
+on:
+  schedule:
+    - cron: "0,30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: analytics-maintenance
+  cancel-in-progress: false
+
+jobs:
+  abandonments:
+    runs-on: ubuntu-latest
+    env:
+      PRODUCTION_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+      ANALYTICS_MAINTENANCE_SECRET: ${{ secrets.ANALYTICS_MAINTENANCE_SECRET }}
+    steps:
+      - name: Validate required configuration
+        run: |
+          set -euo pipefail
+
+          : "${PRODUCTION_SITE_URL:?Missing repository variable NEXT_PUBLIC_SITE_URL}"
+          : "${ANALYTICS_MAINTENANCE_SECRET:?Missing secret ANALYTICS_MAINTENANCE_SECRET}"
+
+      - name: Run abandoned carts maintenance
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          response_file="$(mktemp)"
+          trap 'rm -f "$response_file"' EXIT
+
+          status_code="$(
+            curl \
+              --silent \
+              --show-error \
+              --fail-with-body \
+              --output "$response_file" \
+              --write-out '%{http_code}' \
+              --request POST \
+              --url "${PRODUCTION_SITE_URL%/}/api/analytics/maintenance/abandonments" \
+              --header "x-analytics-maintenance-secret: ${ANALYTICS_MAINTENANCE_SECRET}"
+          )"
+
+          if [[ ! "$status_code" =~ ^2 ]]; then
+            echo "Maintenance request failed with HTTP ${status_code}" >&2
+            cat "$response_file" >&2
+            exit 1
+          fi
+
+          node -e '
+            const fs = require("node:fs");
+            const file = process.argv[1];
+            let payload;
+
+            try {
+              payload = JSON.parse(fs.readFileSync(file, "utf8"));
+            } catch (error) {
+              console.error("Maintenance response was not valid JSON.");
+              console.error(error instanceof Error ? error.message : String(error));
+              process.exit(1);
+            }
+
+            if (payload.ok !== true) {
+              console.error("Maintenance response reported ok !== true.");
+              console.error(JSON.stringify(payload, null, 2));
+              process.exit(1);
+            }
+
+            console.log(JSON.stringify({
+              ok: payload.ok,
+              cartAbandoned: payload.cartAbandoned,
+              checkoutAbandoned: payload.checkoutAbandoned,
+            }, null, 2));
+          ' "$response_file"

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PRODUCT_LOGISTICS_FIELD_NAMES } from "@/features/catalog/logistics";
 import { normalizeAdminProductSlug } from "../lib/product-slug";
 import {
   booleanSelectSchema,
@@ -16,6 +17,11 @@ const optionalTrimmedString = z.preprocess(
 );
 
 const requiredTrimmedString = z.string().trim().min(1);
+
+const logisticsValueSchema = z.preprocess(
+  emptyToUndefined,
+  z.coerce.number().finite().positive().optional(),
+);
 
 const portableTextSpanSchema = z.object({
   _type: z.literal("span"),
@@ -57,6 +63,7 @@ const adminProductDetailDeltaFieldSchema = z.enum([
   "isOnOffer",
   "showInNewIn",
   "newInOrder",
+  "logistics",
   "seo",
 ]);
 
@@ -149,8 +156,33 @@ export const adminProductDetailFormSchema = z.object({
   isOnOffer: booleanSelectSchema,
   showInNewIn: booleanSelectSchema,
   newInOrder: optionalIntegerSchema,
+  weightGrams: logisticsValueSchema,
+  heightCm: logisticsValueSchema,
+  widthCm: logisticsValueSchema,
+  depthCm: logisticsValueSchema,
   seoTitle: optionalTrimmedString,
   seoDescription: optionalTrimmedString,
+}).superRefine((value, context) => {
+  const filledFields = PRODUCT_LOGISTICS_FIELD_NAMES.filter((field) => {
+    const numericValue = value[field];
+    return typeof numericValue === "number" && Number.isFinite(numericValue);
+  });
+
+  if (filledFields.length === 0) {
+    return;
+  }
+
+  if (filledFields.length !== PRODUCT_LOGISTICS_FIELD_NAMES.length) {
+    for (const field of PRODUCT_LOGISTICS_FIELD_NAMES) {
+      if (typeof value[field] !== "number") {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [field],
+          message: "Completá peso y dimensiones o dejalos vacíos.",
+        });
+      }
+    }
+  }
 });
 
 export type AdminProductDetailFormValues = z.infer<typeof adminProductDetailFormSchema>;

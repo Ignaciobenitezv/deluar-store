@@ -16,11 +16,22 @@ type PersistOrderInput = {
     notes: string;
   };
   shippingAddress: {
+    firstName: string;
+    lastName: string;
+    dni: string;
+    email: string;
+    phone: string;
+    phoneAreaCode: string;
+    phoneNumber: string;
+    street: string;
+    streetNumber: string;
+    floor: string;
     address: string;
     city: string;
     province: string;
     postalCode: string;
     apartment?: string;
+    notes: string;
   };
   items: {
     productId: string;
@@ -36,6 +47,10 @@ type PersistOrderInput = {
     unitPrice: number;
     transferPrice?: number;
     lineTotal: number;
+    weightGrams?: number | null;
+    heightCm?: number | null;
+    widthCm?: number | null;
+    depthCm?: number | null;
   }[];
   shippingMethod: ShippingMethod;
   paymentMethod: EnabledCheckoutPaymentMethod;
@@ -341,6 +356,8 @@ export async function saveOrder(input: PersistOrderInput): Promise<Order> {
     const customer = await tx.customer.create({
       data: {
         fullName: `${input.customer.firstName} ${input.customer.lastName}`.trim(),
+        firstName: input.customer.firstName,
+        lastName: input.customer.lastName,
         email: input.customer.email,
         phone: input.customer.phone,
       },
@@ -349,12 +366,22 @@ export async function saveOrder(input: PersistOrderInput): Promise<Order> {
     const shippingAddress = await tx.shippingAddress.create({
       data: {
         customerId: customer.id,
+        firstName: input.shippingAddress.firstName,
+        lastName: input.shippingAddress.lastName,
+        dni: input.shippingAddress.dni || undefined,
+        email: input.shippingAddress.email || undefined,
+        phone: input.shippingAddress.phone || undefined,
+        phoneAreaCode: input.shippingAddress.phoneAreaCode || undefined,
+        phoneNumber: input.shippingAddress.phoneNumber || undefined,
+        street: input.shippingAddress.street || undefined,
+        streetNumber: input.shippingAddress.streetNumber || undefined,
+        floor: input.shippingAddress.floor || undefined,
         province: input.shippingAddress.province,
         city: input.shippingAddress.city,
         postalCode: input.shippingAddress.postalCode,
         address: input.shippingAddress.address,
-        apartment: input.shippingAddress.apartment,
-        notes: input.customer.notes || undefined,
+        apartment: input.shippingAddress.apartment || undefined,
+        notes: input.shippingAddress.notes || undefined,
       },
     });
 
@@ -389,6 +416,11 @@ export async function saveOrder(input: PersistOrderInput): Promise<Order> {
                 ? decimal(item.transferPrice)
                 : undefined,
             imageUrl: item.imageUrl,
+            weightGrams:
+              typeof item.weightGrams === "number" ? item.weightGrams : undefined,
+            heightCm: typeof item.heightCm === "number" ? item.heightCm : undefined,
+            widthCm: typeof item.widthCm === "number" ? item.widthCm : undefined,
+            depthCm: typeof item.depthCm === "number" ? item.depthCm : undefined,
             productSnapshot: {
               create: {
                 sanityProductId: item.productId,

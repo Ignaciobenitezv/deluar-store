@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { traceAsync } from "@/lib/perf-trace";
 import {
   AUTH_ROLES,
   BETTER_AUTH_ADMIN_ROLES,
@@ -17,8 +18,10 @@ function hasAllowedRole(role: string | string[] | null | undefined, allowedRoles
 }
 
 export async function getBetterAuthSession(headerValue?: Headers) {
-  return auth.api.getSession({
-    headers: headerValue ?? (await headers()),
+  return traceAsync("admin.auth", "get_session", async () => {
+    return auth.api.getSession({
+      headers: headerValue ?? (await headers()),
+    });
   });
 }
 

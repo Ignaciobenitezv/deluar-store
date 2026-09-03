@@ -11,6 +11,10 @@ import { adminProductDetailQuery } from "@/integrations/sanity/admin-queries";
 import { getAdminProductsWriteClient } from "../server/admin-products-write-client";
 import { normalizeProductDetail } from "../server/admin-product-detail-service";
 import {
+  hasCompleteAdminProductLogistics,
+  parseAdminProductLogisticsFormData,
+} from "../validation/product-logistics";
+import {
   ADMIN_PRODUCT_DETAIL_SNAPSHOT_COOKIE,
   buildAdminProductDetailSnapshot,
   serializeAdminProductDetailSnapshot,
@@ -41,6 +45,12 @@ type AdminProductDetailDocument = {
   isOnOffer?: boolean;
   showInNewIn?: boolean;
   newInOrder?: number;
+  logistics?: {
+    weightGrams?: number;
+    heightCm?: number;
+    widthCm?: number;
+    depthCm?: number;
+  };
   seo?: {
     title?: string;
     description?: string;
@@ -283,6 +293,11 @@ export async function updateProductDetailAction(
   }
 
   const delta = parsedDelta.data;
+  const logisticsResult = parseAdminProductLogisticsFormData(formData);
+
+  if (logisticsResult.status === "error") {
+    return buildErrorState("Revisá los campos marcados.", logisticsResult.fieldErrors);
+  }
 
   if (delta.changedFields.length === 0) {
     return buildErrorState("No hay cambios para guardar.");
@@ -328,6 +343,18 @@ export async function updateProductDetailAction(
   if (!hasActiveVariants && delta.changedFields.includes("stock") && typeof delta.stock !== "number") {
     return buildErrorState("El stock es obligatorio para productos simples.", {
       stock: ["Ingresá un stock válido."],
+    });
+  }
+
+  const nextProductLogistics =
+    logisticsResult.status === "set" ? logisticsResult.value : currentProductSnapshot.logistics;
+
+  if (delta.isActive === true && !hasCompleteAdminProductLogistics(nextProductLogistics)) {
+    return buildErrorState("CompletÃ¡ peso y dimensiones antes de publicar el producto.", {
+      weightGrams: ["CompletÃ¡ peso y dimensiones antes de publicar el producto."],
+      heightCm: ["CompletÃ¡ peso y dimensiones antes de publicar el producto."],
+      widthCm: ["CompletÃ¡ peso y dimensiones antes de publicar el producto."],
+      depthCm: ["CompletÃ¡ peso y dimensiones antes de publicar el producto."],
     });
   }
 
@@ -465,6 +492,10 @@ export async function updateProductDetailAction(
     patchPlan.setFields.push("showInNewIn");
   }
 
+  if (delta.changedFields.includes("logistics")) {
+    patchPlan.setFields.push("logistics");
+  }
+
   if (delta.transferPrice?.operation === "set") {
     patchPlan.setFields.push("transferPrice");
   }
@@ -581,6 +612,10 @@ export async function updateProductDetailAction(
       patchSet.showInNewIn = delta.showInNewIn;
     }
 
+    if (delta.changedFields.includes("logistics") && logisticsResult.status === "set") {
+      patchSet.logistics = logisticsResult.value;
+    }
+
     if (delta.seo?.operation === "set") {
       patchSet.seo = {
         title: seoTitle || undefined,
@@ -623,6 +658,10 @@ export async function updateProductDetailAction(
 
     if (delta.seo?.operation === "unset") {
       patch = patch.unset(["seo"]);
+    }
+
+    if (delta.changedFields.includes("logistics") && logisticsResult.status === "unset") {
+      patch = patch.unset(["logistics"]);
     }
 
     const committedProduct = (await patch.commit({ returnDocuments: true })) as AdminProductDetailDocument;

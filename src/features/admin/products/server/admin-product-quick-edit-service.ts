@@ -20,6 +20,7 @@ import type {
 } from "@/types/cms";
 import { hasProductVariants } from "../lib/product-commercial";
 import type { AdminProductQuickEditField } from "../types";
+import { hasCompleteAdminProductLogistics } from "../validation/product-logistics";
 import type { AdminProductQuickEditFormValues } from "../validation/quick-edit-product";
 
 type AdminProductQuickEditDocument = {
@@ -36,6 +37,12 @@ type AdminProductQuickEditDocument = {
   basePrice: number;
   transferPrice?: number;
   images?: SanityImageWithAlt[];
+  logistics?: {
+    weightGrams?: number;
+    heightCm?: number;
+    widthCm?: number;
+    depthCm?: number;
+  };
   category?: {
     _id: string;
     title?: string;
@@ -143,6 +150,19 @@ export async function updateAdminProductQuickEdit(
       message: "El stock es obligatorio para productos simples.",
       fieldErrors: {
         stock: ["Ingresá un stock válido."],
+      },
+    };
+  }
+
+  if (input.isActive && !hasCompleteAdminProductLogistics(product.logistics)) {
+    return {
+      status: "error",
+      message: "CompletÃ¡ peso y dimensiones antes de publicar el producto.",
+      fieldErrors: {
+        weightGrams: ["CompletÃ¡ peso y dimensiones antes de publicar el producto."],
+        heightCm: ["CompletÃ¡ peso y dimensiones antes de publicar el producto."],
+        widthCm: ["CompletÃ¡ peso y dimensiones antes de publicar el producto."],
+        depthCm: ["CompletÃ¡ peso y dimensiones antes de publicar el producto."],
       },
     };
   }

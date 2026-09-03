@@ -8,19 +8,53 @@ import {
   isUnicobrosEnabled,
 } from "@/features/payments/types";
 import {
-  isPickupShippingMethod,
   isShippingMethod,
   normalizeShippingMethod,
   requiresLocationFields,
   requiresStreetAddress,
+  SHIPPING_METHODS,
 } from "@/features/shipping/shipping";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_PATTERN = /^[\d\s()+-]{6,25}$/;
+const PHONE_PATTERN = /^[\d\s()+\-./]{6,25}$/;
+const PHONE_AREA_CODE_PATTERN = /^[\d\s()+\-./]{2,12}$/;
+const PHONE_NUMBER_PATTERN = /^[\d\s()+\-./]{6,15}$/;
+const DNI_PATTERN = /^[\d\s.-]{7,12}$/;
+const STREET_NUMBER_PATTERN = /^[\d\s.-]{1,10}$/;
 const POSTAL_CODE_PATTERN = /^[A-Za-z0-9\s-]{3,12}$/;
 
 function readString(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function normalizeDigits(value: string) {
+  return value.replace(/\D/g, "");
+}
+
+export function normalizeDni(value: string) {
+  return normalizeDigits(value);
+}
+
+export function normalizePhoneAreaCode(value: string) {
+  return normalizeDigits(value).replace(/^0+/, "");
+}
+
+export function normalizePhoneNumber(value: string) {
+  return normalizeDigits(value).replace(/^15/, "");
+}
+
+function buildLegacyAddress(values: Pick<
+  CheckoutFormValues,
+  "street" | "streetNumber" | "floor" | "apartment" | "city" | "province" | "postalCode"
+>) {
+  const streetLine = [values.street, values.streetNumber].filter(Boolean).join(" ").trim();
+  const floorLine = [values.floor ? `Piso ${values.floor}` : "", values.apartment ? `Depto ${values.apartment}` : ""]
+    .filter(Boolean)
+    .join(", ")
+    .trim();
+  const locationLine = [values.city, values.province, values.postalCode].filter(Boolean).join(", ").trim();
+
+  return [streetLine, floorLine, locationLine].filter(Boolean).join(" | ");
 }
 
 function readPositiveInteger(value: unknown) {
@@ -31,47 +65,21 @@ function readPositiveInteger(value: unknown) {
   return value > 0 ? value : 0;
 }
 
-export function sanitizeShippingFields(
-  values: Pick<
-    CheckoutFormValues,
-    "address" | "city" | "province" | "postalCode" | "shippingMethod"
-  >,
-) {
-  if (isPickupShippingMethod(values.shippingMethod)) {
-    return {
-      address: "",
-      city: "",
-      province: "",
-      postalCode: "",
-    };
-  }
-
-  if (!requiresStreetAddress(values.shippingMethod)) {
-    return {
-      address: "",
-      city: values.city,
-      province: values.province,
-      postalCode: values.postalCode,
-    };
-  }
-
-  return {
-    address: values.address,
-    city: values.city,
-    province: values.province,
-    postalCode: values.postalCode,
-  };
-}
-
 export function normalizeCheckoutCustomer(
   input: CreateOrderInput["customer"],
 ): CheckoutFormValues {
   return {
     firstName: readString(input?.firstName),
     lastName: readString(input?.lastName),
+    dni: readString(input?.dni),
     email: readString(input?.email),
     phone: readString(input?.phone),
-    address: readString(input?.address),
+    phoneAreaCode: readString(input?.phoneAreaCode),
+    phoneNumber: readString(input?.phoneNumber),
+    street: readString(input?.street),
+    streetNumber: readString(input?.streetNumber),
+    floor: readString(input?.floor),
+    apartment: readString(input?.apartment),
     city: readString(input?.city),
     province: readString(input?.province),
     postalCode: readString(input?.postalCode),
@@ -117,6 +125,7 @@ export function validateOrderCustomer(values: CheckoutFormValues) {
   const errors: string[] = [];
   const addressRequired = requiresStreetAddress(values.shippingMethod);
   const locationRequired = requiresLocationFields(values.shippingMethod);
+  const dniRequired = values.shippingMethod !== SHIPPING_METHODS.RESISTANCE_PICKUP;
 
   if (!values.firstName) {
     errors.push("El nombre es obligatorio.");
@@ -138,8 +147,32 @@ export function validateOrderCustomer(values: CheckoutFormValues) {
     errors.push("El telefono no es valido.");
   }
 
-  if (addressRequired && !values.address) {
-    errors.push("La direccion es obligatoria.");
+  if (!values.phoneAreaCode) {
+    errors.push("El codigo de area es obligatorio.");
+  } else if (!PHONE_AREA_CODE_PATTERN.test(values.phoneAreaCode)) {
+    errors.push("El codigo de area no es valido.");
+  }
+
+  if (!values.phoneNumber) {
+    errors.push("El numero de telefono es obligatorio.");
+  } else if (!PHONE_NUMBER_PATTERN.test(values.phoneNumber)) {
+    errors.push("El numero de telefono no es valido.");
+  }
+
+  if (dniRequired && !values.dni) {
+    errors.push("El DNI es obligatorio.");
+  } else if (dniRequired && !DNI_PATTERN.test(values.dni)) {
+    errors.push("El DNI no es valido.");
+  }
+
+  if (addressRequired && !values.street) {
+    errors.push("La calle es obligatoria.");
+  }
+
+  if (addressRequired && !values.streetNumber) {
+    errors.push("La altura es obligatoria.");
+  } else if (addressRequired && !STREET_NUMBER_PATTERN.test(values.streetNumber)) {
+    errors.push("La altura no es valida.");
   }
 
   if (locationRequired && !values.city) {
@@ -161,6 +194,31 @@ export function validateOrderCustomer(values: CheckoutFormValues) {
   }
 
   return errors;
+}
+
+export function buildOrderShippingAddressSnapshot(values: CheckoutFormValues) {
+  const phoneAreaCode = normalizePhoneAreaCode(values.phoneAreaCode);
+  const phoneNumber = normalizePhoneNumber(values.phoneNumber);
+  const dni = normalizeDni(values.dni);
+
+  return {
+    firstName: readString(values.firstName),
+    lastName: readString(values.lastName),
+    dni,
+    email: readString(values.email),
+    phone: readString(values.phone),
+    phoneAreaCode,
+    phoneNumber,
+    street: readString(values.street),
+    streetNumber: readString(values.streetNumber),
+    floor: readString(values.floor),
+    apartment: readString(values.apartment),
+    city: readString(values.city),
+    province: readString(values.province),
+    postalCode: readString(values.postalCode),
+    notes: readString(values.notes),
+    address: buildLegacyAddress(values),
+  };
 }
 
 export function normalizeOrderItems(input: CreateOrderInput["items"]) {

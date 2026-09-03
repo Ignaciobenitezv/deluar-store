@@ -1,3 +1,5 @@
+import type { ProductLogistics } from "@/features/catalog/logistics";
+
 export type AdminProductSource = "variants" | "colorVariants";
 
 export type AdminProductListItem = {
@@ -72,7 +74,16 @@ export type AdminProductsPageData = {
   totalItems: number;
 };
 
-export type AdminProductQuickEditField = "stock" | "isActive" | "isOnOffer" | "showInNewIn" | "newInOrder";
+export type AdminProductQuickEditField =
+  | "stock"
+  | "isActive"
+  | "isOnOffer"
+  | "showInNewIn"
+  | "newInOrder"
+  | "weightGrams"
+  | "heightCm"
+  | "widthCm"
+  | "depthCm";
 
 export type AdminProductQuickEditActionState =
   | {
@@ -113,6 +124,10 @@ export type AdminProductDetailField =
   | "isOnOffer"
   | "showInNewIn"
   | "newInOrder"
+  | "weightGrams"
+  | "heightCm"
+  | "widthCm"
+  | "depthCm"
   | "seoTitle"
   | "seoDescription";
 
@@ -127,6 +142,11 @@ export type AdminProductVariantField =
   | "basePrice"
   | "stock"
   | "isActive"
+  | "logisticsMode"
+  | "weightGrams"
+  | "heightCm"
+  | "widthCm"
+  | "depthCm"
   | "attributesJson";
 
 export type AdminProductDetailActionState =
@@ -242,6 +262,7 @@ export type AdminProductDetailData = {
   imageUrl: string | null;
   imageAlt: string;
   images: AdminProductImageData[];
+  logistics: ProductLogistics | null;
   categoryId: string;
   categoryLabel: string;
   categorySlug: string;

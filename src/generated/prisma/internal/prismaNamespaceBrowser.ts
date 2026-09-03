@@ -67,6 +67,9 @@ export const ModelName = {
   PaymentWebhookEvent: 'PaymentWebhookEvent',
   EmailLog: 'EmailLog',
   OrderItem: 'OrderItem',
+  Shipment: 'Shipment',
+  AndreaniExportBatch: 'AndreaniExportBatch',
+  Parcel: 'Parcel',
   MercadoPagoWebhookEvent: 'MercadoPagoWebhookEvent'
 } as const
 
@@ -89,6 +92,8 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const CustomerScalarFieldEnum = {
   id: 'id',
   fullName: 'fullName',
+  firstName: 'firstName',
+  lastName: 'lastName',
   email: 'email',
   phone: 'phone',
   createdAt: 'createdAt'
@@ -164,6 +169,16 @@ export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[k
 export const ShippingAddressScalarFieldEnum = {
   id: 'id',
   customerId: 'customerId',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  dni: 'dni',
+  email: 'email',
+  phone: 'phone',
+  phoneAreaCode: 'phoneAreaCode',
+  phoneNumber: 'phoneNumber',
+  street: 'street',
+  streetNumber: 'streetNumber',
+  floor: 'floor',
   province: 'province',
   city: 'city',
   postalCode: 'postalCode',
@@ -349,10 +364,69 @@ export const OrderItemScalarFieldEnum = {
   quantity: 'quantity',
   unitPrice: 'unitPrice',
   transferPrice: 'transferPrice',
-  imageUrl: 'imageUrl'
+  imageUrl: 'imageUrl',
+  weightGrams: 'weightGrams',
+  heightCm: 'heightCm',
+  widthCm: 'widthCm',
+  depthCm: 'depthCm'
 } as const
 
 export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
+
+
+export const ShipmentScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  shippingMethod: 'shippingMethod',
+  carrier: 'carrier',
+  status: 'status',
+  andreaniExportBatchId: 'andreaniExportBatchId',
+  branchExternalId: 'branchExternalId',
+  branchCode: 'branchCode',
+  branchName: 'branchName',
+  branchAddress: 'branchAddress',
+  branchCity: 'branchCity',
+  branchProvince: 'branchProvince',
+  branchPostalCode: 'branchPostalCode',
+  trackingNumber: 'trackingNumber',
+  carrierExternalId: 'carrierExternalId',
+  readyAt: 'readyAt',
+  dispatchedAt: 'dispatchedAt',
+  deliveredAt: 'deliveredAt',
+  errorMessage: 'errorMessage',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShipmentScalarFieldEnum = (typeof ShipmentScalarFieldEnum)[keyof typeof ShipmentScalarFieldEnum]
+
+
+export const AndreaniExportBatchScalarFieldEnum = {
+  id: 'id',
+  carrier: 'carrier',
+  fileName: 'fileName',
+  archiveStorageKey: 'archiveStorageKey',
+  archiveBytes: 'archiveBytes',
+  createdAt: 'createdAt'
+} as const
+
+export type AndreaniExportBatchScalarFieldEnum = (typeof AndreaniExportBatchScalarFieldEnum)[keyof typeof AndreaniExportBatchScalarFieldEnum]
+
+
+export const ParcelScalarFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  sequence: 'sequence',
+  calculatedWeightGrams: 'calculatedWeightGrams',
+  weightGrams: 'weightGrams',
+  heightCm: 'heightCm',
+  widthCm: 'widthCm',
+  depthCm: 'depthCm',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ParcelScalarFieldEnum = (typeof ParcelScalarFieldEnum)[keyof typeof ParcelScalarFieldEnum]
 
 
 export const MercadoPagoWebhookEventScalarFieldEnum = {

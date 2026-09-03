@@ -160,6 +160,11 @@ export const productSchema = defineType({
       options: { collapsible: true, collapsed: true },
     },
     {
+      name: "logistics",
+      title: "Logística / envíos",
+      options: { collapsible: true, collapsed: true },
+    },
+    {
       name: "seo",
       title: "SEO",
       options: { collapsible: true, collapsed: true },
@@ -265,6 +270,13 @@ export const productSchema = defineType({
       type: "array",
       fieldset: "general",
       of: [defineArrayMember({ type: "productAttribute" })],
+    }),
+    defineField({
+      name: "logistics",
+      title: "Logística / envíos",
+      description: "Datos opcionales para envíos. Si completás un valor, completá también los demás.",
+      type: "productLogistics",
+      fieldset: "logistics",
     }),
     defineField({
       name: "images",

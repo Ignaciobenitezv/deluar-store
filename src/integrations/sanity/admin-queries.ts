@@ -1,5 +1,14 @@
 import groq from "groq";
 
+const logisticsProjection = groq`
+  logistics{
+    weightGrams,
+    heightCm,
+    widthCm,
+    depthCm
+  }
+`;
+
 const adminCategoryTreeProjection = groq`
   _id,
   _type,
@@ -54,7 +63,8 @@ const adminProductProjection = groq`
     title,
     value,
     stock,
-    isActive
+    isActive,
+    ${logisticsProjection}
   },
   colorVariants[]{
     _key,
@@ -78,7 +88,8 @@ export const adminProductsInventoryQuery = groq`
       title,
       value,
       stock,
-      isActive
+      isActive,
+      ${logisticsProjection}
     },
     colorVariants[]{
       _key,
@@ -103,6 +114,7 @@ export const adminProductQuickEditQuery = groq`
     isOnOffer,
     showInNewIn,
     newInOrder,
+    ${logisticsProjection},
     images,
     category->{
       _id,
@@ -148,6 +160,7 @@ export const adminProductDetailQuery = groq`
     showInNewIn,
     newInOrder,
     seo,
+    ${logisticsProjection},
     images,
     "variantCount": count(variants) + count(colorVariants),
     variants[]{
@@ -166,7 +179,8 @@ export const adminProductDetailQuery = groq`
       basePrice,
       transferPrice,
       stock,
-      isActive
+      isActive,
+      ${logisticsProjection}
     },
     colorVariants[]{
       _key,

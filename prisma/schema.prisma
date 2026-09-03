@@ -43,6 +43,20 @@ enum PaymentStatus {
   CHARGED_BACK
 }
 
+enum ShipmentCarrier {
+  ANDREANI
+  CORREO_ARGENTINO
+}
+
+enum ShipmentStatus {
+  DRAFT
+  READY
+  CREATED
+  DELIVERED
+  CANCELLED
+  ERROR
+}
+
 enum AnalyticsEventType {
   SESSION_STARTED
   PAGE_VIEWED
@@ -70,6 +84,8 @@ enum AnalyticsCartStatus {
 model Customer {
   id                String            @id @default(uuid()) @db.Uuid
   fullName          String
+  firstName         String?
+  lastName          String?
   email             String
   phone             String
   createdAt         DateTime          @default(now())
@@ -152,16 +168,26 @@ model Verification {
 }
 
 model ShippingAddress {
-  id         String   @id @default(uuid()) @db.Uuid
-  customerId String   @db.Uuid
-  province   String
-  city       String
-  postalCode String
-  address    String
-  apartment  String?
-  notes      String?
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  orders     Order[]
+  id           String   @id @default(uuid()) @db.Uuid
+  customerId   String   @db.Uuid
+  firstName    String?
+  lastName     String?
+  dni          String?
+  email        String?
+  phone        String?
+  phoneAreaCode String?
+  phoneNumber  String?
+  street       String?
+  streetNumber String?
+  floor        String?
+  province     String
+  city         String
+  postalCode   String
+  address      String
+  apartment    String?
+  notes        String?
+  customer     Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  orders       Order[]
 
   @@index([customerId])
   @@index([province, city])
@@ -322,6 +348,7 @@ model Order {
   customer          Customer         @relation(fields: [customerId], references: [id], onDelete: Restrict)
   shippingAddress   ShippingAddress? @relation(fields: [shippingAddressId], references: [id], onDelete: SetNull)
   items             OrderItem[]
+  shipments         Shipment[]
   webhookEvents     MercadoPagoWebhookEvent[]
   paymentWebhookEvents PaymentWebhookEvent[]
   emailLogs         EmailLog[]
@@ -396,6 +423,10 @@ model OrderItem {
   unitPrice         Decimal          @db.Decimal(12, 2)
   transferPrice     Decimal?         @db.Decimal(12, 2)
   imageUrl          String?
+  weightGrams       Int?
+  heightCm          Int?
+  widthCm           Int?
+  depthCm           Int?
   order             Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productSnapshot   ProductSnapshot? @relation(fields: [productSnapshotId], references: [id], onDelete: SetNull)
 
@@ -403,6 +434,69 @@ model OrderItem {
   @@index([productSnapshotId])
   @@index([productId])
   @@index([productSlug])
+}
+
+model Shipment {
+  id                String            @id @default(uuid()) @db.Uuid
+  orderId           String            @db.Uuid
+  shippingMethod    String
+  carrier           ShipmentCarrier?
+  status            ShipmentStatus    @default(DRAFT)
+  andreaniExportBatchId String?        @db.Uuid
+  branchExternalId  String?
+  branchCode        String?
+  branchName        String?
+  branchAddress     String?
+  branchCity        String?
+  branchProvince    String?
+  branchPostalCode  String?
+  trackingNumber    String?
+  carrierExternalId String?
+  readyAt           DateTime?
+  dispatchedAt      DateTime?
+  deliveredAt       DateTime?
+  errorMessage      String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  order             Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  andreaniExportBatch AndreaniExportBatch? @relation(fields: [andreaniExportBatchId], references: [id], onDelete: SetNull)
+  parcels           Parcel[]
+
+  @@index([orderId])
+  @@index([orderId, status])
+  @@index([carrier])
+  @@index([andreaniExportBatchId])
+  @@index([createdAt])
+}
+
+model AndreaniExportBatch {
+  id                 String           @id @default(uuid()) @db.Uuid
+  carrier            ShipmentCarrier  @default(ANDREANI)
+  fileName           String
+  archiveStorageKey  String?
+  archiveBytes       Bytes
+  createdAt          DateTime         @default(now())
+  shipments          Shipment[]
+
+  @@index([carrier, createdAt])
+  @@index([createdAt])
+}
+
+model Parcel {
+  id                    String    @id @default(uuid()) @db.Uuid
+  shipmentId            String    @db.Uuid
+  sequence              Int
+  calculatedWeightGrams Int?
+  weightGrams           Int?
+  heightCm              Int?
+  widthCm               Int?
+  depthCm               Int?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  shipment              Shipment  @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@unique([shipmentId, sequence])
+  @@index([shipmentId])
 }
 
 model MercadoPagoWebhookEvent {

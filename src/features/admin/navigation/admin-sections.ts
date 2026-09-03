@@ -128,3 +128,17 @@ export const adminOrdersSections: AdminModuleNavSection[] = [
     ],
   },
 ];
+
+export const adminShipmentsSections: AdminModuleNavSection[] = [
+  {
+    label: "Operacion",
+    items: [
+      {
+        id: "shipments-list",
+        label: "Envios",
+        href: "/admin/envios",
+        description: "Preparacion y exportacion Andreani",
+      },
+    ],
+  },
+];

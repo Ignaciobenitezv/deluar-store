@@ -1,11 +1,21 @@
 import groq from "groq";
 
+const logisticsProjection = groq`
+  logistics{
+    weightGrams,
+    heightCm,
+    widthCm,
+    depthCm
+  }
+`;
+
 const variantCardProjection = groq`
   variants[]{
     _key,
     title,
     value,
     isActive,
+    ${logisticsProjection},
     attributes[]{
       name,
       value
@@ -35,7 +45,8 @@ const variantDetailProjection = groq`
     basePrice,
     transferPrice,
     stock,
-    isActive
+    isActive,
+    ${logisticsProjection}
   },
   colorVariants[]{
     _key,
@@ -58,7 +69,8 @@ const variantStockProjection = groq`
     value,
     stock,
     isActive,
-    sku
+    sku,
+    ${logisticsProjection}
   },
   colorVariants[]{
     _key,
@@ -115,6 +127,7 @@ export const productCardQuery = groq`
     isOnOffer,
     showInNewIn,
     newInOrder,
+    ${logisticsProjection},
     images,
     ${variantCardProjection},
     attributes[]{
@@ -278,6 +291,7 @@ export const productBySlugQuery = groq`
     isFeatured,
     isOnOffer,
     images,
+    ${logisticsProjection},
     ${variantDetailProjection},
     attributes,
     seo,

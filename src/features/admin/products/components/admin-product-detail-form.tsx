@@ -18,6 +18,10 @@ import { AdminProductRichTextEditor } from "./admin-product-rich-text-editor";
 import { AdminProductDetailUpdatedAt } from "./admin-product-updated-at";
 import { dashboardUi } from "@/features/admin/dashboard/lib/dashboard-ui";
 import { formatDashboardPrice } from "@/features/admin/dashboard/lib/dashboard-formatters";
+import {
+  createProductLogisticsDraft,
+  formatProductLogisticsSummary,
+} from "@/features/catalog/logistics";
 import { cn } from "@/lib/utils";
 import { buildAdminProductSlugFromTitle, normalizeAdminProductSlug } from "../lib/product-slug";
 import { logger } from "@/lib/logger";
@@ -62,6 +66,10 @@ type DetailDraft = {
   isOnOffer: boolean;
   showInNewIn: boolean;
   newInOrder: string;
+  weightGrams: string;
+  heightCm: string;
+  widthCm: string;
+  depthCm: string;
   seoTitle: string;
   seoDescription: string;
 };
@@ -128,6 +136,10 @@ function getFieldError(
     | "isOnOffer"
     | "showInNewIn"
     | "newInOrder"
+    | "weightGrams"
+    | "heightCm"
+    | "widthCm"
+    | "depthCm"
     | "seoTitle"
     | "seoDescription",
 ) {
@@ -139,6 +151,8 @@ function getFieldError(
 }
 
 function createDetailDraft(product: AdminProductDetailData): DetailDraft {
+  const logisticsDraft = createProductLogisticsDraft(product.logistics);
+
   return {
     title: product.title,
     slug: product.slug,
@@ -153,6 +167,10 @@ function createDetailDraft(product: AdminProductDetailData): DetailDraft {
     isOnOffer: product.isOnOffer,
     showInNewIn: product.showInNewIn,
     newInOrder: typeof product.newInOrder === "number" ? String(product.newInOrder) : "",
+    weightGrams: logisticsDraft.weightGrams,
+    heightCm: logisticsDraft.heightCm,
+    widthCm: logisticsDraft.widthCm,
+    depthCm: logisticsDraft.depthCm,
     seoTitle: product.seoTitle,
     seoDescription: product.seoDescription,
   };
@@ -267,6 +285,17 @@ function buildDetailDelta(
   } else if (baseline.newInOrder !== null) {
     delta.newInOrder = { operation: "unset" };
     changedFields.add("newInOrder");
+  }
+
+  const baselineLogistics = createProductLogisticsDraft(baseline.logistics);
+  const logisticsChanged =
+    draft.weightGrams.trim() !== baselineLogistics.weightGrams ||
+    draft.heightCm.trim() !== baselineLogistics.heightCm ||
+    draft.widthCm.trim() !== baselineLogistics.widthCm ||
+    draft.depthCm.trim() !== baselineLogistics.depthCm;
+
+  if (logisticsChanged) {
+    changedFields.add("logistics");
   }
 
   const seoTitle = draft.seoTitle.trim();
@@ -618,9 +647,9 @@ function AdminProductDetailFormFields({
           </div>
 
           <div className={dashboardUi.cardBody}>
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Precio</span>
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  <span>Precio</span>
                 <input
                   type="number"
                   name="basePrice"
@@ -651,6 +680,89 @@ function AdminProductDetailFormFields({
                 <p className="text-xs text-slate-500">Si lo dejás vacío, se elimina ese valor.</p>
                 {getFieldError(state, "transferPrice") ? (
                   <span className="text-xs font-normal text-rose-600">{getFieldError(state, "transferPrice")}</span>
+                ) : null}
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section className={`${dashboardUi.card} overflow-hidden`}>
+          <div className={`${dashboardUi.cardHeader} border-b border-slate-200/60`}>
+            <div>
+              <h2 className={dashboardUi.sectionTitle}>Logística / envíos</h2>
+              <p className={dashboardUi.sectionDescription}>
+                Peso y dimensiones del producto base. Si completás una medida, completá las cuatro.
+              </p>
+            </div>
+          </div>
+
+          <div className={dashboardUi.cardBody}>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="grid gap-2 text-sm font-medium text-slate-700">
+                <span>Peso (g)</span>
+                <input
+                  type="number"
+                  name="weightGrams"
+                  min={1}
+                  step={1}
+                  value={draft.weightGrams}
+                  onChange={(event) => setDraft((current) => ({ ...current, weightGrams: event.target.value }))}
+                  placeholder="Opcional"
+                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
+                />
+                {getFieldError(state, "weightGrams") ? (
+                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "weightGrams")}</span>
+                ) : null}
+              </label>
+
+              <label className="grid gap-2 text-sm font-medium text-slate-700">
+                <span>Alto (cm)</span>
+                <input
+                  type="number"
+                  name="heightCm"
+                  min={1}
+                  step={0.1}
+                  value={draft.heightCm}
+                  onChange={(event) => setDraft((current) => ({ ...current, heightCm: event.target.value }))}
+                  placeholder="Opcional"
+                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
+                />
+                {getFieldError(state, "heightCm") ? (
+                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "heightCm")}</span>
+                ) : null}
+              </label>
+
+              <label className="grid gap-2 text-sm font-medium text-slate-700">
+                <span>Ancho (cm)</span>
+                <input
+                  type="number"
+                  name="widthCm"
+                  min={1}
+                  step={0.1}
+                  value={draft.widthCm}
+                  onChange={(event) => setDraft((current) => ({ ...current, widthCm: event.target.value }))}
+                  placeholder="Opcional"
+                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
+                />
+                {getFieldError(state, "widthCm") ? (
+                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "widthCm")}</span>
+                ) : null}
+              </label>
+
+              <label className="grid gap-2 text-sm font-medium text-slate-700">
+                <span>Profundidad (cm)</span>
+                <input
+                  type="number"
+                  name="depthCm"
+                  min={1}
+                  step={0.1}
+                  value={draft.depthCm}
+                  onChange={(event) => setDraft((current) => ({ ...current, depthCm: event.target.value }))}
+                  placeholder="Opcional"
+                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
+                />
+                {getFieldError(state, "depthCm") ? (
+                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "depthCm")}</span>
                 ) : null}
               </label>
             </div>
@@ -759,6 +871,12 @@ function AdminProductDetailFormFields({
                 <dt>Transferencia</dt>
                 <dd className="font-medium text-slate-900">
                   {typeof product.transferPrice === "number" ? formatDashboardPrice(product.transferPrice) : "Sin definir"}
+                </dd>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <dt>Logística</dt>
+                <dd className="font-medium text-slate-900 text-right">
+                  {formatProductLogisticsSummary(product.logistics)}
                 </dd>
               </div>
               <AdminProductDetailUpdatedAt initialUpdatedAt={product.updatedAt} variant="field" />

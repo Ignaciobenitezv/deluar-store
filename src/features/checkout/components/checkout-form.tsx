@@ -3,19 +3,13 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { CheckoutFormErrors, CheckoutFormValues } from "@/features/checkout/types";
-import {
-  isUnicobrosEnabled,
-  PAYMENT_METHODS,
-} from "@/features/payments/types";
-import {
-  getInitialCheckoutFormValues,
-  validateCheckoutForm,
-} from "@/features/checkout/validation";
+import { isUnicobrosEnabled, PAYMENT_METHODS } from "@/features/payments/types";
+import { getInitialCheckoutFormValues, validateCheckoutForm } from "@/features/checkout/validation";
 import {
   getShippingOptions,
   isPickupShippingMethod,
   requiresLocationFields,
-  requiresStreetAddress,
+  SHIPPING_METHODS,
   type ShippingMethod,
 } from "@/features/shipping/shipping";
 
@@ -110,9 +104,10 @@ export function CheckoutForm({
   const [values, setValues] = useState<CheckoutFormValues>(getInitialCheckoutFormValues);
   const [errors, setErrors] = useState<CheckoutFormErrors>({});
   const shippingOptions = getShippingOptions(subtotal);
-  const showAddressField = requiresStreetAddress(values.shippingMethod);
-  const showLocationFields = requiresLocationFields(values.shippingMethod);
   const isPickupMethod = isPickupShippingMethod(values.shippingMethod);
+  const showRecipientFields = !isPickupMethod;
+  const streetRequired = values.shippingMethod === SHIPPING_METHODS.HOME_DELIVERY;
+  const showLocationFields = requiresLocationFields(values.shippingMethod);
 
   useEffect(() => {
     onValuesChange?.(values);
@@ -131,7 +126,11 @@ export function CheckoutForm({
     setErrors((current) => ({
       ...current,
       shippingMethod: undefined,
-      address: undefined,
+      dni: undefined,
+      street: undefined,
+      streetNumber: undefined,
+      floor: undefined,
+      apartment: undefined,
       city: undefined,
       province: undefined,
       postalCode: undefined,
@@ -155,9 +154,15 @@ export function CheckoutForm({
       ...values,
       firstName: values.firstName.trim(),
       lastName: values.lastName.trim(),
+      dni: values.dni.trim(),
       email: values.email.trim(),
       phone: values.phone.trim(),
-      address: values.address.trim(),
+      phoneAreaCode: values.phoneAreaCode.trim(),
+      phoneNumber: values.phoneNumber.trim(),
+      street: values.street.trim(),
+      streetNumber: values.streetNumber.trim(),
+      floor: values.floor.trim(),
+      apartment: values.apartment.trim(),
       city: values.city.trim(),
       province: values.province.trim(),
       postalCode: values.postalCode.trim(),
@@ -176,7 +181,7 @@ export function CheckoutForm({
           Completa tus datos
         </h2>
         <p className="max-w-2xl text-sm leading-7 text-muted sm:text-base">
-          Ingresá la información de contacto y entrega para que podamos preparar tu
+          Ingresa la informacion de contacto y entrega para que podamos preparar tu
           orden correctamente antes del paso de pago.
         </p>
       </div>
@@ -190,34 +195,16 @@ export function CheckoutForm({
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field
-            id="firstName"
-            label="Nombre"
-            value={values.firstName}
-            error={errors.firstName}
-            onChange={handleChange}
-          />
-          <Field
-            id="lastName"
-            label="Apellido"
-            value={values.lastName}
-            error={errors.lastName}
-            onChange={handleChange}
-          />
-          <Field
-            id="email"
-            label="Correo electrónico"
-            value={values.email}
-            error={errors.email}
-            onChange={handleChange}
-          />
-          <Field
-            id="phone"
-            label="Teléfono"
-            value={values.phone}
-            error={errors.phone}
-            onChange={handleChange}
-          />
+          <Field id="firstName" label="Nombre" value={values.firstName} error={errors.firstName} onChange={handleChange} />
+          <Field id="lastName" label="Apellido" value={values.lastName} error={errors.lastName} onChange={handleChange} />
+          <div className="sm:col-span-2">
+            <Field id="email" label="Correo electronico" value={values.email} error={errors.email} onChange={handleChange} />
+          </div>
+          <div className="sm:col-span-2">
+            <Field id="phone" label="Telefono original" value={values.phone} error={errors.phone} onChange={handleChange} />
+          </div>
+          <Field id="phoneAreaCode" label="Codigo de area" value={values.phoneAreaCode} error={errors.phoneAreaCode} onChange={handleChange} />
+          <Field id="phoneNumber" label="Numero local" value={values.phoneNumber} error={errors.phoneNumber} onChange={handleChange} />
         </div>
       </section>
 
@@ -225,13 +212,13 @@ export function CheckoutForm({
         <div className="space-y-1">
           <p className="text-xs uppercase tracking-[0.22em] text-muted">Entrega</p>
           <h3 className="text-xl font-semibold tracking-[0.03em] text-foreground">
-            Dirección de envío
+            Direccion de envio
           </h3>
         </div>
 
         <div className="space-y-3">
           <p className="text-sm font-medium tracking-[0.01em] text-foreground">
-            Método de envío *
+            Metodo de envio *
           </p>
           <div className="grid gap-3">
             {shippingOptions.map((option) => {
@@ -288,50 +275,69 @@ export function CheckoutForm({
 
         {isPickupMethod ? (
           <div className="rounded-[1.2rem] border border-border/75 bg-white/78 px-4 py-4 text-sm leading-7 text-muted">
-            Podés retirar tu pedido en Resistencia, Chaco. Luego coordinaremos por
+            Podes retirar tu pedido en Resistencia, Chaco. Luego coordinaremos por
             WhatsApp el punto y horario de retiro.
           </div>
         ) : null}
 
-        <div className="grid gap-5 sm:grid-cols-2">
-          {showAddressField ? (
+        {showRecipientFields ? (
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <Field id="dni" label="DNI" value={values.dni} error={errors.dni} onChange={handleChange} />
+            </div>
             <div className="sm:col-span-2">
               <Field
-                id="address"
-                label="Dirección"
-                value={values.address}
-                error={errors.address}
+                id="street"
+                label="Calle"
+                value={values.street}
+                error={errors.street}
+                required={streetRequired}
                 onChange={handleChange}
               />
             </div>
-          ) : null}
-          {showLocationFields ? (
             <Field
-              id="city"
-              label="Localidad"
-              value={values.city}
-              error={errors.city}
+              id="streetNumber"
+              label="Numero"
+              value={values.streetNumber}
+              error={errors.streetNumber}
+              required={streetRequired}
               onChange={handleChange}
             />
-          ) : null}
-          {showLocationFields ? (
             <Field
-              id="province"
-              label="Provincia"
-              value={values.province}
-              error={errors.province}
+              id="floor"
+              label="Piso"
+              value={values.floor}
+              error={errors.floor}
+              required={false}
               onChange={handleChange}
             />
-          ) : null}
-          {showLocationFields ? (
             <Field
-              id="postalCode"
-              label="Código postal"
-              value={values.postalCode}
-              error={errors.postalCode}
+              id="apartment"
+              label="Departamento"
+              value={values.apartment}
+              error={errors.apartment}
+              required={false}
               onChange={handleChange}
             />
-          ) : null}
+            {showLocationFields ? (
+              <Field id="city" label="Localidad" value={values.city} error={errors.city} onChange={handleChange} />
+            ) : null}
+            {showLocationFields ? (
+              <Field id="province" label="Provincia" value={values.province} error={errors.province} onChange={handleChange} />
+            ) : null}
+            {showLocationFields ? (
+              <Field
+                id="postalCode"
+                label="Codigo postal"
+                value={values.postalCode}
+                error={errors.postalCode}
+                onChange={handleChange}
+              />
+            ) : null}
+          </div>
+        ) : null}
+
+        <div className="grid gap-5 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <Field
               id="notes"
@@ -351,7 +357,7 @@ export function CheckoutForm({
           <div className="space-y-1">
             <p className="text-xs uppercase tracking-[0.22em] text-muted">Medio de pago</p>
             <p className="text-sm leading-7 text-muted">
-              Elegí cómo querés dejar preparado el pago de tu orden.
+              Elegi como queres dejar preparado el pago de tu orden.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -366,8 +372,7 @@ export function CheckoutForm({
                     {
                       value: PAYMENT_METHODS.UNICOBROS,
                       title: "Unicobros",
-                      description:
-                        "Pago externo seguro con redirección al proveedor.",
+                      description: "Pago externo seguro con redireccion al proveedor.",
                     },
                   ]
                 : []),
@@ -422,7 +427,7 @@ export function CheckoutForm({
           <p className="text-xs uppercase tracking-[0.22em] text-muted">Siguiente paso</p>
           <p className="text-sm leading-7 text-muted">
             Primero creamos tu orden y luego preparamos el inicio de pago. Si falta
-            algún dato, te lo vamos a indicar acá.
+            algun dato, te lo vamos a indicar aca.
           </p>
         </div>
         <button

@@ -98,6 +98,21 @@ export type EmailLog = Prisma.EmailLogModel
  */
 export type OrderItem = Prisma.OrderItemModel
 /**
+ * Model Shipment
+ * 
+ */
+export type Shipment = Prisma.ShipmentModel
+/**
+ * Model AndreaniExportBatch
+ * 
+ */
+export type AndreaniExportBatch = Prisma.AndreaniExportBatchModel
+/**
+ * Model Parcel
+ * 
+ */
+export type Parcel = Prisma.ParcelModel
+/**
  * Model MercadoPagoWebhookEvent
  * 
  */

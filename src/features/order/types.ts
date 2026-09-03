@@ -17,11 +17,23 @@ export type OrderCustomer = Pick<
   "firstName" | "lastName" | "email" | "phone" | "notes"
 >;
 
-export type OrderShippingAddress = Pick<
-  CheckoutFormValues,
-  "address" | "city" | "province" | "postalCode"
-> & {
+export type OrderShippingAddress = {
+  firstName: string;
+  lastName: string;
+  dni?: string;
+  email: string;
+  phone: string;
+  phoneAreaCode?: string;
+  phoneNumber?: string;
+  street?: string;
+  streetNumber?: string;
+  floor?: string;
   apartment?: string;
+  address: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  notes: string;
 };
 
 export type OrderItem = {
@@ -39,6 +51,10 @@ export type OrderItem = {
   unitPrice: number;
   transferPrice?: number;
   lineTotal: number;
+  weightGrams?: number | null;
+  heightCm?: number | null;
+  widthCm?: number | null;
+  depthCm?: number | null;
 };
 
 export type OrderItemVariantAttribute = {

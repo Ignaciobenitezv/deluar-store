@@ -17,6 +17,13 @@ export type SanityImageWithAlt = {
   alt?: string;
 };
 
+export type ProductLogisticsDocument = {
+  weightGrams: number;
+  heightCm: number;
+  widthCm: number;
+  depthCm: number;
+};
+
 export type HomeHeroSlideDocument = {
   _key?: string;
   _type: "homeHeroSlide";
@@ -64,6 +71,7 @@ export type ProductVariantDocument = {
   transferPrice?: number;
   stock?: number;
   isActive?: boolean;
+  logistics?: ProductLogisticsDocument;
 };
 
 export type Seo = {
@@ -130,6 +138,7 @@ export type ProductDocument = {
   images: SanityImageWithAlt[];
   colorVariants?: ProductColorVariantDocument[];
   variants?: ProductVariantDocument[];
+  logistics?: ProductLogisticsDocument;
   basePrice: number;
   transferPrice?: number;
   stock: number;

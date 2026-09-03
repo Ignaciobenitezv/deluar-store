@@ -57,6 +57,26 @@ export const PaymentStatus = {
 export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
 
 
+export const ShipmentCarrier = {
+  ANDREANI: 'ANDREANI',
+  CORREO_ARGENTINO: 'CORREO_ARGENTINO'
+} as const
+
+export type ShipmentCarrier = (typeof ShipmentCarrier)[keyof typeof ShipmentCarrier]
+
+
+export const ShipmentStatus = {
+  DRAFT: 'DRAFT',
+  READY: 'READY',
+  CREATED: 'CREATED',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED',
+  ERROR: 'ERROR'
+} as const
+
+export type ShipmentStatus = (typeof ShipmentStatus)[keyof typeof ShipmentStatus]
+
+
 export const AnalyticsEventType = {
   SESSION_STARTED: 'SESSION_STARTED',
   PAGE_VIEWED: 'PAGE_VIEWED',

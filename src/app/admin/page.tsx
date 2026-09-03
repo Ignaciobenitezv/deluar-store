@@ -50,6 +50,17 @@ function ChartIcon() {
   );
 }
 
+function ShipmentsIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3.5 6.25h13v7.5h-13z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M7 6.25V4.5h6V6.25" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5.5 10h9" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8 13.75h4" />
+    </svg>
+  );
+}
+
 type HubCardProps = {
   href: string;
   title: string;
@@ -123,6 +134,16 @@ export default async function AdminHomePage() {
       iconTone: "border-[#d8eadf] bg-[#eef8f3] text-[#2f6f52]",
       badgeTone: "border-emerald-200 bg-emerald-50 text-emerald-900",
     },
+    {
+      href: "/admin/envios",
+      title: "Envios y etiquetas",
+      description: "Prepara envios, genera archivos para Andreani y gestiona el despacho de tus pedidos.",
+      cta: "Gestionar envios",
+      badge: "Operativo",
+      icon: <ShipmentsIcon />,
+      iconTone: "border-[#e7dece] bg-[#f8f2e7] text-[#6f5837]",
+      badgeTone: "border-amber-200 bg-amber-50 text-amber-900",
+    },
   ] as const;
 
   return (
@@ -152,7 +173,7 @@ export default async function AdminHomePage() {
                 </div>
               </header>
 
-              <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 {cards.map((card) => (
                   <HubCard key={card.href} {...card} />
                 ))}

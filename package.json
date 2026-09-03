@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "auth:create-owner": "npx auth@latest create-admin",
+    "auth:reset-owner-password": "tsx ./scripts/reset-owner-password.ts",
     "import:tiendanube": "node ./scripts/import-tiendanube.mjs",
     "sanity": "sanity",
     "sanity:dev": "sanity dev"
@@ -20,6 +21,7 @@
     "@sanity/image-url": "^2.1.1",
     "better-auth": "^1.7.1",
     "dotenv": "^17.4.2",
+    "exceljs": "^4.4.0",
     "framer-motion": "^12.38.0",
     "groq": "^5.19.0",
     "mercadopago": "^2.12.0",
@@ -43,6 +45,7 @@
     "eslint-config-next": "16.2.2",
     "prisma": "^7.8.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.13",
     "typescript": "^5"
   }
 }

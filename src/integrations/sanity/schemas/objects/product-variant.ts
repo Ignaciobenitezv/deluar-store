@@ -64,6 +64,11 @@ export const productVariantSchema = defineType({
       title: "Inventario",
       options: { collapsible: true, collapsed: true },
     },
+    {
+      name: "logistics",
+      title: "Logística / envíos",
+      options: { collapsible: true, collapsed: true },
+    },
   ],
   fields: [
     defineField({
@@ -138,6 +143,14 @@ export const productVariantSchema = defineType({
       type: "number",
       fieldset: "inventory",
       validation: (rule) => rule.integer().min(0),
+    }),
+    defineField({
+      name: "logistics",
+      title: "Logística / envíos",
+      description:
+        "Opcional. Si esta variante tiene embalaje propio, cargá peso y dimensiones completas.",
+      type: "productLogistics",
+      fieldset: "logistics",
     }),
     defineField({
       name: "isActive",

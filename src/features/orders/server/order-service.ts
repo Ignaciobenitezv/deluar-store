@@ -4,6 +4,7 @@ import { productsBySlugsQuery } from "@/integrations/sanity/queries";
 import { logger } from "@/lib/logger";
 import type { ProductDocument } from "@/types/cms";
 import { normalizeProductVariants } from "@/features/catalog/variant-normalizer";
+import { resolveProductLogistics } from "@/features/catalog/logistics";
 import { sendOrderCreatedEmails } from "@/features/emails/email-service";
 import {
   INSUFFICIENT_STOCK_ERROR_MESSAGE,
@@ -19,7 +20,7 @@ import {
   normalizeCheckoutCustomer,
   normalizeOrderPaymentMethod,
   normalizeOrderItems,
-  sanitizeShippingFields,
+  buildOrderShippingAddressSnapshot,
   validateOrderCustomer,
   validateOrderPaymentMethod,
   validateOrderShippingMethod,
@@ -170,6 +171,22 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
       variantId: sourceItem?.variantId,
       variantValue: sourceItem?.variantValue,
     });
+    const normalizedVariants = normalizeProductVariants(product);
+    const selectedVariant = normalizedVariants.find((variant) => {
+      if (sourceItem?.variantId && variant.id === sourceItem.variantId) {
+        return true;
+      }
+
+      if (sourceItem?.variantValue && variant.value === sourceItem.variantValue) {
+        return true;
+      }
+
+      return false;
+    });
+    const logistics = resolveProductLogistics(
+      product,
+      selectedVariant?.logistics ? { logistics: selectedVariant.logistics } : null,
+    );
     const unitPrice = resolveCommercialUnitPrice(commercialPrices, paymentMethod);
 
     return {
@@ -187,6 +204,10 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
       unitPrice,
       transferPrice: commercialPrices.transferPrice,
       lineTotal: unitPrice * item.quantity,
+      weightGrams: logistics?.weightGrams ?? null,
+      heightCm: logistics?.heightCm ?? null,
+      widthCm: logistics?.widthCm ?? null,
+      depthCm: logistics?.depthCm ?? null,
     };
   });
 
@@ -218,13 +239,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
   const subtotal = items.reduce((accumulator, item) => accumulator + item.lineTotal, 0);
   const shippingCost = calculateShippingCost(subtotal, shippingMethod);
   const total = subtotal + shippingCost;
-  const shippingAddress = sanitizeShippingFields({
-    address: customer.address,
-    city: customer.city,
-    province: customer.province,
-    postalCode: customer.postalCode,
-    shippingMethod,
-  });
+  const shippingAddress = buildOrderShippingAddressSnapshot(customer);
 
   let order = await saveOrder({
     orderNumber: generateOrderNumber(),
@@ -241,12 +256,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
       phone: customer.phone,
       notes: customer.notes,
     },
-    shippingAddress: {
-      address: shippingAddress.address,
-      city: shippingAddress.city,
-      province: shippingAddress.province,
-      postalCode: shippingAddress.postalCode,
-    },
+    shippingAddress,
   });
 
   if (input.analyticsCartId) {

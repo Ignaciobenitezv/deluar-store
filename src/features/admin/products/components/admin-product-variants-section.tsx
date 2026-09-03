@@ -4,6 +4,10 @@
 import { useActionState, useLayoutEffect, useState, type ChangeEvent } from "react";
 import { updateProductVariantsAction } from "../actions/update-product-variants-action";
 import { dashboardUi } from "@/features/admin/dashboard/lib/dashboard-ui";
+import {
+  createProductLogisticsDraft,
+  formatProductLogisticsSummary,
+} from "@/features/catalog/logistics";
 import { cn } from "@/lib/utils";
 import { logger } from "@/lib/logger";
 import type { AdminProductDetailData, AdminProductVariantActionState } from "../types";
@@ -26,6 +30,11 @@ type VariantDraft = {
   basePrice: string;
   stock: string;
   isActive: boolean;
+  logisticsMode: "inherit" | "custom";
+  weightGrams: string;
+  heightCm: string;
+  widthCm: string;
+  depthCm: string;
   attributes: AdminProductVariantAttribute[];
 };
 
@@ -54,6 +63,11 @@ function getFieldError(
     | "basePrice"
     | "stock"
     | "isActive"
+    | "logisticsMode"
+    | "weightGrams"
+    | "heightCm"
+    | "widthCm"
+    | "depthCm"
     | "attributesJson",
 ) {
   if (!("fieldErrors" in state) || !state.fieldErrors) {
@@ -72,6 +86,11 @@ function createEmptyDraft(): VariantDraft {
     basePrice: "",
     stock: "0",
     isActive: true,
+    logisticsMode: "inherit",
+    weightGrams: "",
+    heightCm: "",
+    widthCm: "",
+    depthCm: "",
     attributes: [
       {
         name: ADMIN_PRODUCT_VARIANT_ATTRIBUTE_NAMES[0],
@@ -99,6 +118,8 @@ function getVariantAttributesSummary(attributes: AdminProductVariantAttribute[])
 }
 
 function draftFromVariant(variant: AdminProductVariantData): VariantDraft {
+  const logisticsDraft = createProductLogisticsDraft(variant.logistics);
+
   return {
     variantKey: variant.key,
     title: variant.title,
@@ -107,6 +128,11 @@ function draftFromVariant(variant: AdminProductVariantData): VariantDraft {
     basePrice: typeof variant.basePrice === "number" ? String(variant.basePrice) : "",
     stock: String(variant.stock),
     isActive: variant.isActive,
+    logisticsMode: variant.logistics ? "custom" : "inherit",
+    weightGrams: logisticsDraft.weightGrams,
+    heightCm: logisticsDraft.heightCm,
+    widthCm: logisticsDraft.widthCm,
+    depthCm: logisticsDraft.depthCm,
     attributes:
       variant.attributes.length > 0
         ? variant.attributes
@@ -308,6 +334,14 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                       <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700">
                         Precio: {typeof variant.basePrice === "number" ? formatCurrency(variant.basePrice) : "Heredado"}
                       </span>
+                      <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700">
+                        Logística:{" "}
+                        {variant.logistics
+                          ? formatProductLogisticsSummary(variant.logistics)
+                          : product.logistics
+                            ? "Usa medidas del producto"
+                            : "Sin medidas"}
+                      </span>
                     </div>
                   </div>
 
@@ -488,6 +522,107 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                   <span className="text-xs font-normal text-rose-600">{getFieldError(state, "isActive")}</span>
                 ) : null}
               </label>
+
+              <div className="sm:col-span-2 grid gap-4 rounded-[22px] border border-slate-200 bg-slate-50 p-4">
+                <div>
+                  <p className="text-sm font-medium text-slate-700">Logística y envío</p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Podés usar las medidas del producto o cargar un override completo para esta variante.
+                  </p>
+                </div>
+
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  <span>Medidas</span>
+                  <select
+                    name="logisticsMode"
+                    value={draft.logisticsMode}
+                    onChange={(event) => setDraftField("logisticsMode", event.target.value)}
+                    className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                  >
+                    <option value="inherit">Usar medidas del producto</option>
+                    <option value="custom">Cargar medidas propias</option>
+                  </select>
+                  {getFieldError(state, "logisticsMode") ? (
+                    <span className="text-xs font-normal text-rose-600">{getFieldError(state, "logisticsMode")}</span>
+                  ) : null}
+                </label>
+
+                {draft.logisticsMode === "custom" ? (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <label className="grid gap-2 text-sm font-medium text-slate-700">
+                      <span>Peso (g)</span>
+                      <input
+                        type="number"
+                        name="weightGrams"
+                        min={1}
+                        step={1}
+                        value={draft.weightGrams}
+                        onChange={(event) => setDraftField("weightGrams", event.target.value)}
+                        className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                        placeholder="Ej: 1200"
+                      />
+                      {getFieldError(state, "weightGrams") ? (
+                        <span className="text-xs font-normal text-rose-600">{getFieldError(state, "weightGrams")}</span>
+                      ) : null}
+                    </label>
+
+                    <label className="grid gap-2 text-sm font-medium text-slate-700">
+                      <span>Alto (cm)</span>
+                      <input
+                        type="number"
+                        name="heightCm"
+                        min={1}
+                        step={0.1}
+                        value={draft.heightCm}
+                        onChange={(event) => setDraftField("heightCm", event.target.value)}
+                        className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                        placeholder="Ej: 20"
+                      />
+                      {getFieldError(state, "heightCm") ? (
+                        <span className="text-xs font-normal text-rose-600">{getFieldError(state, "heightCm")}</span>
+                      ) : null}
+                    </label>
+
+                    <label className="grid gap-2 text-sm font-medium text-slate-700">
+                      <span>Ancho (cm)</span>
+                      <input
+                        type="number"
+                        name="widthCm"
+                        min={1}
+                        step={0.1}
+                        value={draft.widthCm}
+                        onChange={(event) => setDraftField("widthCm", event.target.value)}
+                        className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                        placeholder="Ej: 30"
+                      />
+                      {getFieldError(state, "widthCm") ? (
+                        <span className="text-xs font-normal text-rose-600">{getFieldError(state, "widthCm")}</span>
+                      ) : null}
+                    </label>
+
+                    <label className="grid gap-2 text-sm font-medium text-slate-700">
+                      <span>Profundidad (cm)</span>
+                      <input
+                        type="number"
+                        name="depthCm"
+                        min={1}
+                        step={0.1}
+                        value={draft.depthCm}
+                        onChange={(event) => setDraftField("depthCm", event.target.value)}
+                        className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                        placeholder="Ej: 15"
+                      />
+                      {getFieldError(state, "depthCm") ? (
+                        <span className="text-xs font-normal text-rose-600">{getFieldError(state, "depthCm")}</span>
+                      ) : null}
+                    </label>
+                  </div>
+                ) : (
+                  <div className="rounded-[18px] border border-dashed border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+                    La variante heredará el peso y las dimensiones del producto si están definidos.
+                  </div>
+                )}
+              </div>
 
               <div className="sm:col-span-2">
                 <div className="flex items-center justify-between gap-3">

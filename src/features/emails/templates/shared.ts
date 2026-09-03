@@ -188,7 +188,10 @@ export function renderCustomerBlock(order: Order) {
 
 export function renderShippingBlock(order: Order) {
   const address = [
-    order.shippingAddress.address,
+    order.shippingAddress.street,
+    order.shippingAddress.streetNumber,
+    order.shippingAddress.floor ? `Piso ${order.shippingAddress.floor}` : "",
+    order.shippingAddress.apartment ? `Depto ${order.shippingAddress.apartment}` : "",
     order.shippingAddress.city,
     order.shippingAddress.province,
     order.shippingAddress.postalCode,
@@ -198,9 +201,20 @@ export function renderShippingBlock(order: Order) {
 
   return `
     <div style="font-size:14px;line-height:1.7;color:#2f241f;">
-      <div><strong>Direccion/envio:</strong> ${escapeHtml(address || "Sin direccion cargada")}</div>
+      <div><strong>Destinatario:</strong> ${escapeHtml(`${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`.trim())}</div>
+      <div><strong>DNI:</strong> ${escapeHtml(order.shippingAddress.dni)}</div>
+      <div><strong>Email destinatario:</strong> ${escapeHtml(order.shippingAddress.email)}</div>
+      <div><strong>Telefono:</strong> ${escapeHtml(order.shippingAddress.phone)}</div>
+      <div><strong>Codigo area:</strong> ${escapeHtml(order.shippingAddress.phoneAreaCode)}</div>
+      <div><strong>Numero local:</strong> ${escapeHtml(order.shippingAddress.phoneNumber)}</div>
+      <div><strong>Direccion/envio:</strong> ${escapeHtml(address || order.shippingAddress.address || "Sin direccion cargada")}</div>
       <div><strong>Metodo de envio:</strong> ${escapeHtml(getShippingMethodLabel(order.shippingMethod))}</div>
       <div><strong>Costo de envio:</strong> ${formatCurrency(order.shippingCost)}</div>
+      ${
+        order.shippingAddress.notes
+          ? `<div><strong>Observaciones:</strong> ${escapeHtml(order.shippingAddress.notes)}</div>`
+          : ""
+      }
       ${
         order.customer.notes
           ? `<div><strong>Notas:</strong> ${escapeHtml(order.customer.notes)}</div>`

@@ -4,9 +4,15 @@ import type { ShippingMethod } from "@/features/shipping/shipping";
 export type CheckoutFormValues = {
   firstName: string;
   lastName: string;
+  dni: string;
   email: string;
   phone: string;
-  address: string;
+  phoneAreaCode: string;
+  phoneNumber: string;
+  street: string;
+  streetNumber: string;
+  floor: string;
+  apartment: string;
   city: string;
   province: string;
   postalCode: string;

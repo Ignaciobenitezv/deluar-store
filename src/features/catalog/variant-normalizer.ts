@@ -1,4 +1,5 @@
 import { getSanityImageUrl } from "@/integrations/sanity/image";
+import { normalizeProductLogistics, type ProductLogistics } from "@/features/catalog/logistics";
 import type {
   ProductDetailImage,
   ProductVariantAttribute,
@@ -55,6 +56,7 @@ function buildVariantViewModel(input: {
   basePrice: number;
   transferPrice?: number;
   stock: number;
+  logistics?: ProductLogistics | null;
   images: ProductDetailImage[];
   thumbnail: ProductDetailImage | null;
   primaryImageAlt: string;
@@ -72,6 +74,7 @@ function buildVariantViewModel(input: {
     basePrice: input.basePrice,
     transferPrice: input.transferPrice,
     stock: input.stock,
+    logistics: input.logistics ?? null,
     images: input.images,
     primaryImageUrl: primaryImage?.url ?? null,
     primaryImageAlt: primaryImage?.alt ?? input.primaryImageAlt,
@@ -100,6 +103,7 @@ function mapLegacyColorVariant(
     basePrice: variant.basePrice ?? product.basePrice,
     transferPrice: variant.transferPrice ?? product.transferPrice,
     stock: variant.stock ?? product.stock,
+    logistics: null,
     images: images.length > 0 ? images : buildVariantImages(product.images, product.title, title),
     thumbnail: buildImage(
       thumbnailSource,
@@ -136,6 +140,7 @@ function mapGenericVariant(
     basePrice: variant.basePrice ?? product.basePrice,
     transferPrice: variant.transferPrice ?? product.transferPrice,
     stock: variant.stock ?? product.stock,
+    logistics: normalizeProductLogistics(variant.logistics),
     images: images.length > 0 ? images : buildVariantImages(product.images, product.title, title),
     thumbnail: buildImage(thumbnailSource, 320, 400, `${product.title} ${title}`),
     primaryImageAlt: primaryImage?.alt || `${product.title} ${title}`,

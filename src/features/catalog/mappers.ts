@@ -1,5 +1,6 @@
 import { getSanityImageUrl } from "@/integrations/sanity/image";
 import { buildCatalogHref } from "@/features/catalog/hierarchy";
+import { normalizeProductLogistics } from "@/features/catalog/logistics";
 import { hasSelectableProductVariants, normalizeProductVariants } from "@/features/catalog/variant-normalizer";
 import { logger } from "@/lib/logger";
 import type {
@@ -38,6 +39,7 @@ export function mapProductToCatalogCard(product: ProductDocument): CatalogProduc
     basePrice: product.basePrice,
     transferPrice: product.transferPrice,
     stock: product.stock,
+    logistics: normalizeProductLogistics(product.logistics),
     imageUrl: getSanityImageUrl(image),
     imageAlt: image?.alt || product.title,
     hoverImageUrl: getSanityImageUrl(hoverImage),
@@ -110,6 +112,7 @@ export function mapProductToDetail(
     basePrice: product.basePrice,
     transferPrice: product.transferPrice,
     stock: product.stock,
+    logistics: normalizeProductLogistics(product.logistics),
     categoryTitle: product.category.title,
     categorySlug: product.category.slug.current,
     subcategoryTitle: product.subcategory?.title,

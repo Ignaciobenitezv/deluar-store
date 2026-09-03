@@ -1,3 +1,5 @@
+import type { ProductLogistics } from "@/features/catalog/logistics";
+
 export type CatalogSort =
   | "price-asc"
   | "price-desc"
@@ -20,6 +22,7 @@ export type CatalogProductCard = {
   hoverImageUrl?: string | null;
   hoverImageAlt?: string;
   images: ProductDetailImage[];
+  logistics?: ProductLogistics | null;
   categorySlug: string;
   categoryTitle: string;
   subcategorySlug?: string;
@@ -104,6 +107,7 @@ export type ProductVariantViewModel = {
   basePrice: number;
   transferPrice?: number;
   stock: number;
+  logistics?: ProductLogistics | null;
 };
 
 export type ProductColorVariant = ProductVariantViewModel;
@@ -122,6 +126,7 @@ export type ProductDetailData = {
   basePrice: number;
   transferPrice?: number;
   stock: number;
+  logistics?: ProductLogistics | null;
   categoryTitle: string;
   categorySlug: string;
   subcategoryTitle?: string;

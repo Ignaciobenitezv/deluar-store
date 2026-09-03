@@ -400,6 +400,9 @@ export const ModelName = {
   PaymentWebhookEvent: 'PaymentWebhookEvent',
   EmailLog: 'EmailLog',
   OrderItem: 'OrderItem',
+  Shipment: 'Shipment',
+  AndreaniExportBatch: 'AndreaniExportBatch',
+  Parcel: 'Parcel',
   MercadoPagoWebhookEvent: 'MercadoPagoWebhookEvent'
 } as const
 
@@ -416,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "customer" | "user" | "session" | "account" | "verification" | "shippingAddress" | "productSnapshot" | "analyticsVisitor" | "analyticsSession" | "analyticsEvent" | "analyticsCart" | "product" | "order" | "paymentWebhookEvent" | "emailLog" | "orderItem" | "mercadoPagoWebhookEvent"
+    modelProps: "customer" | "user" | "session" | "account" | "verification" | "shippingAddress" | "productSnapshot" | "analyticsVisitor" | "analyticsSession" | "analyticsEvent" | "analyticsCart" | "product" | "order" | "paymentWebhookEvent" | "emailLog" | "orderItem" | "shipment" | "andreaniExportBatch" | "parcel" | "mercadoPagoWebhookEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1604,6 +1607,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Shipment: {
+      payload: Prisma.$ShipmentPayload<ExtArgs>
+      fields: Prisma.ShipmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ShipmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ShipmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentPayload>
+        }
+        findFirst: {
+          args: Prisma.ShipmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ShipmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentPayload>
+        }
+        findMany: {
+          args: Prisma.ShipmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentPayload>[]
+        }
+        create: {
+          args: Prisma.ShipmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentPayload>
+        }
+        createMany: {
+          args: Prisma.ShipmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ShipmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentPayload>[]
+        }
+        delete: {
+          args: Prisma.ShipmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentPayload>
+        }
+        update: {
+          args: Prisma.ShipmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.ShipmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ShipmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ShipmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentPayload>[]
+        }
+        upsert: {
+          args: Prisma.ShipmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShipmentPayload>
+        }
+        aggregate: {
+          args: Prisma.ShipmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShipment>
+        }
+        groupBy: {
+          args: Prisma.ShipmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShipmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ShipmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShipmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    AndreaniExportBatch: {
+      payload: Prisma.$AndreaniExportBatchPayload<ExtArgs>
+      fields: Prisma.AndreaniExportBatchFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AndreaniExportBatchFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AndreaniExportBatchPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AndreaniExportBatchFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AndreaniExportBatchPayload>
+        }
+        findFirst: {
+          args: Prisma.AndreaniExportBatchFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AndreaniExportBatchPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AndreaniExportBatchFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AndreaniExportBatchPayload>
+        }
+        findMany: {
+          args: Prisma.AndreaniExportBatchFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AndreaniExportBatchPayload>[]
+        }
+        create: {
+          args: Prisma.AndreaniExportBatchCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AndreaniExportBatchPayload>
+        }
+        createMany: {
+          args: Prisma.AndreaniExportBatchCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AndreaniExportBatchCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AndreaniExportBatchPayload>[]
+        }
+        delete: {
+          args: Prisma.AndreaniExportBatchDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AndreaniExportBatchPayload>
+        }
+        update: {
+          args: Prisma.AndreaniExportBatchUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AndreaniExportBatchPayload>
+        }
+        deleteMany: {
+          args: Prisma.AndreaniExportBatchDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AndreaniExportBatchUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AndreaniExportBatchUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AndreaniExportBatchPayload>[]
+        }
+        upsert: {
+          args: Prisma.AndreaniExportBatchUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AndreaniExportBatchPayload>
+        }
+        aggregate: {
+          args: Prisma.AndreaniExportBatchAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAndreaniExportBatch>
+        }
+        groupBy: {
+          args: Prisma.AndreaniExportBatchGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AndreaniExportBatchGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AndreaniExportBatchCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AndreaniExportBatchCountAggregateOutputType> | number
+        }
+      }
+    }
+    Parcel: {
+      payload: Prisma.$ParcelPayload<ExtArgs>
+      fields: Prisma.ParcelFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ParcelFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParcelPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ParcelFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParcelPayload>
+        }
+        findFirst: {
+          args: Prisma.ParcelFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParcelPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ParcelFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParcelPayload>
+        }
+        findMany: {
+          args: Prisma.ParcelFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParcelPayload>[]
+        }
+        create: {
+          args: Prisma.ParcelCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParcelPayload>
+        }
+        createMany: {
+          args: Prisma.ParcelCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ParcelCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParcelPayload>[]
+        }
+        delete: {
+          args: Prisma.ParcelDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParcelPayload>
+        }
+        update: {
+          args: Prisma.ParcelUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParcelPayload>
+        }
+        deleteMany: {
+          args: Prisma.ParcelDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ParcelUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ParcelUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParcelPayload>[]
+        }
+        upsert: {
+          args: Prisma.ParcelUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParcelPayload>
+        }
+        aggregate: {
+          args: Prisma.ParcelAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateParcel>
+        }
+        groupBy: {
+          args: Prisma.ParcelGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ParcelGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ParcelCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ParcelCountAggregateOutputType> | number
+        }
+      }
+    }
     MercadoPagoWebhookEvent: {
       payload: Prisma.$MercadoPagoWebhookEventPayload<ExtArgs>
       fields: Prisma.MercadoPagoWebhookEventFieldRefs
@@ -1720,6 +1945,8 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const CustomerScalarFieldEnum = {
   id: 'id',
   fullName: 'fullName',
+  firstName: 'firstName',
+  lastName: 'lastName',
   email: 'email',
   phone: 'phone',
   createdAt: 'createdAt'
@@ -1795,6 +2022,16 @@ export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[k
 export const ShippingAddressScalarFieldEnum = {
   id: 'id',
   customerId: 'customerId',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  dni: 'dni',
+  email: 'email',
+  phone: 'phone',
+  phoneAreaCode: 'phoneAreaCode',
+  phoneNumber: 'phoneNumber',
+  street: 'street',
+  streetNumber: 'streetNumber',
+  floor: 'floor',
   province: 'province',
   city: 'city',
   postalCode: 'postalCode',
@@ -1980,10 +2217,69 @@ export const OrderItemScalarFieldEnum = {
   quantity: 'quantity',
   unitPrice: 'unitPrice',
   transferPrice: 'transferPrice',
-  imageUrl: 'imageUrl'
+  imageUrl: 'imageUrl',
+  weightGrams: 'weightGrams',
+  heightCm: 'heightCm',
+  widthCm: 'widthCm',
+  depthCm: 'depthCm'
 } as const
 
 export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
+
+
+export const ShipmentScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  shippingMethod: 'shippingMethod',
+  carrier: 'carrier',
+  status: 'status',
+  andreaniExportBatchId: 'andreaniExportBatchId',
+  branchExternalId: 'branchExternalId',
+  branchCode: 'branchCode',
+  branchName: 'branchName',
+  branchAddress: 'branchAddress',
+  branchCity: 'branchCity',
+  branchProvince: 'branchProvince',
+  branchPostalCode: 'branchPostalCode',
+  trackingNumber: 'trackingNumber',
+  carrierExternalId: 'carrierExternalId',
+  readyAt: 'readyAt',
+  dispatchedAt: 'dispatchedAt',
+  deliveredAt: 'deliveredAt',
+  errorMessage: 'errorMessage',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShipmentScalarFieldEnum = (typeof ShipmentScalarFieldEnum)[keyof typeof ShipmentScalarFieldEnum]
+
+
+export const AndreaniExportBatchScalarFieldEnum = {
+  id: 'id',
+  carrier: 'carrier',
+  fileName: 'fileName',
+  archiveStorageKey: 'archiveStorageKey',
+  archiveBytes: 'archiveBytes',
+  createdAt: 'createdAt'
+} as const
+
+export type AndreaniExportBatchScalarFieldEnum = (typeof AndreaniExportBatchScalarFieldEnum)[keyof typeof AndreaniExportBatchScalarFieldEnum]
+
+
+export const ParcelScalarFieldEnum = {
+  id: 'id',
+  shipmentId: 'shipmentId',
+  sequence: 'sequence',
+  calculatedWeightGrams: 'calculatedWeightGrams',
+  weightGrams: 'weightGrams',
+  heightCm: 'heightCm',
+  widthCm: 'widthCm',
+  depthCm: 'depthCm',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ParcelScalarFieldEnum = (typeof ParcelScalarFieldEnum)[keyof typeof ParcelScalarFieldEnum]
 
 
 export const MercadoPagoWebhookEventScalarFieldEnum = {
@@ -2220,6 +2516,48 @@ export type ListEnumPaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType
 
 
 /**
+ * Reference to a field of type 'ShipmentCarrier'
+ */
+export type EnumShipmentCarrierFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShipmentCarrier'>
+    
+
+
+/**
+ * Reference to a field of type 'ShipmentCarrier[]'
+ */
+export type ListEnumShipmentCarrierFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShipmentCarrier[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ShipmentStatus'
+ */
+export type EnumShipmentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShipmentStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ShipmentStatus[]'
+ */
+export type ListEnumShipmentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShipmentStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Bytes'
+ */
+export type BytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes'>
+    
+
+
+/**
+ * Reference to a field of type 'Bytes[]'
+ */
+export type ListBytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -2358,6 +2696,9 @@ export type GlobalOmitConfig = {
   paymentWebhookEvent?: Prisma.PaymentWebhookEventOmit
   emailLog?: Prisma.EmailLogOmit
   orderItem?: Prisma.OrderItemOmit
+  shipment?: Prisma.ShipmentOmit
+  andreaniExportBatch?: Prisma.AndreaniExportBatchOmit
+  parcel?: Prisma.ParcelOmit
   mercadoPagoWebhookEvent?: Prisma.MercadoPagoWebhookEventOmit
 }
 
