@@ -357,7 +357,7 @@ export default async function AdminDashboardAcquisitionPage({
   return (
     <DashboardShell
       title="Adquisicion"
-      subtitle={`Fuentes, campanas y rendimiento del trafico. Cohorte por AnalyticsSession.startedAt. Periodo activo: ${DASHBOARD_PERIODS[query.period].label}.`}
+      subtitle={`Fuentes y rendimiento del trafico. Periodo activo: ${DASHBOARD_PERIODS[query.period].label}.`}
       lastUpdated={lastUpdated}
     >
       <section className="grid gap-3 min-[420px]:grid-cols-2 xl:grid-cols-4 sm:gap-4">
@@ -394,44 +394,12 @@ export default async function AdminDashboardAcquisitionPage({
         <CompactMetric label="Ticket promedio" value={formatDashboardPrice(metrics.summary.averageTicket)} />
       </section>
 
-      <ChartCard title="Lecturas rapidas" description="Fuentes lideres del periodo con regla de muestra minima para conversion.">
+      <ChartCard title="Resumen" description="Fuentes y campañas del período.">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <HighlightTile
-            label={metrics.highlights.traffic?.label ?? "Fuente con mas trafico"}
-            value={metrics.highlights.traffic?.value ?? "Sin datos"}
-            subtitle={metrics.highlights.traffic?.subtitle ?? "No hay sesiones suficientes."}
-          />
-          <HighlightTile
-            label={metrics.highlights.purchases?.label ?? "Fuente con mas compras"}
-            value={metrics.highlights.purchases?.value ?? "Sin datos"}
-            subtitle={metrics.highlights.purchases?.subtitle ?? "No hay compras suficientes."}
-            tone="success"
-          />
-          <HighlightTile
-            label={metrics.highlights.conversion?.label ?? "Mejor conversion"}
-            value={metrics.highlights.conversion?.value ?? "Sin datos"}
-            subtitle={metrics.highlights.conversion?.subtitle ?? `Minimo ${metrics.sampleSizeRule.minSessionsForConversionRank} sesiones.`}
-            tone="accent"
-          />
-          <HighlightTile
-            label={metrics.highlights.revenue?.label ?? "Mayor facturacion"}
-            value={metrics.highlights.revenue?.value ?? "Sin datos"}
-            subtitle={metrics.highlights.revenue?.subtitle ?? "No hay facturacion suficiente."}
-            tone="warning"
-          />
-        </div>
-
-        <div className="mt-4 rounded-[18px] border border-slate-200/70 bg-slate-50 px-4 py-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Definiciones</p>
-          <div className="mt-3 grid gap-3 text-sm leading-6 text-slate-600">
-            <p>{metrics.notes.attributionModel}</p>
-            <p>{metrics.notes.conversionDefinition}</p>
-            <p>{metrics.notes.abandonmentDefinition}</p>
-            <p>{metrics.notes.limitation}</p>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-              Regla de muestra minima para conversion: {formatDashboardNumber(metrics.sampleSizeRule.minSessionsForConversionRank)} sesiones.
-            </p>
-          </div>
+          <HighlightTile label={metrics.highlights.traffic?.label ?? "Fuente con mas trafico"} value={metrics.highlights.traffic?.value ?? "Sin datos"} subtitle={metrics.highlights.traffic?.subtitle ?? "Sin datos para este período."} />
+          <HighlightTile label={metrics.highlights.purchases?.label ?? "Fuente con mas compras"} value={metrics.highlights.purchases?.value ?? "Sin datos"} subtitle={metrics.highlights.purchases?.subtitle ?? "Sin datos para este período."} tone="success" />
+          <HighlightTile label={metrics.highlights.conversion?.label ?? "Mejor conversion"} value={metrics.highlights.conversion?.value ?? "Sin datos"} subtitle={metrics.highlights.conversion?.subtitle ?? "Sin datos para este período."} tone="accent" />
+          <HighlightTile label={metrics.highlights.revenue?.label ?? "Mayor facturacion"} value={metrics.highlights.revenue?.value ?? "Sin datos"} subtitle={metrics.highlights.revenue?.subtitle ?? "Sin datos para este período."} tone="warning" />
         </div>
       </ChartCard>
 
@@ -445,8 +413,8 @@ export default async function AdminDashboardAcquisitionPage({
             data={sourceSessionsChart}
             metricLabel="Sesiones"
             metricFormat="number"
-            emptyTitle="No hay datos suficientes para este periodo."
-            emptyDescription="Cuando existan sesiones, este grafico mostrara las fuentes principales."
+            emptyTitle="Sin datos para este período."
+            emptyDescription="Las fuentes se mostrarán cuando haya sesiones."
           />
         </ChartCard>
 
@@ -459,8 +427,8 @@ export default async function AdminDashboardAcquisitionPage({
             data={sourceRevenueChart}
             metricLabel="Facturacion"
             metricFormat="currency"
-            emptyTitle="No hay datos suficientes para este periodo."
-            emptyDescription="Cuando existan compras, este grafico mostrara las fuentes que mas facturan."
+            emptyTitle="Sin datos para este período."
+            emptyDescription="Las fuentes se mostrarán cuando haya compras."
           />
         </ChartCard>
 
@@ -473,8 +441,8 @@ export default async function AdminDashboardAcquisitionPage({
             data={sourceConversionChart}
             metricLabel="Conversion"
             metricFormat="percentage"
-            emptyTitle="No hay datos suficientes para este periodo."
-            emptyDescription="Cuando existan fuentes con muestra suficiente, este grafico mostrara la conversion."
+            emptyTitle="Sin datos para este período."
+            emptyDescription="La conversión se mostrará cuando haya sesiones."
           />
         </ChartCard>
 
@@ -487,8 +455,8 @@ export default async function AdminDashboardAcquisitionPage({
             data={campaignChart}
             metricLabel="Facturacion"
             metricFormat="currency"
-            emptyTitle="No hay campanas para este periodo."
-            emptyDescription="Cuando existan UTMs de campana, este grafico las mostrara aqui."
+            emptyTitle="Sin campañas para este período."
+            emptyDescription="Las campañas se mostrarán cuando haya UTMs."
           />
         </ChartCard>
       </div>
@@ -573,8 +541,8 @@ export default async function AdminDashboardAcquisitionPage({
             </>
           ) : (
             <EmptyState
-              title="No hay datos suficientes para este periodo."
-              description="Cuando existan sesiones atribuidas, la tabla principal mostrara fuentes, medium y rendimiento."
+              title="Sin datos para este período."
+              description="La tabla se mostrará cuando haya sesiones."
             />
           )}
         </div>
@@ -582,7 +550,7 @@ export default async function AdminDashboardAcquisitionPage({
 
       <ChartCard
         title="Campanas"
-        description="Comparacion de utmCampaign sin mezclar valores nulos bajo una campana inventada."
+        description="Comparación de campañas del período."
         className="min-w-0"
       >
         {hasCampaignRows ? (
@@ -631,14 +599,14 @@ export default async function AdminDashboardAcquisitionPage({
           </>
         ) : (
           <EmptyState
-            title="No hay campanas para este periodo."
-            description="Si las sesiones no incluyen utmCampaign, esta tabla quedara vacia y no inventa un agrupamiento falso."
+            title="Sin campañas para este período."
+            description="La tabla se mostrará cuando haya campañas."
           />
         )}
       </ChartCard>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <ChartCard title="Landing pages" description="URL normalizada por pathname cuando es same-origin." className="min-w-0">
+        <ChartCard title="Landing pages" description="Landing pages del período." className="min-w-0">
           {hasLandingRows ? (
             <>
               <div className="hidden max-w-full overflow-hidden rounded-[20px] border border-slate-200/70 md:block">
@@ -680,13 +648,13 @@ export default async function AdminDashboardAcquisitionPage({
             </>
           ) : (
             <EmptyState
-              title="No hay landing pages para este periodo."
-              description="Cuando existan sesiones con landingPage, la tabla se llenara automaticamente."
+              title="Sin landing pages para este período."
+              description="La tabla se mostrará cuando haya sesiones."
             />
           )}
         </ChartCard>
 
-        <ChartCard title="Referencias" description="Hostnames principales del referrer, sin URL completa." className="min-w-0">
+        <ChartCard title="Referencias" description="Referrers del período." className="min-w-0">
           {hasReferrerRows ? (
             <>
               <div className="hidden max-w-full overflow-hidden rounded-[20px] border border-slate-200/70 md:block">
@@ -723,7 +691,7 @@ export default async function AdminDashboardAcquisitionPage({
               </div>
             </>
           ) : (
-            <EmptyState title="No hay referencias para este periodo." description="Si no existe referrer externo o directo, la tabla quedara vacia." />
+            <EmptyState title="Sin referencias para este período." description="La tabla se mostrará cuando haya referencias." />
           )}
         </ChartCard>
       </div>

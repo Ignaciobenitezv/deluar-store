@@ -5,8 +5,8 @@ type DashboardChartEmptyProps = {
 };
 
 export function DashboardChartEmpty({
-  title = "No hay datos para este período.",
-  description = "Cuando haya actividad, el gráfico aparecerá aquí.",
+  title = "Sin datos para este período.",
+  description = "Los datos se mostrarán acá.",
   compact = false,
 }: DashboardChartEmptyProps) {
   return (

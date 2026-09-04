@@ -57,7 +57,7 @@ export default async function AdminShipmentsPage({ searchParams }: AdminShipment
                 Envos y etiquetas
               </h1>
               <p className="mt-2 max-w-2xl text-[12px] leading-5 text-slate-500 sm:text-base sm:leading-7">
-                Selecciona pedidos, elegi el transportista al generar y conserva cada lote para descargarlo nuevamente cuando haga falta.
+                Elegí pedidos y el transportista al generar archivos.
               </p>
             </div>
 
@@ -122,7 +122,7 @@ export default async function AdminShipmentsPage({ searchParams }: AdminShipment
         <section className="rounded-[24px] border border-slate-200/70 bg-white px-4 py-4 shadow-[0_12px_28px_rgba(15,23,42,0.04)] sm:px-5 sm:py-5">
           <p className={dashboardUi.mutedLabel}>Estado</p>
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            Generado significa que el archivo ya fue creado y guardado. No significa que el transportista lo haya recibido, procesado o despachado.
+            Generado: el archivo fue creado. El envío todavía debe gestionarse en Andreani.
           </p>
         </section>
 

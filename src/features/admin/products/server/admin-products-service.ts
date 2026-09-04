@@ -1,59 +1,13 @@
 import { unstable_noStore as noStore } from "next/cache";
-import { cache } from "react";
-import { getSanityImageUrl } from "@/integrations/sanity/image";
-import { sanityFetch } from "@/integrations/sanity/client";
+import { sanityFreshFetch } from "@/integrations/sanity/client";
 import { categoryTreeQuery } from "@/integrations/sanity/queries";
 import { buildAdminProductsPageQuery } from "@/integrations/sanity/admin-queries";
 import type { CatalogHierarchyNode } from "@/features/catalog/hierarchy";
 import { buildAdminProductsSearchTerms, type AdminProductsFilters } from "../lib/product-filters";
-import { resolveAdminProductStockSummary } from "../lib/product-stock";
-import type {
-  AdminProductListItem,
-  AdminProductsPageData,
-} from "../types";
+import { mapAdminProductListItem, type AdminProductItemSource } from "../lib/admin-product-item";
+import type { AdminProductsPageData } from "../types";
 
-type AdminProductsPageQueryItem = {
-  _id: string;
-  _rev: string;
-  _updatedAt: string;
-  title: string;
-  slug: string;
-  shortDescription?: string;
-  basePrice: number;
-  transferPrice?: number | null;
-  stock: number;
-  isActive?: boolean;
-  isOnOffer?: boolean;
-  showInNewIn?: boolean;
-  newInOrder?: number | null;
-  images?: Array<{
-    asset?: { _ref?: string };
-    alt?: string;
-  }>;
-  category?: {
-    _id: string;
-    title: string;
-    slug?: string;
-  } | null;
-  subcategory?: {
-    _id: string;
-    title: string;
-    slug?: string;
-  } | null;
-  variants?: Array<{
-    _key?: string;
-    title?: string;
-    value?: string;
-    stock?: number;
-    isActive?: boolean;
-  }>;
-  colorVariants?: Array<{
-    _key?: string;
-    title?: string;
-    value?: string;
-    stock?: number;
-  }>;
-};
+type AdminProductsPageQueryItem = AdminProductItemSource;
 
 type AdminProductsPageQueryResponse = {
   global: {
@@ -131,71 +85,33 @@ function mapCategoryTree(categories: CatalogHierarchyNode[]): CatalogHierarchyNo
   return categories;
 }
 
-function mapProductItem(product: AdminProductsPageQueryItem): AdminProductListItem {
-  const stockSummary = resolveAdminProductStockSummary({
-    basePrice: product.basePrice,
-    images: (product.images ?? []) as never,
-    stock: product.stock,
-    title: product.title,
-    transferPrice: product.transferPrice ?? undefined,
-    variants: (product.variants ?? []) as never,
-    colorVariants: (product.colorVariants ?? []) as never,
-  });
-
-  const variantCount = (product.variants?.length ?? 0) + (product.colorVariants?.length ?? 0);
-  const variantSource =
-    product.variants && product.variants.length > 0
-      ? "variants"
-      : product.colorVariants && product.colorVariants.length > 0
-        ? "colorVariants"
-        : null;
-
-  return {
-    id: product._id,
-    rev: product._rev,
-    updatedAt: product._updatedAt,
-    title: product.title,
-    slug: product.slug,
-    shortDescription: product.shortDescription,
-    imageUrl: product.images?.[0] ? getSanityImageUrl(product.images[0] as never, 640, 640) : null,
-    imageAlt: product.title,
-    categoryLabel: product.category?.title ?? "Sin categoría",
-    categorySlug: product.category?.slug ?? null,
-    subcategoryLabel: product.subcategory?.title ?? null,
-    subcategorySlug: product.subcategory?.slug ?? null,
-    basePrice: product.basePrice,
-    transferPrice: product.transferPrice ?? null,
-    stockLabel: stockSummary.stockLabel,
-    stockHint: stockSummary.stockHint,
-    stockTone: stockSummary.stockTone,
-    stockValue: stockSummary.stockValue,
-    variantLabel: variantCount > 0 ? `${variantCount} variantes` : "Sin variantes",
-    variantCount,
-    hasVariants: variantCount > 0,
-    variantSource,
-    visible: product.isActive !== false,
-    isOnOffer: product.isOnOffer === true,
-    showInNewIn: product.showInNewIn === true,
-    newInOrder: typeof product.newInOrder === "number" ? product.newInOrder : null,
-  };
-}
-
-export const getAdminProductsPageData = cache(async (filters: AdminProductsFilters): Promise<AdminProductsPageData> => {
+export async function getAdminProductsPageData(filters: AdminProductsFilters): Promise<AdminProductsPageData> {
   noStore();
 
   const pageSize = DEFAULT_ADMIN_PRODUCTS_PAGE_SIZE;
   const page = Math.max(1, Math.trunc(filters.page || 1));
   const offset = (page - 1) * pageSize;
   const filterClause = buildAdminProductsFilterClause(filters);
-  const outOfStockClause = "stock <= 0";
+  const outOfStockClause = `(
+    coalesce(stock, 0) <= 0 &&
+    (
+      (
+        count(variants) > 0 &&
+        count(variants[isActive != false && coalesce(stock, 0) > 0]) == 0
+      ) ||
+      (
+        count(variants) == 0 &&
+        count(colorVariants[coalesce(stock, 0) > 0]) == 0
+      )
+    )
+  )`;
 
   const [response, categories] = await Promise.all([
-    sanityFetch<AdminProductsPageQueryResponse>(
+    sanityFreshFetch<AdminProductsPageQueryResponse>(
       buildAdminProductsPageQuery(filterClause, outOfStockClause),
       { offset, limit: pageSize },
-      { useToken: true },
     ),
-    sanityFetch<CatalogHierarchyNode[]>(categoryTreeQuery, {}, { useToken: true }),
+    sanityFreshFetch<CatalogHierarchyNode[]>(categoryTreeQuery, {}),
   ]);
 
   const totalPages = Math.max(1, Math.ceil(response.filteredTotal / pageSize));
@@ -203,7 +119,7 @@ export const getAdminProductsPageData = cache(async (filters: AdminProductsFilte
   return {
     summary: response.global,
     filteredTotal: response.filteredTotal,
-    items: response.items.map(mapProductItem),
+    items: response.items.map(mapAdminProductListItem),
     categories: mapCategoryTree(categories),
     filters,
     page,
@@ -211,4 +127,4 @@ export const getAdminProductsPageData = cache(async (filters: AdminProductsFilte
     totalPages,
     totalItems: response.global.total,
   };
-});
+}

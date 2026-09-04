@@ -1,9 +1,10 @@
 "use client";
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { useActionState, useLayoutEffect, useState, type ChangeEvent } from "react";
+import { useActionState, useLayoutEffect, useRef, useState, useTransition, type ChangeEvent, type FormEvent } from "react";
 import { updateProductVariantsAction } from "../actions/update-product-variants-action";
 import { dashboardUi } from "@/features/admin/dashboard/lib/dashboard-ui";
+import { getSanityImageUrl } from "@/integrations/sanity/image";
 import {
   createProductLogisticsDraft,
   formatProductLogisticsSummary,
@@ -11,6 +12,11 @@ import {
 import { cn } from "@/lib/utils";
 import { logger } from "@/lib/logger";
 import type { AdminProductDetailData, AdminProductVariantActionState } from "../types";
+import type { AdminProductImageDraftItem } from "../types";
+import {
+  AdminProductVariantImagesEditor,
+  type AdminProductVariantImagesEditorHandle,
+} from "./admin-product-variant-images-editor";
 import {
   ADMIN_PRODUCT_VARIANT_ATTRIBUTE_NAMES,
   type AdminProductVariantAttribute,
@@ -37,6 +43,11 @@ type VariantDraft = {
   depthCm: string;
   attributes: AdminProductVariantAttribute[];
 };
+
+type FirstVariantChoice = "preserve-original" | "variants-only";
+
+const HISTORICAL_VARIANT_DELETE_MESSAGE =
+  "Esta variante ya tiene historial y no puede eliminarse. Podés desactivarla.";
 
 type AdminProductVariantsSectionProps = {
   product: AdminProductDetailData;
@@ -68,6 +79,7 @@ function getFieldError(
     | "heightCm"
     | "widthCm"
     | "depthCm"
+    | "variantImagesJson"
     | "attributesJson",
 ) {
   if (!("fieldErrors" in state) || !state.fieldErrors) {
@@ -145,12 +157,40 @@ function draftFromVariant(variant: AdminProductVariantData): VariantDraft {
   };
 }
 
+function buildVariantImageDrafts(images: AdminProductVariantData["images"]): AdminProductImageDraftItem[] {
+  return images.flatMap((image) => {
+    const assetRef = image.image.asset?._ref;
+    const imageKey = image._key ?? assetRef;
+
+    if (!assetRef || !imageKey) {
+      return [];
+    }
+
+    return [
+      {
+        id: `existing:${imageKey}`,
+        existing: true,
+        key: imageKey,
+        assetRef,
+        imageUrl: getSanityImageUrl(image, 640, 640),
+        alt: image.alt ?? "",
+      } as AdminProductImageDraftItem,
+    ];
+  });
+}
+
 export function AdminProductVariantsSection({ product }: AdminProductVariantsSectionProps) {
   const { currentRev, applyCommit } = useAdminProductRevision();
   const [state, formAction, pending] = useActionState(updateProductVariantsAction, INITIAL_STATE);
+  const formRef = useRef<HTMLFormElement>(null);
+  const variantImagesEditorRef = useRef<AdminProductVariantImagesEditorHandle>(null);
+  const [, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<VariantDraft>(createEmptyDraft());
   const [operation, setOperation] = useState<"upsert" | "deactivate">("upsert");
+  const [firstVariantChoiceOpen, setFirstVariantChoiceOpen] = useState(false);
+  const [firstVariantChoice, setFirstVariantChoice] = useState<FirstVariantChoice>("variants-only");
+  const [variantImagesCanSave, setVariantImagesCanSave] = useState(true);
   const [displayedVariants, setDisplayedVariants] = useState<AdminProductVariantData[]>(() => product.variants);
   const [variantSource, setVariantSource] = useState(product.variantSource);
   const [legacyColorVariantCount, setLegacyColorVariantCount] = useState(product.legacyColorVariantCount);
@@ -185,15 +225,70 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
   const legacyMode = variantSource === "colorVariants" && legacyColorVariantCount > 0;
 
   const openCreateModal = () => {
+    if (displayedVariants.length === 0 && variantSource === null) {
+      setFirstVariantChoiceOpen(true);
+      return;
+    }
+
     setOperation("upsert");
     setDraft(createEmptyDraft());
+    setVariantImagesCanSave(true);
+    setOpen(true);
+  };
+
+  const startCreateVariant = (choice: FirstVariantChoice) => {
+    setFirstVariantChoice(choice);
+    setFirstVariantChoiceOpen(false);
+    setOperation("upsert");
+    setDraft(createEmptyDraft());
+    setVariantImagesCanSave(true);
     setOpen(true);
   };
 
   const openEditModal = (variant: AdminProductVariantData) => {
     setOperation("upsert");
     setDraft(draftFromVariant(variant));
+    setVariantImagesCanSave(true);
     setOpen(true);
+  };
+
+  const handleVariantSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const formElement = formRef.current ?? event.currentTarget;
+    const formData = new FormData(formElement);
+    const draftImages = variantImagesEditorRef.current?.getDraftImages() ?? [];
+
+    formData.set(
+      "variantImagesJson",
+      JSON.stringify(
+        draftImages.map((image) =>
+          image.existing
+            ? {
+                existing: true as const,
+                key: image.key,
+                assetRef: image.assetRef,
+                alt: image.alt.trim(),
+              }
+            : {
+                existing: false as const,
+                temporaryId: image.temporaryId,
+                fileSignature: image.fileSignature,
+                alt: image.alt.trim(),
+              },
+        ),
+      ),
+    );
+
+    for (const image of draftImages) {
+      if (!image.existing) {
+        formData.append(`file:${image.temporaryId}`, image.file, image.file.name);
+      }
+    }
+
+    startTransition(() => {
+      formAction(formData);
+    });
   };
 
   const updateAttribute = (index: number, field: "name" | "value", value: string) => {
@@ -244,14 +339,17 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
     }));
   };
 
+  const selectedVariant = draft.variantKey
+    ? displayedVariants.find((variant) => variant.key === draft.variantKey) ?? null
+    : null;
+  const selectedVariantImages = selectedVariant ? buildVariantImageDrafts(selectedVariant.images) : [];
+
   return (
     <section className={`${dashboardUi.card} overflow-hidden`}>
       <div className={`${dashboardUi.cardHeader} border-b border-slate-200/60`}>
         <div className="min-w-0">
           <h2 className={dashboardUi.sectionTitle}>Variantes</h2>
-          <p className={dashboardUi.sectionDescription}>
-            Un único modelo de edición. Si el producto todavía usa legacy colorVariants, la primera edición migra a variants sin borrar el legado.
-          </p>
+          <p className={dashboardUi.sectionDescription}>Creá y editá variantes del producto.</p>
         </div>
 
         <button
@@ -280,11 +378,7 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
           </div>
         ) : null}
 
-        {legacyMode ? (
-          <div className="mb-4 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            Este producto todavía usa <span className="font-semibold">colorVariants</span>. Al guardar una variante, se materializa en <span className="font-semibold">variants</span> sin borrar el legado.
-          </div>
-        ) : null}
+        {legacyMode ? <div className="mb-4 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">Este producto tiene variantes cargadas.</div> : null}
 
         {displayedVariants.length > 0 ? (
           <div className="grid gap-3">
@@ -298,12 +392,12 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                     : "border-slate-200 bg-slate-50 opacity-80",
                 )}
               >
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start lg:gap-6">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="text-base font-semibold tracking-[-0.03em] text-slate-950">{variant.title}</h3>
                       <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-600">
-                        {variant.source === "variants" ? "Canonical" : "Legacy"}
+                        {variant.source === "variants" ? "Actual" : "Anterior"}
                       </span>
                       <span
                         className={cn(
@@ -345,7 +439,7 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 lg:justify-self-end">
                     <button
                       type="button"
                       onClick={() => openEditModal(variant)}
@@ -381,6 +475,50 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                         Desactivar
                       </button>
                     </form>
+                    <form
+                      action={formAction}
+                      onSubmit={(event) => {
+                        if (!variant.canDelete) {
+                          event.preventDefault();
+                          window.alert(HISTORICAL_VARIANT_DELETE_MESSAGE);
+                          return;
+                        }
+
+                        if (
+                          !window.confirm(
+                            `¿Eliminar esta variante "${variant.title}"?\n\nEsta acción elimina la variante del producto. No se puede deshacer.`,
+                          )
+                        ) {
+                          event.preventDefault();
+                        }
+                      }}
+                    >
+                      <input type="hidden" name="productId" value={product.id} />
+                      <input type="hidden" name="rev" value={currentRev} />
+                      <input type="hidden" name="operation" value="delete" />
+                      <input type="hidden" name="variantKey" value={variant.key} />
+                      <input type="hidden" name="title" value={variant.title} />
+                      <input type="hidden" name="value" value={variant.value} />
+                      <input type="hidden" name="sku" value={variant.sku} />
+                      <input type="hidden" name="basePrice" value={variant.basePrice ?? ""} />
+                      <input type="hidden" name="stock" value={variant.stock} />
+                      <input type="hidden" name="isActive" value={String(variant.isActive)} />
+                      <input type="hidden" name="attributesJson" value={JSON.stringify(normalizeAttributes(variant.attributes))} />
+                      <input type="hidden" name="variantImagesJson" value="[]" />
+                      <button
+                        type="submit"
+                        disabled={pending}
+                        title={variant.canDelete ? "Eliminar variante" : HISTORICAL_VARIANT_DELETE_MESSAGE}
+                        className={cn(
+                          "rounded-full border px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
+                          variant.canDelete
+                            ? "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100"
+                            : "border-rose-200 bg-rose-50 text-rose-700 opacity-80 hover:bg-rose-100",
+                        )}
+                      >
+                        Eliminar
+                      </button>
+                    </form>
                   </div>
                 </div>
               </div>
@@ -388,10 +526,53 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
           </div>
         ) : (
           <div className="rounded-[20px] border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-600">
-            Este producto todavía no tiene variantes. Podés crear la primera desde acá.
+            Este producto todavía no tiene variantes.
           </div>
         )}
       </div>
+
+      {firstVariantChoiceOpen ? (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#243247]/45 p-3 sm:items-center sm:p-6">
+          <div className="w-full max-w-xl overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.22)]">
+            <div className="px-5 py-5">
+              <p className={dashboardUi.mutedLabel}>Primera variante</p>
+              <h3 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-slate-950">
+                Este producto actualmente tiene precio y stock propios. ¿Querés conservarlo como una opción?
+              </h3>
+              <p className="mt-2 text-sm text-slate-500">
+                Si lo conservás, se creará una variante original con el precio y stock actuales. Si no, solo quedarán las nuevas variantes.
+              </p>
+
+              <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setFirstVariantChoiceOpen(false)}
+                  className="rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => startCreateVariant("variants-only")}
+                  className="rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                >
+                  No, usar solo las nuevas variantes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => startCreateVariant("preserve-original")}
+                  className={cn(
+                    "rounded-full border px-4 py-3 text-sm font-semibold",
+                    dashboardUi.primaryAction,
+                  )}
+                >
+                  Sí, conservar como opción
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {open ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#243247]/45 p-3 sm:items-center sm:p-6">
@@ -418,14 +599,16 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
               </button>
             </div>
 
-            <form
-              action={formAction}
-              className="grid gap-5 px-5 py-5 sm:grid-cols-2"
-            >
+            <form ref={formRef} onSubmit={handleVariantSubmit} className="grid gap-5 px-5 py-5 sm:grid-cols-2">
               <input type="hidden" name="productId" value={product.id} />
               <input type="hidden" name="rev" value={currentRev} />
               <input type="hidden" name="operation" value={operation} />
               <input type="hidden" name="variantKey" value={draft.variantKey} />
+              <input
+                type="hidden"
+                name="preserveOriginalOption"
+                value={firstVariantChoice === "preserve-original" ? "true" : "false"}
+              />
               <input type="hidden" name="attributesJson" value={JSON.stringify(normalizeAttributes(draft.attributes))} />
 
               <label className="grid gap-2 text-sm font-medium text-slate-700 sm:col-span-2">
@@ -625,6 +808,19 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
               </div>
 
               <div className="sm:col-span-2">
+                <AdminProductVariantImagesEditor
+                  ref={variantImagesEditorRef}
+                  key={(selectedVariant?.key ?? draft.variantKey) || "new"}
+                  productTitle={product.title}
+                  initialImages={selectedVariantImages}
+                  onCanSaveChange={setVariantImagesCanSave}
+                />
+                {getFieldError(state, "variantImagesJson") ? (
+                  <p className="mt-2 text-xs font-medium text-rose-600">{getFieldError(state, "variantImagesJson")}</p>
+                ) : null}
+              </div>
+
+              <div className="sm:col-span-2">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-medium text-slate-700">Atributos</p>
@@ -692,7 +888,7 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                 </button>
                 <button
                   type="submit"
-                  disabled={pending}
+                  disabled={pending || !variantImagesCanSave}
                   className={cn(
                     "rounded-full border px-5 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-300",
                     dashboardUi.primaryAction,

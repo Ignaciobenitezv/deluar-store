@@ -87,8 +87,8 @@ export function ConversionAbandonmentComparison({ data }: ConversionAbandonmentC
     return (
       <DashboardChartEmpty
         compact
-        title="Sin abandonos en el período."
-        description="Cuando existan carritos o checkouts abandonados, se mostrarán aquí."
+        title="Sin actividad suficiente."
+        description="Se mostrará cuando haya abandonos."
       />
     );
   }

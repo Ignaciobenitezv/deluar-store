@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { requireAdminSession } from "@/features/admin/auth";
 import { logger } from "@/lib/logger";
-import { sanityFetch } from "@/integrations/sanity/client";
+import { sanityFreshFetch } from "@/integrations/sanity/client";
 import { adminProductDetailQuery } from "@/integrations/sanity/admin-queries";
 import { getAdminProductsWriteClient } from "../server/admin-products-write-client";
 import { normalizeProductDetail } from "../server/admin-product-detail-service";
@@ -28,8 +28,19 @@ import {
   adminProductVariantFormSchema,
   parseAdminProductVariantAttributes,
 } from "../validation/variant-editor";
+import {
+  adminProductImageDraftSubmitSchema,
+  adminProductImageItemSchema,
+  type AdminProductImageDraftSubmitInput,
+  type AdminProductImageItem,
+} from "../validation/product-images";
+import {
+  MAX_PRODUCT_IMAGE_UPLOAD_BYTES,
+  isAllowedProductImageMimeType,
+} from "../lib/product-image-constraints";
 import type { ProductLogistics } from "@/features/catalog/logistics";
 import type { ProductColorVariantDocument, ProductVariantDocument } from "@/types/cms";
+import { applyAdminProductVariantDeletionUsage, loadAdminProductVariantDeletionUsage } from "../server/admin-product-variant-deletion";
 
 type AdminProductVariantDocument = {
   _id: string;
@@ -37,6 +48,10 @@ type AdminProductVariantDocument = {
   _updatedAt: string;
   title: string;
   slug?: string;
+  basePrice: number;
+  transferPrice?: number;
+  stock: number;
+  logistics?: ProductLogistics;
   variants?: ProductVariantDocument[] | null;
   colorVariants?: ProductColorVariantDocument[] | null;
   category?: {
@@ -212,11 +227,132 @@ function mapVariantToPatch(
     patch.logistics = variant.logistics;
   }
 
-  if (existingImages && existingImages.length > 0) {
+  if (existingImages) {
     patch.images = existingImages;
   }
 
   return patch;
+}
+
+function normalizeImages(images: unknown[] | undefined): AdminProductImageItem[] | null {
+  const parsed = adminProductImageItemSchema.array().safeParse(images ?? []);
+
+  if (!parsed.success) {
+    return null;
+  }
+
+  return parsed.data;
+}
+
+function parseVariantImagesJson(value: string) {
+  let parsedJson: unknown;
+
+  try {
+    parsedJson = JSON.parse(value);
+  } catch {
+    return null;
+  }
+
+  const parsed = adminProductImageDraftSubmitSchema.array().safeParse(parsedJson);
+
+  if (!parsed.success) {
+    return null;
+  }
+
+  return parsed.data;
+}
+
+function validateUploadFile(file: File) {
+  if (file.size <= 0) {
+    return "El archivo no puede estar vacio.";
+  }
+
+  if (file.size > MAX_PRODUCT_IMAGE_UPLOAD_BYTES) {
+    return "Cada imagen puede pesar hasta 10 MB.";
+  }
+
+  if (!isAllowedProductImageMimeType(file.type)) {
+    return "Solo se aceptan JPG, PNG o WebP.";
+  }
+
+  return null;
+}
+
+function getTemporaryIdFromFileField(fieldName: string) {
+  if (!fieldName.startsWith("file:")) {
+    return null;
+  }
+
+  const temporaryId = fieldName.slice("file:".length).trim();
+  return temporaryId.length > 0 ? temporaryId : null;
+}
+
+function buildSanityImageDocument(assetRef: string, alt?: string): AdminProductImageItem {
+  return {
+    _key: crypto.randomUUID(),
+    _type: "imageWithAlt",
+    ...(alt ? { alt } : {}),
+    image: {
+      _type: "image",
+      asset: {
+        _type: "reference",
+        _ref: assetRef,
+      },
+    },
+  };
+}
+
+function buildExistingImageDocument(image: AdminProductImageItem, alt?: string): AdminProductImageItem {
+  return {
+    _key: image._key,
+    _type: image._type,
+    ...(alt ? { alt } : {}),
+    image: image.image,
+  };
+}
+
+function buildFinalVariantImages(args: {
+  currentImages: AdminProductImageItem[];
+  draftImages: AdminProductImageDraftSubmitInput[];
+  uploadedAssetRefs: Map<string, string>;
+}): AdminProductImageItem[] | null {
+  const currentByKey = new Map(args.currentImages.map((image) => [image._key, image] as const));
+  const seenExistingKeys = new Set<string>();
+  const seenNewTemporaryIds = new Set<string>();
+  const finalImages: AdminProductImageItem[] = [];
+
+  for (const item of args.draftImages) {
+    if (item.existing) {
+      const currentImage = currentByKey.get(item.key);
+
+      if (!currentImage || currentImage.image.asset._ref !== item.assetRef) {
+        return null;
+      }
+
+      if (seenExistingKeys.has(item.key)) {
+        return null;
+      }
+
+      seenExistingKeys.add(item.key);
+      finalImages.push(buildExistingImageDocument(currentImage, item.alt?.trim() || undefined));
+      continue;
+    }
+
+    if (seenNewTemporaryIds.has(item.temporaryId)) {
+      return null;
+    }
+
+    const assetRef = args.uploadedAssetRefs.get(item.temporaryId);
+
+    if (!assetRef) {
+      return null;
+    }
+
+    seenNewTemporaryIds.add(item.temporaryId);
+    finalImages.push(buildSanityImageDocument(assetRef, item.alt?.trim() || undefined));
+  }
+
+  return finalImages;
 }
 
 function normalizeTrimmed(value: string) {
@@ -236,6 +372,7 @@ export async function updateProductVariantsAction(
     rev: String(formData.get("rev") ?? ""),
     operation: String(formData.get("operation") ?? ""),
     variantKey: String(formData.get("variantKey") ?? ""),
+    preserveOriginalOption: String(formData.get("preserveOriginalOption") ?? "false"),
     logisticsMode: String(formData.get("logisticsMode") ?? "inherit"),
     title: String(formData.get("title") ?? ""),
     value: String(formData.get("value") ?? ""),
@@ -247,6 +384,7 @@ export async function updateProductVariantsAction(
     heightCm: formData.get("heightCm"),
     widthCm: formData.get("widthCm"),
     depthCm: formData.get("depthCm"),
+    variantImagesJson: String(formData.get("variantImagesJson") ?? "[]"),
     attributesJson: String(formData.get("attributesJson") ?? ""),
   };
 
@@ -269,11 +407,7 @@ export async function updateProductVariantsAction(
   }
 
   const [currentProduct] = await Promise.all([
-    sanityFetch<AdminProductVariantDocument | null>(
-      adminProductDetailQuery,
-      { productId: parsed.data.productId },
-      { useToken: true },
-    ),
+    sanityFreshFetch<AdminProductVariantDocument | null>(adminProductDetailQuery, { productId: parsed.data.productId }),
   ]);
 
   if (!currentProduct) {
@@ -293,17 +427,153 @@ export async function updateProductVariantsAction(
   });
 
   const normalizedSource = normalizeVariantSourceVariants(currentProduct);
-  const sourceVariants = normalizedSource.variants;
+  const variantDeletionUsage = await loadAdminProductVariantDeletionUsage(parsed.data.productId);
+  const sourceVariants = applyAdminProductVariantDeletionUsage(normalizedSource.variants, variantDeletionUsage);
   const variantKey = parsed.data.variantKey?.trim() ?? "";
   const normalizedValue = normalizeTrimmed(parsed.data.value);
   const combinationKey = parsedAttributes.combinationKey;
+  const targetImagesPayload = parseVariantImagesJson(parsed.data.variantImagesJson);
+  if (!targetImagesPayload) {
+    return buildErrorState("No pudimos leer las imágenes de la variante.", {
+      variantImagesJson: ["No pudimos leer las imágenes de la variante."],
+    });
+  }
   const targetIndex = variantKey
     ? sourceVariants.findIndex((variant) => variant.key === variantKey)
     : -1;
   const targetVariant = targetIndex >= 0 ? sourceVariants[targetIndex] : null;
+  if (parsed.data.operation === "delete") {
+    if (!targetVariant) {
+      return buildErrorState("No encontramos la variante para eliminar.", {
+        variantKey: ["No encontramos la variante para eliminar."],
+      });
+    }
+
+    if (!targetVariant.canDelete) {
+      return buildErrorState("Esta variante ya tiene historial y no puede eliminarse. Podés desactivarla.", {
+        variantKey: ["Esta variante ya tiene historial y no puede eliminarse. Podés desactivarla."],
+      });
+    }
+  }
+  const shouldPreserveOriginalOption =
+    parsed.data.operation === "upsert" &&
+    parsed.data.preserveOriginalOption &&
+    sourceVariants.length === 0 &&
+    !targetVariant;
+
+  const originalVariant: AdminProductVariantData | null = shouldPreserveOriginalOption
+    ? {
+        key: crypto.randomUUID(),
+        title: "Original",
+        value: "original",
+        attributes: [],
+        sku: "",
+        basePrice: currentProduct.basePrice,
+        transferPrice: typeof currentProduct.transferPrice === "number" ? currentProduct.transferPrice : null,
+        stock: Number.isFinite(currentProduct.stock) ? currentProduct.stock : 0,
+        isActive: true,
+        images: [],
+        source: "variants",
+        canDelete: true,
+        logistics: currentProduct.logistics ?? null,
+      }
+    : null;
+  const targetCurrentImages = normalizeImages(targetVariant?.images as unknown[] | undefined) ?? [];
+  const filesByTemporaryId = new Map<string, File>();
+  const expectedNewImages = targetImagesPayload.filter(
+    (item): item is AdminProductImageDraftSubmitInput & { existing: false } => !item.existing,
+  );
+  const expectedTemporaryIds = new Set(expectedNewImages.map((item) => item.temporaryId));
+
+  for (const [fieldName, value] of formData.entries()) {
+    const temporaryId = getTemporaryIdFromFileField(fieldName);
+
+    if (!temporaryId) {
+      continue;
+    }
+
+    if (!expectedTemporaryIds.has(temporaryId)) {
+      return buildErrorState("No coincidieron las imágenes nuevas con el estado local.", {
+        variantImagesJson: ["No coincidieron las imágenes nuevas con el estado local."],
+      });
+    }
+
+    if (
+      !value ||
+      typeof value !== "object" ||
+      typeof (value as File).arrayBuffer !== "function" ||
+      typeof (value as File).size !== "number"
+    ) {
+      return buildErrorState("No pudimos leer una de las imágenes nuevas.", {
+        variantImagesJson: ["No pudimos leer una de las imágenes nuevas."],
+      });
+    }
+
+    const file = value as File;
+    const validationError = validateUploadFile(file);
+
+    if (validationError) {
+      return buildErrorState(validationError, {
+        variantImagesJson: [validationError],
+      });
+    }
+
+    filesByTemporaryId.set(temporaryId, file);
+  }
+
+  for (const item of expectedNewImages) {
+    const file = filesByTemporaryId.get(item.temporaryId);
+
+    if (!file) {
+      return buildErrorState("No coincidieron las imágenes nuevas con el estado local.", {
+        variantImagesJson: ["No coincidieron las imágenes nuevas con el estado local."],
+      });
+    }
+  }
+
+  const uploadedAssetRefs = new Map<string, string>();
+  const uploadedAssetIds: string[] = [];
+
+  try {
+    const writeClient = getAdminProductsWriteClient();
+
+    for (const item of expectedNewImages) {
+      const file = filesByTemporaryId.get(item.temporaryId);
+
+      if (!file) {
+        return buildErrorState("No coincidieron las imágenes nuevas con el estado local.", {
+          variantImagesJson: ["No coincidieron las imágenes nuevas con el estado local."],
+        });
+      }
+
+      const uploadedAsset = await writeClient.assets.upload("image", file, {
+        filename: file.name || `${parsed.data.productId}-${item.temporaryId}.jpg`,
+        contentType: file.type,
+      });
+
+      uploadedAssetIds.push(uploadedAsset._id);
+      uploadedAssetRefs.set(item.temporaryId, uploadedAsset._id);
+    }
+  } catch (error) {
+    logger.error("admin.products.variants.upload_failed", {
+      productId: parsed.data.productId,
+      rev: parsed.data.rev,
+      uploadedAssetIds,
+      error: error instanceof Error ? error.message : String(error),
+    });
+
+    return buildErrorState("No pudimos guardar una de las imágenes de la variante.", {
+      variantImagesJson: ["No pudimos guardar una de las imágenes de la variante."],
+    });
+  }
+
+  const workingVariants = [
+    ...(originalVariant ? [originalVariant] : []),
+    ...sourceVariants,
+  ];
 
   if (
-    sourceVariants.some(
+    workingVariants.some(
       (variant) =>
         variant.key !== variantKey && normalizeTrimmed(variant.value) === normalizedValue,
     )
@@ -314,7 +584,7 @@ export async function updateProductVariantsAction(
   }
 
   if (
-    sourceVariants.some(
+    workingVariants.some(
       (variant) =>
         variant.key !== variantKey && buildVariantCombinationKey(variant.attributes) === combinationKey,
     )
@@ -324,7 +594,7 @@ export async function updateProductVariantsAction(
     });
   }
 
-  const nextVariants = [...sourceVariants];
+  const nextVariants = parsed.data.operation === "upsert" ? [...workingVariants] : [...sourceVariants];
 
   if (parsed.data.operation === "deactivate") {
     if (!targetVariant) {
@@ -337,6 +607,16 @@ export async function updateProductVariantsAction(
       ...targetVariant,
       isActive: false,
     };
+  } else if (parsed.data.operation === "delete") {
+    const deleteIndex = nextVariants.findIndex((variant) => variant.key === variantKey);
+
+    if (deleteIndex < 0) {
+      return buildErrorState("No encontramos la variante para eliminar.", {
+        variantKey: ["No encontramos la variante para eliminar."],
+      });
+    }
+
+    nextVariants.splice(deleteIndex, 1);
   } else {
     const nextVariant: AdminProductVariantData = {
       key: targetVariant?.key ?? crypto.randomUUID(),
@@ -348,8 +628,9 @@ export async function updateProductVariantsAction(
       transferPrice: targetVariant?.transferPrice ?? null,
       stock: parsed.data.stock,
       isActive: parsed.data.isActive,
-      images: targetVariant?.images ?? [],
+      images: [],
       source: "variants",
+      canDelete: true,
       logistics:
         parsed.data.logisticsMode === "custom"
           ? {
@@ -368,15 +649,37 @@ export async function updateProductVariantsAction(
     }
   }
 
-  const patchVariants = nextVariants.map((variant) =>
-    mapVariantToPatch(variant, variant.images),
-  );
+  const finalVariantImages = buildFinalVariantImages({
+    currentImages: targetCurrentImages,
+    draftImages: targetImagesPayload,
+    uploadedAssetRefs,
+  });
+
+  if (!finalVariantImages) {
+    return buildErrorState("No pudimos guardar las imágenes de la variante.", {
+      variantImagesJson: ["No pudimos guardar las imágenes de la variante."],
+    });
+  }
+
+  if (targetVariant || nextVariants.length > 0) {
+    const resolvedIndex = targetVariant ? nextVariants.findIndex((variant) => variant.key === targetVariant.key) : nextVariants.length - 1;
+
+    if (resolvedIndex >= 0) {
+      nextVariants[resolvedIndex] = {
+        ...nextVariants[resolvedIndex],
+        images: finalVariantImages,
+      };
+    }
+  }
+
+  const patchVariants = nextVariants.map((variant) => mapVariantToPatch(variant, variant.images));
 
   try {
     const committedProduct = (await getAdminProductsWriteClient()
       .patch(currentProduct._id)
       .ifRevisionId(parsed.data.rev)
       .set({ variants: patchVariants })
+      .unset(["colorVariants"])
       .commit({ returnDocuments: true })) as AdminProductVariantDocument;
 
     const committedSource = normalizeVariantSourceVariants(committedProduct);
@@ -431,7 +734,7 @@ export async function updateProductVariantsAction(
             : "Variante agregada.",
       rev: committedProduct._rev,
       updatedAt: committedProduct._updatedAt,
-      variants: committedSource.variants,
+      variants: applyAdminProductVariantDeletionUsage(committedSource.variants, variantDeletionUsage),
       variantSource: committedSource.source,
       legacyColorVariantCount: committedSource.legacyColorVariantCount,
     };

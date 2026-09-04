@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ChartCard } from "@/features/admin/dashboard/components/chart-card";
 import { DashboardShell } from "@/features/admin/dashboard/components/dashboard-shell";
-import { LockedMetricCard } from "@/features/admin/dashboard/components/locked-metric-card";
+import { EmptyState } from "@/features/admin/dashboard/components/empty-state";
 import {
   DASHBOARD_PERIODS,
   normalizeDashboardPeriodValue,
@@ -27,37 +27,14 @@ export default async function AdminDashboardReportsPage({
   const period = normalizeDashboardPeriodValue(resolvedSearchParams?.period);
   const lastUpdated = formatDashboardDateTime(new Date());
 
-  const reportItems = [
-    "Exportar ventas",
-    "Exportar productos",
-    "Exportar clientes",
-    "Exportar pagos",
-    "Exportar envíos",
-    "Exportar panel completo",
-    "Reportes PDF",
-    "Reportes CSV/Excel",
-    "Reportes programados",
-  ];
-
   return (
     <DashboardShell
       title="Reportes"
-      subtitle={`Exportaciones y vistas analíticas futuras. Período activo: ${DASHBOARD_PERIODS[period].label}.`}
+      subtitle={`Período activo: ${DASHBOARD_PERIODS[period].label}.`}
       lastUpdated={lastUpdated}
     >
-      <ChartCard
-        title="Exportaciones futuras"
-        description="Esta sección quedará lista cuando se habiliten reportes descargables."
-      >
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {reportItems.map((item) => (
-            <LockedMetricCard
-              key={item}
-              title={item}
-              description="Disponible en una futura versión del panel."
-            />
-          ))}
-        </div>
+      <ChartCard title="Reportes" description="Sin datos para este período.">
+        <EmptyState title="Sin datos para este período." description="No hay reportes disponibles." />
       </ChartCard>
     </DashboardShell>
   );

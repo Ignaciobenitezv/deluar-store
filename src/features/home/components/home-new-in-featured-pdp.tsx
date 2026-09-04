@@ -216,6 +216,7 @@ function HomeNewInFeaturedPdpContent({
 
             <div className="space-y-1.5">
               <p className="text-[1.42rem] font-semibold leading-none text-foreground">
+                {product.pricePrefix ? `${product.pricePrefix} ` : null}
                 {formatPrice(product.basePrice)}
               </p>
               {product.transferPrice ? (
@@ -257,28 +258,36 @@ function HomeNewInFeaturedPdpContent({
                 </div>
 
                 <div className="flex-1">
-                <AddToCartButton
-                  quantity={quantity}
-                  disabled={!hasStock}
-                  product={{
-                    id: product.id,
-                    productId: product.id,
-                    slug: product.slug,
-                    title: product.title,
-                    imageUrl: activeImage?.url ?? product.images[0]?.url ?? null,
-                    imageAlt: activeImage?.alt ?? product.images[0]?.alt ?? product.title,
-                    basePrice: product.basePrice,
-                    transferPrice: product.transferPrice,
-                    stock: product.stock,
-                    productHref: product.productHref,
-                  }}
-                />
+                  {product.hasSelectableOptions ? (
+                    <Link
+                      href={product.productHref}
+                      className="inline-flex min-h-14 w-full items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white shadow-[0_18px_44px_rgba(167,88,60,0.22)] transition-all hover:translate-y-[-1px] hover:opacity-95"
+                    >
+                      Ver producto
+                    </Link>
+                  ) : (
+                    <AddToCartButton
+                      quantity={quantity}
+                      disabled={!hasStock}
+                      product={{
+                        id: product.id,
+                        productId: product.id,
+                        slug: product.slug,
+                        title: product.title,
+                        imageUrl: activeImage?.url ?? product.images[0]?.url ?? null,
+                        imageAlt: activeImage?.alt ?? product.images[0]?.alt ?? product.title,
+                        basePrice: product.basePrice,
+                        transferPrice: product.transferPrice,
+                        stock: product.stock,
+                        productHref: product.productHref,
+                      }}
+                    />
+                  )}
                 </div>
               </div>
-
-            <div className="mt-2 text-[0.74rem] text-muted">
-              {hasStock ? "En stock" : "Sin stock"}
-            </div>
+              <div className="mt-2 text-[0.74rem] text-muted">
+                {hasStock ? "En stock" : "Sin stock"}
+              </div>
 
               <Link
                 href={product.productHref}

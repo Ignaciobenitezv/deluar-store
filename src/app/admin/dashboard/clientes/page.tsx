@@ -346,7 +346,7 @@ export default async function AdminDashboardCustomersPage({ searchParams }: Admi
   return (
     <DashboardShell
       title="Clientes"
-      subtitle={`Customer Analytics basado en compras reales e identificables. Período activo: ${DASHBOARD_PERIODS[metrics.period].label}. Los KPIs del período conviven con métricas históricas como LTV, frecuencia y cohortes.`}
+      subtitle={`Compradores y recurrencia. Período activo: ${DASHBOARD_PERIODS[metrics.period].label}.`}
       lastUpdated={lastUpdated}
     >
       <section className="grid gap-3 min-[420px]:grid-cols-2 xl:grid-cols-4 sm:gap-4">
@@ -420,7 +420,7 @@ export default async function AdminDashboardCustomersPage({ searchParams }: Admi
 
       <ChartCard
         title="Nuevos vs recurrentes"
-        description="Lectura rápida de adquisición versus recompra. La facturación refleja solo compras identificadas."
+        description="Comparación de compradores nuevos y recurrentes."
         className="min-w-0"
       >
         <div className="grid gap-3 xl:grid-cols-2">
@@ -535,12 +535,12 @@ export default async function AdminDashboardCustomersPage({ searchParams }: Admi
           ) : (
             <EmptyState
               title="No hay clientes para mostrar."
-              description="Cuando existan compras identificables dentro del período, el ranking se completará automáticamente."
+              description="Sin datos para este período."
             />
           )}
         </ChartCard>
 
-        <ChartCard title="Frecuencia histórica de compra" description="Distribución histórica de la base por cantidad de compras.">
+        <ChartCard title="Frecuencia de compra" description="Cantidad de compras por cliente.">
           {hasFrequency ? (
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {metrics.frequency.map((bucket) => (
@@ -550,14 +550,14 @@ export default async function AdminDashboardCustomersPage({ searchParams }: Admi
           ) : (
             <EmptyState
               title="No hay frecuencia para mostrar."
-              description="Cuando existan clientes identificados, esta distribución aparecerá aquí."
+              description="Sin datos para este período."
             />
           )}
         </ChartCard>
       </div>
 
       <div className="grid gap-4 2xl:grid-cols-2">
-        <ChartCard title="Segunda compra histórica" description="Tiempo entre primera y segunda compra para clientes que ya repitieron.">
+        <ChartCard title="Segunda compra" description="Tiempo entre primera y segunda compra.">
           {hasSecondPurchase ? (
             <div className="grid gap-3 sm:grid-cols-3">
               <KpiCard
@@ -582,12 +582,12 @@ export default async function AdminDashboardCustomersPage({ searchParams }: Admi
           ) : (
             <EmptyState
               title="Todavía no hay suficientes segundas compras."
-              description="Cuando existan clientes con al menos dos compras, se mostrarán promedio y mediana."
+              description="Sin datos para este período."
             />
           )}
         </ChartCard>
 
-        <ChartCard title="Cohortes históricas de clientes" description="Mes de primera compra y tasa de segunda compra por cohorte.">
+        <ChartCard title="Cohortes" description="Mes de primera compra y recompra.">
           {hasCohorts ? (
             <div className="max-w-full overflow-x-auto md:overflow-visible">
               <table className="w-full table-fixed border-collapse text-sm">
@@ -614,13 +614,13 @@ export default async function AdminDashboardCustomersPage({ searchParams }: Admi
           ) : (
             <EmptyState
               title="No hay cohortes para mostrar."
-              description="Cuando existan primeras compras identificables, la tabla de cohortes se completará automáticamente."
+              description="Sin datos para este período."
             />
           )}
         </ChartCard>
       </div>
 
-      <ChartCard title="Lecturas rápidas" description="Insights determinísticos calculados por el servicio.">
+      <ChartCard title="Señales" description="Resumen del período.">
         {hasInsights ? (
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             {metrics.insights.map((insight) => (
@@ -629,8 +629,8 @@ export default async function AdminDashboardCustomersPage({ searchParams }: Admi
           </div>
         ) : (
           <EmptyState
-            title="No hay insights suficientes."
-            description="El servicio no encontró reglas determinísticas para este período."
+            title="Sin señales."
+            description="Sin datos para este período."
           />
         )}
 
@@ -639,7 +639,7 @@ export default async function AdminDashboardCustomersPage({ searchParams }: Admi
           <div className="mt-2 space-y-2 text-sm leading-6 text-slate-600">
             <p>Las métricas de clientes se calculan sobre compras con información suficiente para identificar al comprador.</p>
             <p>Las compras sin un identificador confiable no se incluyen en las métricas de cliente.</p>
-            <p>LTV observado representa la facturación histórica acumulada y no una proyección futura.</p>
+            <p>LTV observado representa la facturación histórica acumulada.</p>
             <p>{metrics.notes.dataQualityNote}</p>
           </div>
         </div>
@@ -647,7 +647,7 @@ export default async function AdminDashboardCustomersPage({ searchParams }: Admi
 
       <ChartCard
         title="Tabla operativa de clientes"
-        description="Búsqueda, orden y paginación resueltas server-side. Solo compras identificables entran en las métricas de cliente."
+        description="Búsqueda, orden y paginación."
         className="min-w-0"
       >
         <div className="grid gap-4">
@@ -796,7 +796,7 @@ export default async function AdminDashboardCustomersPage({ searchParams }: Admi
               description={
                 currentFilters.q
                   ? "La búsqueda no devolvió resultados. Probá limpiando el filtro o ajustando el término."
-                  : "Cuando existan compras identificables, la tabla operativa se completará automáticamente."
+                  : "Sin datos para este período."
               }
             />
           )}

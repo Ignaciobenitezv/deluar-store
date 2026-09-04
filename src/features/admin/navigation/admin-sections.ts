@@ -82,23 +82,6 @@ export const adminAnalyticsSections: AdminModuleNavSection[] = [
       },
     ],
   },
-  {
-    label: "Futuro",
-    items: [
-      {
-        id: "marketing",
-        label: "Marketing",
-        href: "/admin/dashboard/marketing",
-        description: "Seguimiento futuro",
-      },
-      {
-        id: "reports",
-        label: "Reportes",
-        href: "/admin/dashboard/reportes",
-        description: "Exportaciones futuras",
-      },
-    ],
-  },
 ];
 
 export const adminProductsSections: AdminModuleNavSection[] = [
@@ -109,7 +92,7 @@ export const adminProductsSections: AdminModuleNavSection[] = [
         id: "products-list",
         label: "Productos",
         href: "/admin/productos",
-        description: "Gestion del catalogo",
+        description: "Catálogo",
       },
     ],
   },
@@ -123,7 +106,7 @@ export const adminOrdersSections: AdminModuleNavSection[] = [
         id: "orders-list",
         label: "Ordenes",
         href: "/admin/orders",
-        description: "Listado de pedidos",
+        description: "Pedidos",
       },
     ],
   },
@@ -137,7 +120,7 @@ export const adminShipmentsSections: AdminModuleNavSection[] = [
         id: "shipments-list",
         label: "Envios",
         href: "/admin/envios",
-        description: "Preparacion y exportacion Andreani",
+        description: "Andreani y lotes",
       },
     ],
   },

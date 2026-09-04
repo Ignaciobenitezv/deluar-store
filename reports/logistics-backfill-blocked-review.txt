@@ -1,0 +1,130 @@
+Blocked logistics review
+Generated at: 2026-08-26T14:28:00.383Z
+CSV source: E:\deluar-store\imports\tiendanube-4147750-17859311121905920727825559417 (1).csv
+
+Resolved with certainty from the 6 NOT_FOUND: 0
+Still no match: 6
+INVALID_LOGISTICS recoverable: 0
+Manual intervention required: 17
+New potentially backfillable total: 454
+New percentage over 479 products: 94.78%
+
+[NOT_FOUND] noix-24-5-1az5h
+  title: BANDEJA RECTANGULAR NOIX 24,5X11 CM
+  classification: NO_MATCH
+  action: Revisión manual
+  confidence: LOW
+  reason: No apareció ningún candidato confiable en Sanity.
+
+[INVALID_LOGISTICS] alfombra-1cnr7
+  title: Alfombra GUINEA 60X110CM
+  classification: NO_USABLE_DATA
+  action: Carga manual
+  confidence: LOW
+  reason: No existe ningún dato logístico numérico en el CSV para este producto.
+
+[NOT_FOUND] utensilios-1nswj
+  title: Setx11 Utensilios + portautensilios MINI
+  classification: NO_MATCH
+  action: Revisión manual
+  confidence: LOW
+  reason: No apareció ningún candidato confiable en Sanity.
+
+[INVALID_LOGISTICS] cesto-mgdgy
+  title: Canasto Simil mimbre 3 Tamaños
+  classification: NO_USABLE_DATA
+  action: Carga manual
+  confidence: LOW
+  reason: No existe ningún dato logístico numérico en el CSV para este producto.
+
+[INVALID_LOGISTICS] frasco-vidrio-3-tamanos-c8tkv
+  title: Frasco Vidrio Facetado 500cc
+  classification: NO_USABLE_DATA
+  action: Carga manual
+  confidence: LOW
+  reason: No existe ningún dato logístico numérico en el CSV para este producto.
+
+[INVALID_LOGISTICS] juego-toalla-ride-57r8l
+  title: JUEGO TOALLA RIDE 350grs
+  classification: NO_USABLE_DATA
+  action: Carga manual
+  confidence: LOW
+  reason: No existe ningún dato logístico numérico en el CSV para este producto.
+
+[NOT_FOUND] perchero-gardenia-40x15cm
+  title: —
+  classification: NO_MATCH
+  action: Revisión manual
+  confidence: LOW
+  reason: No apareció ningún candidato confiable en Sanity.
+
+[NOT_FOUND] botella-de-aluminio-500ml
+  title: —
+  classification: NO_MATCH
+  action: Revisión manual
+  confidence: LOW
+  reason: No apareció ningún candidato confiable en Sanity.
+
+[NOT_FOUND] gaveta-calada-cromada-30x14cm
+  title: —
+  classification: NO_MATCH
+  action: Revisión manual
+  confidence: LOW
+  reason: No apareció ningún candidato confiable en Sanity.
+
+[INVALID_LOGISTICS] frascos-de-vidrio-con-tapa-hermetica-bambu
+  title: Frascos de vidrio con tapa hermetica bambú
+  classification: NO_USABLE_DATA
+  action: Carga manual
+  confidence: LOW
+  reason: No existe ningún dato logístico numérico en el CSV para este producto.
+
+[NOT_FOUND] canasto-seagrass-3-medidas
+  title: Canasto Seagrass chico
+  classification: NO_MATCH
+  action: Revisión manual
+  confidence: LOW
+  reason: No apareció ningún candidato confiable en Sanity.
+
+[INVALID_LOGISTICS] funda-almohadon-45x45cm-pelo
+  title: Funda almohadon 45x45cm pelo
+  classification: NO_USABLE_DATA
+  action: Carga manual
+  confidence: LOW
+  reason: No existe ningún dato logístico numérico en el CSV para este producto.
+
+[INVALID_LOGISTICS] trapo-piso-con-estampa-sweet-home
+  title: Trapo piso con estampa SWEET HOME
+  classification: NO_USABLE_DATA
+  action: Carga manual
+  confidence: LOW
+  reason: No existe ningún dato logístico numérico en el CSV para este producto.
+
+[INVALID_LOGISTICS] cuchara-hojas-doradas
+  title: Cuchara hojas doradas
+  classification: NO_USABLE_DATA
+  action: Carga manual
+  confidence: LOW
+  reason: No existe ningún dato logístico numérico en el CSV para este producto.
+
+[INVALID_LOGISTICS] funda-de-almohadon-rectangular-tusor
+  title: Funda de Almohadon Rectangular Tusor
+  classification: NO_USABLE_DATA
+  action: Carga manual
+  confidence: LOW
+  reason: No existe ningún dato logístico numérico en el CSV para este producto.
+
+[INVALID_LOGISTICS] funda-tusor-rayada
+  title: Funda Tusor Rayada
+  classification: NO_USABLE_DATA
+  action: Carga manual
+  confidence: LOW
+  reason: No existe ningún dato logístico numérico en el CSV para este producto.
+
+[INVALID_LOGISTICS] camino-de-mesa-rayas
+  title: Camino de mesa RAYAS
+  classification: NO_USABLE_DATA
+  action: Carga manual
+  confidence: LOW
+  reason: No existe ningún dato logístico numérico en el CSV para este producto.
+

@@ -2,6 +2,14 @@ import type { ProductLogistics } from "@/features/catalog/logistics";
 
 export type AdminProductSource = "variants" | "colorVariants";
 
+export type AdminProductStockEditItem = {
+  key: string;
+  label: string;
+  stock: number;
+  kind: "base" | "variant";
+  isActive?: boolean;
+};
+
 export type AdminProductListItem = {
   id: string;
   rev: string;
@@ -17,10 +25,13 @@ export type AdminProductListItem = {
   subcategorySlug: string | null;
   basePrice: number;
   transferPrice: number | null;
+  priceLabel: string;
+  priceHint?: string;
   stockLabel: string;
   stockHint?: string;
   stockTone: "neutral" | "success" | "warning" | "danger";
   stockValue: number | null;
+  stockItems: AdminProductStockEditItem[];
   variantLabel: string;
   variantCount: number;
   hasVariants: boolean;
@@ -96,6 +107,7 @@ export type AdminProductQuickEditActionState =
       message: string;
       rev: string;
       updatedAt: string;
+      product: AdminProductListItem;
     }
   | {
       status: "error";
@@ -147,6 +159,7 @@ export type AdminProductVariantField =
   | "heightCm"
   | "widthCm"
   | "depthCm"
+  | "variantImagesJson"
   | "attributesJson";
 
 export type AdminProductDetailActionState =

@@ -1,16 +1,20 @@
 import crypto from "node:crypto";
 import { unstable_noStore as noStore } from "next/cache";
 import { getSanityImageUrl } from "@/integrations/sanity/image";
-import { sanityFetch } from "@/integrations/sanity/client";
+import { sanityFreshFetch } from "@/integrations/sanity/client";
 import { adminProductDetailQuery } from "@/integrations/sanity/admin-queries";
 import { categoryTreeQuery } from "@/integrations/sanity/queries";
 import { logger } from "@/lib/logger";
 import type { SanityImageWithAlt } from "@/types/cms";
 import type { ProductColorVariantDocument, ProductVariantDocument } from "@/types/cms";
 import { normalizeProductLogistics } from "@/features/catalog/logistics";
-import { ADMIN_LOW_STOCK_THRESHOLD } from "../lib/product-filters";
 import { resolveAdminProductSlugValue } from "../lib/product-slug";
 import { normalizeAdminProductVariants } from "../lib/variant-editor";
+import { resolveAdminProductStockSummary } from "../lib/product-stock";
+import {
+  applyAdminProductVariantDeletionUsage,
+  loadAdminProductVariantDeletionUsage,
+} from "./admin-product-variant-deletion";
 import type { CatalogHierarchyNode } from "@/features/catalog/hierarchy";
 import type { AdminProductDetailData, AdminProductImageData } from "../types";
 
@@ -74,33 +78,6 @@ export type AdminProductDetailPageData = {
   categoryTree: CatalogHierarchyNode[];
 };
 
-function formatUnitsLabel(value: number) {
-  return `${value} unidades`;
-}
-
-function resolveStockSummary(product: AdminProductDetailQueryItem, variantCount: number) {
-  const stockValue = Number.isFinite(product.stock) ? product.stock : 0;
-
-  if (variantCount > 0) {
-    return {
-      stockLabel: variantCount === 1 ? "1 variante" : `${variantCount} variantes`,
-      stockTone: "neutral" as const,
-    };
-  }
-
-  if (stockValue <= 0) {
-    return {
-      stockLabel: "Sin stock",
-      stockTone: "danger" as const,
-    };
-  }
-
-  return {
-    stockLabel: formatUnitsLabel(stockValue),
-    stockTone: stockValue <= ADMIN_LOW_STOCK_THRESHOLD ? ("warning" as const) : ("success" as const),
-  };
-}
-
 function normalizeProductImages(images: AdminProductImageQueryItem[] | undefined): AdminProductImageData[] {
   return (images ?? [])
     .flatMap((image) => {
@@ -139,7 +116,10 @@ export function normalizeProductDetail(product: AdminProductDetailQueryItem): Ad
     colorVariants: product.colorVariants ?? null,
   });
   const variantCount = normalizedVariants.variants.length;
-  const stockSummary = resolveStockSummary(product, variantCount);
+  const stockSummary = resolveAdminProductStockSummary({
+    ...product,
+    images: product.images ?? [],
+  });
   const images = normalizeProductImages(product.images);
   const primaryImage = images[0] ?? null;
 
@@ -188,12 +168,8 @@ export async function getAdminProductDetailPageData(
   noStore();
 
   const [product, categoryTree] = await Promise.all([
-    sanityFetch<AdminProductDetailQueryItem | null>(
-      adminProductDetailQuery,
-      { productId },
-      { useToken: true },
-    ),
-    sanityFetch<CatalogHierarchyNode[]>(categoryTreeQuery, {}, { useToken: true }),
+    sanityFreshFetch<AdminProductDetailQueryItem | null>(adminProductDetailQuery, { productId }),
+    sanityFreshFetch<CatalogHierarchyNode[]>(categoryTreeQuery, {}),
   ]);
 
   if (!product) {
@@ -208,8 +184,14 @@ export async function getAdminProductDetailPageData(
     images: product.images?.length ?? 0,
   });
 
+  const variantDeletionUsage = await loadAdminProductVariantDeletionUsage(productId);
+  const normalizedProduct = normalizeProductDetail(product);
+
   return {
-    product: normalizeProductDetail(product),
+    product: {
+      ...normalizedProduct,
+      variants: applyAdminProductVariantDeletionUsage(normalizedProduct.variants, variantDeletionUsage),
+    },
     categoryTree,
   };
 }

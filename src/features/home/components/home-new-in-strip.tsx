@@ -149,6 +149,7 @@ export function HomeNewInStrip({
                     {product.title}
                   </h3>
                   <p className="pt-0.5 text-[1.1rem] font-semibold leading-none text-foreground">
+                    {product.pricePrefix ? `${product.pricePrefix} ` : null}
                     {formatPrice(product.basePrice)}
                   </p>
                   <p className="text-[11px] leading-tight text-neutral-500 sm:text-xs">

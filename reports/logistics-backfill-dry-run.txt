@@ -1,0 +1,52 @@
+Logistics backfill dry-run
+Generated at: 2026-08-26T14:11:03.056Z
+Source file: E:\deluar-store\imports\tiendanube-4147750-17859311121905920727825559417 (1).csv
+
+Summary
+- Tiendanube rows analyzed: 588
+- Tiendanube products analyzed: 471
+- Sanity products current: 479
+- Exact matches: 465
+- Variant matches: 0
+- Auto-recoverable products: 454
+- Auto-recoverable variants: 0
+- Ambiguous products: 0
+- Unmatched products: 6
+- Rows with weight but no dimensions: 10
+- Rows with dimensions but no weight: 4
+- Rows with complete logistics: 569
+- Products already with manual logistics: 0
+
+Products that can receive automatic logistics backfill: 454 / 479 (94.78%)
+Is it safe to run the automatic backfill now: NO
+
+Sample recoverable cases
+- setx4-individuales-cuerina-40x28cm-gris-oscuro-13l1s | SAFE_TO_BACKFILL | La fuente historica tiene una logistica completa uniforme para todo el producto.
+- cubre-sommier-600hq-oxford-soft-gris-1ou4m | SAFE_TO_BACKFILL | La fuente historica tiene una logistica completa uniforme para todo el producto.
+- cortina-cwr1a | SAFE_TO_BACKFILL | La fuente historica tiene una logistica completa uniforme para todo el producto.
+- cortina-1gbhk | SAFE_TO_BACKFILL | La fuente historica tiene una logistica completa uniforme para todo el producto.
+- alfombra-177ib | SAFE_TO_BACKFILL | La fuente historica tiene una logistica completa uniforme para todo el producto.
+- acolchado-plumon-queen-jean-cartier-oxford-platinum-700-hq-qbbpi | SAFE_TO_BACKFILL | La fuente historica tiene una logistica completa uniforme para todo el producto.
+- sabana-oxford-lumiere-king-600hq-blanco-1g34k | SAFE_TO_BACKFILL | La fuente historica tiene una logistica completa uniforme para todo el producto.
+- sabana-oxford-belle-600hq-king-beige-8djdq | SAFE_TO_BACKFILL | La fuente historica tiene una logistica completa uniforme para todo el producto.
+- frazada-oklahoma-vkx4k | SAFE_TO_BACKFILL | La fuente historica tiene una logistica completa uniforme para todo el producto.
+- manta-polar-1xk0l | SAFE_TO_BACKFILL | La fuente historica tiene una logistica completa uniforme para todo el producto.
+
+Blocked cases
+- noix-24-5-1az5h | NOT_FOUND | No hubo match exacto con ID, slug, SKU ni titulo.
+- alfombra-1cnr7 | INVALID_LOGISTICS | No hay una logistica completa valida en este grupo.
+- utensilios-1nswj | NOT_FOUND | No hubo match exacto con ID, slug, SKU ni titulo.
+- cesto-mgdgy | INVALID_LOGISTICS | No hay una logistica completa valida en este grupo.
+- frasco-vidrio-3-tamanos-c8tkv | INVALID_LOGISTICS | No hay una logistica completa valida en este grupo.
+- juego-toalla-ride-57r8l | INVALID_LOGISTICS | No hay una logistica completa valida en este grupo.
+- perchero-gardenia-40x15cm | NOT_FOUND | No hubo match exacto con ID, slug, SKU ni titulo.
+- botella-de-aluminio-500ml | NOT_FOUND | No hubo match exacto con ID, slug, SKU ni titulo.
+- gaveta-calada-cromada-30x14cm | NOT_FOUND | No hubo match exacto con ID, slug, SKU ni titulo.
+- frascos-de-vidrio-con-tapa-hermetica-bambu | INVALID_LOGISTICS | El grupo contiene mas de una logistica distinta.
+- canasto-seagrass-3-medidas | NOT_FOUND | No hubo match exacto con ID, slug, SKU ni titulo.
+- funda-almohadon-45x45cm-pelo | INVALID_LOGISTICS | No hay una logistica completa valida en este grupo.
+- trapo-piso-con-estampa-sweet-home | INVALID_LOGISTICS | No hay una logistica completa valida en este grupo.
+- cuchara-hojas-doradas | INVALID_LOGISTICS | No hay una logistica completa valida en este grupo.
+- funda-de-almohadon-rectangular-tusor | INVALID_LOGISTICS | No hay una logistica completa valida en este grupo.
+- funda-tusor-rayada | INVALID_LOGISTICS | No hay una logistica completa valida en este grupo.
+- camino-de-mesa-rayas | INVALID_LOGISTICS | No hay una logistica completa valida en este grupo.

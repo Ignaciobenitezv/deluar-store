@@ -185,6 +185,7 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                   <div className="space-y-6">
                     <div className="space-y-2">
                       <p className="text-[2rem] font-semibold leading-none tracking-[0.01em] text-[#3a281e] xl:text-[2.3rem]">
+                        {activeProduct.pricePrefix ? `${activeProduct.pricePrefix} ` : null}
                         {formatPrice(activeProduct.basePrice)}
                       </p>
                       <p className="text-xs text-neutral-500">

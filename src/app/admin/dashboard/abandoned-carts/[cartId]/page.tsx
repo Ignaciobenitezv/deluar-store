@@ -50,14 +50,14 @@ export default async function AbandonedCartDetailPage({ params }: AbandonedCartD
       lastUpdated={lastUpdated}
     >
       <div className="grid gap-3 min-[420px]:grid-cols-2 sm:gap-4 xl:grid-cols-4">
-        <KpiCard title="Subtotal" value={formatDashboardPrice(cart.subtotal)} description="Snapshot histórico del carrito." tone="success" />
-        <KpiCard title="Unidades" value={formatDashboardNumber(cart.itemCount)} description="Cantidad total de ítems." tone="neutral" />
-        <KpiCard title="Tiempo hasta abandono" value={cart.timeToAbandonLabel} description="Delta entre actividad y abandono." tone="warning" />
-        <KpiCard title="Estado posterior" value={cart.statusAfterLabel} description="Lectura histórica posterior." tone="accent" />
+      <KpiCard title="Subtotal" value={formatDashboardPrice(cart.subtotal)} description="Snapshot histórico del carrito." tone="success" />
+      <KpiCard title="Unidades" value={formatDashboardNumber(cart.itemCount)} description="Cantidad total de ítems." tone="neutral" />
+      <KpiCard title="Tiempo hasta abandono" value={cart.timeToAbandonLabel} description="Delta entre actividad y abandono." tone="warning" />
+      <KpiCard title="Estado posterior" value={cart.statusAfterLabel} description="Estado luego del abandono." tone="accent" />
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,0.9fr)]">
-        <ChartCard title="Snapshot completo" description="Productos persistidos en itemsSnapshot." className="min-w-0">
+        <ChartCard title="Detalle de productos" description="Productos del carrito." className="min-w-0">
           {cart.items.length > 0 ? (
             <div className="grid gap-3">
               {cart.items.map((item) => (
@@ -93,7 +93,7 @@ export default async function AbandonedCartDetailPage({ params }: AbandonedCartD
           )}
         </ChartCard>
 
-        <ChartCard title="Metadatos" description="Contexto de sesión, atribución y orden relacionada." className="min-w-0">
+        <ChartCard title="Metadatos" description="Sesión, atribución y orden." className="min-w-0">
           <div className="grid gap-3">
             <div className="rounded-[18px] border border-slate-200/70 bg-white px-4 py-4">
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Cart</p>

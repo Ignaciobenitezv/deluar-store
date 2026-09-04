@@ -59,6 +59,7 @@ export function HomeCampaignFeaturedProducts({
 
               <div className="space-y-0.5">
                 <p className="text-base font-semibold sm:text-lg">
+                  {product.pricePrefix ? `${product.pricePrefix} ` : null}
                   {formatPrice(product.basePrice)}
                 </p>
                 <p className="text-[11px] text-neutral-500 sm:text-xs">

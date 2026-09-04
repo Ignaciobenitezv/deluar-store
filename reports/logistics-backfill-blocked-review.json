@@ -1,0 +1,4310 @@
+{
+  "generatedAt": "2026-08-26T14:28:00.383Z",
+  "sourceFile": "E:\\deluar-store\\imports\\tiendanube-4147750-17859311121905920727825559417 (1).csv",
+  "dryRunReportPath": "E:\\deluar-store\\reports\\logistics-backfill-dry-run.json",
+  "summary": {
+    "blockedCases": 17,
+    "resolvedNotFound": 0,
+    "stillNoMatch": 6,
+    "invalidRecoverable": 0,
+    "manualRequired": 17,
+    "newPotentiallyBackfillable": 454,
+    "newPotentialPercent": 94.78
+  },
+  "items": [
+    {
+      "slug": "noix-24-5-1az5h",
+      "previousState": "NOT_FOUND",
+      "originalReason": "No hubo match exacto con ID, slug, SKU ni titulo.",
+      "csv": {
+        "slug": "noix-24-5-1az5h",
+        "title": "BANDEJA RECTANGULAR NOIX 24,5X11 CM",
+        "sourceIdentifier": "noix-24-5-1az5h",
+        "sku": [],
+        "rowCount": 1,
+        "rows": [
+          {
+            "rowNumber": 27,
+            "sourceProductUrlIdentifier": "noix-24-5-1az5h",
+            "sourceProductName": "BANDEJA RECTANGULAR NOIX 24,5X11 CM",
+            "sku": null,
+            "variantSignature": "__simple__",
+            "variantLabel": "",
+            "variantValue": "",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": []
+          }
+        ]
+      },
+      "candidate": {
+        "exactSanitySlugMatch": null,
+        "topCandidates": [
+          {
+            "_id": "import-product-bandeja-rectangular-con-bordes-20x30cm",
+            "title": "Bandeja Rectangular con bordes 20x30cm",
+            "slug": "bandeja-rectangular-con-bordes-20x30cm",
+            "skus": [],
+            "variantCount": 1,
+            "similarity": {
+              "score": 0.5,
+              "sharedTokens": [
+                "bandeja",
+                "rectangular"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: bandeja, rectangular | variantes actuales: 1"
+          },
+          {
+            "_id": "import-product-noix-31-z7ivw",
+            "title": "BANDEJA REDONDA NOIX 31 CM",
+            "slug": "noix-31-z7ivw",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.5,
+              "sharedTokens": [
+                "bandeja",
+                "noix",
+                "cm"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: bandeja, noix, cm"
+          },
+          {
+            "_id": "import-product-bandeja-rectangular-con-borde-terrazo-26x12cm",
+            "title": "Bandeja Rectangular con borde Terrazo 26x12cm",
+            "slug": "bandeja-rectangular-con-borde-terrazo-26x12cm",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.4,
+              "sharedTokens": [
+                "bandeja",
+                "rectangular"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: bandeja, rectangular"
+          },
+          {
+            "_id": "import-product-bandeja-rectangular-yute-varios-tamanos",
+            "title": "Bandeja Rectangular YUTE Varios tamaños",
+            "slug": "bandeja-rectangular-yute-varios-tamanos",
+            "skus": [],
+            "variantCount": 2,
+            "similarity": {
+              "score": 0.4,
+              "sharedTokens": [
+                "bandeja",
+                "rectangular"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: bandeja, rectangular | variantes actuales: 2"
+          },
+          {
+            "_id": "import-product-bandeja-de-melamina-40x28cm",
+            "title": "Bandeja de Melamina 40x28cm",
+            "slug": "bandeja-de-melamina-40x28cm",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.3333333333333333,
+              "sharedTokens": [
+                "bandeja"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: bandeja"
+          }
+        ]
+      },
+      "logisticsAnalysis": {
+        "classification": "NO_USABLE_DATA",
+        "actionRecommended": "Carga manual",
+        "confidence": "LOW",
+        "reason": "No existe ningún dato logístico numérico en el CSV para este producto.",
+        "summary": {
+          "rows": 1,
+          "completeRows": 0,
+          "incompleteRows": 1,
+          "distinctCompleteLogistics": 0,
+          "groupedVariants": 1
+        },
+        "rows": [
+          {
+            "rowNumber": 27,
+            "sourceProductUrlIdentifier": "noix-24-5-1az5h",
+            "sourceProductName": "BANDEJA RECTANGULAR NOIX 24,5X11 CM",
+            "sku": null,
+            "variantSignature": "__simple__",
+            "variantLabel": "",
+            "variantValue": "",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": []
+          }
+        ],
+        "groupedVariants": [
+          {
+            "signature": "__simple__",
+            "rowNumbers": [
+              27
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 27,
+                "sourceProductUrlIdentifier": "noix-24-5-1az5h",
+                "sourceProductName": "BANDEJA RECTANGULAR NOIX 24,5X11 CM",
+                "sku": null,
+                "variantSignature": "__simple__",
+                "variantLabel": "",
+                "variantValue": "",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": []
+              }
+            ]
+          }
+        ],
+        "distinctCompleteLogistics": []
+      },
+      "newClassification": "NO_MATCH",
+      "actionRecommended": "Revisión manual",
+      "confidence": "LOW",
+      "reason": "No apareció ningún candidato confiable en Sanity."
+    },
+    {
+      "slug": "alfombra-1cnr7",
+      "previousState": "INVALID_LOGISTICS",
+      "originalReason": "No hay una logistica completa valida en este grupo.",
+      "csv": {
+        "slug": "alfombra-1cnr7",
+        "title": "Alfombra GUINEA 60X110CM",
+        "sourceIdentifier": "alfombra-1cnr7",
+        "sku": [],
+        "rowCount": 1,
+        "rows": [
+          {
+            "rowNumber": 70,
+            "sourceProductUrlIdentifier": "alfombra-1cnr7",
+            "sourceProductName": "Alfombra GUINEA 60X110CM",
+            "sku": null,
+            "variantSignature": "__simple__",
+            "variantLabel": "",
+            "variantValue": "",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": []
+          }
+        ]
+      },
+      "candidate": {
+        "exactSanitySlugMatch": {
+          "_id": "import-product-alfombra-1cnr7",
+          "title": "Alfombra GUINEA 60X110CM",
+          "slug": "alfombra-1cnr7",
+          "sku": [],
+          "logistics": null,
+          "variantCount": 0
+        },
+        "topCandidates": [
+          {
+            "_id": "import-product-alfombra-1cnr7",
+            "title": "Alfombra GUINEA 60X110CM",
+            "slug": "alfombra-1cnr7",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 2,
+              "sharedTokens": [
+                "alfombra",
+                "guinea",
+                "60x110cm",
+                "1cnr7"
+              ],
+              "exactTitle": true,
+              "exactSlug": true,
+              "exactSku": false
+            },
+            "reason": "título exacto | slug exacto | tokens compartidos: alfombra, guinea, 60x110cm, 1cnr7"
+          },
+          {
+            "_id": "c324dfdb-08c2-42eb-a4ac-f32732eee172",
+            "title": "Alfombra GUINEA 60X110CM",
+            "slug": "alfombra-guinea-60x110cm",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 1.5,
+              "sharedTokens": [
+                "alfombra",
+                "guinea",
+                "60x110cm"
+              ],
+              "exactTitle": true,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "título exacto | tokens compartidos: alfombra, guinea, 60x110cm"
+          },
+          {
+            "_id": "import-product-alfombra-bambi-60x110cm",
+            "title": "Alfombra BAMBI 60x110cm",
+            "slug": "alfombra-bambi-60x110cm",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.6666666666666666,
+              "sharedTokens": [
+                "alfombra",
+                "60x110cm"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: alfombra, 60x110cm"
+          },
+          {
+            "_id": "import-product-alfombra-helena-60x110cm",
+            "title": "Alfombra HELENA 60X110cm",
+            "slug": "alfombra-helena-60x110cm",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.6666666666666666,
+              "sharedTokens": [
+                "alfombra",
+                "60x110cm"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: alfombra, 60x110cm"
+          },
+          {
+            "_id": "import-product-alfombra-teca-60x110cm",
+            "title": "Alfombra TECA 60X110cm",
+            "slug": "alfombra-teca-60x110cm",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.6666666666666666,
+              "sharedTokens": [
+                "alfombra",
+                "60x110cm"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: alfombra, 60x110cm"
+          }
+        ]
+      },
+      "logisticsAnalysis": {
+        "classification": "NO_USABLE_DATA",
+        "actionRecommended": "Carga manual",
+        "confidence": "LOW",
+        "reason": "No existe ningún dato logístico numérico en el CSV para este producto.",
+        "summary": {
+          "rows": 1,
+          "completeRows": 0,
+          "incompleteRows": 1,
+          "distinctCompleteLogistics": 0,
+          "groupedVariants": 1
+        },
+        "rows": [
+          {
+            "rowNumber": 70,
+            "sourceProductUrlIdentifier": "alfombra-1cnr7",
+            "sourceProductName": "Alfombra GUINEA 60X110CM",
+            "sku": null,
+            "variantSignature": "__simple__",
+            "variantLabel": "",
+            "variantValue": "",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": []
+          }
+        ],
+        "groupedVariants": [
+          {
+            "signature": "__simple__",
+            "rowNumbers": [
+              70
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 70,
+                "sourceProductUrlIdentifier": "alfombra-1cnr7",
+                "sourceProductName": "Alfombra GUINEA 60X110CM",
+                "sku": null,
+                "variantSignature": "__simple__",
+                "variantLabel": "",
+                "variantValue": "",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": []
+              }
+            ]
+          }
+        ],
+        "distinctCompleteLogistics": []
+      },
+      "newClassification": "NO_USABLE_DATA",
+      "actionRecommended": "Carga manual",
+      "confidence": "LOW",
+      "reason": "No existe ningún dato logístico numérico en el CSV para este producto."
+    },
+    {
+      "slug": "utensilios-1nswj",
+      "previousState": "NOT_FOUND",
+      "originalReason": "No hubo match exacto con ID, slug, SKU ni titulo.",
+      "csv": {
+        "slug": "utensilios-1nswj",
+        "title": "Setx11 Utensilios + portautensilios MINI",
+        "sourceIdentifier": "utensilios-1nswj",
+        "sku": [],
+        "rowCount": 1,
+        "rows": [
+          {
+            "rowNumber": 128,
+            "sourceProductUrlIdentifier": "utensilios-1nswj",
+            "sourceProductName": "Setx11 Utensilios + portautensilios MINI",
+            "sku": null,
+            "variantSignature": "__simple__",
+            "variantLabel": "",
+            "variantValue": "",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": []
+          }
+        ]
+      },
+      "candidate": {
+        "exactSanitySlugMatch": null,
+        "topCandidates": [
+          {
+            "_id": "import-product-setx6-utensilios-porta-utensilios",
+            "title": "Setx6 Utensilios + Porta Utensilios",
+            "slug": "setx6-utensilios-porta-utensilios",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.3333333333333333,
+              "sharedTokens": [
+                "utensilios"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: utensilios"
+          },
+          {
+            "_id": "e9431869-47bc-4380-b057-4e26f0954127",
+            "title": "Alfombra MINI baño 50x35cm",
+            "slug": "alfombra-mini-bano-50x35cm",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.25,
+              "sharedTokens": [
+                "mini"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: mini"
+          },
+          {
+            "_id": "import-product-set-11-utensilios-porta-utensilios",
+            "title": "Set 11 Utensilios + Porta Utensilios",
+            "slug": "set-11-utensilios-porta-utensilios",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.25,
+              "sharedTokens": [
+                "utensilios"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: utensilios"
+          },
+          {
+            "_id": "import-product-setx12-utensilios-de-silicona-con-vaso-contenedor-61k4c",
+            "title": "Setx12 Utensilios de silicona con Vaso Contenedor",
+            "slug": "setx12-utensilios-de-silicona-con-vaso-contenedor-61k4c",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.2,
+              "sharedTokens": [
+                "utensilios"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: utensilios"
+          },
+          {
+            "_id": "import-product-setx12-utensilios-de-silicona-con-vaso-contenedor-gris-xvdvz",
+            "title": "Setx12 Utensilios de silicona con Vaso Contenedor GRIS",
+            "slug": "setx12-utensilios-de-silicona-con-vaso-contenedor-gris-xvdvz",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.2,
+              "sharedTokens": [
+                "utensilios"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: utensilios"
+          }
+        ]
+      },
+      "logisticsAnalysis": {
+        "classification": "NO_USABLE_DATA",
+        "actionRecommended": "Carga manual",
+        "confidence": "LOW",
+        "reason": "No existe ningún dato logístico numérico en el CSV para este producto.",
+        "summary": {
+          "rows": 1,
+          "completeRows": 0,
+          "incompleteRows": 1,
+          "distinctCompleteLogistics": 0,
+          "groupedVariants": 1
+        },
+        "rows": [
+          {
+            "rowNumber": 128,
+            "sourceProductUrlIdentifier": "utensilios-1nswj",
+            "sourceProductName": "Setx11 Utensilios + portautensilios MINI",
+            "sku": null,
+            "variantSignature": "__simple__",
+            "variantLabel": "",
+            "variantValue": "",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": []
+          }
+        ],
+        "groupedVariants": [
+          {
+            "signature": "__simple__",
+            "rowNumbers": [
+              128
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 128,
+                "sourceProductUrlIdentifier": "utensilios-1nswj",
+                "sourceProductName": "Setx11 Utensilios + portautensilios MINI",
+                "sku": null,
+                "variantSignature": "__simple__",
+                "variantLabel": "",
+                "variantValue": "",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": []
+              }
+            ]
+          }
+        ],
+        "distinctCompleteLogistics": []
+      },
+      "newClassification": "NO_MATCH",
+      "actionRecommended": "Revisión manual",
+      "confidence": "LOW",
+      "reason": "No apareció ningún candidato confiable en Sanity."
+    },
+    {
+      "slug": "cesto-mgdgy",
+      "previousState": "INVALID_LOGISTICS",
+      "originalReason": "No hay una logistica completa valida en este grupo.",
+      "csv": {
+        "slug": "cesto-mgdgy",
+        "title": "Canasto Simil mimbre 3 Tamaños",
+        "sourceIdentifier": "cesto-mgdgy",
+        "sku": [],
+        "rowCount": 3,
+        "rows": [
+          {
+            "rowNumber": 144,
+            "sourceProductUrlIdentifier": "cesto-mgdgy",
+            "sourceProductName": "Canasto Simil mimbre 3 Tamaños",
+            "sku": null,
+            "variantSignature": "tamano=chico",
+            "variantLabel": "Tamaño: CHICO",
+            "variantValue": "chico",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "CHICO"
+              }
+            ]
+          },
+          {
+            "rowNumber": 145,
+            "sourceProductUrlIdentifier": "cesto-mgdgy",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "tamano=mediano",
+            "variantLabel": "Tamaño: MEDIANO",
+            "variantValue": "mediano",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "MEDIANO"
+              }
+            ]
+          },
+          {
+            "rowNumber": 146,
+            "sourceProductUrlIdentifier": "cesto-mgdgy",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "tamano=grande",
+            "variantLabel": "Tamaño: GRANDE",
+            "variantValue": "grande",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "GRANDE"
+              }
+            ]
+          }
+        ]
+      },
+      "candidate": {
+        "exactSanitySlugMatch": {
+          "_id": "import-product-cesto-mgdgy",
+          "title": "Canasto Simil mimbre 3 Tamaños",
+          "slug": "cesto-mgdgy",
+          "sku": [],
+          "logistics": null,
+          "variantCount": 3
+        },
+        "topCandidates": [
+          {
+            "_id": "import-product-cesto-mgdgy",
+            "title": "Canasto Simil mimbre 3 Tamaños",
+            "slug": "cesto-mgdgy",
+            "skus": [],
+            "variantCount": 3,
+            "similarity": {
+              "score": 2,
+              "sharedTokens": [
+                "canasto",
+                "simil",
+                "mimbre",
+                "tamanos",
+                "cesto",
+                "mgdgy"
+              ],
+              "exactTitle": true,
+              "exactSlug": true,
+              "exactSku": false
+            },
+            "reason": "título exacto | slug exacto | tokens compartidos: canasto, simil, mimbre, tamanos, cesto, mgdgy | variantes actuales: 3"
+          },
+          {
+            "_id": "import-product-cestos-2vq52",
+            "title": "Setx3 canastas bicolor simil mimbre",
+            "slug": "cestos-2vq52",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.3333333333333333,
+              "sharedTokens": [
+                "simil",
+                "mimbre"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: simil, mimbre"
+          },
+          {
+            "_id": "import-product-cesto-combinado-chico",
+            "title": "Cesto Combinado 20x17cm",
+            "slug": "cesto-combinado-chico",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.25,
+              "sharedTokens": [
+                "cesto"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: cesto"
+          },
+          {
+            "_id": "import-product-cesto-de-tela-combinado-32x28cm",
+            "title": "Cesto de tela Combinado 32x28cm",
+            "slug": "cesto-de-tela-combinado-32x28cm",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.25,
+              "sharedTokens": [
+                "cesto"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: cesto"
+          },
+          {
+            "_id": "import-product-cortina-bano-cesto-9w2ph",
+            "title": "CORTINA BAÑO + CESTO",
+            "slug": "cortina-bano-cesto-9w2ph",
+            "skus": [],
+            "variantCount": 2,
+            "similarity": {
+              "score": 0.25,
+              "sharedTokens": [
+                "cesto"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: cesto | variantes actuales: 2"
+          }
+        ]
+      },
+      "logisticsAnalysis": {
+        "classification": "NO_USABLE_DATA",
+        "actionRecommended": "Carga manual",
+        "confidence": "LOW",
+        "reason": "No existe ningún dato logístico numérico en el CSV para este producto.",
+        "summary": {
+          "rows": 3,
+          "completeRows": 0,
+          "incompleteRows": 3,
+          "distinctCompleteLogistics": 0,
+          "groupedVariants": 3
+        },
+        "rows": [
+          {
+            "rowNumber": 144,
+            "sourceProductUrlIdentifier": "cesto-mgdgy",
+            "sourceProductName": "Canasto Simil mimbre 3 Tamaños",
+            "sku": null,
+            "variantSignature": "tamano=chico",
+            "variantLabel": "Tamaño: CHICO",
+            "variantValue": "chico",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "CHICO"
+              }
+            ]
+          },
+          {
+            "rowNumber": 145,
+            "sourceProductUrlIdentifier": "cesto-mgdgy",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "tamano=mediano",
+            "variantLabel": "Tamaño: MEDIANO",
+            "variantValue": "mediano",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "MEDIANO"
+              }
+            ]
+          },
+          {
+            "rowNumber": 146,
+            "sourceProductUrlIdentifier": "cesto-mgdgy",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "tamano=grande",
+            "variantLabel": "Tamaño: GRANDE",
+            "variantValue": "grande",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "GRANDE"
+              }
+            ]
+          }
+        ],
+        "groupedVariants": [
+          {
+            "signature": "tamano=chico",
+            "rowNumbers": [
+              144
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 144,
+                "sourceProductUrlIdentifier": "cesto-mgdgy",
+                "sourceProductName": "Canasto Simil mimbre 3 Tamaños",
+                "sku": null,
+                "variantSignature": "tamano=chico",
+                "variantLabel": "Tamaño: CHICO",
+                "variantValue": "chico",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Tamaño",
+                    "value": "CHICO"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "signature": "tamano=mediano",
+            "rowNumbers": [
+              145
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 145,
+                "sourceProductUrlIdentifier": "cesto-mgdgy",
+                "sourceProductName": "",
+                "sku": null,
+                "variantSignature": "tamano=mediano",
+                "variantLabel": "Tamaño: MEDIANO",
+                "variantValue": "mediano",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Tamaño",
+                    "value": "MEDIANO"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "signature": "tamano=grande",
+            "rowNumbers": [
+              146
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 146,
+                "sourceProductUrlIdentifier": "cesto-mgdgy",
+                "sourceProductName": "",
+                "sku": null,
+                "variantSignature": "tamano=grande",
+                "variantLabel": "Tamaño: GRANDE",
+                "variantValue": "grande",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Tamaño",
+                    "value": "GRANDE"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "distinctCompleteLogistics": []
+      },
+      "newClassification": "NO_USABLE_DATA",
+      "actionRecommended": "Carga manual",
+      "confidence": "LOW",
+      "reason": "No existe ningún dato logístico numérico en el CSV para este producto."
+    },
+    {
+      "slug": "frasco-vidrio-3-tamanos-c8tkv",
+      "previousState": "INVALID_LOGISTICS",
+      "originalReason": "No hay una logistica completa valida en este grupo.",
+      "csv": {
+        "slug": "frasco-vidrio-3-tamanos-c8tkv",
+        "title": "Frasco Vidrio Facetado 500cc",
+        "sourceIdentifier": "frasco-vidrio-3-tamanos-c8tkv",
+        "sku": [],
+        "rowCount": 1,
+        "rows": [
+          {
+            "rowNumber": 151,
+            "sourceProductUrlIdentifier": "frasco-vidrio-3-tamanos-c8tkv",
+            "sourceProductName": "Frasco Vidrio Facetado 500cc",
+            "sku": null,
+            "variantSignature": "tamano=chico",
+            "variantLabel": "Tamaño: CHICO",
+            "variantValue": "chico",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "CHICO"
+              }
+            ]
+          }
+        ]
+      },
+      "candidate": {
+        "exactSanitySlugMatch": {
+          "_id": "import-product-frasco-vidrio-3-tamanos-c8tkv",
+          "title": "Frasco Vidrio Facetado 500cc",
+          "slug": "frasco-vidrio-3-tamanos-c8tkv",
+          "sku": [],
+          "logistics": null,
+          "variantCount": 1
+        },
+        "topCandidates": [
+          {
+            "_id": "import-product-frasco-vidrio-3-tamanos-c8tkv",
+            "title": "Frasco Vidrio Facetado 500cc",
+            "slug": "frasco-vidrio-3-tamanos-c8tkv",
+            "skus": [],
+            "variantCount": 1,
+            "similarity": {
+              "score": 2,
+              "sharedTokens": [
+                "frasco",
+                "vidrio",
+                "facetado",
+                "500cc",
+                "tamanos",
+                "c8tkv"
+              ],
+              "exactTitle": true,
+              "exactSlug": true,
+              "exactSku": false
+            },
+            "reason": "título exacto | slug exacto | tokens compartidos: frasco, vidrio, facetado, 500cc, tamanos, c8tkv | variantes actuales: 1"
+          },
+          {
+            "_id": "import-product-frasco-de-vidrio-con-visor-golden-800ml",
+            "title": "Frasco de vidrio con visor GOLDEN 800ml",
+            "slug": "frasco-de-vidrio-con-visor-golden-800ml",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.4,
+              "sharedTokens": [
+                "frasco",
+                "vidrio"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: frasco, vidrio"
+          },
+          {
+            "_id": "import-product-frasco-piramide-de-vidrio-con-tapa-bambu",
+            "title": "Frasco Piramide de vidrio con tapa bambu",
+            "slug": "frasco-piramide-de-vidrio-con-tapa-bambu",
+            "skus": [],
+            "variantCount": 2,
+            "similarity": {
+              "score": 0.4,
+              "sharedTokens": [
+                "frasco",
+                "vidrio"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: frasco, vidrio | variantes actuales: 2"
+          },
+          {
+            "_id": "import-product-frasco-de-vidrio-hermetico-con-tapa-de-acero-negro",
+            "title": "Frasco de vidrio Hermetico con tapa de acero negro",
+            "slug": "frasco-de-vidrio-hermetico-con-tapa-de-acero-negro",
+            "skus": [],
+            "variantCount": 1,
+            "similarity": {
+              "score": 0.3333333333333333,
+              "sharedTokens": [
+                "frasco",
+                "vidrio"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: frasco, vidrio | variantes actuales: 1"
+          },
+          {
+            "_id": "import-product-setx4-especiero-de-vidrio",
+            "title": "Setx4 Especiero de vidrio",
+            "slug": "setx4-especiero-de-vidrio",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.3333333333333333,
+              "sharedTokens": [
+                "vidrio"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: vidrio"
+          }
+        ]
+      },
+      "logisticsAnalysis": {
+        "classification": "NO_USABLE_DATA",
+        "actionRecommended": "Carga manual",
+        "confidence": "LOW",
+        "reason": "No existe ningún dato logístico numérico en el CSV para este producto.",
+        "summary": {
+          "rows": 1,
+          "completeRows": 0,
+          "incompleteRows": 1,
+          "distinctCompleteLogistics": 0,
+          "groupedVariants": 1
+        },
+        "rows": [
+          {
+            "rowNumber": 151,
+            "sourceProductUrlIdentifier": "frasco-vidrio-3-tamanos-c8tkv",
+            "sourceProductName": "Frasco Vidrio Facetado 500cc",
+            "sku": null,
+            "variantSignature": "tamano=chico",
+            "variantLabel": "Tamaño: CHICO",
+            "variantValue": "chico",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "CHICO"
+              }
+            ]
+          }
+        ],
+        "groupedVariants": [
+          {
+            "signature": "tamano=chico",
+            "rowNumbers": [
+              151
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 151,
+                "sourceProductUrlIdentifier": "frasco-vidrio-3-tamanos-c8tkv",
+                "sourceProductName": "Frasco Vidrio Facetado 500cc",
+                "sku": null,
+                "variantSignature": "tamano=chico",
+                "variantLabel": "Tamaño: CHICO",
+                "variantValue": "chico",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Tamaño",
+                    "value": "CHICO"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "distinctCompleteLogistics": []
+      },
+      "newClassification": "NO_USABLE_DATA",
+      "actionRecommended": "Carga manual",
+      "confidence": "LOW",
+      "reason": "No existe ningún dato logístico numérico en el CSV para este producto."
+    },
+    {
+      "slug": "juego-toalla-ride-57r8l",
+      "previousState": "INVALID_LOGISTICS",
+      "originalReason": "No hay una logistica completa valida en este grupo.",
+      "csv": {
+        "slug": "juego-toalla-ride-57r8l",
+        "title": "JUEGO TOALLA RIDE 350grs",
+        "sourceIdentifier": "juego-toalla-ride-57r8l",
+        "sku": [],
+        "rowCount": 2,
+        "rows": [
+          {
+            "rowNumber": 193,
+            "sourceProductUrlIdentifier": "juego-toalla-ride-57r8l",
+            "sourceProductName": "JUEGO TOALLA RIDE 350grs",
+            "sku": null,
+            "variantSignature": "color=gris",
+            "variantLabel": "Color: Gris",
+            "variantValue": "gris",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Gris"
+              }
+            ]
+          },
+          {
+            "rowNumber": 194,
+            "sourceProductUrlIdentifier": "juego-toalla-ride-57r8l",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "color=azul",
+            "variantLabel": "Color: Azul",
+            "variantValue": "azul",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Azul"
+              }
+            ]
+          }
+        ]
+      },
+      "candidate": {
+        "exactSanitySlugMatch": {
+          "_id": "import-product-juego-toalla-ride-57r8l",
+          "title": "JUEGO TOALLA RIDE 350grs",
+          "slug": "juego-toalla-ride-57r8l",
+          "sku": [],
+          "logistics": null,
+          "variantCount": 2
+        },
+        "topCandidates": [
+          {
+            "_id": "import-product-juego-toalla-ride-57r8l",
+            "title": "JUEGO TOALLA RIDE 350grs",
+            "slug": "juego-toalla-ride-57r8l",
+            "skus": [],
+            "variantCount": 2,
+            "similarity": {
+              "score": 2,
+              "sharedTokens": [
+                "juego",
+                "toalla",
+                "ride",
+                "350grs",
+                "57r8l"
+              ],
+              "exactTitle": true,
+              "exactSlug": true,
+              "exactSku": false
+            },
+            "reason": "título exacto | slug exacto | tokens compartidos: juego, toalla, ride, 350grs, 57r8l | variantes actuales: 2"
+          },
+          {
+            "_id": "import-product-juego-toalla-y-toallon-350grs",
+            "title": "Juego Toalla y Toallon 350grs",
+            "slug": "juego-toalla-y-toallon-350grs",
+            "skus": [],
+            "variantCount": 3,
+            "similarity": {
+              "score": 0.75,
+              "sharedTokens": [
+                "juego",
+                "toalla",
+                "350grs"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: juego, toalla, 350grs | variantes actuales: 3"
+          },
+          {
+            "_id": "import-product-juego-toalla-grain-jm3tk",
+            "title": "JUEGO TOALLA GRAIN 400grs",
+            "slug": "juego-toalla-grain-jm3tk",
+            "skus": [],
+            "variantCount": 3,
+            "similarity": {
+              "score": 0.4,
+              "sharedTokens": [
+                "juego",
+                "toalla"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: juego, toalla | variantes actuales: 3"
+          },
+          {
+            "_id": "import-product-juego-toalla-trim-pimzo",
+            "title": "JUEGO TOALLA TRIM 400grs",
+            "slug": "juego-toalla-trim-pimzo",
+            "skus": [],
+            "variantCount": 2,
+            "similarity": {
+              "score": 0.4,
+              "sharedTokens": [
+                "juego",
+                "toalla"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: juego, toalla | variantes actuales: 2"
+          },
+          {
+            "_id": "import-product-juego-taza-plato-latte",
+            "title": "Juego taza + Plato LATTE",
+            "slug": "juego-taza-plato-latte",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.25,
+              "sharedTokens": [
+                "juego"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: juego"
+          }
+        ]
+      },
+      "logisticsAnalysis": {
+        "classification": "NO_USABLE_DATA",
+        "actionRecommended": "Carga manual",
+        "confidence": "LOW",
+        "reason": "No existe ningún dato logístico numérico en el CSV para este producto.",
+        "summary": {
+          "rows": 2,
+          "completeRows": 0,
+          "incompleteRows": 2,
+          "distinctCompleteLogistics": 0,
+          "groupedVariants": 2
+        },
+        "rows": [
+          {
+            "rowNumber": 193,
+            "sourceProductUrlIdentifier": "juego-toalla-ride-57r8l",
+            "sourceProductName": "JUEGO TOALLA RIDE 350grs",
+            "sku": null,
+            "variantSignature": "color=gris",
+            "variantLabel": "Color: Gris",
+            "variantValue": "gris",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Gris"
+              }
+            ]
+          },
+          {
+            "rowNumber": 194,
+            "sourceProductUrlIdentifier": "juego-toalla-ride-57r8l",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "color=azul",
+            "variantLabel": "Color: Azul",
+            "variantValue": "azul",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Azul"
+              }
+            ]
+          }
+        ],
+        "groupedVariants": [
+          {
+            "signature": "color=gris",
+            "rowNumbers": [
+              193
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 193,
+                "sourceProductUrlIdentifier": "juego-toalla-ride-57r8l",
+                "sourceProductName": "JUEGO TOALLA RIDE 350grs",
+                "sku": null,
+                "variantSignature": "color=gris",
+                "variantLabel": "Color: Gris",
+                "variantValue": "gris",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Color",
+                    "value": "Gris"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "signature": "color=azul",
+            "rowNumbers": [
+              194
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 194,
+                "sourceProductUrlIdentifier": "juego-toalla-ride-57r8l",
+                "sourceProductName": "",
+                "sku": null,
+                "variantSignature": "color=azul",
+                "variantLabel": "Color: Azul",
+                "variantValue": "azul",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Color",
+                    "value": "Azul"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "distinctCompleteLogistics": []
+      },
+      "newClassification": "NO_USABLE_DATA",
+      "actionRecommended": "Carga manual",
+      "confidence": "LOW",
+      "reason": "No existe ningún dato logístico numérico en el CSV para este producto."
+    },
+    {
+      "slug": "perchero-gardenia-40x15cm",
+      "previousState": "NOT_FOUND",
+      "originalReason": "No hubo match exacto con ID, slug, SKU ni titulo.",
+      "csv": {
+        "slug": "perchero-gardenia-40x15cm",
+        "title": "",
+        "sourceIdentifier": "perchero-gardenia-40x15cm",
+        "sku": [],
+        "rowCount": 1,
+        "rows": [
+          {
+            "rowNumber": 457,
+            "sourceProductUrlIdentifier": "perchero-gardenia-40x15cm",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "color=oscuro",
+            "variantLabel": "Color: oscuro",
+            "variantValue": "oscuro",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "oscuro"
+              }
+            ]
+          }
+        ]
+      },
+      "candidate": {
+        "exactSanitySlugMatch": null,
+        "topCandidates": [
+          {
+            "_id": "import-product-perchero-colgante-4-ganchos",
+            "title": "Perchero Colgante 4 ganchos",
+            "slug": "perchero-colgante-4-ganchos",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.3333333333333333,
+              "sharedTokens": [
+                "perchero"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: perchero"
+          },
+          {
+            "_id": "1fc72d81-e2a5-42dc-a403-1fb06538636a",
+            "title": "Planta artificial 80x13cm GRANDE",
+            "slug": "planta-artificial-80x13cm-grande",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0,
+              "sharedTokens": [],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "sin coincidencias relevantes"
+          },
+          {
+            "_id": "277c938c-cff1-4eb4-90ec-d6b14504937a",
+            "title": "Individual redondo 38cm Cuerina",
+            "slug": "individual-redondo-38cm-cuerina",
+            "skus": [],
+            "variantCount": 4,
+            "similarity": {
+              "score": 0,
+              "sharedTokens": [],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "variantes actuales: 4"
+          },
+          {
+            "_id": "433cc13c-8f0c-4bba-911c-935b825de9dd",
+            "title": "JuegoX6 Taza + Plato 250ml",
+            "slug": "juegox6-taza-plato-250ml",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0,
+              "sharedTokens": [],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "sin coincidencias relevantes"
+          },
+          {
+            "_id": "4de259d3-4dcc-4942-9e9f-13cd76c50807",
+            "title": "Individual trenzado con flecos 45x30cm",
+            "slug": "individual-trenzado-con-flecos-45x30cm",
+            "skus": [],
+            "variantCount": 4,
+            "similarity": {
+              "score": 0,
+              "sharedTokens": [],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "variantes actuales: 4"
+          }
+        ]
+      },
+      "logisticsAnalysis": {
+        "classification": "NO_USABLE_DATA",
+        "actionRecommended": "Carga manual",
+        "confidence": "LOW",
+        "reason": "No existe ningún dato logístico numérico en el CSV para este producto.",
+        "summary": {
+          "rows": 1,
+          "completeRows": 0,
+          "incompleteRows": 1,
+          "distinctCompleteLogistics": 0,
+          "groupedVariants": 1
+        },
+        "rows": [
+          {
+            "rowNumber": 457,
+            "sourceProductUrlIdentifier": "perchero-gardenia-40x15cm",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "color=oscuro",
+            "variantLabel": "Color: oscuro",
+            "variantValue": "oscuro",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "oscuro"
+              }
+            ]
+          }
+        ],
+        "groupedVariants": [
+          {
+            "signature": "color=oscuro",
+            "rowNumbers": [
+              457
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 457,
+                "sourceProductUrlIdentifier": "perchero-gardenia-40x15cm",
+                "sourceProductName": "",
+                "sku": null,
+                "variantSignature": "color=oscuro",
+                "variantLabel": "Color: oscuro",
+                "variantValue": "oscuro",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Color",
+                    "value": "oscuro"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "distinctCompleteLogistics": []
+      },
+      "newClassification": "NO_MATCH",
+      "actionRecommended": "Revisión manual",
+      "confidence": "LOW",
+      "reason": "No apareció ningún candidato confiable en Sanity."
+    },
+    {
+      "slug": "botella-de-aluminio-500ml",
+      "previousState": "NOT_FOUND",
+      "originalReason": "No hubo match exacto con ID, slug, SKU ni titulo.",
+      "csv": {
+        "slug": "botella-de-aluminio-500ml",
+        "title": "",
+        "sourceIdentifier": "botella-de-aluminio-500ml",
+        "sku": [],
+        "rowCount": 1,
+        "rows": [
+          {
+            "rowNumber": 462,
+            "sourceProductUrlIdentifier": "botella-de-aluminio-500ml",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "color=negro",
+            "variantLabel": "Color: Negro",
+            "variantValue": "negro",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Negro"
+              }
+            ]
+          }
+        ]
+      },
+      "candidate": {
+        "exactSanitySlugMatch": null,
+        "topCandidates": [
+          {
+            "_id": "import-product-botella-vidrio-1l-1bwa0",
+            "title": "Botella vidrio 1L",
+            "slug": "botella-vidrio-1l-1bwa0",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.3333333333333333,
+              "sharedTokens": [
+                "botella"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: botella"
+          },
+          {
+            "_id": "import-product-cesto-plegable-triple-de-tela-y-aluminio",
+            "title": "Cesto Plegable Triple De tela y Aluminio",
+            "slug": "cesto-plegable-triple-de-tela-y-aluminio",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.3333333333333333,
+              "sharedTokens": [
+                "aluminio"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: aluminio"
+          },
+          {
+            "_id": "import-product-setx2-aceitero-fa4na",
+            "title": "Setx2 Aceitero Vidrio Labrado 500ML",
+            "slug": "setx2-aceitero-fa4na",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.3333333333333333,
+              "sharedTokens": [
+                "500ml"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: 500ml"
+          },
+          {
+            "_id": "import-product-setx3-dispenser-de-bano-500ml",
+            "title": "Setx3 Dispenser de baño 500ml",
+            "slug": "setx3-dispenser-de-bano-500ml",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.3333333333333333,
+              "sharedTokens": [
+                "500ml"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: 500ml"
+          },
+          {
+            "_id": "1fc72d81-e2a5-42dc-a403-1fb06538636a",
+            "title": "Planta artificial 80x13cm GRANDE",
+            "slug": "planta-artificial-80x13cm-grande",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0,
+              "sharedTokens": [],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "sin coincidencias relevantes"
+          }
+        ]
+      },
+      "logisticsAnalysis": {
+        "classification": "NO_USABLE_DATA",
+        "actionRecommended": "Carga manual",
+        "confidence": "LOW",
+        "reason": "No existe ningún dato logístico numérico en el CSV para este producto.",
+        "summary": {
+          "rows": 1,
+          "completeRows": 0,
+          "incompleteRows": 1,
+          "distinctCompleteLogistics": 0,
+          "groupedVariants": 1
+        },
+        "rows": [
+          {
+            "rowNumber": 462,
+            "sourceProductUrlIdentifier": "botella-de-aluminio-500ml",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "color=negro",
+            "variantLabel": "Color: Negro",
+            "variantValue": "negro",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Negro"
+              }
+            ]
+          }
+        ],
+        "groupedVariants": [
+          {
+            "signature": "color=negro",
+            "rowNumbers": [
+              462
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 462,
+                "sourceProductUrlIdentifier": "botella-de-aluminio-500ml",
+                "sourceProductName": "",
+                "sku": null,
+                "variantSignature": "color=negro",
+                "variantLabel": "Color: Negro",
+                "variantValue": "negro",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Color",
+                    "value": "Negro"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "distinctCompleteLogistics": []
+      },
+      "newClassification": "NO_MATCH",
+      "actionRecommended": "Revisión manual",
+      "confidence": "LOW",
+      "reason": "No apareció ningún candidato confiable en Sanity."
+    },
+    {
+      "slug": "gaveta-calada-cromada-30x14cm",
+      "previousState": "NOT_FOUND",
+      "originalReason": "No hubo match exacto con ID, slug, SKU ni titulo.",
+      "csv": {
+        "slug": "gaveta-calada-cromada-30x14cm",
+        "title": "",
+        "sourceIdentifier": "gaveta-calada-cromada-30x14cm",
+        "sku": [],
+        "rowCount": 1,
+        "rows": [
+          {
+            "rowNumber": 463,
+            "sourceProductUrlIdentifier": "gaveta-calada-cromada-30x14cm",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "color=rojo",
+            "variantLabel": "Color: Rojo",
+            "variantValue": "rojo",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Rojo"
+              }
+            ]
+          }
+        ]
+      },
+      "candidate": {
+        "exactSanitySlugMatch": null,
+        "topCandidates": [
+          {
+            "_id": "1fc72d81-e2a5-42dc-a403-1fb06538636a",
+            "title": "Planta artificial 80x13cm GRANDE",
+            "slug": "planta-artificial-80x13cm-grande",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0,
+              "sharedTokens": [],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "sin coincidencias relevantes"
+          },
+          {
+            "_id": "277c938c-cff1-4eb4-90ec-d6b14504937a",
+            "title": "Individual redondo 38cm Cuerina",
+            "slug": "individual-redondo-38cm-cuerina",
+            "skus": [],
+            "variantCount": 4,
+            "similarity": {
+              "score": 0,
+              "sharedTokens": [],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "variantes actuales: 4"
+          },
+          {
+            "_id": "433cc13c-8f0c-4bba-911c-935b825de9dd",
+            "title": "JuegoX6 Taza + Plato 250ml",
+            "slug": "juegox6-taza-plato-250ml",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0,
+              "sharedTokens": [],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "sin coincidencias relevantes"
+          },
+          {
+            "_id": "4de259d3-4dcc-4942-9e9f-13cd76c50807",
+            "title": "Individual trenzado con flecos 45x30cm",
+            "slug": "individual-trenzado-con-flecos-45x30cm",
+            "skus": [],
+            "variantCount": 4,
+            "similarity": {
+              "score": 0,
+              "sharedTokens": [],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "variantes actuales: 4"
+          },
+          {
+            "_id": "50d43972-1230-4493-9402-2f67ab9fcada",
+            "title": "Alfombra JUANA PETIT 170X95CM",
+            "slug": "alfombra-juana-petit-170x95cm",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0,
+              "sharedTokens": [],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "sin coincidencias relevantes"
+          }
+        ]
+      },
+      "logisticsAnalysis": {
+        "classification": "NO_USABLE_DATA",
+        "actionRecommended": "Carga manual",
+        "confidence": "LOW",
+        "reason": "No existe ningún dato logístico numérico en el CSV para este producto.",
+        "summary": {
+          "rows": 1,
+          "completeRows": 0,
+          "incompleteRows": 1,
+          "distinctCompleteLogistics": 0,
+          "groupedVariants": 1
+        },
+        "rows": [
+          {
+            "rowNumber": 463,
+            "sourceProductUrlIdentifier": "gaveta-calada-cromada-30x14cm",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "color=rojo",
+            "variantLabel": "Color: Rojo",
+            "variantValue": "rojo",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Rojo"
+              }
+            ]
+          }
+        ],
+        "groupedVariants": [
+          {
+            "signature": "color=rojo",
+            "rowNumbers": [
+              463
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 463,
+                "sourceProductUrlIdentifier": "gaveta-calada-cromada-30x14cm",
+                "sourceProductName": "",
+                "sku": null,
+                "variantSignature": "color=rojo",
+                "variantLabel": "Color: Rojo",
+                "variantValue": "rojo",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Color",
+                    "value": "Rojo"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "distinctCompleteLogistics": []
+      },
+      "newClassification": "NO_MATCH",
+      "actionRecommended": "Revisión manual",
+      "confidence": "LOW",
+      "reason": "No apareció ningún candidato confiable en Sanity."
+    },
+    {
+      "slug": "frascos-de-vidrio-con-tapa-hermetica-bambu",
+      "previousState": "INVALID_LOGISTICS",
+      "originalReason": "El grupo contiene mas de una logistica distinta.",
+      "csv": {
+        "slug": "frascos-de-vidrio-con-tapa-hermetica-bambu",
+        "title": "Frascos de vidrio con tapa hermetica bambú",
+        "sourceIdentifier": "frascos-de-vidrio-con-tapa-hermetica-bambu",
+        "sku": [],
+        "rowCount": 3,
+        "rows": [
+          {
+            "rowNumber": 522,
+            "sourceProductUrlIdentifier": "frascos-de-vidrio-con-tapa-hermetica-bambu",
+            "sourceProductName": "Frascos de vidrio con tapa hermetica bambú",
+            "sku": null,
+            "variantSignature": "tamano=s",
+            "variantLabel": "Tamaño: S",
+            "variantValue": "s",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "S"
+              }
+            ]
+          },
+          {
+            "rowNumber": 523,
+            "sourceProductUrlIdentifier": "frascos-de-vidrio-con-tapa-hermetica-bambu",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "tamano=m",
+            "variantLabel": "Tamaño: M",
+            "variantValue": "m",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "M"
+              }
+            ]
+          },
+          {
+            "rowNumber": 524,
+            "sourceProductUrlIdentifier": "frascos-de-vidrio-con-tapa-hermetica-bambu",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "tamano=l",
+            "variantLabel": "Tamaño: L",
+            "variantValue": "l",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "L"
+              }
+            ]
+          }
+        ]
+      },
+      "candidate": {
+        "exactSanitySlugMatch": {
+          "_id": "import-product-frascos-de-vidrio-con-tapa-hermetica-bambu",
+          "title": "Frascos de vidrio con tapa hermetica bambú",
+          "slug": "frascos-de-vidrio-con-tapa-hermetica-bambu",
+          "sku": [],
+          "logistics": null,
+          "variantCount": 3
+        },
+        "topCandidates": [
+          {
+            "_id": "import-product-frascos-de-vidrio-con-tapa-hermetica-bambu",
+            "title": "Frascos de vidrio con tapa hermetica bambú",
+            "slug": "frascos-de-vidrio-con-tapa-hermetica-bambu",
+            "skus": [],
+            "variantCount": 3,
+            "similarity": {
+              "score": 2,
+              "sharedTokens": [
+                "frascos",
+                "vidrio",
+                "tapa",
+                "hermetica",
+                "bambu"
+              ],
+              "exactTitle": true,
+              "exactSlug": true,
+              "exactSku": false
+            },
+            "reason": "título exacto | slug exacto | tokens compartidos: frascos, vidrio, tapa, hermetica, bambu | variantes actuales: 3"
+          },
+          {
+            "_id": "import-product-frasco-piramide-de-vidrio-con-tapa-bambu",
+            "title": "Frasco Piramide de vidrio con tapa bambu",
+            "slug": "frasco-piramide-de-vidrio-con-tapa-bambu",
+            "skus": [],
+            "variantCount": 2,
+            "similarity": {
+              "score": 0.6,
+              "sharedTokens": [
+                "vidrio",
+                "tapa",
+                "bambu"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: vidrio, tapa, bambu | variantes actuales: 2"
+          },
+          {
+            "_id": "import-product-jarra-de-vidrio-con-tapa-de-bambu-1470ml",
+            "title": "Jarra de vidrio con tapa de bambú 1470ml",
+            "slug": "jarra-de-vidrio-con-tapa-de-bambu-1470ml",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.6,
+              "sharedTokens": [
+                "vidrio",
+                "tapa",
+                "bambu"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: vidrio, tapa, bambu"
+          },
+          {
+            "_id": "import-product-setx4-frascos-vidrio-bambu-fow7r",
+            "title": "Setx4 frascos vidrio Hermeticos bambú",
+            "slug": "setx4-frascos-vidrio-bambu-fow7r",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.6,
+              "sharedTokens": [
+                "frascos",
+                "vidrio",
+                "bambu"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: frascos, vidrio, bambu"
+          },
+          {
+            "_id": "import-product-tetera-18aqd",
+            "title": "Tetera de vidrio con tapa bambu 1L",
+            "slug": "tetera-18aqd",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.6,
+              "sharedTokens": [
+                "vidrio",
+                "tapa",
+                "bambu"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: vidrio, tapa, bambu"
+          }
+        ]
+      },
+      "logisticsAnalysis": {
+        "classification": "NO_USABLE_DATA",
+        "actionRecommended": "Carga manual",
+        "confidence": "LOW",
+        "reason": "No existe ningún dato logístico numérico en el CSV para este producto.",
+        "summary": {
+          "rows": 3,
+          "completeRows": 0,
+          "incompleteRows": 3,
+          "distinctCompleteLogistics": 0,
+          "groupedVariants": 3
+        },
+        "rows": [
+          {
+            "rowNumber": 522,
+            "sourceProductUrlIdentifier": "frascos-de-vidrio-con-tapa-hermetica-bambu",
+            "sourceProductName": "Frascos de vidrio con tapa hermetica bambú",
+            "sku": null,
+            "variantSignature": "tamano=s",
+            "variantLabel": "Tamaño: S",
+            "variantValue": "s",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "S"
+              }
+            ]
+          },
+          {
+            "rowNumber": 523,
+            "sourceProductUrlIdentifier": "frascos-de-vidrio-con-tapa-hermetica-bambu",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "tamano=m",
+            "variantLabel": "Tamaño: M",
+            "variantValue": "m",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "M"
+              }
+            ]
+          },
+          {
+            "rowNumber": 524,
+            "sourceProductUrlIdentifier": "frascos-de-vidrio-con-tapa-hermetica-bambu",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "tamano=l",
+            "variantLabel": "Tamaño: L",
+            "variantValue": "l",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "L"
+              }
+            ]
+          }
+        ],
+        "groupedVariants": [
+          {
+            "signature": "tamano=s",
+            "rowNumbers": [
+              522
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 522,
+                "sourceProductUrlIdentifier": "frascos-de-vidrio-con-tapa-hermetica-bambu",
+                "sourceProductName": "Frascos de vidrio con tapa hermetica bambú",
+                "sku": null,
+                "variantSignature": "tamano=s",
+                "variantLabel": "Tamaño: S",
+                "variantValue": "s",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Tamaño",
+                    "value": "S"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "signature": "tamano=m",
+            "rowNumbers": [
+              523
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 523,
+                "sourceProductUrlIdentifier": "frascos-de-vidrio-con-tapa-hermetica-bambu",
+                "sourceProductName": "",
+                "sku": null,
+                "variantSignature": "tamano=m",
+                "variantLabel": "Tamaño: M",
+                "variantValue": "m",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Tamaño",
+                    "value": "M"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "signature": "tamano=l",
+            "rowNumbers": [
+              524
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 524,
+                "sourceProductUrlIdentifier": "frascos-de-vidrio-con-tapa-hermetica-bambu",
+                "sourceProductName": "",
+                "sku": null,
+                "variantSignature": "tamano=l",
+                "variantLabel": "Tamaño: L",
+                "variantValue": "l",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Tamaño",
+                    "value": "L"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "distinctCompleteLogistics": []
+      },
+      "newClassification": "NO_USABLE_DATA",
+      "actionRecommended": "Carga manual",
+      "confidence": "LOW",
+      "reason": "No existe ningún dato logístico numérico en el CSV para este producto."
+    },
+    {
+      "slug": "canasto-seagrass-3-medidas",
+      "previousState": "NOT_FOUND",
+      "originalReason": "No hubo match exacto con ID, slug, SKU ni titulo.",
+      "csv": {
+        "slug": "canasto-seagrass-3-medidas",
+        "title": "Canasto Seagrass chico",
+        "sourceIdentifier": "canasto-seagrass-3-medidas",
+        "sku": [],
+        "rowCount": 1,
+        "rows": [
+          {
+            "rowNumber": 536,
+            "sourceProductUrlIdentifier": "canasto-seagrass-3-medidas",
+            "sourceProductName": "Canasto Seagrass chico",
+            "sku": null,
+            "variantSignature": "talle=s",
+            "variantLabel": "Talle: S",
+            "variantValue": "s",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Talle",
+                "value": "S"
+              }
+            ]
+          }
+        ]
+      },
+      "candidate": {
+        "exactSanitySlugMatch": null,
+        "topCandidates": [
+          {
+            "_id": "import-product-bolso-termico-chico-1ib9u",
+            "title": "Bolso térmico chico",
+            "slug": "bolso-termico-chico-1ib9u",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.25,
+              "sharedTokens": [
+                "chico"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: chico"
+          },
+          {
+            "_id": "import-product-canasto-plastico-transparente-p-calzado-10lts",
+            "title": "Canasto Plastico transparente p/ calzado 10Lts",
+            "slug": "canasto-plastico-transparente-p-calzado-10lts",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.25,
+              "sharedTokens": [
+                "canasto"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: canasto"
+          },
+          {
+            "_id": "import-product-cesto-combinado-chico",
+            "title": "Cesto Combinado 20x17cm",
+            "slug": "cesto-combinado-chico",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.25,
+              "sharedTokens": [
+                "chico"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: chico"
+          },
+          {
+            "_id": "import-product-cesto-mgdgy",
+            "title": "Canasto Simil mimbre 3 Tamaños",
+            "slug": "cesto-mgdgy",
+            "skus": [],
+            "variantCount": 3,
+            "similarity": {
+              "score": 0.25,
+              "sharedTokens": [
+                "canasto"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: canasto | variantes actuales: 3"
+          },
+          {
+            "_id": "import-product-manta-flannel-todas-las-medidas",
+            "title": "Manta FLANNEL KING",
+            "slug": "manta-flannel-todas-las-medidas",
+            "skus": [],
+            "variantCount": 1,
+            "similarity": {
+              "score": 0.25,
+              "sharedTokens": [
+                "medidas"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: medidas | variantes actuales: 1"
+          }
+        ]
+      },
+      "logisticsAnalysis": {
+        "classification": "NO_USABLE_DATA",
+        "actionRecommended": "Carga manual",
+        "confidence": "LOW",
+        "reason": "No existe ningún dato logístico numérico en el CSV para este producto.",
+        "summary": {
+          "rows": 1,
+          "completeRows": 0,
+          "incompleteRows": 1,
+          "distinctCompleteLogistics": 0,
+          "groupedVariants": 1
+        },
+        "rows": [
+          {
+            "rowNumber": 536,
+            "sourceProductUrlIdentifier": "canasto-seagrass-3-medidas",
+            "sourceProductName": "Canasto Seagrass chico",
+            "sku": null,
+            "variantSignature": "talle=s",
+            "variantLabel": "Talle: S",
+            "variantValue": "s",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Talle",
+                "value": "S"
+              }
+            ]
+          }
+        ],
+        "groupedVariants": [
+          {
+            "signature": "talle=s",
+            "rowNumbers": [
+              536
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 536,
+                "sourceProductUrlIdentifier": "canasto-seagrass-3-medidas",
+                "sourceProductName": "Canasto Seagrass chico",
+                "sku": null,
+                "variantSignature": "talle=s",
+                "variantLabel": "Talle: S",
+                "variantValue": "s",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Talle",
+                    "value": "S"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "distinctCompleteLogistics": []
+      },
+      "newClassification": "NO_MATCH",
+      "actionRecommended": "Revisión manual",
+      "confidence": "LOW",
+      "reason": "No apareció ningún candidato confiable en Sanity."
+    },
+    {
+      "slug": "funda-almohadon-45x45cm-pelo",
+      "previousState": "INVALID_LOGISTICS",
+      "originalReason": "No hay una logistica completa valida en este grupo.",
+      "csv": {
+        "slug": "funda-almohadon-45x45cm-pelo",
+        "title": "Funda almohadon 45x45cm pelo",
+        "sourceIdentifier": "funda-almohadon-45x45cm-pelo",
+        "sku": [],
+        "rowCount": 4,
+        "rows": [
+          {
+            "rowNumber": 551,
+            "sourceProductUrlIdentifier": "funda-almohadon-45x45cm-pelo",
+            "sourceProductName": "Funda almohadon 45x45cm pelo",
+            "sku": null,
+            "variantSignature": "color=blanco",
+            "variantLabel": "Color: Blanco",
+            "variantValue": "blanco",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Blanco"
+              }
+            ]
+          },
+          {
+            "rowNumber": 552,
+            "sourceProductUrlIdentifier": "funda-almohadon-45x45cm-pelo",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "color=gris",
+            "variantLabel": "Color: Gris",
+            "variantValue": "gris",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Gris"
+              }
+            ]
+          },
+          {
+            "rowNumber": 553,
+            "sourceProductUrlIdentifier": "funda-almohadon-45x45cm-pelo",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "color=plata",
+            "variantLabel": "Color: Plata",
+            "variantValue": "plata",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Plata"
+              }
+            ]
+          },
+          {
+            "rowNumber": 554,
+            "sourceProductUrlIdentifier": "funda-almohadon-45x45cm-pelo",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "color=negro",
+            "variantLabel": "Color: Negro",
+            "variantValue": "negro",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Negro"
+              }
+            ]
+          }
+        ]
+      },
+      "candidate": {
+        "exactSanitySlugMatch": {
+          "_id": "import-product-funda-almohadon-45x45cm-pelo",
+          "title": "Funda almohadon 45x45cm pelo",
+          "slug": "funda-almohadon-45x45cm-pelo",
+          "sku": [],
+          "logistics": null,
+          "variantCount": 4
+        },
+        "topCandidates": [
+          {
+            "_id": "import-product-funda-almohadon-45x45cm-pelo",
+            "title": "Funda almohadon 45x45cm pelo",
+            "slug": "funda-almohadon-45x45cm-pelo",
+            "skus": [],
+            "variantCount": 4,
+            "similarity": {
+              "score": 2,
+              "sharedTokens": [
+                "funda",
+                "almohadon",
+                "45x45cm",
+                "pelo"
+              ],
+              "exactTitle": true,
+              "exactSlug": true,
+              "exactSku": false
+            },
+            "reason": "título exacto | slug exacto | tokens compartidos: funda, almohadon, 45x45cm, pelo | variantes actuales: 4"
+          },
+          {
+            "_id": "import-product-funda-almohadon-1h0b2",
+            "title": "Funda almohadón LOLA 45x45cm",
+            "slug": "funda-almohadon-1h0b2",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.75,
+              "sharedTokens": [
+                "funda",
+                "almohadon",
+                "45x45cm"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: funda, almohadon, 45x45cm"
+          },
+          {
+            "_id": "import-product-funda-almohadon-7ru7t",
+            "title": "Funda almohadón Rayas grandes 45x45cm",
+            "slug": "funda-almohadon-7ru7t",
+            "skus": [],
+            "variantCount": 2,
+            "similarity": {
+              "score": 0.75,
+              "sharedTokens": [
+                "funda",
+                "almohadon",
+                "45x45cm"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: funda, almohadon, 45x45cm | variantes actuales: 2"
+          },
+          {
+            "_id": "import-product-funda-almohadon-lino-45x45cm",
+            "title": "Funda Almohadon Lino 45x45cm",
+            "slug": "funda-almohadon-lino-45x45cm",
+            "skus": [],
+            "variantCount": 3,
+            "similarity": {
+              "score": 0.75,
+              "sharedTokens": [
+                "funda",
+                "almohadon",
+                "45x45cm"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: funda, almohadon, 45x45cm | variantes actuales: 3"
+          },
+          {
+            "_id": "import-product-funda-almohadon-melbourne-45x45cm",
+            "title": "Funda Almohadon Melbourne 45x45cm",
+            "slug": "funda-almohadon-melbourne-45x45cm",
+            "skus": [],
+            "variantCount": 3,
+            "similarity": {
+              "score": 0.75,
+              "sharedTokens": [
+                "funda",
+                "almohadon",
+                "45x45cm"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: funda, almohadon, 45x45cm | variantes actuales: 3"
+          }
+        ]
+      },
+      "logisticsAnalysis": {
+        "classification": "NO_USABLE_DATA",
+        "actionRecommended": "Carga manual",
+        "confidence": "LOW",
+        "reason": "No existe ningún dato logístico numérico en el CSV para este producto.",
+        "summary": {
+          "rows": 4,
+          "completeRows": 0,
+          "incompleteRows": 4,
+          "distinctCompleteLogistics": 0,
+          "groupedVariants": 4
+        },
+        "rows": [
+          {
+            "rowNumber": 551,
+            "sourceProductUrlIdentifier": "funda-almohadon-45x45cm-pelo",
+            "sourceProductName": "Funda almohadon 45x45cm pelo",
+            "sku": null,
+            "variantSignature": "color=blanco",
+            "variantLabel": "Color: Blanco",
+            "variantValue": "blanco",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Blanco"
+              }
+            ]
+          },
+          {
+            "rowNumber": 552,
+            "sourceProductUrlIdentifier": "funda-almohadon-45x45cm-pelo",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "color=gris",
+            "variantLabel": "Color: Gris",
+            "variantValue": "gris",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Gris"
+              }
+            ]
+          },
+          {
+            "rowNumber": 553,
+            "sourceProductUrlIdentifier": "funda-almohadon-45x45cm-pelo",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "color=plata",
+            "variantLabel": "Color: Plata",
+            "variantValue": "plata",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Plata"
+              }
+            ]
+          },
+          {
+            "rowNumber": 554,
+            "sourceProductUrlIdentifier": "funda-almohadon-45x45cm-pelo",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "color=negro",
+            "variantLabel": "Color: Negro",
+            "variantValue": "negro",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Negro"
+              }
+            ]
+          }
+        ],
+        "groupedVariants": [
+          {
+            "signature": "color=blanco",
+            "rowNumbers": [
+              551
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 551,
+                "sourceProductUrlIdentifier": "funda-almohadon-45x45cm-pelo",
+                "sourceProductName": "Funda almohadon 45x45cm pelo",
+                "sku": null,
+                "variantSignature": "color=blanco",
+                "variantLabel": "Color: Blanco",
+                "variantValue": "blanco",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Color",
+                    "value": "Blanco"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "signature": "color=gris",
+            "rowNumbers": [
+              552
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 552,
+                "sourceProductUrlIdentifier": "funda-almohadon-45x45cm-pelo",
+                "sourceProductName": "",
+                "sku": null,
+                "variantSignature": "color=gris",
+                "variantLabel": "Color: Gris",
+                "variantValue": "gris",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Color",
+                    "value": "Gris"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "signature": "color=plata",
+            "rowNumbers": [
+              553
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 553,
+                "sourceProductUrlIdentifier": "funda-almohadon-45x45cm-pelo",
+                "sourceProductName": "",
+                "sku": null,
+                "variantSignature": "color=plata",
+                "variantLabel": "Color: Plata",
+                "variantValue": "plata",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Color",
+                    "value": "Plata"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "signature": "color=negro",
+            "rowNumbers": [
+              554
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 554,
+                "sourceProductUrlIdentifier": "funda-almohadon-45x45cm-pelo",
+                "sourceProductName": "",
+                "sku": null,
+                "variantSignature": "color=negro",
+                "variantLabel": "Color: Negro",
+                "variantValue": "negro",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Color",
+                    "value": "Negro"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "distinctCompleteLogistics": []
+      },
+      "newClassification": "NO_USABLE_DATA",
+      "actionRecommended": "Carga manual",
+      "confidence": "LOW",
+      "reason": "No existe ningún dato logístico numérico en el CSV para este producto."
+    },
+    {
+      "slug": "trapo-piso-con-estampa-sweet-home",
+      "previousState": "INVALID_LOGISTICS",
+      "originalReason": "No hay una logistica completa valida en este grupo.",
+      "csv": {
+        "slug": "trapo-piso-con-estampa-sweet-home",
+        "title": "Trapo piso con estampa SWEET HOME",
+        "sourceIdentifier": "trapo-piso-con-estampa-sweet-home",
+        "sku": [],
+        "rowCount": 1,
+        "rows": [
+          {
+            "rowNumber": 555,
+            "sourceProductUrlIdentifier": "trapo-piso-con-estampa-sweet-home",
+            "sourceProductName": "Trapo piso con estampa SWEET HOME",
+            "sku": null,
+            "variantSignature": "__simple__",
+            "variantLabel": "",
+            "variantValue": "",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": []
+          }
+        ]
+      },
+      "candidate": {
+        "exactSanitySlugMatch": {
+          "_id": "import-product-trapo-piso-con-estampa-sweet-home",
+          "title": "Trapo piso con estampa SWEET HOME",
+          "slug": "trapo-piso-con-estampa-sweet-home",
+          "sku": [],
+          "logistics": null,
+          "variantCount": 0
+        },
+        "topCandidates": [
+          {
+            "_id": "import-product-trapo-piso-con-estampa-sweet-home",
+            "title": "Trapo piso con estampa SWEET HOME",
+            "slug": "trapo-piso-con-estampa-sweet-home",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 2,
+              "sharedTokens": [
+                "trapo",
+                "piso",
+                "estampa",
+                "sweet",
+                "home"
+              ],
+              "exactTitle": true,
+              "exactSlug": true,
+              "exactSku": false
+            },
+            "reason": "título exacto | slug exacto | tokens compartidos: trapo, piso, estampa, sweet, home"
+          },
+          {
+            "_id": "import-product-trapo-piso-1t59q",
+            "title": "Trapito BIENVENIDO 60x48cm",
+            "slug": "trapo-piso-1t59q",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.4,
+              "sharedTokens": [
+                "trapo",
+                "piso"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: trapo, piso"
+          },
+          {
+            "_id": "import-product-alfombra-home-60x45cm",
+            "title": "Alfombra HOME 60X45cm",
+            "slug": "alfombra-home-60x45cm",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.3333333333333333,
+              "sharedTokens": [
+                "home"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: home"
+          },
+          {
+            "_id": "import-product-felpudo-home-60x40cm",
+            "title": "Felpudo HOME 60x40cm",
+            "slug": "felpudo-home-60x40cm",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.3333333333333333,
+              "sharedTokens": [
+                "home"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: home"
+          },
+          {
+            "_id": "import-product-pano-limpieza-home-45x35cm",
+            "title": "Paño limpieza HOME 45x35cm",
+            "slug": "pano-limpieza-home-45x35cm",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.25,
+              "sharedTokens": [
+                "home"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: home"
+          }
+        ]
+      },
+      "logisticsAnalysis": {
+        "classification": "NO_USABLE_DATA",
+        "actionRecommended": "Carga manual",
+        "confidence": "LOW",
+        "reason": "No existe ningún dato logístico numérico en el CSV para este producto.",
+        "summary": {
+          "rows": 1,
+          "completeRows": 0,
+          "incompleteRows": 1,
+          "distinctCompleteLogistics": 0,
+          "groupedVariants": 1
+        },
+        "rows": [
+          {
+            "rowNumber": 555,
+            "sourceProductUrlIdentifier": "trapo-piso-con-estampa-sweet-home",
+            "sourceProductName": "Trapo piso con estampa SWEET HOME",
+            "sku": null,
+            "variantSignature": "__simple__",
+            "variantLabel": "",
+            "variantValue": "",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": []
+          }
+        ],
+        "groupedVariants": [
+          {
+            "signature": "__simple__",
+            "rowNumbers": [
+              555
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 555,
+                "sourceProductUrlIdentifier": "trapo-piso-con-estampa-sweet-home",
+                "sourceProductName": "Trapo piso con estampa SWEET HOME",
+                "sku": null,
+                "variantSignature": "__simple__",
+                "variantLabel": "",
+                "variantValue": "",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": []
+              }
+            ]
+          }
+        ],
+        "distinctCompleteLogistics": []
+      },
+      "newClassification": "NO_USABLE_DATA",
+      "actionRecommended": "Carga manual",
+      "confidence": "LOW",
+      "reason": "No existe ningún dato logístico numérico en el CSV para este producto."
+    },
+    {
+      "slug": "cuchara-hojas-doradas",
+      "previousState": "INVALID_LOGISTICS",
+      "originalReason": "No hay una logistica completa valida en este grupo.",
+      "csv": {
+        "slug": "cuchara-hojas-doradas",
+        "title": "Cuchara hojas doradas",
+        "sourceIdentifier": "cuchara-hojas-doradas",
+        "sku": [],
+        "rowCount": 2,
+        "rows": [
+          {
+            "rowNumber": 557,
+            "sourceProductUrlIdentifier": "cuchara-hojas-doradas",
+            "sourceProductName": "Cuchara hojas doradas",
+            "sku": null,
+            "variantSignature": "tamano=corta",
+            "variantLabel": "Tamaño: corta",
+            "variantValue": "corta",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "corta"
+              }
+            ]
+          },
+          {
+            "rowNumber": 558,
+            "sourceProductUrlIdentifier": "cuchara-hojas-doradas",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "tamano=larga",
+            "variantLabel": "Tamaño: larga",
+            "variantValue": "larga",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "larga"
+              }
+            ]
+          }
+        ]
+      },
+      "candidate": {
+        "exactSanitySlugMatch": {
+          "_id": "import-product-cuchara-hojas-doradas",
+          "title": "Cuchara hojas doradas",
+          "slug": "cuchara-hojas-doradas",
+          "sku": [],
+          "logistics": null,
+          "variantCount": 2
+        },
+        "topCandidates": [
+          {
+            "_id": "import-product-cuchara-hojas-doradas",
+            "title": "Cuchara hojas doradas",
+            "slug": "cuchara-hojas-doradas",
+            "skus": [],
+            "variantCount": 2,
+            "similarity": {
+              "score": 2,
+              "sharedTokens": [
+                "cuchara",
+                "hojas",
+                "doradas"
+              ],
+              "exactTitle": true,
+              "exactSlug": true,
+              "exactSku": false
+            },
+            "reason": "título exacto | slug exacto | tokens compartidos: cuchara, hojas, doradas | variantes actuales: 2"
+          },
+          {
+            "_id": "import-product-cuchara-dorada-mango-simil-marmol-blanco",
+            "title": "Cuchara dorada Mango símil mármol blanco",
+            "slug": "cuchara-dorada-mango-simil-marmol-blanco",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.3333333333333333,
+              "sharedTokens": [
+                "cuchara"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: cuchara"
+          },
+          {
+            "_id": "1fc72d81-e2a5-42dc-a403-1fb06538636a",
+            "title": "Planta artificial 80x13cm GRANDE",
+            "slug": "planta-artificial-80x13cm-grande",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0,
+              "sharedTokens": [],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "sin coincidencias relevantes"
+          },
+          {
+            "_id": "277c938c-cff1-4eb4-90ec-d6b14504937a",
+            "title": "Individual redondo 38cm Cuerina",
+            "slug": "individual-redondo-38cm-cuerina",
+            "skus": [],
+            "variantCount": 4,
+            "similarity": {
+              "score": 0,
+              "sharedTokens": [],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "variantes actuales: 4"
+          },
+          {
+            "_id": "433cc13c-8f0c-4bba-911c-935b825de9dd",
+            "title": "JuegoX6 Taza + Plato 250ml",
+            "slug": "juegox6-taza-plato-250ml",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0,
+              "sharedTokens": [],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "sin coincidencias relevantes"
+          }
+        ]
+      },
+      "logisticsAnalysis": {
+        "classification": "NO_USABLE_DATA",
+        "actionRecommended": "Carga manual",
+        "confidence": "LOW",
+        "reason": "No existe ningún dato logístico numérico en el CSV para este producto.",
+        "summary": {
+          "rows": 2,
+          "completeRows": 0,
+          "incompleteRows": 2,
+          "distinctCompleteLogistics": 0,
+          "groupedVariants": 2
+        },
+        "rows": [
+          {
+            "rowNumber": 557,
+            "sourceProductUrlIdentifier": "cuchara-hojas-doradas",
+            "sourceProductName": "Cuchara hojas doradas",
+            "sku": null,
+            "variantSignature": "tamano=corta",
+            "variantLabel": "Tamaño: corta",
+            "variantValue": "corta",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "corta"
+              }
+            ]
+          },
+          {
+            "rowNumber": 558,
+            "sourceProductUrlIdentifier": "cuchara-hojas-doradas",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "tamano=larga",
+            "variantLabel": "Tamaño: larga",
+            "variantValue": "larga",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "larga"
+              }
+            ]
+          }
+        ],
+        "groupedVariants": [
+          {
+            "signature": "tamano=corta",
+            "rowNumbers": [
+              557
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 557,
+                "sourceProductUrlIdentifier": "cuchara-hojas-doradas",
+                "sourceProductName": "Cuchara hojas doradas",
+                "sku": null,
+                "variantSignature": "tamano=corta",
+                "variantLabel": "Tamaño: corta",
+                "variantValue": "corta",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Tamaño",
+                    "value": "corta"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "signature": "tamano=larga",
+            "rowNumbers": [
+              558
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 558,
+                "sourceProductUrlIdentifier": "cuchara-hojas-doradas",
+                "sourceProductName": "",
+                "sku": null,
+                "variantSignature": "tamano=larga",
+                "variantLabel": "Tamaño: larga",
+                "variantValue": "larga",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Tamaño",
+                    "value": "larga"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "distinctCompleteLogistics": []
+      },
+      "newClassification": "NO_USABLE_DATA",
+      "actionRecommended": "Carga manual",
+      "confidence": "LOW",
+      "reason": "No existe ningún dato logístico numérico en el CSV para este producto."
+    },
+    {
+      "slug": "funda-de-almohadon-rectangular-tusor",
+      "previousState": "INVALID_LOGISTICS",
+      "originalReason": "No hay una logistica completa valida en este grupo.",
+      "csv": {
+        "slug": "funda-de-almohadon-rectangular-tusor",
+        "title": "Funda de Almohadon Rectangular Tusor",
+        "sourceIdentifier": "funda-de-almohadon-rectangular-tusor",
+        "sku": [],
+        "rowCount": 2,
+        "rows": [
+          {
+            "rowNumber": 581,
+            "sourceProductUrlIdentifier": "funda-de-almohadon-rectangular-tusor",
+            "sourceProductName": "Funda de Almohadon Rectangular Tusor",
+            "sku": null,
+            "variantSignature": "color=celeste",
+            "variantLabel": "Color: Celeste",
+            "variantValue": "celeste",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Celeste"
+              }
+            ]
+          },
+          {
+            "rowNumber": 582,
+            "sourceProductUrlIdentifier": "funda-de-almohadon-rectangular-tusor",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "color=negro",
+            "variantLabel": "Color: Negro",
+            "variantValue": "negro",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Negro"
+              }
+            ]
+          }
+        ]
+      },
+      "candidate": {
+        "exactSanitySlugMatch": {
+          "_id": "import-product-funda-de-almohadon-rectangular-tusor",
+          "title": "Funda de Almohadon Rectangular Tusor",
+          "slug": "funda-de-almohadon-rectangular-tusor",
+          "sku": [],
+          "logistics": null,
+          "variantCount": 2
+        },
+        "topCandidates": [
+          {
+            "_id": "import-product-funda-de-almohadon-rectangular-tusor",
+            "title": "Funda de Almohadon Rectangular Tusor",
+            "slug": "funda-de-almohadon-rectangular-tusor",
+            "skus": [],
+            "variantCount": 2,
+            "similarity": {
+              "score": 2,
+              "sharedTokens": [
+                "funda",
+                "almohadon",
+                "rectangular",
+                "tusor"
+              ],
+              "exactTitle": true,
+              "exactSlug": true,
+              "exactSku": false
+            },
+            "reason": "título exacto | slug exacto | tokens compartidos: funda, almohadon, rectangular, tusor | variantes actuales: 2"
+          },
+          {
+            "_id": "import-product-funda-tusor-rayada",
+            "title": "Funda Tusor Rayada",
+            "slug": "funda-tusor-rayada",
+            "skus": [],
+            "variantCount": 1,
+            "similarity": {
+              "score": 0.6666666666666666,
+              "sharedTokens": [
+                "funda",
+                "tusor"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: funda, tusor | variantes actuales: 1"
+          },
+          {
+            "_id": "import-product-funda-almohada-1impd",
+            "title": "Funda almohada 70x50cm simil tusor",
+            "slug": "funda-almohada-1impd",
+            "skus": [],
+            "variantCount": 3,
+            "similarity": {
+              "score": 0.5,
+              "sharedTokens": [
+                "funda",
+                "tusor"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: funda, tusor | variantes actuales: 3"
+          },
+          {
+            "_id": "import-product-funda-almohadon-1h0b2",
+            "title": "Funda almohadón LOLA 45x45cm",
+            "slug": "funda-almohadon-1h0b2",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.5,
+              "sharedTokens": [
+                "funda",
+                "almohadon"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: funda, almohadon"
+          },
+          {
+            "_id": "import-product-funda-almohadon-40x40cm-fxhk2",
+            "title": "Funda almohadon 40x40cm",
+            "slug": "funda-almohadon-40x40cm-fxhk2",
+            "skus": [],
+            "variantCount": 4,
+            "similarity": {
+              "score": 0.5,
+              "sharedTokens": [
+                "funda",
+                "almohadon"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: funda, almohadon | variantes actuales: 4"
+          }
+        ]
+      },
+      "logisticsAnalysis": {
+        "classification": "NO_USABLE_DATA",
+        "actionRecommended": "Carga manual",
+        "confidence": "LOW",
+        "reason": "No existe ningún dato logístico numérico en el CSV para este producto.",
+        "summary": {
+          "rows": 2,
+          "completeRows": 0,
+          "incompleteRows": 2,
+          "distinctCompleteLogistics": 0,
+          "groupedVariants": 2
+        },
+        "rows": [
+          {
+            "rowNumber": 581,
+            "sourceProductUrlIdentifier": "funda-de-almohadon-rectangular-tusor",
+            "sourceProductName": "Funda de Almohadon Rectangular Tusor",
+            "sku": null,
+            "variantSignature": "color=celeste",
+            "variantLabel": "Color: Celeste",
+            "variantValue": "celeste",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Celeste"
+              }
+            ]
+          },
+          {
+            "rowNumber": 582,
+            "sourceProductUrlIdentifier": "funda-de-almohadon-rectangular-tusor",
+            "sourceProductName": "",
+            "sku": null,
+            "variantSignature": "color=negro",
+            "variantLabel": "Color: Negro",
+            "variantValue": "negro",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Negro"
+              }
+            ]
+          }
+        ],
+        "groupedVariants": [
+          {
+            "signature": "color=celeste",
+            "rowNumbers": [
+              581
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 581,
+                "sourceProductUrlIdentifier": "funda-de-almohadon-rectangular-tusor",
+                "sourceProductName": "Funda de Almohadon Rectangular Tusor",
+                "sku": null,
+                "variantSignature": "color=celeste",
+                "variantLabel": "Color: Celeste",
+                "variantValue": "celeste",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Color",
+                    "value": "Celeste"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "signature": "color=negro",
+            "rowNumbers": [
+              582
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 582,
+                "sourceProductUrlIdentifier": "funda-de-almohadon-rectangular-tusor",
+                "sourceProductName": "",
+                "sku": null,
+                "variantSignature": "color=negro",
+                "variantLabel": "Color: Negro",
+                "variantValue": "negro",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Color",
+                    "value": "Negro"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "distinctCompleteLogistics": []
+      },
+      "newClassification": "NO_USABLE_DATA",
+      "actionRecommended": "Carga manual",
+      "confidence": "LOW",
+      "reason": "No existe ningún dato logístico numérico en el CSV para este producto."
+    },
+    {
+      "slug": "funda-tusor-rayada",
+      "previousState": "INVALID_LOGISTICS",
+      "originalReason": "No hay una logistica completa valida en este grupo.",
+      "csv": {
+        "slug": "funda-tusor-rayada",
+        "title": "Funda Tusor Rayada",
+        "sourceIdentifier": "funda-tusor-rayada",
+        "sku": [],
+        "rowCount": 1,
+        "rows": [
+          {
+            "rowNumber": 583,
+            "sourceProductUrlIdentifier": "funda-tusor-rayada",
+            "sourceProductName": "Funda Tusor Rayada",
+            "sku": null,
+            "variantSignature": "color=rayas-finas",
+            "variantLabel": "Color: Rayas Finas",
+            "variantValue": "rayas-finas",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Rayas Finas"
+              }
+            ]
+          }
+        ]
+      },
+      "candidate": {
+        "exactSanitySlugMatch": {
+          "_id": "import-product-funda-tusor-rayada",
+          "title": "Funda Tusor Rayada",
+          "slug": "funda-tusor-rayada",
+          "sku": [],
+          "logistics": null,
+          "variantCount": 1
+        },
+        "topCandidates": [
+          {
+            "_id": "import-product-funda-tusor-rayada",
+            "title": "Funda Tusor Rayada",
+            "slug": "funda-tusor-rayada",
+            "skus": [],
+            "variantCount": 1,
+            "similarity": {
+              "score": 2,
+              "sharedTokens": [
+                "funda",
+                "tusor",
+                "rayada"
+              ],
+              "exactTitle": true,
+              "exactSlug": true,
+              "exactSku": false
+            },
+            "reason": "título exacto | slug exacto | tokens compartidos: funda, tusor, rayada | variantes actuales: 1"
+          },
+          {
+            "_id": "import-product-funda-almohada-1impd",
+            "title": "Funda almohada 70x50cm simil tusor",
+            "slug": "funda-almohada-1impd",
+            "skus": [],
+            "variantCount": 3,
+            "similarity": {
+              "score": 0.6666666666666666,
+              "sharedTokens": [
+                "funda",
+                "tusor"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: funda, tusor | variantes actuales: 3"
+          },
+          {
+            "_id": "import-product-funda-de-almohadon-rectangular-tusor",
+            "title": "Funda de Almohadon Rectangular Tusor",
+            "slug": "funda-de-almohadon-rectangular-tusor",
+            "skus": [],
+            "variantCount": 2,
+            "similarity": {
+              "score": 0.6666666666666666,
+              "sharedTokens": [
+                "funda",
+                "tusor"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: funda, tusor | variantes actuales: 2"
+          },
+          {
+            "_id": "import-product-cortina-bano-simil-tusor-ganchos-z7csd",
+            "title": "CORTINA BAÑO SIMIL TUSOR + GANCHOS",
+            "slug": "cortina-bano-simil-tusor-ganchos-z7csd",
+            "skus": [],
+            "variantCount": 3,
+            "similarity": {
+              "score": 0.3333333333333333,
+              "sharedTokens": [
+                "tusor"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: tusor | variantes actuales: 3"
+          },
+          {
+            "_id": "import-product-funda-almohadon-1h0b2",
+            "title": "Funda almohadón LOLA 45x45cm",
+            "slug": "funda-almohadon-1h0b2",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.3333333333333333,
+              "sharedTokens": [
+                "funda"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: funda"
+          }
+        ]
+      },
+      "logisticsAnalysis": {
+        "classification": "NO_USABLE_DATA",
+        "actionRecommended": "Carga manual",
+        "confidence": "LOW",
+        "reason": "No existe ningún dato logístico numérico en el CSV para este producto.",
+        "summary": {
+          "rows": 1,
+          "completeRows": 0,
+          "incompleteRows": 1,
+          "distinctCompleteLogistics": 0,
+          "groupedVariants": 1
+        },
+        "rows": [
+          {
+            "rowNumber": 583,
+            "sourceProductUrlIdentifier": "funda-tusor-rayada",
+            "sourceProductName": "Funda Tusor Rayada",
+            "sku": null,
+            "variantSignature": "color=rayas-finas",
+            "variantLabel": "Color: Rayas Finas",
+            "variantValue": "rayas-finas",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Color",
+                "value": "Rayas Finas"
+              }
+            ]
+          }
+        ],
+        "groupedVariants": [
+          {
+            "signature": "color=rayas-finas",
+            "rowNumbers": [
+              583
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 583,
+                "sourceProductUrlIdentifier": "funda-tusor-rayada",
+                "sourceProductName": "Funda Tusor Rayada",
+                "sku": null,
+                "variantSignature": "color=rayas-finas",
+                "variantLabel": "Color: Rayas Finas",
+                "variantValue": "rayas-finas",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Color",
+                    "value": "Rayas Finas"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "distinctCompleteLogistics": []
+      },
+      "newClassification": "NO_USABLE_DATA",
+      "actionRecommended": "Carga manual",
+      "confidence": "LOW",
+      "reason": "No existe ningún dato logístico numérico en el CSV para este producto."
+    },
+    {
+      "slug": "camino-de-mesa-rayas",
+      "previousState": "INVALID_LOGISTICS",
+      "originalReason": "No hay una logistica completa valida en este grupo.",
+      "csv": {
+        "slug": "camino-de-mesa-rayas",
+        "title": "Camino de mesa RAYAS",
+        "sourceIdentifier": "camino-de-mesa-rayas",
+        "sku": [],
+        "rowCount": 1,
+        "rows": [
+          {
+            "rowNumber": 584,
+            "sourceProductUrlIdentifier": "camino-de-mesa-rayas",
+            "sourceProductName": "Camino de mesa RAYAS",
+            "sku": null,
+            "variantSignature": "tamano=1-60x0-40cm",
+            "variantLabel": "Tamaño: 1.60x0.40cm",
+            "variantValue": "1-60x0-40cm",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "1.60x0.40cm"
+              }
+            ]
+          }
+        ]
+      },
+      "candidate": {
+        "exactSanitySlugMatch": {
+          "_id": "import-product-camino-de-mesa-rayas",
+          "title": "Camino de mesa RAYAS",
+          "slug": "camino-de-mesa-rayas",
+          "sku": [],
+          "logistics": null,
+          "variantCount": 1
+        },
+        "topCandidates": [
+          {
+            "_id": "import-product-camino-de-mesa-rayas",
+            "title": "Camino de mesa RAYAS",
+            "slug": "camino-de-mesa-rayas",
+            "skus": [],
+            "variantCount": 1,
+            "similarity": {
+              "score": 2,
+              "sharedTokens": [
+                "camino",
+                "mesa",
+                "rayas"
+              ],
+              "exactTitle": true,
+              "exactSlug": true,
+              "exactSku": false
+            },
+            "reason": "título exacto | slug exacto | tokens compartidos: camino, mesa, rayas | variantes actuales: 1"
+          },
+          {
+            "_id": "969d4209-e5b7-41b7-ba7b-3475238dd916",
+            "title": "Camino mesa LILI 175x45cm",
+            "slug": "camino-mesa-lili-175x45cm",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.6666666666666666,
+              "sharedTokens": [
+                "camino",
+                "mesa"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: camino, mesa"
+          },
+          {
+            "_id": "cbacee57-8e6f-4f8c-9e2f-1f1787b5e2d1",
+            "title": "Camino de mesa ALELI de gasa 190x35cm",
+            "slug": "camino-de-mesa-aleli-de-gasa-190x35cm",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.6666666666666666,
+              "sharedTokens": [
+                "camino",
+                "mesa"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: camino, mesa"
+          },
+          {
+            "_id": "import-product-camino-de-mesa-aleli-de-gasa-beige-190x35cm",
+            "title": "Camino de mesa ALELI de gasa BEIGE 190x35cm",
+            "slug": "camino-de-mesa-aleli-de-gasa-beige-190x35cm",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.6666666666666666,
+              "sharedTokens": [
+                "camino",
+                "mesa"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: camino, mesa"
+          },
+          {
+            "_id": "import-product-camino-de-mesa-carmela-200x30cm",
+            "title": "Camino de mesa CARMELA 200X30cm",
+            "slug": "camino-de-mesa-carmela-200x30cm",
+            "skus": [],
+            "variantCount": 0,
+            "similarity": {
+              "score": 0.6666666666666666,
+              "sharedTokens": [
+                "camino",
+                "mesa"
+              ],
+              "exactTitle": false,
+              "exactSlug": false,
+              "exactSku": false
+            },
+            "reason": "tokens compartidos: camino, mesa"
+          }
+        ]
+      },
+      "logisticsAnalysis": {
+        "classification": "NO_USABLE_DATA",
+        "actionRecommended": "Carga manual",
+        "confidence": "LOW",
+        "reason": "No existe ningún dato logístico numérico en el CSV para este producto.",
+        "summary": {
+          "rows": 1,
+          "completeRows": 0,
+          "incompleteRows": 1,
+          "distinctCompleteLogistics": 0,
+          "groupedVariants": 1
+        },
+        "rows": [
+          {
+            "rowNumber": 584,
+            "sourceProductUrlIdentifier": "camino-de-mesa-rayas",
+            "sourceProductName": "Camino de mesa RAYAS",
+            "sku": null,
+            "variantSignature": "tamano=1-60x0-40cm",
+            "variantLabel": "Tamaño: 1.60x0.40cm",
+            "variantValue": "1-60x0-40cm",
+            "weightKg": null,
+            "heightCm": null,
+            "widthCm": null,
+            "depthCm": null,
+            "stock": null,
+            "barcode": null,
+            "tags": null,
+            "variantAttributes": [
+              {
+                "name": "Tamaño",
+                "value": "1.60x0.40cm"
+              }
+            ]
+          }
+        ],
+        "groupedVariants": [
+          {
+            "signature": "tamano=1-60x0-40cm",
+            "rowNumbers": [
+              584
+            ],
+            "classification": "empty",
+            "reason": "La variante no tiene logística completa.",
+            "logistics": null,
+            "rows": [
+              {
+                "rowNumber": 584,
+                "sourceProductUrlIdentifier": "camino-de-mesa-rayas",
+                "sourceProductName": "Camino de mesa RAYAS",
+                "sku": null,
+                "variantSignature": "tamano=1-60x0-40cm",
+                "variantLabel": "Tamaño: 1.60x0.40cm",
+                "variantValue": "1-60x0-40cm",
+                "weightKg": null,
+                "heightCm": null,
+                "widthCm": null,
+                "depthCm": null,
+                "stock": null,
+                "barcode": null,
+                "tags": null,
+                "variantAttributes": [
+                  {
+                    "name": "Tamaño",
+                    "value": "1.60x0.40cm"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "distinctCompleteLogistics": []
+      },
+      "newClassification": "NO_USABLE_DATA",
+      "actionRecommended": "Carga manual",
+      "confidence": "LOW",
+      "reason": "No existe ningún dato logístico numérico en el CSV para este producto."
+    }
+  ]
+}

@@ -26,6 +26,7 @@ export type AdminProductVariantData = {
   logistics: ProductLogistics | null;
   images: SanityImageWithAlt[];
   source: AdminProductVariantSource;
+  canDelete: boolean;
 };
 
 type VariantLike = {
@@ -138,6 +139,7 @@ export function normalizeAdminVariantFromCanonical(
     logistics: normalizeProductLogistics(variant.logistics),
     images: Array.isArray(variant.images) ? variant.images : [],
     source: "variants",
+    canDelete: true,
   };
 }
 
@@ -161,6 +163,7 @@ export function normalizeAdminVariantFromLegacy(
     logistics: null,
     images: Array.isArray(variant.images) ? variant.images : [],
     source: "colorVariants",
+    canDelete: true,
   };
 }
 

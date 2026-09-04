@@ -3,7 +3,6 @@ import { ChartCard } from "@/features/admin/dashboard/components/chart-card";
 import { DashboardShell } from "@/features/admin/dashboard/components/dashboard-shell";
 import { EmptyState } from "@/features/admin/dashboard/components/empty-state";
 import { KpiCard } from "@/features/admin/dashboard/components/kpi-card";
-import { LockedMetricCard } from "@/features/admin/dashboard/components/locked-metric-card";
 import { RankingCard } from "@/features/admin/dashboard/components/ranking-card";
 import { StatBadge } from "@/features/admin/dashboard/components/stat-badge";
 import {
@@ -92,7 +91,7 @@ export default async function AdminDashboardCheckoutPage({
   return (
     <DashboardShell
       title="Finalización de compra"
-      subtitle={`Vista de conversión basada en órdenes reales. Período activo: ${DASHBOARD_PERIODS[period].label}.`}
+      subtitle={`Conversión basada en órdenes reales. Período activo: ${DASHBOARD_PERIODS[period].label}.`}
       lastUpdated={lastUpdated}
     >
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -127,7 +126,7 @@ export default async function AdminDashboardCheckoutPage({
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
         <ChartCard
           title="Embudo de finalización de compra"
-          description="Embudo parcial basado en órdenes reales. Las etapas intermedias estarán disponibles al activar seguimiento avanzado."
+          description="Pedidos creados y pagados del período."
         >
           <div className="space-y-3">
             <StatBadge
@@ -140,19 +139,7 @@ export default async function AdminDashboardCheckoutPage({
               value={formatDashboardNumber(metrics.conversion.paidOrders)}
               tone="approved"
             />
-            <LockedMetricCard
-              title="Datos de entrega"
-              description="Seguimiento pendiente para agregar pasos intermedios del embudo."
-            />
-            <LockedMetricCard
-              title="Método de pago"
-              description="Seguimiento pendiente para segmentar etapas reales de la finalización de compra."
-            />
           </div>
-          <p className="mt-4 text-xs text-slate-500">
-            Embudo parcial basado en órdenes reales. Las etapas intermedias estarán disponibles al
-            activar seguimiento avanzado.
-          </p>
         </ChartCard>
 
         <ChartCard

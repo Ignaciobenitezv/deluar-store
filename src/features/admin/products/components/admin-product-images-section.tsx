@@ -19,6 +19,7 @@ import { logger } from "@/lib/logger";
 import {
   ALLOWED_IMAGE_MIME_TYPES,
   MAX_PRODUCT_IMAGE_UPLOAD_BYTES,
+  MAX_PRODUCT_IMAGE_UPLOAD_TOTAL_BYTES,
   isAllowedProductImageMimeType,
 } from "../lib/product-image-constraints";
 import { commitProductImagesAction } from "../actions/update-product-images-action";
@@ -46,8 +47,15 @@ function formatUploadLimit(bytes: number) {
   return `${megabytes.toFixed(megabytes % 1 === 0 ? 0 : 1)} MB`;
 }
 
+const TOTAL_UPLOAD_LIMIT_MESSAGE =
+  "Las imágenes seleccionadas superan el tamaño máximo permitido. Subí menos imágenes por vez.";
+
 function buildFileSignature(file: File) {
   return `${file.name}:${file.size}:${file.lastModified}:${file.type}`;
+}
+
+function getTotalFileSize(files: Array<{ size: number }>) {
+  return files.reduce((total, file) => total + file.size, 0);
 }
 
 function TrashIcon() {
@@ -226,11 +234,32 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
     [draftImages, selectedImageId],
   );
 
+  const newImageFiles = useMemo(
+    () => draftImages.filter((image): image is AdminProductImageDraftNewItem => !image.existing),
+    [draftImages],
+  );
+
+  const newImageFilesTotalSize = useMemo(
+    () => getTotalFileSize(newImageFiles.map((image) => image.file)),
+    [newImageFiles],
+  );
+
+  const exceedsTotalUploadLimit = newImageFilesTotalSize > MAX_PRODUCT_IMAGE_UPLOAD_TOTAL_BYTES;
+
   const savedSignature = useMemo(() => buildDraftImagesSignature(savedDraftImages), [savedDraftImages]);
 
   const draftSignature = useMemo(() => buildDraftImagesSignature(draftImages), [draftImages]);
   const hasUnsavedChanges = draftSignature !== savedSignature;
-  const canSave = hasUnsavedChanges && !isSaving && draftImages.length > 0;
+  const canSave = hasUnsavedChanges && !isSaving && draftImages.length > 0 && !exceedsTotalUploadLimit;
+
+  useEffect(() => {
+    if (exceedsTotalUploadLimit) {
+      setSelectionMessage(TOTAL_UPLOAD_LIMIT_MESSAGE);
+      return;
+    }
+
+    setSelectionMessage((current) => (current === TOTAL_UPLOAD_LIMIT_MESSAGE ? null : current));
+  }, [exceedsTotalUploadLimit]);
 
   const openEditor = (image: AdminProductImageDraftItem) => {
     setSelectedImageId(image.id);
@@ -249,6 +278,13 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
       return;
     }
 
+    const incomingTotalSize = getTotalFileSize(incomingFiles);
+
+    if (incomingTotalSize > MAX_PRODUCT_IMAGE_UPLOAD_TOTAL_BYTES) {
+      setSelectionMessage(TOTAL_UPLOAD_LIMIT_MESSAGE);
+      return;
+    }
+
     const accepted: AdminProductImageDraftNewItem[] = [];
     const rejected: string[] = [];
 
@@ -261,7 +297,7 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
       }
 
       if (file.size > MAX_PRODUCT_IMAGE_UPLOAD_BYTES) {
-        rejected.push(`Archivo ${position}: supera el limite de 10 MB.`);
+        rejected.push("Cada imagen puede pesar hasta 10 MB.");
         continue;
       }
 
@@ -410,11 +446,32 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
 
   const handleSaveChanges = async () => {
     if (!canSave) {
+      if (exceedsTotalUploadLimit) {
+        setSubmitState({
+          status: "error",
+          message: TOTAL_UPLOAD_LIMIT_MESSAGE,
+        });
+      }
+
       return;
     }
 
     const currentDraftImages = draftImagesRef.current;
     const currentSelectedImageId = selectedImageId;
+    const currentNewFiles = currentDraftImages.filter(
+      (image): image is AdminProductImageDraftNewItem => !image.existing,
+    );
+    const currentNewFilesTotalSize = getTotalFileSize(currentNewFiles.map((image) => image.file));
+
+    if (currentNewFilesTotalSize > MAX_PRODUCT_IMAGE_UPLOAD_TOTAL_BYTES) {
+      setSelectionMessage(TOTAL_UPLOAD_LIMIT_MESSAGE);
+      setSubmitState({
+        status: "error",
+        message: TOTAL_UPLOAD_LIMIT_MESSAGE,
+      });
+      return;
+    }
+
     const formData = new FormData();
     formData.set("productId", product.id);
     formData.set("rev", currentRev);
@@ -489,9 +546,7 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
       <div className={`${dashboardUi.cardHeader} border-b border-slate-200/60`}>
         <div className="min-w-0">
           <h2 className={dashboardUi.sectionTitle}>Imágenes</h2>
-          <p className={dashboardUi.sectionDescription}>
-            Editá la galería localmente y guardá todos los cambios de una sola vez.
-          </p>
+          <p className={dashboardUi.sectionDescription}>Arrastrá imágenes o hacé clic para seleccionarlas.</p>
         </div>
       </div>
 
@@ -526,10 +581,12 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
           )}
         >
           <div className="grid gap-2 text-center">
-            <p className="text-sm font-semibold text-slate-900">Arrastrá imágenes acá</p>
-            <p className="text-sm text-slate-500">o hacé clic para seleccionar varias imágenes.</p>
+            <p className="text-sm font-semibold text-slate-900">Arrastrá imágenes o hacé clic para seleccionarlas.</p>
             <p className="text-xs text-slate-500">
               JPG, PNG o WebP · Máx. {formatUploadLimit(MAX_PRODUCT_IMAGE_UPLOAD_BYTES)} c/u
+            </p>
+            <p className="text-xs text-slate-500">
+              Tamaño total máximo por guardado: {formatUploadLimit(MAX_PRODUCT_IMAGE_UPLOAD_TOTAL_BYTES)}.
             </p>
           </div>
 
@@ -548,7 +605,7 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
         <div className="mt-5 flex items-center justify-between gap-3">
           <div>
             <p className="text-sm font-semibold text-slate-900">Galería</p>
-            <p className="text-xs text-slate-500">La primera imagen del editor sigue siendo la principal.</p>
+            <p className="text-xs text-slate-500">La primera imagen sigue siendo la principal.</p>
           </div>
           <span className={dashboardUi.labelPill}>{galleryCount} imágenes</span>
         </div>
@@ -649,7 +706,7 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
             </Reorder.Group>
           ) : (
             <div className="rounded-[22px] border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-600">
-              Este producto todavía no tiene imágenes. Subí la primera desde el bloque de arriba.
+              Este producto todavía no tiene imágenes.
             </div>
           )}
         </div>
@@ -657,7 +714,7 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-[22px] border border-slate-200 bg-slate-50 px-4 py-4">
           <div className="grid gap-1">
             <p className="text-sm font-semibold text-slate-900">{dirtyLabel}</p>
-            <p className="text-xs text-slate-500">La galería se guarda solo cuando presionás Guardar cambios.</p>
+            <p className="text-xs text-slate-500">Guardá los cambios para actualizar la galería.</p>
           </div>
 
           <div className="flex flex-wrap gap-2">

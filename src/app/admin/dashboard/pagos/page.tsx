@@ -47,7 +47,7 @@ export default async function AdminDashboardPaymentsPage({ searchParams }: Admin
   return (
     <DashboardShell
       title="Pagos"
-      subtitle={`Rendimiento y estado de pagos basado en órdenes reales. Período activo: ${DASHBOARD_PERIODS[period].label}.`}
+      subtitle={`Pagos y estados de órdenes. Período activo: ${DASHBOARD_PERIODS[period].label}.`}
       lastUpdated={lastUpdated}
     >
       <section className="grid gap-3 min-[420px]:grid-cols-2 sm:gap-4 xl:grid-cols-4">
@@ -104,10 +104,8 @@ export default async function AdminDashboardPaymentsPage({ searchParams }: Admin
               </div>
 
               <div className="rounded-[20px] border border-slate-200/70 bg-slate-50 p-4 sm:p-5">
-                <p className="text-sm font-medium text-slate-900">Métodos con más fallos</p>
-                <p className="mt-2 text-sm leading-6 text-slate-500">
-                  Se calcula con estados fallidos y pendientes por método de pago.
-                </p>
+              <p className="text-sm font-medium text-slate-900">Métodos con más fallos</p>
+                <p className="mt-2 text-sm leading-6 text-slate-500">Pendientes y fallidos por método de pago.</p>
                 <div className="mt-4 space-y-3">
                   {failedByMethod.slice(0, 5).map((item) => (
                     <div key={item.method} className="rounded-[16px] border border-slate-200/70 bg-white px-4 py-3">

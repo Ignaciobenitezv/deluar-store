@@ -21,7 +21,7 @@ export default async function AdminDashboardLayout({
             <AdminModuleSidebar
               moduleLabel="ANÁLISIS"
               moduleTitle="Estadísticas"
-              moduleDescription="Lecturas ejecutivas, rendimiento y vistas analíticas del ecommerce."
+              moduleDescription="Resumen, conversiones y operación del ecommerce."
               homeHref="/admin"
               homeLabel="Panel principal"
               sections={adminAnalyticsSections}
@@ -35,7 +35,7 @@ export default async function AdminDashboardLayout({
       <AdminModuleMobileMenu
         moduleLabel="ANÁLISIS"
         moduleTitle="Estadísticas"
-        moduleDescription="Lecturas ejecutivas, rendimiento y vistas analíticas del ecommerce."
+        moduleDescription="Resumen, conversiones y operación del ecommerce."
         homeHref="/admin"
         homeLabel="Panel principal"
         sections={adminAnalyticsSections}

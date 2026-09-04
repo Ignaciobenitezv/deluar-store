@@ -16,6 +16,7 @@ export type CatalogProductCard = {
   shortDescription: string;
   basePrice: number;
   transferPrice?: number;
+  pricePrefix?: string | null;
   stock: number;
   imageUrl: string | null;
   imageAlt: string;

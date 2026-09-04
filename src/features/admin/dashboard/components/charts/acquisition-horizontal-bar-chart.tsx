@@ -96,8 +96,8 @@ export function AcquisitionHorizontalBarChart({
   if (visibleData.length === 0) {
     return (
       <DashboardChartEmpty
-        title={emptyTitle ?? "No hay datos para este periodo."}
-        description={emptyDescription ?? "Cuando haya actividad, el grafico aparecera aqui."}
+        title={emptyTitle ?? "Sin datos para este período."}
+        description={emptyDescription ?? "Los datos se mostrarán acá."}
         compact
       />
     );

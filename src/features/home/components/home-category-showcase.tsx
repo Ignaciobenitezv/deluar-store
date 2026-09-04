@@ -129,6 +129,7 @@ function ProductMiniCard({
               compact ? "text-[0.9rem] font-semibold" : "text-[1.12rem] font-semibold tracking-[0.01em]",
             )}
           >
+            {product.pricePrefix ? `${product.pricePrefix} ` : null}
             {formatPrice(product.basePrice)}
           </p>
           <p

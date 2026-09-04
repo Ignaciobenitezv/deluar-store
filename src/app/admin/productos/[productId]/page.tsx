@@ -120,13 +120,12 @@ export default async function AdminProductDetailPage({ params }: AdminProductDet
           <AdminProductImagesSection key={product.rev} product={product} />
         </section>
 
-        <section className="grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)]">
+        <section className="grid gap-4">
           <AdminProductVariantsSection product={product} />
         </section>
       </AdminProductsShell>
     </AdminProductRevisionProvider>
   );
 }
-
 
 

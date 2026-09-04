@@ -240,12 +240,10 @@ function buildDetailDelta(
     }
   }
 
-  if (!baseline.hasVariants) {
-    const stock = Number(draft.stock);
-    if (Number.isFinite(stock) && stock !== baseline.stock) {
-      delta.stock = stock;
-      changedFields.add("stock");
-    }
+  const stock = Number(draft.stock);
+  if (Number.isFinite(stock) && stock !== baseline.stock) {
+    delta.stock = stock;
+    changedFields.add("stock");
   }
 
   if (draft.isActive !== baseline.visible) {
@@ -372,7 +370,7 @@ function AdminProductDetailFormFields({
   const formRef = useRef<HTMLFormElement>(null);
   const baselineRef = useRef(product);
   const [draft, setDraft] = useState<DetailDraft>(() => createDetailDraft(product));
-  const canEditStock = !product.hasVariants;
+  const hasVariants = product.hasVariants;
 
   useEffect(() => {
     logger.debug("admin.products.detail.commercial_loaded", {
@@ -865,12 +863,18 @@ function AdminProductDetailFormFields({
               </div>
               <div className="flex items-center justify-between gap-4">
                 <dt>Precio</dt>
-                <dd className="font-medium text-slate-900">{formatDashboardPrice(product.basePrice)}</dd>
+                <dd className="font-medium text-slate-900">
+                  {product.hasVariants ? "Administrado por variantes" : formatDashboardPrice(product.basePrice)}
+                </dd>
               </div>
               <div className="flex items-center justify-between gap-4">
                 <dt>Transferencia</dt>
                 <dd className="font-medium text-slate-900">
-                  {typeof product.transferPrice === "number" ? formatDashboardPrice(product.transferPrice) : "Sin definir"}
+                  {product.hasVariants
+                    ? "Se edita dentro de cada variante"
+                    : typeof product.transferPrice === "number"
+                      ? formatDashboardPrice(product.transferPrice)
+                      : "Sin definir"}
                 </dd>
               </div>
               <div className="flex items-center justify-between gap-4">
@@ -891,7 +895,7 @@ function AdminProductDetailFormFields({
               </Link>
               <Link
                 href={`/productos/detalle/${currentSlug}`}
-                className={cn("inline-flex items-center rounded-full border px-4 py-2 text-sm font-semibold", dashboardUi.primaryAction)}
+                className={cn("inline-flex items-center rounded-full border px-4 py-2 text-sm text-white! font-semibold", dashboardUi.primaryAction)}
               >
                 Ver en tienda
               </Link>
@@ -903,7 +907,7 @@ function AdminProductDetailFormFields({
           <div className={`${dashboardUi.cardHeader} border-b border-slate-200/60`}>
             <div>
               <h2 className={dashboardUi.sectionTitle}>Comercial</h2>
-              <p className={dashboardUi.sectionDescription}>Estado operativo, destacado, oferta y stock general.</p>
+              <p className={dashboardUi.sectionDescription}>Estado operativo, destacado, oferta y stock del producto base.</p>
             </div>
           </div>
 
@@ -1002,23 +1006,20 @@ function AdminProductDetailFormFields({
               </label>
 
               <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Stock</span>
-                {canEditStock ? (
-                  <input
-                    type="number"
-                    name="stock"
-                    min={0}
-                    step={1}
-                    value={draft.stock}
-                    onChange={(event) => setDraft((current) => ({ ...current, stock: event.target.value }))}
-                    placeholder="Ej. 24"
-                    className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
-                  />
-                ) : (
-                  <div className="rounded-[18px] border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                    {product.stockLabel}. Administrado por variantes.
-                  </div>
-                )}
+                <span>{hasVariants ? "Stock del producto base" : "Stock"}</span>
+                <input
+                  type="number"
+                  name="stock"
+                  min={0}
+                  step={1}
+                  value={draft.stock}
+                  onChange={(event) => setDraft((current) => ({ ...current, stock: event.target.value }))}
+                  placeholder="Ej. 24"
+                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
+                />
+                {hasVariants ? (
+                  <span className="text-xs text-slate-500">Las variantes tienen stock independiente.</span>
+                ) : null}
                 {getFieldError(state, "stock") ? (
                   <span className="text-xs font-normal text-rose-600">{getFieldError(state, "stock")}</span>
                 ) : null}
@@ -1028,10 +1029,8 @@ function AdminProductDetailFormFields({
         </section>
 
         <div className="flex flex-col gap-3 rounded-[22px] border border-slate-200/70 bg-white px-4 py-4 text-sm text-slate-600 shadow-[0_8px_18px_rgba(15,23,42,0.028)]">
-          <p className="font-medium text-slate-900">Consejo operativo</p>
-          <p>
-            Si cambiás la categoría, la subcategoría debe seguir perteneciendo al árbol seleccionado. Si no, el guardado se bloquea.
-          </p>
+          <p className="font-medium text-slate-900">Validación</p>
+          <p>La subcategoría debe pertenecer a la categoría seleccionada.</p>
         </div>
       </aside>
 

@@ -43,8 +43,8 @@ export function CustomerEvolutionChart({ data }: CustomerEvolutionChartProps) {
     return (
       <DashboardChartEmpty
         compact
-        title="No hay actividad suficiente para graficar la evolución."
-        description="Cuando haya compras nuevas o recurrentes, la serie temporal se mostrará aquí."
+        title="Sin actividad suficiente."
+        description="La evolución se mostrará cuando haya compras."
       />
     );
   }

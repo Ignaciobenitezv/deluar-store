@@ -64,13 +64,17 @@ const adminProductProjection = groq`
     value,
     stock,
     isActive,
+    basePrice,
+    transferPrice,
     ${logisticsProjection}
   },
   colorVariants[]{
     _key,
     title,
     value,
-    stock
+    stock,
+    basePrice,
+    transferPrice
   }
 `;
 
@@ -89,13 +93,17 @@ export const adminProductsInventoryQuery = groq`
       value,
       stock,
       isActive,
+      basePrice,
+      transferPrice,
       ${logisticsProjection}
     },
     colorVariants[]{
       _key,
       title,
       value,
-      stock
+      stock,
+      basePrice,
+      transferPrice
     }
   }
 `;

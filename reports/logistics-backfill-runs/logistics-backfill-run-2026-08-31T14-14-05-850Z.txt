@@ -1,0 +1,27 @@
+Logistics backfill execution
+Generated at: 2026-08-31T14:29:17.380Z
+Mode: WRITE
+Dry-run source: E:\deluar-store\reports\logistics-backfill-dry-run.json
+
+Summary
+- Total source candidates: 471
+- Safe candidates available: 454
+- Blocked candidates excluded: 17
+- Evaluated candidates: 454
+- WOULD_WRITE: 0
+- WRITTEN: 453
+- SKIP_ALREADY_HAS_LOGISTICS: 1
+- SKIP_NOT_SAFE: 0
+- SKIP_BLOCKED: 17
+- ERROR: 0
+
+Candidatos listos para backfill: 0
+Sanity mutations realizadas en esta tarea: 453
+Es seguro hacer una prueba controlada de 1 producto: NO
+
+Sample would-write
+
+Sample blocked exclusions
+- noix-24-5-1az5h | null | SKIP_BLOCKED | No hubo match exacto con ID, slug, SKU ni titulo.
+- alfombra-1cnr7 | import-product-alfombra-1cnr7 | SKIP_BLOCKED | No hay una logistica completa valida en este grupo.
+- utensilios-1nswj | null | SKIP_BLOCKED | No hubo match exacto con ID, slug, SKU ni titulo.

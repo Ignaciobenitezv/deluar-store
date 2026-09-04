@@ -1,0 +1,30 @@
+Logistics backfill execution
+Generated at: 2026-08-31T13:46:00.835Z
+Mode: DRY_RUN
+Dry-run source: E:\deluar-store\reports\logistics-backfill-dry-run.json
+
+Summary
+- Total source candidates: 471
+- Safe candidates available: 454
+- Blocked candidates excluded: 17
+- Evaluated candidates: 454
+- WOULD_WRITE: 454
+- WRITTEN: 0
+- SKIP_ALREADY_HAS_LOGISTICS: 0
+- SKIP_NOT_SAFE: 0
+- SKIP_BLOCKED: 17
+- ERROR: 0
+
+Candidatos listos para backfill: 454
+Sanity mutations realizadas en esta tarea: 0
+Es seguro hacer una prueba controlada de 1 producto: SI
+
+Sample would-write
+- setx4-individuales-cuerina-40x28cm-gris-oscuro-13l1s | import-product-setx4-individuales-cuerina-40x28cm-gris-oscuro-13l1s | before=null | proposed={"weightGrams":20,"heightCm":10,"widthCm":10,"depthCm":1}
+- cubre-sommier-600hq-oxford-soft-gris-1ou4m | import-product-cubre-sommier-600hq-oxford-soft-gris-1ou4m | before=null | proposed={"weightGrams":200,"heightCm":30,"widthCm":20,"depthCm":2}
+- cortina-cwr1a | import-product-cortina-cwr1a | before=null | proposed={"weightGrams":100,"heightCm":2,"widthCm":15,"depthCm":15}
+
+Sample blocked exclusions
+- noix-24-5-1az5h | null | SKIP_BLOCKED | No hubo match exacto con ID, slug, SKU ni titulo.
+- alfombra-1cnr7 | import-product-alfombra-1cnr7 | SKIP_BLOCKED | No hay una logistica completa valida en este grupo.
+- utensilios-1nswj | null | SKIP_BLOCKED | No hubo match exacto con ID, slug, SKU ni titulo.

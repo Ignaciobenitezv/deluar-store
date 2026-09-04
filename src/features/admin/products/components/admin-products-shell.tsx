@@ -25,14 +25,13 @@ export function AdminProductsShell({ children, lastUpdated, updatedAt }: AdminPr
                       <p className={dashboardUi.mutedLabel}>Administrador de catálogo</p>
                       <div className="mt-2 flex flex-wrap gap-2">
                         <span className={dashboardUi.pill}>Solo lectura</span>
-                        <span className={dashboardUi.pill}>Sanity como fuente de verdad</span>
+                        <span className={dashboardUi.pill}>Catálogo operativo</span>
                       </div>
                       <h1 className="mt-3 text-[1.45rem] font-semibold tracking-[-0.05em] text-slate-950 sm:mt-4 sm:text-[2.35rem]">
                         Productos
                       </h1>
                       <p className="mt-2 max-w-2xl text-[12px] leading-5 text-slate-500 sm:text-base sm:leading-7">
-                        Listado operativo del catálogo para Lucila. Esta vista está optimizada para revisar inventario,
-                        visibilidad y variantes sin entrar en Sanity Studio.
+                        Listado operativo del catálogo.
                       </p>
                     </div>
 

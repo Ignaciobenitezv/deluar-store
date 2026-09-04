@@ -1,16 +1,15 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ProductViewTracker } from "@/features/analytics/components/product-view-tracker";
 import { ProductGrid } from "@/features/catalog/components/product-grid";
 import { ProductCard } from "@/features/catalog/components/product-card";
-import type { ProductDetailData } from "@/features/catalog/types";
-import { formatVariantAttributeSummary } from "@/features/catalog/variant-normalizer";
 import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import { useCart } from "@/features/cart/cart-context";
 import { ProductGallery } from "@/features/product/components/product-gallery";
+import type { ProductDetailData, ProductDetailImage, ProductVariantAttribute } from "@/features/catalog/types";
+import { formatVariantAttributeSummary } from "@/features/catalog/variant-normalizer";
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat("es-AR", {
@@ -20,27 +19,101 @@ function formatPrice(value: number) {
   }).format(value);
 }
 
+type ProductPurchaseOption = {
+  id: string;
+  kind: "base" | "variant";
+  label: string;
+  stock: number;
+  basePrice: number;
+  transferPrice?: number;
+  images: ProductDetailImage[];
+  primaryImageUrl: string | null;
+  primaryImageAlt: string;
+  variantId?: string;
+  variantValue?: string;
+  variantAttributes?: ProductVariantAttribute[];
+  sku?: string;
+};
+
+function buildProductPurchaseOptions(product: ProductDetailData): ProductPurchaseOption[] {
+  const baseImages = product.images;
+  const basePrimaryImage = baseImages[0] ?? null;
+
+  const options: ProductPurchaseOption[] = [
+    {
+      id: "base",
+      kind: "base",
+      label: "Normal",
+      stock: Math.max(0, Math.trunc(product.stock ?? 0)),
+      basePrice: product.basePrice,
+      transferPrice: product.transferPrice,
+      images: baseImages,
+      primaryImageUrl: basePrimaryImage?.url ?? product.primaryImageUrl,
+      primaryImageAlt: basePrimaryImage?.alt ?? product.primaryImageAlt,
+    },
+  ];
+
+  for (const variant of product.variants) {
+    const variantImages = variant.images.length > 0 ? variant.images : baseImages;
+    const variantPrimaryImage = variantImages[0] ?? basePrimaryImage;
+
+    options.push({
+      id: variant.id,
+      kind: "variant",
+      label: variant.title,
+      stock: Math.max(0, Math.trunc(variant.stock ?? 0)),
+      basePrice: variant.basePrice,
+      transferPrice: variant.transferPrice,
+      images: variantImages,
+      primaryImageUrl: variantPrimaryImage?.url ?? product.primaryImageUrl,
+      primaryImageAlt: variantPrimaryImage?.alt ?? variant.primaryImageAlt,
+      variantId: variant.id,
+      variantValue: variant.value,
+      variantAttributes: variant.attributes,
+      sku: variant.sku,
+    });
+  }
+
+  return options;
+}
+
+function getInitialProductOptionId(product: ProductDetailData) {
+  const variantWithStock = product.variants.find((variant) => variant.stock > 0);
+
+  if (variantWithStock) {
+    return variantWithStock.id;
+  }
+
+  if (product.stock > 0) {
+    return "base";
+  }
+
+  return product.variants[0]?.id ?? "base";
+}
+
 type ProductDetailProps = {
   product: ProductDetailData;
 };
 
 export function ProductDetail({ product }: ProductDetailProps) {
   const { items: cartItems } = useCart();
-  const [activeVariantId, setActiveVariantId] = useState(() => product.variants[0]?.id ?? "");
+  const purchaseOptions = useMemo(() => buildProductPurchaseOptions(product), [product]);
+  const [activeOptionId, setActiveOptionId] = useState(() => getInitialProductOptionId(product));
   const [quantity, setQuantity] = useState(1);
   const [descOpen, setDescOpen] = useState(true);
   const relatedScrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
-  const activeVariant = product.variants.find((v) => v.id === activeVariantId) ?? product.variants[0];
-  const activeStock = activeVariant?.stock ?? product.stock;
-  const activeBasePrice = activeVariant?.basePrice ?? product.basePrice;
-  const activeTransferPrice = activeVariant?.transferPrice ?? product.transferPrice;
-  const activeImages = activeVariant?.images.length ? activeVariant.images : product.images;
-  const activePrimaryImageUrl = activeVariant?.primaryImageUrl ?? product.primaryImageUrl;
-  const activePrimaryImageAlt = activeVariant?.primaryImageAlt ?? product.primaryImageAlt;
-  const cartItemId = activeVariant ? `${product.id}:${activeVariant.id}` : product.id;
+  const activeOption =
+    purchaseOptions.find((option) => option.id === activeOptionId) ?? purchaseOptions[0];
+  const activeStock = activeOption?.stock ?? product.stock;
+  const activeBasePrice = activeOption?.basePrice ?? product.basePrice;
+  const activeTransferPrice = activeOption?.transferPrice ?? product.transferPrice;
+  const activeImages = activeOption?.images.length ? activeOption.images : product.images;
+  const activePrimaryImageUrl = activeOption?.primaryImageUrl ?? product.primaryImageUrl;
+  const activePrimaryImageAlt = activeOption?.primaryImageAlt ?? product.primaryImageAlt;
+  const cartItemId = activeOption?.kind === "variant" ? `${product.id}:${activeOption.id}` : product.id;
   const cartItem = cartItems.find((item) => item.id === cartItemId);
   const cartQuantity = cartItem?.quantity ?? 0;
   const remainingStock = Math.max(activeStock - cartQuantity, 0);
@@ -51,6 +124,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const effectiveQuantity = Math.min(Math.max(quantity, 1), quantityMax);
   const canDecreaseQuantity = hasRemainingStock && effectiveQuantity > 1;
   const canIncreaseQuantity = hasRemainingStock && effectiveQuantity < quantityMax;
+
   const checkRelatedScroll = () => {
     const el = relatedScrollRef.current;
     if (!el) return;
@@ -60,17 +134,21 @@ export function ProductDetail({ product }: ProductDetailProps) {
     setCanScrollLeft(scrollLeft > 5);
     setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 5);
   };
+
   const scrollRelatedLeft = () => {
     relatedScrollRef.current?.scrollBy({ left: -200, behavior: "smooth" });
   };
+
   const scrollRelatedRight = () => {
     relatedScrollRef.current?.scrollBy({ left: 200, behavior: "smooth" });
   };
+
   const handleDecreaseQuantity = () => {
-    setQuantity((q) => Math.max(q - 1, 1));
+    setQuantity((current) => Math.max(current - 1, 1));
   };
+
   const handleIncreaseQuantity = () => {
-    setQuantity((q) => Math.min(q + 1, quantityMax));
+    setQuantity((current) => Math.min(current + 1, quantityMax));
   };
 
   useEffect(() => {
@@ -82,7 +160,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
       <ProductViewTracker
         productId={product.id}
         productSlug={product.slug}
-        variantId={activeVariant?.id ?? null}
+        variantId={activeOption?.kind === "variant" ? activeOption.id : null}
       />
 
       <section className="grid gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)] lg:items-start lg:gap-14">
@@ -105,11 +183,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
             <h1 className="text-[1.85rem] font-semibold leading-tight tracking-tight text-foreground sm:text-[2.2rem]">
               {product.title}
             </h1>
-            {product.shortDescription && (
-              <p className="mt-2.5 text-sm leading-6 text-muted">
-                {product.shortDescription}
-              </p>
-            )}
+            {product.shortDescription ? (
+              <p className="mt-2.5 text-sm leading-6 text-muted">{product.shortDescription}</p>
+            ) : null}
           </div>
 
           <div className="space-y-1">
@@ -118,9 +194,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </p>
             {activeTransferPrice ? (
               <p className="text-sm text-muted">
-                <span className="font-medium text-foreground">
-                  {formatPrice(activeTransferPrice)}
-                </span>{" "}
+                <span className="font-medium text-foreground">{formatPrice(activeTransferPrice)}</span>{" "}
                 con transferencia
               </p>
             ) : null}
@@ -128,50 +202,32 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
           <div className="h-px bg-border/50" />
 
-          {product.variants.length > 0 ? (
+          {purchaseOptions.length > 1 ? (
             <div className="space-y-3">
               <p className="text-[0.7rem] uppercase tracking-[0.22em] text-muted">
-                Variante:{" "}
-                <span className="text-foreground">
-                  {activeVariant?.title ?? "Sin seleccionar"}
-                </span>
+                Opcion: <span className="text-foreground">{activeOption?.label ?? "Sin seleccionar"}</span>
               </p>
-              {activeVariant?.attributes.length ? (
+              {activeOption?.kind === "variant" && activeOption.variantAttributes?.length ? (
                 <p className="text-[0.72rem] leading-5 text-muted">
-                  {formatVariantAttributeSummary(activeVariant.attributes)}
+                  {formatVariantAttributeSummary(activeOption.variantAttributes)}
                 </p>
               ) : null}
               <div className="flex flex-wrap gap-2">
-                {product.variants.map((variant) => (
+                {purchaseOptions.map((option) => (
                   <button
-                    key={variant.id}
+                    key={option.id}
                     type="button"
                     onClick={() => {
-                      setActiveVariantId(variant.id);
+                      setActiveOptionId(option.id);
                       setQuantity(1);
                     }}
-                    aria-label={
-                      variant.attributeSummary
-                        ? `Variante ${variant.attributeSummary}`
-                        : `Variante ${variant.title}`
-                    }
-                    className={`relative h-14 w-11 overflow-hidden rounded border transition-all ${
-                      activeVariant?.id === variant.id
-                        ? "border-foreground/50 ring-1 ring-foreground/15"
+                    className={`inline-flex min-h-10 items-center justify-center rounded-full border px-3.5 py-2 text-sm transition-all ${
+                      activeOption?.id === option.id
+                        ? "border-foreground/50 bg-foreground text-white"
                         : "border-border hover:border-foreground/30"
                     }`}
                   >
-                    {variant.thumbnailUrl ? (
-                      <Image
-                        src={variant.thumbnailUrl}
-                        alt={variant.thumbnailAlt}
-                        fill
-                        sizes="44px"
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="h-full bg-[#efe5d8]" />
-                    )}
+                    {option.label}
                   </button>
                 ))}
               </div>
@@ -179,14 +235,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
           ) : null}
 
           <div className="flex items-center gap-2.5">
-            <span
-              className={`h-2 w-2 rounded-full ${
-                hasStock ? "bg-green-500" : "bg-neutral-300"
-              }`}
-            />
-            <span className="text-sm text-muted">
-              {hasStock ? "En stock" : "Sin stock"}
-            </span>
+            <span className={`h-2 w-2 rounded-full ${hasStock ? "bg-green-500" : "bg-neutral-300"}`} />
+            <span className="text-sm text-muted">{hasStock ? "En stock" : "Sin stock"}</span>
           </div>
 
           {hasRemainingStock ? (
@@ -228,12 +278,16 @@ export function ProductDetail({ product }: ProductDetailProps) {
                     basePrice: activeBasePrice,
                     transferPrice: activeTransferPrice,
                     stock: activeStock,
-                    variantId: activeVariant?.id,
-                    variantLabel: activeVariant?.title,
-                    variantValue: activeVariant?.value,
-                    sku: activeVariant?.sku,
                     productHref: product.productHref,
-                    variantAttributes: activeVariant?.attributes,
+                    ...(activeOption?.kind === "variant"
+                      ? {
+                          variantId: activeOption.id,
+                          variantLabel: activeOption.label,
+                          variantValue: activeOption.variantValue,
+                          sku: activeOption.sku,
+                          variantAttributes: activeOption.variantAttributes,
+                        }
+                      : {}),
                   }}
                 />
               </div>
@@ -250,17 +304,14 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
           {product.attributes.length > 0 ? (
             <div className="border-t border-border/50 pt-5 space-y-3">
-              <p className="text-[0.7rem] uppercase tracking-[0.22em] text-muted">
-                Detalles del producto
-              </p>
+              <p className="text-[0.7rem] uppercase tracking-[0.22em] text-muted">Detalles del producto</p>
               <div className="flex flex-wrap gap-2">
                 {product.attributes.map((attribute) => (
                   <span
                     key={`${attribute.label}-${attribute.value}`}
                     className="rounded border border-border/60 bg-white/40 px-3 py-1.5 text-xs text-foreground/80"
                   >
-                    <span className="text-muted">{attribute.label}:</span>{" "}
-                    {attribute.value}
+                    <span className="text-muted">{attribute.label}:</span> {attribute.value}
                   </span>
                 ))}
               </div>
@@ -271,12 +322,10 @@ export function ProductDetail({ product }: ProductDetailProps) {
             <div className="border-t border-border/50">
               <button
                 type="button"
-                onClick={() => setDescOpen((o) => !o)}
+                onClick={() => setDescOpen((current) => !current)}
                 className="flex w-full items-center justify-between py-4 text-left"
               >
-                <span className="text-[0.7rem] uppercase tracking-[0.22em] text-muted">
-                  Descripcion
-                </span>
+                <span className="text-[0.7rem] uppercase tracking-[0.22em] text-muted">Descripcion</span>
                 <span className="text-base text-muted">{descOpen ? "-" : "+"}</span>
               </button>
               {descOpen ? (
@@ -294,9 +343,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
       {product.relatedProducts.length > 0 ? (
         <div className="relative left-1/2 right-1/2 -mb-14 w-screen -ml-[50vw] -mr-[50vw] bg-white pt-8 pb-14 sm:-mb-16 sm:pb-16">
           <section className="mx-auto max-w-[1200px] space-y-5 px-4 lg:px-8">
-            <h2 className="text-lg font-semibold tracking-tight text-foreground">
-              Productos similares
-            </h2>
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">Productos similares</h2>
 
             <div className="relative lg:hidden">
               <button
@@ -320,22 +367,20 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 {">"}
               </button>
 
-              {/* Mobile: horizontal scroll */}
               <div
                 ref={relatedScrollRef}
                 className="flex w-full gap-4 overflow-x-auto scroll-smooth"
                 style={{ scrollbarWidth: "none" }}
                 onScroll={checkRelatedScroll}
               >
-                {product.relatedProducts.map((p) => (
-                  <div key={p.id} className="w-[45vw] shrink-0">
-                    <ProductCard product={p} showCommerceEnhancements={false} />
+                {product.relatedProducts.map((relatedProduct) => (
+                  <div key={relatedProduct.id} className="w-[45vw] shrink-0">
+                    <ProductCard product={relatedProduct} showCommerceEnhancements={false} />
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Desktop: grid */}
             <div className="hidden lg:block">
               <ProductGrid products={product.relatedProducts} variant="desktopCatalog" />
             </div>

@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { z } from "zod";
 import { requireAdminSession } from "@/features/admin/auth";
-import { sanityFetch } from "@/integrations/sanity/client";
+import { sanityFreshFetch } from "@/integrations/sanity/client";
 import { adminProductDetailQuery } from "@/integrations/sanity/admin-queries";
 import { getSanityImageUrl } from "@/integrations/sanity/image";
 import { logger } from "@/lib/logger";
@@ -375,19 +375,17 @@ function getTemporaryIdFromFileField(fieldName: string) {
   return temporaryId.length > 0 ? temporaryId : null;
 }
 
-function validateUploadFile(file: File, index: number) {
-  const position = index + 1;
-
+function validateUploadFile(file: File) {
   if (file.size <= 0) {
-    return `Archivo ${position}: el archivo no puede estar vacio.`;
+    return "El archivo no puede estar vacio.";
   }
 
   if (file.size > MAX_PRODUCT_IMAGE_UPLOAD_BYTES) {
-    return `Archivo ${position}: supera el limite de 10 MB.`;
+    return "Cada imagen puede pesar hasta 10 MB.";
   }
 
   if (!isAllowedProductImageMimeType(file.type)) {
-    return `Archivo ${position}: solo se aceptan JPG, PNG o WebP.`;
+    return "Solo se aceptan JPG, PNG o WebP.";
   }
 
   return null;
@@ -550,11 +548,7 @@ export async function commitProductImagesAction(
   }
 
   const [currentProduct] = await Promise.all([
-    sanityFetch<AdminProductImageDocument | null>(
-      adminProductDetailQuery,
-      { productId: parsed.data.productId },
-      { useToken: true },
-    ),
+    sanityFreshFetch<AdminProductImageDocument | null>(adminProductDetailQuery, { productId: parsed.data.productId }),
   ]);
 
   if (!currentProduct) {
@@ -647,7 +641,7 @@ export async function commitProductImagesAction(
       continue;
     }
 
-    const validationError = validateUploadFile(value, receivedFiles.length);
+    const validationError = validateUploadFile(value);
 
     if (validationError) {
       uploadValidationErrors.push(validationError);
@@ -921,4 +915,3 @@ export async function commitProductImagesAction(
     return state;
   }
 }
-

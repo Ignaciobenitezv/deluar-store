@@ -33,11 +33,6 @@ function mapProductToHomeNewIn(product: ProductDocument): HomeNewInProduct {
 
   return {
     ...card,
-    stock: product.stock,
-    images: (product.images ?? []).map((image) => ({
-      url: getSanityImageUrl(image, 1200, 1500),
-      alt: image.alt || product.title,
-    })),
     attributes: (product.attributes ?? []).map((attribute) => ({
       label: attribute.label,
       value: attribute.value,
@@ -66,6 +61,7 @@ export function mapHomePageData({
     homePage?.spotlightProduct && isVisibleProduct(homePage.spotlightProduct)
       ? homePage.spotlightProduct
       : null;
+  const spotlightCard = visibleSpotlightProduct ? mapProductToCatalogCard(visibleSpotlightProduct) : null;
   const effectiveFeaturedProducts =
     visibleSelectedFeaturedProducts.length > 0
       ? visibleSelectedFeaturedProducts
@@ -144,20 +140,18 @@ export function mapHomePageData({
       products: visibleFeaturedProducts.map(mapProductToCatalogCard),
     },
     newInProducts: visibleNewInProducts.map(mapProductToHomeNewIn),
-    spotlightProduct: visibleSpotlightProduct
+    spotlightProduct: visibleSpotlightProduct && spotlightCard
       ? {
           id: visibleSpotlightProduct._id,
           slug: visibleSpotlightProduct.slug.current,
           title: visibleSpotlightProduct.title,
           shortDescription: visibleSpotlightProduct.shortDescription,
-          basePrice: visibleSpotlightProduct.basePrice,
-          transferPrice: visibleSpotlightProduct.transferPrice,
-          stock: visibleSpotlightProduct.stock,
+          basePrice: spotlightCard.basePrice,
+          transferPrice: spotlightCard.transferPrice,
+          pricePrefix: spotlightCard.pricePrefix,
+          stock: spotlightCard.stock,
           productHref: `/productos/detalle/${visibleSpotlightProduct.slug.current}`,
-          images: (visibleSpotlightProduct.images ?? []).map((image) => ({
-            url: getSanityImageUrl(image, 1200, 1500),
-            alt: image.alt || visibleSpotlightProduct.title || "",
-          })),
+          images: spotlightCard.images,
           categoryTitle: visibleSpotlightProduct.category.title,
           attributes: (visibleSpotlightProduct.attributes ?? []).map((attribute) => ({
             label: attribute.label,

@@ -24,7 +24,6 @@ const groupLabels: Record<string, string> = {
   catalog: "Catálogo",
   commerce: "Comercio",
   operations: "Operaciones",
-  future: "Futuro",
 };
 
 export function DashboardMobileMenu() {
@@ -59,7 +58,7 @@ export function DashboardMobileMenu() {
       accumulator[item.group].push(item);
       return accumulator;
     },
-    { principal: [], catalog: [], commerce: [], operations: [], future: [] },
+    { principal: [], catalog: [], commerce: [], operations: [] },
   );
 
   return (
@@ -107,7 +106,7 @@ export function DashboardMobileMenu() {
 
             <div className="h-full overflow-y-auto px-4 py-4">
               <div className="space-y-4">
-                {(["principal", "catalog", "commerce", "operations", "future"] as const).map((groupKey) => {
+                {(["principal", "catalog", "commerce", "operations"] as const).map((groupKey) => {
                   const items = grouped[groupKey];
 
                   return (

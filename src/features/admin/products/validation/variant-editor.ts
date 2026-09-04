@@ -25,8 +25,9 @@ const logisticsValueSchema = z.preprocess(
 export const adminProductVariantFormSchema = z.object({
   productId: requiredTrimmedString,
   rev: requiredTrimmedString,
-  operation: z.enum(["upsert", "deactivate"]),
+  operation: z.enum(["upsert", "deactivate", "delete"]),
   variantKey: z.string().trim().optional(),
+  preserveOriginalOption: z.enum(["true", "false"]).default("false").transform((value) => value === "true"),
   logisticsMode: z.enum(["inherit", "custom"]).default("inherit"),
   title: z.string().trim().min(1, "El nombre de la variante es obligatorio.").max(120),
   value: z
@@ -43,6 +44,7 @@ export const adminProductVariantFormSchema = z.object({
   heightCm: logisticsValueSchema,
   widthCm: logisticsValueSchema,
   depthCm: logisticsValueSchema,
+  variantImagesJson: requiredTrimmedString,
   attributesJson: requiredTrimmedString,
 }).superRefine((value, context) => {
   if (value.logisticsMode !== "custom") {

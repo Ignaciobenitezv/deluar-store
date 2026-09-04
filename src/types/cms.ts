@@ -12,6 +12,7 @@ export type SanityImageReference = {
 };
 
 export type SanityImageWithAlt = {
+  _key?: string;
   _type: "imageWithAlt";
   image: SanityImageReference;
   alt?: string;

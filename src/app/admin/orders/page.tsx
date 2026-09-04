@@ -418,9 +418,7 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
               </div>
 
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-xs leading-5 text-slate-500">
-                  Los filtros se aplican en la base de datos y la paginación conserva el contexto.
-                </p>
+                <p className="text-xs leading-5 text-slate-500">Buscá por orden, cliente o email y combiná filtros.</p>
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="submit"

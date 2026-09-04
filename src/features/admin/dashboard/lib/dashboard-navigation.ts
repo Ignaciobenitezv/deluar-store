@@ -92,18 +92,4 @@ export const dashboardNavigation: DashboardNavItem[] = [
     description: "Operación y costos",
     group: "operations",
   },
-  {
-    id: "marketing",
-    label: "Marketing",
-    href: "/admin/dashboard/marketing",
-    description: "Seguimiento futuro",
-    group: "future",
-  },
-  {
-    id: "reports",
-    label: "Reportes",
-    href: "/admin/dashboard/reportes",
-    description: "Exportaciones futuras",
-    group: "future",
-  },
 ];

@@ -1,0 +1,239 @@
+{
+  "generatedAt": "2026-08-31T14:32:09.027Z",
+  "totals": {
+    "products": 479,
+    "completeLogistics": 454,
+    "completeLogisticsPercent": 94.78,
+    "noLogistics": 25,
+    "partialLogistics": 0,
+    "withVariantLogistics": 0
+  },
+  "pendingCount": 25,
+  "pendingList": [
+    {
+      "_id": "import-product-alfombra-1cnr7",
+      "title": "Alfombra GUINEA 60X110CM",
+      "slug": "alfombra-1cnr7",
+      "sku": null,
+      "inHistoricalImport": true,
+      "reason": "No hay una logistica completa valida en este grupo.",
+      "classification": "MANUAL_LOGISTICS_REQUIRED"
+    },
+    {
+      "_id": "bf83f24a-d212-444f-bb73-67ff1a606bf0",
+      "title": "Alfombra baño antideslizante 60x40cm",
+      "slug": "alfombra-bano-antideslizante-60x40cm",
+      "sku": null,
+      "inHistoricalImport": false,
+      "reason": "No apareci? en el import hist?rico validado.",
+      "classification": "NOT_IN_HISTORICAL_IMPORT"
+    },
+    {
+      "_id": "c324dfdb-08c2-42eb-a4ac-f32732eee172",
+      "title": "Alfombra GUINEA 60X110CM",
+      "slug": "alfombra-guinea-60x110cm",
+      "sku": null,
+      "inHistoricalImport": false,
+      "reason": "No apareci? en el import hist?rico validado.",
+      "classification": "NOT_IN_HISTORICAL_IMPORT"
+    },
+    {
+      "_id": "e9431869-47bc-4380-b057-4e26f0954127",
+      "title": "Alfombra MINI baño 50x35cm",
+      "slug": "alfombra-mini-bano-50x35cm",
+      "sku": null,
+      "inHistoricalImport": false,
+      "reason": "No apareci? en el import hist?rico validado.",
+      "classification": "NOT_IN_HISTORICAL_IMPORT"
+    },
+    {
+      "_id": "import-product-camino-de-mesa-rayas",
+      "title": "Camino de mesa RAYAS",
+      "slug": "camino-de-mesa-rayas",
+      "sku": null,
+      "inHistoricalImport": true,
+      "reason": "No hay una logistica completa valida en este grupo.",
+      "classification": "MANUAL_LOGISTICS_REQUIRED"
+    },
+    {
+      "_id": "969d4209-e5b7-41b7-ba7b-3475238dd916",
+      "title": "Camino mesa LILI 175x45cm",
+      "slug": "camino-mesa-lili-175x45cm",
+      "sku": null,
+      "inHistoricalImport": false,
+      "reason": "No apareci? en el import hist?rico validado.",
+      "classification": "NOT_IN_HISTORICAL_IMPORT"
+    },
+    {
+      "_id": "import-product-cesto-mgdgy",
+      "title": "Canasto Simil mimbre 3 Tamaños",
+      "slug": "cesto-mgdgy",
+      "sku": null,
+      "inHistoricalImport": true,
+      "reason": "No hay una logistica completa valida en este grupo.",
+      "classification": "MANUAL_LOGISTICS_REQUIRED"
+    },
+    {
+      "_id": "import-product-cuchara-hojas-doradas",
+      "title": "Cuchara hojas doradas",
+      "slug": "cuchara-hojas-doradas",
+      "sku": null,
+      "inHistoricalImport": true,
+      "reason": "No hay una logistica completa valida en este grupo.",
+      "classification": "MANUAL_LOGISTICS_REQUIRED"
+    },
+    {
+      "_id": "import-product-frasco-vidrio-3-tamanos-c8tkv",
+      "title": "Frasco Vidrio Facetado 500cc",
+      "slug": "frasco-vidrio-3-tamanos-c8tkv",
+      "sku": null,
+      "inHistoricalImport": true,
+      "reason": "No hay una logistica completa valida en este grupo.",
+      "classification": "MANUAL_LOGISTICS_REQUIRED"
+    },
+    {
+      "_id": "import-product-frascos-de-vidrio-con-tapa-hermetica-bambu",
+      "title": "Frascos de vidrio con tapa hermetica bambú",
+      "slug": "frascos-de-vidrio-con-tapa-hermetica-bambu",
+      "sku": null,
+      "inHistoricalImport": true,
+      "reason": "El grupo contiene mas de una logistica distinta.",
+      "classification": "MANUAL_LOGISTICS_REQUIRED"
+    },
+    {
+      "_id": "import-product-funda-almohadon-45x45cm-pelo",
+      "title": "Funda almohadon 45x45cm pelo",
+      "slug": "funda-almohadon-45x45cm-pelo",
+      "sku": null,
+      "inHistoricalImport": true,
+      "reason": "No hay una logistica completa valida en este grupo.",
+      "classification": "MANUAL_LOGISTICS_REQUIRED"
+    },
+    {
+      "_id": "import-product-funda-de-almohadon-rectangular-tusor",
+      "title": "Funda de Almohadon Rectangular Tusor",
+      "slug": "funda-de-almohadon-rectangular-tusor",
+      "sku": null,
+      "inHistoricalImport": true,
+      "reason": "No hay una logistica completa valida en este grupo.",
+      "classification": "MANUAL_LOGISTICS_REQUIRED"
+    },
+    {
+      "_id": "import-product-funda-tusor-rayada",
+      "title": "Funda Tusor Rayada",
+      "slug": "funda-tusor-rayada",
+      "sku": null,
+      "inHistoricalImport": true,
+      "reason": "No hay una logistica completa valida en este grupo.",
+      "classification": "MANUAL_LOGISTICS_REQUIRED"
+    },
+    {
+      "_id": "277c938c-cff1-4eb4-90ec-d6b14504937a",
+      "title": "Individual redondo 38cm Cuerina",
+      "slug": "individual-redondo-38cm-cuerina",
+      "sku": null,
+      "inHistoricalImport": false,
+      "reason": "No apareci? en el import hist?rico validado.",
+      "classification": "NOT_IN_HISTORICAL_IMPORT"
+    },
+    {
+      "_id": "4de259d3-4dcc-4942-9e9f-13cd76c50807",
+      "title": "Individual trenzado con flecos 45x30cm",
+      "slug": "individual-trenzado-con-flecos-45x30cm",
+      "sku": null,
+      "inHistoricalImport": false,
+      "reason": "No apareci? en el import hist?rico validado.",
+      "classification": "NOT_IN_HISTORICAL_IMPORT"
+    },
+    {
+      "_id": "import-product-juego-toalla-ride-57r8l",
+      "title": "JUEGO TOALLA RIDE 350grs",
+      "slug": "juego-toalla-ride-57r8l",
+      "sku": null,
+      "inHistoricalImport": true,
+      "reason": "No hay una logistica completa valida en este grupo.",
+      "classification": "MANUAL_LOGISTICS_REQUIRED"
+    },
+    {
+      "_id": "9f15af95-5063-4ead-a4db-873f58910d7c",
+      "title": "Lámpara CRISTAL Led Multicolor 22cm",
+      "slug": "lampara-cristal-led-multicolor-22cm",
+      "sku": null,
+      "inHistoricalImport": false,
+      "reason": "No apareci? en el import hist?rico validado.",
+      "classification": "NOT_IN_HISTORICAL_IMPORT"
+    },
+    {
+      "_id": "8db2f520-599c-4945-8557-8a3e737d4998",
+      "title": "Mesa de cama Multiuso 60x40cm",
+      "slug": "mesa-de-cama-multiuso-60x40cm",
+      "sku": null,
+      "inHistoricalImport": false,
+      "reason": "No apareci? en el import hist?rico validado.",
+      "classification": "NOT_IN_HISTORICAL_IMPORT"
+    },
+    {
+      "_id": "ab29e720-84f3-4d0f-bb44-4ad9dd3f5d35",
+      "title": "Organizador Metal Colgante",
+      "slug": "organizador-metal-colgante",
+      "sku": null,
+      "inHistoricalImport": false,
+      "reason": "No apareci? en el import hist?rico validado.",
+      "classification": "NOT_IN_HISTORICAL_IMPORT"
+    },
+    {
+      "_id": "af218121-7fcc-43b8-9497-dbb61d433c41",
+      "title": " sabana blue",
+      "slug": "sabana-blue",
+      "sku": null,
+      "inHistoricalImport": false,
+      "reason": "No apareci? en el import hist?rico validado.",
+      "classification": "NOT_IN_HISTORICAL_IMPORT"
+    },
+    {
+      "_id": "5d467848-a42c-45b7-ab8e-66e4d4702315",
+      "title": "Sabana king prueba",
+      "slug": "sabana-king-prueba",
+      "sku": null,
+      "inHistoricalImport": false,
+      "reason": "No apareci? en el import hist?rico validado.",
+      "classification": "NOT_IN_HISTORICAL_IMPORT"
+    },
+    {
+      "_id": "69377c55-8567-4807-a8c4-b23a76b66a0b",
+      "title": "Setx3 Canastos bicolor fibras naturales",
+      "slug": "setx3-canastos-bicolor-fibras-naturales",
+      "sku": null,
+      "inHistoricalImport": false,
+      "reason": "No apareci? en el import hist?rico validado.",
+      "classification": "NOT_IN_HISTORICAL_IMPORT"
+    },
+    {
+      "_id": "d89668f2-7c87-43b9-8073-90cf5a857616",
+      "title": "Trapito BATH 60x48cm",
+      "slug": "trapito-bath-60x48cm",
+      "sku": null,
+      "inHistoricalImport": false,
+      "reason": "No apareci? en el import hist?rico validado.",
+      "classification": "NOT_IN_HISTORICAL_IMPORT"
+    },
+    {
+      "_id": "import-product-trapo-piso-con-estampa-sweet-home",
+      "title": "Trapo piso con estampa SWEET HOME",
+      "slug": "trapo-piso-con-estampa-sweet-home",
+      "sku": null,
+      "inHistoricalImport": true,
+      "reason": "No hay una logistica completa valida en este grupo.",
+      "classification": "MANUAL_LOGISTICS_REQUIRED"
+    },
+    {
+      "_id": "6cfa3729-576f-4393-9e57-1996d86faaa6",
+      "title": "Vela de Soja con Aroma a Jazmín - 27x9cm",
+      "slug": "vela-de-soja-con-aroma-a-jazmin-27x9cm",
+      "sku": null,
+      "inHistoricalImport": false,
+      "reason": "No apareci? en el import hist?rico validado.",
+      "classification": "NOT_IN_HISTORICAL_IMPORT"
+    }
+  ]
+}

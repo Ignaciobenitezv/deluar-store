@@ -314,7 +314,7 @@ export default async function AdminDashboardAbandonedCartsPage({ searchParams }:
           </div>
         </ChartCard>
 
-        <ChartCard title="Resumen secundario" description="Lectura rápida complementaria." className="min-w-0">
+        <ChartCard title="Resumen" description="Datos complementarios." className="min-w-0">
           <div className="grid gap-2 sm:grid-cols-2">
             <StatBadge label="Unidades abandonadas" value={formatDashboardNumber(data.totals.totalUnits)} tone="neutral" />
             <StatBadge
@@ -334,7 +334,7 @@ export default async function AdminDashboardAbandonedCartsPage({ searchParams }:
           data.carts.length === 0 ? (
             <EmptyState
               title="No hay carritos abandonados en este período."
-              description="Probá cambiar el período o quitar filtros para ver resultados."
+              description="Probá cambiar el período o quitar filtros."
             />
           ) : undefined
         }

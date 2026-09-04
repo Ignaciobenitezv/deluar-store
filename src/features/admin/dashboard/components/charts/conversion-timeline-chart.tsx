@@ -35,8 +35,8 @@ export function ConversionTimelineChart({ data }: ConversionTimelineChartProps) 
     return (
       <DashboardChartEmpty
         compact
-        title="No hay actividad suficiente para graficar la serie temporal."
-        description="Cuando entren sesiones y eventos, este gráfico mostrará la evolución del funnel por día."
+        title="Sin actividad suficiente."
+        description="La serie temporal se mostrará cuando haya eventos."
       />
     );
   }

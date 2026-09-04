@@ -4,7 +4,7 @@ import crypto from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { logger } from "@/lib/logger";
-import { sanityFetch } from "@/integrations/sanity/client";
+import { sanityFreshFetch } from "@/integrations/sanity/client";
 import { adminProductQuickEditQuery } from "@/integrations/sanity/admin-queries";
 import { getAdminProductsWriteClient } from "./admin-products-write-client";
 import { normalizeProductDetail } from "./admin-product-detail-service";
@@ -19,7 +19,8 @@ import type {
   SanityImageWithAlt,
 } from "@/types/cms";
 import { hasProductVariants } from "../lib/product-commercial";
-import type { AdminProductQuickEditField } from "../types";
+import { mapAdminProductListItem } from "../lib/admin-product-item";
+import type { AdminProductListItem, AdminProductQuickEditField } from "../types";
 import { hasCompleteAdminProductLogistics } from "../validation/product-logistics";
 import type { AdminProductQuickEditFormValues } from "../validation/quick-edit-product";
 
@@ -57,12 +58,19 @@ type AdminProductQuickEditDocument = {
   colorVariants?: Pick<ProductColorVariantDocument, "_key" | "title" | "value" | "stock">[];
 };
 
+type StockValueItem = {
+  key: string;
+  kind: "base" | "variant";
+  stock: number;
+};
+
 type AdminProductQuickEditMutationResult =
   | {
       status: "success";
       message: string;
       rev: string;
       updatedAt: string;
+      product: AdminProductListItem;
     }
   | {
       status: "error";
@@ -91,29 +99,140 @@ function buildRevalidationPaths(product: AdminProductQuickEditDocument) {
   return [...paths];
 }
 
+function normalizeStock(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : null;
+}
+
+function buildVariantStockPath(collection: "variants" | "colorVariants", key: string) {
+  return `${collection}[_key==${JSON.stringify(key)}].stock`;
+}
+
+function parseStockValuesJson(rawValue: string) {
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(rawValue);
+  } catch {
+    return null;
+  }
+
+  if (!Array.isArray(parsed)) {
+    return null;
+  }
+
+  const items: StockValueItem[] = [];
+
+  for (const entry of parsed) {
+    if (!entry || typeof entry !== "object") {
+      return null;
+    }
+
+    const candidate = entry as Partial<StockValueItem> & { stock?: unknown };
+    const key = typeof candidate.key === "string" ? candidate.key.trim() : "";
+    const kind = candidate.kind === "base" || candidate.kind === "variant" ? candidate.kind : null;
+    const stock = normalizeStock(candidate.stock);
+
+    if (!key || !kind || stock === null) {
+      return null;
+    }
+
+    items.push({
+      key,
+      kind,
+      stock,
+    });
+  }
+
+  return items;
+}
+
+function getActiveVariantSource(product: AdminProductQuickEditDocument) {
+  if ((product.variants ?? []).length > 0) {
+    return "variants" as const;
+  }
+
+  if ((product.colorVariants ?? []).length > 0) {
+    return "colorVariants" as const;
+  }
+
+  return null;
+}
+
+function buildErrorState(
+  message: string,
+  fieldErrors?: Partial<Record<AdminProductQuickEditField | "productId" | "rev", string[]>>,
+): AdminProductQuickEditMutationResult {
+  return {
+    status: "error",
+    message,
+    fieldErrors,
+  };
+}
+
 export async function updateAdminProductQuickEdit(
   input: AdminProductQuickEditFormValues,
 ): Promise<AdminProductQuickEditMutationResult> {
-  const product = await sanityFetch<AdminProductQuickEditDocument | null>(
-    adminProductQuickEditQuery,
-    {
-      productId: input.productId,
-    },
-    {
-      useToken: true,
-    },
-  );
+  const product = await sanityFreshFetch<AdminProductQuickEditDocument | null>(adminProductQuickEditQuery, {
+    productId: input.productId,
+  });
 
   if (!product) {
-    return {
-      status: "error",
-      message: "No encontramos el producto para actualizar.",
-      fieldErrors: {
-        productId: ["No encontramos el producto para actualizar."],
-      },
-    };
+    return buildErrorState("No encontramos el producto para actualizar.", {
+      productId: ["No encontramos el producto para actualizar."],
+    });
   }
 
+  const stockValues = parseStockValuesJson(input.stockValuesJson);
+
+  if (!stockValues) {
+    return buildErrorState("Revisa los campos marcados.", {
+      stock: ["No pudimos leer los stocks enviados."],
+    });
+  }
+
+  const baseStockItem = stockValues.find((item) => item.kind === "base");
+  const variantStockItems = stockValues.filter((item) => item.kind === "variant");
+  const activeVariantSource = getActiveVariantSource(product);
+  const activeVariantItems = activeVariantSource === "variants" ? product.variants ?? [] : product.colorVariants ?? [];
+
+  if (!baseStockItem) {
+    return buildErrorState("Revisa los campos marcados.", {
+      stock: ["Falta el stock del producto base."],
+    });
+  }
+
+  if (activeVariantItems.length === 0 && variantStockItems.length > 0) {
+    return buildErrorState("Revisa los campos marcados.", {
+      stock: ["No coinciden los stocks enviados con las variantes del producto."],
+    });
+  }
+
+  if (activeVariantItems.length > 0 && variantStockItems.length !== activeVariantItems.length) {
+    return buildErrorState("Revisa los campos marcados.", {
+      stock: ["No coinciden los stocks enviados con las variantes del producto."],
+    });
+  }
+
+  const expectedVariantKeys = new Set(
+    activeVariantItems
+      .map((variant) => variant._key?.trim())
+      .filter((key): key is string => Boolean(key)),
+  );
+  const submittedVariantKeys = new Set(
+    variantStockItems
+      .map((variant) => variant.key)
+      .filter((key): key is string => Boolean(key)),
+  );
+
+  if (
+    activeVariantItems.length > 0 &&
+    (expectedVariantKeys.size !== submittedVariantKeys.size ||
+      [...submittedVariantKeys].some((key) => !expectedVariantKeys.has(key)))
+  ) {
+    return buildErrorState("Revisa los campos marcados.", {
+      stock: ["No coinciden los stocks enviados con el estado local."],
+    });
+  }
 
   const mutationId = crypto.randomUUID();
   logger.debug("admin.products.mutation_started", {
@@ -121,6 +240,7 @@ export async function updateAdminProductQuickEdit(
     source: "quick_edit",
     productId: input.productId,
     submittedRev: input.rev,
+    submittedStock: baseStockItem.stock,
     timestamp: new Date().toISOString(),
   });
 
@@ -134,58 +254,45 @@ export async function updateAdminProductQuickEdit(
     colorVariants: product.colorVariants as ProductColorVariantDocument[] | undefined,
   });
 
-  if (hasActiveVariants && typeof input.stock === "number") {
-    return {
-      status: "error",
-      message: "El stock está administrado por variantes en este producto.",
-      fieldErrors: {
-        stock: ["Stock administrado por variantes."],
-      },
-    };
-  }
-
-  if (!hasActiveVariants && typeof input.stock !== "number") {
-    return {
-      status: "error",
-      message: "El stock es obligatorio para productos simples.",
-      fieldErrors: {
-        stock: ["Ingresá un stock válido."],
-      },
-    };
-  }
-
   if (input.isActive && !hasCompleteAdminProductLogistics(product.logistics)) {
-    return {
-      status: "error",
-      message: "CompletÃ¡ peso y dimensiones antes de publicar el producto.",
-      fieldErrors: {
-        weightGrams: ["CompletÃ¡ peso y dimensiones antes de publicar el producto."],
-        heightCm: ["CompletÃ¡ peso y dimensiones antes de publicar el producto."],
-        widthCm: ["CompletÃ¡ peso y dimensiones antes de publicar el producto."],
-        depthCm: ["CompletÃ¡ peso y dimensiones antes de publicar el producto."],
-      },
-    };
+    return buildErrorState("Completa peso y dimensiones antes de publicar el producto.", {
+      weightGrams: ["Completa peso y dimensiones antes de publicar el producto."],
+      heightCm: ["Completa peso y dimensiones antes de publicar el producto."],
+      widthCm: ["Completa peso y dimensiones antes de publicar el producto."],
+      depthCm: ["Completa peso y dimensiones antes de publicar el producto."],
+    });
   }
 
   const patchSet: Record<string, unknown> = {
     isActive: input.isActive,
     isOnOffer: input.isOnOffer,
     showInNewIn: input.showInNewIn,
+    stock: baseStockItem.stock,
   };
-
-  if (!hasActiveVariants && typeof input.stock === "number") {
-    patchSet.stock = input.stock;
-  }
 
   if (input.showInNewIn && typeof input.newInOrder === "number") {
     patchSet.newInOrder = input.newInOrder;
   }
 
   try {
-    const committedProduct = (await getAdminProductsWriteClient()
+    let patch = getAdminProductsWriteClient()
       .patch(product._id)
-      .set(patchSet)
-      .commit({ returnDocuments: true })) as AdminProductQuickEditDocument;
+      .ifRevisionId(input.rev)
+      .set(patchSet);
+
+    if (hasActiveVariants) {
+      const collection = activeVariantSource;
+
+      if (collection) {
+        for (const variantItem of variantStockItems) {
+          patch = patch.set({
+            [buildVariantStockPath(collection, variantItem.key)]: variantItem.stock,
+          });
+        }
+      }
+    }
+
+    const committedProduct = (await patch.commit({ returnDocuments: true })) as AdminProductQuickEditDocument;
 
     logger.debug("admin.products.mutation_committed", {
       mutationId,
@@ -193,6 +300,7 @@ export async function updateAdminProductQuickEdit(
       productId: input.productId,
       previousRev: input.rev,
       committedRev: committedProduct._rev,
+      committedStock: committedProduct.stock,
       updatedAt: committedProduct._updatedAt,
     });
 
@@ -224,6 +332,7 @@ export async function updateAdminProductQuickEdit(
       message: "Cambios guardados.",
       rev: committedProduct._rev,
       updatedAt: committedProduct._updatedAt,
+      product: mapAdminProductListItem(committedProduct),
     };
   } catch (error) {
     logger.error("admin.products.quick_edit.failed", {

@@ -110,6 +110,7 @@ export function ProductCard({
 
         <div className="space-y-0.5">
           <p className="text-[0.96rem] font-semibold leading-none text-neutral-900">
+            {product.pricePrefix ? `${product.pricePrefix} ` : null}
             {formatPrice(product.basePrice)}
           </p>
           {showCommerceEnhancements ? (

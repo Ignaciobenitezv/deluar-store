@@ -111,7 +111,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
   return (
     <DashboardShell
       title="Resumen"
-      subtitle={`Visión ejecutiva del rendimiento del ecommerce. Período activo: ${periodLabelMap[period]}.`}
+      subtitle={`Resumen operativo del ecommerce. Período activo: ${periodLabelMap[period]}.`}
       lastUpdated={lastUpdated}
     >
       <section className="grid gap-3 min-[420px]:grid-cols-2 sm:gap-4 xl:grid-cols-4">
@@ -126,16 +126,12 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
         ))}
       </section>
 
-      <ChartCard title="Evolución del negocio" description="Facturación y pedidos dentro del período activo." className="min-w-0">
+      <ChartCard title="Evolución del negocio" description="Facturación y pedidos del período." className="min-w-0">
         <DashboardRevenueChart data={summary.dashboard.sales.daily} />
       </ChartCard>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <ChartCard
-          title="Funnel resumido"
-          description="Lectura ejecutiva de sesiones, producto visto, add to cart, checkout y compra."
-          className="min-w-0"
-        >
+        <ChartCard title="Funnel resumido" description="Sesiones, carrito, checkout y compra." className="min-w-0">
           {summary.conversion.summary.sessions > 0 && funnelStages.length > 0 ? (
             <div className="space-y-3">
               {funnelStages.map((stage, index) => {
@@ -186,14 +182,14 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
             </div>
           ) : (
             <DashboardChartEmpty
-              title="No hay sesiones para resumir el funnel."
-              description="Cuando entre tráfico, acá se verá la caída principal entre etapas."
+              title="Sin datos para este período."
+              description="El funnel se mostrará cuando haya sesiones."
               compact
             />
           )}
         </ChartCard>
 
-        <ChartCard title="Productos" description="Lectura ejecutiva del producto que mejor está respondiendo." className="min-w-0">
+        <ChartCard title="Productos" description="Producto líder del período." className="min-w-0">
           {productHighlights.some((item) => item.name) ? (
             <div className="space-y-3">
               {productHighlights.map((item) => (
@@ -217,8 +213,8 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
             </div>
           ) : (
             <DashboardChartEmpty
-              title="No hay productos suficientes para resumir."
-              description="Cuando haya actividad, acá aparecerán los destacados del período."
+              title="Sin datos para este período."
+              description="Los destacados se mostrarán cuando haya actividad."
               compact
             />
           )}
@@ -226,7 +222,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <ChartCard title="Adquisición" description="Fuentes y campañas con mejor desempeño en el período." className="min-w-0">
+        <ChartCard title="Adquisición" description="Fuentes y campañas del período." className="min-w-0">
           {summary.acquisition.summary.sessions > 0 ? (
             <div className="space-y-3">
               <div className="grid gap-3 sm:grid-cols-2">
@@ -247,14 +243,14 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
             </div>
           ) : (
             <DashboardChartEmpty
-              title="No hay sesiones para resumir adquisición."
-              description="Cuando haya tráfico con sesión, acá se mostrarán fuentes y campañas."
+              title="Sin datos para este período."
+              description="Las fuentes se mostrarán cuando haya sesiones."
               compact
             />
           )}
         </ChartCard>
 
-        <ChartCard title="Clientes" description="Lectura ejecutiva de compradores únicos y recurrencia." className="min-w-0">
+        <ChartCard title="Clientes" description="Compradores únicos y recurrencia." className="min-w-0">
           {summary.customers.summary.uniqueBuyers > 0 ? (
             <div className="space-y-4">
               <div className="grid gap-3 sm:grid-cols-2">
@@ -287,8 +283,8 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
             </div>
           ) : (
             <DashboardChartEmpty
-              title="No hay compradores en el período."
-              description="Cuando empiecen a cerrar compras, acá aparecerá la lectura ejecutiva de clientes."
+              title="Sin datos para este período."
+              description="Los clientes se mostrarán cuando haya compras."
               compact
             />
           )}
@@ -296,7 +292,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <ChartCard title="Carritos abandonados" description="Lectura compacta del abandono del período." className="min-w-0">
+        <ChartCard title="Carritos abandonados" description="Abandono del período." className="min-w-0">
           {summary.conversion.activity.cartAbandoned > 0 || summary.conversion.activity.checkoutAbandoned > 0 ? (
             <div className="space-y-3">
               <div className="grid gap-3 sm:grid-cols-2">
@@ -311,14 +307,14 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
             </div>
           ) : (
             <DashboardChartEmpty
-              title="No hay abandonos para este período."
-              description="Si aparece abandono, aquí verás el volumen y su valor potencial."
+              title="Sin actividad suficiente."
+              description="El abandono se mostrará cuando exista actividad."
               compact
             />
           )}
         </ChartCard>
 
-        <ChartCard title="Requiere atención" description="Señales determinísticas basadas en la actividad real del período." className="min-w-0">
+        <ChartCard title="Alertas" description="Señales del período." className="min-w-0">
           {summary.insights.length > 0 ? (
             <div className="space-y-3">
               {summary.insights.map((insight) => (
@@ -334,15 +330,15 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
             </div>
           ) : (
             <DashboardChartEmpty
-              title="No hay señales relevantes."
-              description="Con más actividad aparecerán alertas ejecutivas más útiles."
+              title="Sin alertas."
+              description="No hay señales para destacar."
               compact
             />
           )}
         </ChartCard>
       </div>
 
-      <ChartCard title="Accesos rápidos" description="Saltos directos a las vistas ejecutivas y operativas.">
+      <ChartCard title="Accesos rápidos" description="Vistas principales.">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {quickLinks.map((item) => (
             <Link

@@ -69,6 +69,7 @@ export type HomeSpotlightProduct = {
   shortDescription: string;
   basePrice: number;
   transferPrice?: number;
+  pricePrefix?: string | null;
   stock: number;
   productHref: string;
   images: ProductDetailImage[];
@@ -86,6 +87,7 @@ export type HomeNewInProduct = {
   shortDescription: string;
   basePrice: number;
   transferPrice?: number;
+  pricePrefix?: string | null;
   stock: number;
   imageUrl: string | null;
   imageAlt: string;

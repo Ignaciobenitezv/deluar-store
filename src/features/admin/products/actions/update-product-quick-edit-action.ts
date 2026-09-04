@@ -56,7 +56,7 @@ export async function updateProductQuickEditAction(
   const rawValues = {
     productId: String(formData.get("productId") ?? ""),
     rev: String(formData.get("rev") ?? ""),
-    stock: formData.get("stock"),
+    stockValuesJson: String(formData.get("stockValuesJson") ?? ""),
     isActive: String(formData.get("isActive") ?? ""),
     isOnOffer: String(formData.get("isOnOffer") ?? ""),
     showInNewIn: String(formData.get("showInNewIn") ?? ""),
@@ -66,7 +66,7 @@ export async function updateProductQuickEditAction(
   const parsed = adminProductQuickEditFormSchema.safeParse(rawValues);
 
   if (!parsed.success) {
-    return buildErrorState("Revisá los campos marcados.", extractFieldErrors(parsed.error));
+    return buildErrorState("Revisa los campos marcados.", extractFieldErrors(parsed.error));
   }
 
   const result = await updateAdminProductQuickEdit(parsed.data as AdminProductQuickEditFormValues);

@@ -67,7 +67,7 @@ export default async function AdminDashboardSalesPage({ searchParams }: AdminDas
   return (
     <DashboardShell
       title="Ventas"
-      subtitle={`Vista comercial de ventas basada en órdenes reales. Período activo: ${DASHBOARD_PERIODS[period].label}.`}
+      subtitle={`Ventas basadas en órdenes reales. Período activo: ${DASHBOARD_PERIODS[period].label}.`}
       lastUpdated={lastUpdated}
     >
       <section className="grid gap-3 min-[420px]:grid-cols-2 sm:gap-4 xl:grid-cols-4">
@@ -127,7 +127,7 @@ export default async function AdminDashboardSalesPage({ searchParams }: AdminDas
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-        <ChartCard title="Estado de ventas" description="Lectura rápida del estado comercial del período.">
+        <ChartCard title="Estado de ventas" description="Estado comercial del período.">
           <div className="grid gap-3 min-[420px]:grid-cols-2">
             {salesStateBadges.map((item) => (
               <StatBadge key={item.label} label={item.label} value={item.value} tone={item.tone} />
@@ -137,15 +137,8 @@ export default async function AdminDashboardSalesPage({ searchParams }: AdminDas
 
         <ChartCard
           title="Ticket promedio"
-          description="El ticket promedio se calcula sobre órdenes pagadas del período."
-          emptyState={
-            metrics.summary.paidOrders === 0 ? (
-              <EmptyState
-                title="Sin ticket promedio"
-                description="No hay órdenes pagadas en el período seleccionado."
-              />
-            ) : undefined
-          }
+          description="Ticket promedio de órdenes pagadas."
+          emptyState={metrics.summary.paidOrders === 0 ? <EmptyState title="Sin ticket promedio" description="Sin datos para este período." /> : undefined}
         >
           {metrics.summary.paidOrders > 0 ? (
             <div className="grid gap-4 sm:grid-cols-2">
@@ -156,13 +149,8 @@ export default async function AdminDashboardSalesPage({ searchParams }: AdminDas
                 tone="success"
               />
               <div className="rounded-[20px] border border-slate-200/70 bg-slate-50 p-5">
-                <p className="text-sm font-medium text-slate-900">Cómo se interpreta</p>
-                <p className="mt-2 text-sm leading-6 text-slate-500">
-                  Se divide la facturación aprobada entre las órdenes pagadas del período.
-                </p>
-                <p className="mt-4 text-xs uppercase tracking-[0.18em] text-slate-500">
-                  Período activo: {DASHBOARD_PERIODS[period].label}
-                </p>
+                <p className="text-sm font-medium text-slate-900">Cálculo</p>
+                <p className="mt-2 text-sm leading-6 text-slate-500">Facturación aprobada dividida por órdenes pagadas.</p>
               </div>
             </div>
           ) : null}

@@ -22,19 +22,18 @@ function formatUnitsLabel(value: number) {
 
 function resolveVariantStockValue(product: AdminProductStockSource) {
   const normalizedVariants = normalizeProductVariants(product);
+  const baseStockValue = Number.isFinite(product.stock) ? Math.max(0, Math.trunc(product.stock ?? 0)) : 0;
 
   if (normalizedVariants.length === 0) {
-    const stockValue = Number.isFinite(product.stock) ? product.stock : 0;
-
     return {
-      stockValue,
+      stockValue: baseStockValue,
       variantCount: 0,
-      stockLabel: stockValue <= 0 ? "Sin stock" : formatUnitsLabel(stockValue),
-      stockHint: stockValue > 0 && stockValue <= ADMIN_LOW_STOCK_THRESHOLD ? "Stock bajo" : undefined,
+      stockLabel: baseStockValue <= 0 ? "Sin stock" : formatUnitsLabel(baseStockValue),
+      stockHint: baseStockValue > 0 && baseStockValue <= ADMIN_LOW_STOCK_THRESHOLD ? "Stock bajo" : undefined,
       stockTone:
-        stockValue <= 0
+        baseStockValue <= 0
           ? ("danger" as const)
-          : stockValue <= ADMIN_LOW_STOCK_THRESHOLD
+          : baseStockValue <= ADMIN_LOW_STOCK_THRESHOLD
             ? ("warning" as const)
             : ("success" as const),
     };
@@ -43,16 +42,21 @@ function resolveVariantStockValue(product: AdminProductStockSource) {
   const numericVariantStocks = normalizedVariants
     .map((variant) => variant.stock)
     .filter((stock): stock is number => typeof stock === "number" && Number.isFinite(stock));
+  const totalVariantStock = numericVariantStocks.reduce(
+    (accumulator, stock) => accumulator + Math.max(0, Math.trunc(stock)),
+    0,
+  );
+  const totalStock = baseStockValue + totalVariantStock;
 
   if (numericVariantStocks.length === normalizedVariants.length) {
-    const totalStock = numericVariantStocks.reduce((accumulator, stock) => accumulator + stock, 0);
-
     return {
       stockValue: totalStock,
       variantCount: normalizedVariants.length,
-      stockLabel: totalStock <= 0 ? "Sin stock" : `${formatUnitsLabel(totalStock)} · ${normalizedVariants.length} variantes`,
+      stockLabel: `Base ${formatUnitsLabel(baseStockValue)}`,
       stockHint:
-        totalStock > 0 && totalStock <= ADMIN_LOW_STOCK_THRESHOLD ? "Stock bajo" : `${normalizedVariants.length} variantes`,
+        totalStock > 0 && totalStock <= ADMIN_LOW_STOCK_THRESHOLD
+          ? "Stock bajo"
+          : `${normalizedVariants.length} variantes`,
       stockTone:
         totalStock <= 0
           ? ("danger" as const)
@@ -63,11 +67,19 @@ function resolveVariantStockValue(product: AdminProductStockSource) {
   }
 
   return {
-    stockValue: null,
+    stockValue: totalStock,
     variantCount: normalizedVariants.length,
-    stockLabel: "Stock por variante",
-    stockHint: `${normalizedVariants.length} variantes`,
-    stockTone: "neutral" as const,
+    stockLabel: `Base ${formatUnitsLabel(baseStockValue)}`,
+    stockHint:
+      totalStock > 0 && totalStock <= ADMIN_LOW_STOCK_THRESHOLD
+        ? "Stock bajo"
+        : `${normalizedVariants.length} variantes`,
+    stockTone:
+      totalStock <= 0
+        ? ("danger" as const)
+        : totalStock <= ADMIN_LOW_STOCK_THRESHOLD
+          ? ("warning" as const)
+          : ("success" as const),
   };
 }
 

@@ -1,7 +1,8 @@
 import { getSanityImageUrl } from "@/integrations/sanity/image";
 import { buildCatalogHref } from "@/features/catalog/hierarchy";
 import { normalizeProductLogistics } from "@/features/catalog/logistics";
-import { hasSelectableProductVariants, normalizeProductVariants } from "@/features/catalog/variant-normalizer";
+import { normalizeProductVariants } from "@/features/catalog/variant-normalizer";
+import { resolveProductCommercialDisplay } from "@/features/catalog/product-commercial-display";
 import { logger } from "@/lib/logger";
 import type {
   CatalogCategorySummary,
@@ -18,11 +19,9 @@ type CategorySummarySource = {
 };
 
 export function mapProductToCatalogCard(product: ProductDocument): CatalogProductCard {
+  const commercial = resolveProductCommercialDisplay(product);
   const categorySlug = product.category.slug.current;
   const productSlug = product.slug.current;
-  const images = product.images ?? [];
-  const image = images[0];
-  const hoverImage = images[1];
 
   logger.debug("storefront.product_visibility", {
     id: product._id,
@@ -36,25 +35,21 @@ export function mapProductToCatalogCard(product: ProductDocument): CatalogProduc
     title: product.title,
     slug: productSlug,
     shortDescription: product.shortDescription,
-    basePrice: product.basePrice,
-    transferPrice: product.transferPrice,
-    stock: product.stock,
+    basePrice: commercial.basePrice,
+    transferPrice: commercial.transferPrice,
+    pricePrefix: commercial.pricePrefix,
+    stock: commercial.stock,
     logistics: normalizeProductLogistics(product.logistics),
-    imageUrl: getSanityImageUrl(image),
-    imageAlt: image?.alt || product.title,
-    hoverImageUrl: getSanityImageUrl(hoverImage),
-    hoverImageAlt: hoverImage?.alt || product.title,
-    images: images
-      .map((image) => ({
-        url: getSanityImageUrl(image),
-        alt: image?.alt || product.title,
-      }))
-      .filter((image) => Boolean(image.url)),
+    imageUrl: commercial.imageUrl,
+    imageAlt: commercial.imageAlt,
+    hoverImageUrl: commercial.hoverImageUrl,
+    hoverImageAlt: commercial.hoverImageAlt,
+    images: commercial.images,
     categorySlug,
     categoryTitle: product.category.title,
     subcategorySlug: product.subcategory?.slug.current,
     productHref: `/productos/detalle/${productSlug}`,
-    hasSelectableOptions: hasSelectableProductVariants(product),
+    hasSelectableOptions: commercial.hasSelectableOptions,
   };
 }
 

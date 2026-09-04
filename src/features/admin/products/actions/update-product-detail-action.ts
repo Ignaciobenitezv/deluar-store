@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { requireAdminSession } from "@/features/admin/auth";
 import { logger } from "@/lib/logger";
-import { sanityFetch } from "@/integrations/sanity/client";
+import { sanityFreshFetch } from "@/integrations/sanity/client";
 import { categoryTreeQuery } from "@/integrations/sanity/queries";
 import { adminProductDetailQuery } from "@/integrations/sanity/admin-queries";
 import { getAdminProductsWriteClient } from "../server/admin-products-write-client";
@@ -304,8 +304,8 @@ export async function updateProductDetailAction(
   }
 
   const [currentProduct, categoryTree] = await Promise.all([
-    sanityFetch<AdminProductDetailDocument | null>(adminProductDetailQuery, { productId }, { useToken: true }),
-    sanityFetch<CatalogHierarchyNode[]>(categoryTreeQuery, {}, { useToken: true }),
+    sanityFreshFetch<AdminProductDetailDocument | null>(adminProductDetailQuery, { productId }),
+    sanityFreshFetch<CatalogHierarchyNode[]>(categoryTreeQuery, {}),
   ]);
 
   if (!currentProduct) {
@@ -334,9 +334,9 @@ export async function updateProductDetailAction(
     colorVariants: currentProduct.colorVariants as ProductColorVariantDocument[] | undefined,
   });
 
-  if (hasActiveVariants && delta.changedFields.includes("stock")) {
-    return buildErrorState("El stock está administrado por variantes en este producto.", {
-      stock: ["Stock administrado por variantes."],
+  if (delta.changedFields.includes("stock") && typeof delta.stock !== "number") {
+    return buildErrorState("Ingresá un stock válido.", {
+      stock: ["Ingresá un stock válido."],
     });
   }
 
@@ -387,13 +387,12 @@ export async function updateProductDetailAction(
   }
 
   if (delta.changedFields.includes("slug")) {
-    const slugCollisionCount = await sanityFetch<number>(
+    const slugCollisionCount = await sanityFreshFetch<number>(
       `count(*[_type == "product" && slug.current == $slug && !(_id in [$documentId, $draftId, $publishedId])])`,
       {
         slug: delta.slug ?? "",
         ...getDocumentIds(productId),
       },
-      { useToken: true },
     );
 
     if (slugCollisionCount > 0) {
@@ -472,7 +471,7 @@ export async function updateProductDetailAction(
     patchPlan.setFields.push("basePrice");
   }
 
-  if (!hasActiveVariants && delta.stock !== undefined) {
+  if (delta.stock !== undefined) {
     patchPlan.setFields.push("stock");
   }
 
@@ -629,7 +628,7 @@ export async function updateProductDetailAction(
       patch = patch.set(patchSet);
     }
 
-    if (!hasActiveVariants && typeof delta.stock === "number") {
+    if (typeof delta.stock === "number") {
       patch = patch.set({ stock: delta.stock });
     }
 

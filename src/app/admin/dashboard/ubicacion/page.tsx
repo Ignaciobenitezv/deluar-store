@@ -73,9 +73,9 @@ export default async function AdminDashboardLocationPage({ searchParams }: Admin
       </section>
 
       {provinces.length === 0 ? (
-        <EmptyState
+      <EmptyState
           title="Todavía no hay ventas con ubicación registrada en este período."
-          description="Cuando existan pedidos con provincia y localidad, la vista mostrará rankings y concentración comercial."
+          description="Sin datos para este período."
         />
       ) : (
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.95fr)]">
@@ -95,7 +95,7 @@ export default async function AdminDashboardLocationPage({ searchParams }: Admin
                 secondaryValue: formatDashboardPrice(item.revenue),
                 tone: "accent",
               }))}
-              emptyState={<EmptyState title="Sin provincias para mostrar" description="Todavía no hay ventas con ubicación registrada en este período." />}
+              emptyState={<EmptyState title="Sin provincias para mostrar" description="Sin datos para este período." />}
             />
 
             <ChartCard title="Top localidades" description="Localidades con mayor concentración comercial.">
@@ -120,7 +120,7 @@ export default async function AdminDashboardLocationPage({ searchParams }: Admin
               ) : (
                 <EmptyState
                   title="Todavía no hay ventas con ubicación registrada en este período."
-                  description="Cuando aparezcan pedidos con provincia y localidad, esta vista mostrará las localidades líderes."
+                  description="Sin datos para este período."
                 />
               )}
             </ChartCard>

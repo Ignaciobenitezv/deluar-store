@@ -1,10 +1,12 @@
 import { z } from "zod";
 import { booleanSelectSchema, optionalIntegerSchema, requiredIntegerSchema } from "./product-form-shared";
 
+const requiredTrimmedString = z.string().trim().min(1);
+
 export const adminProductQuickEditFormSchema = z.object({
-  productId: z.string().trim().min(1, "Seleccioná un producto válido."),
-  rev: z.string().trim().min(1, "La revisión del producto es obligatoria."),
-  stock: optionalIntegerSchema,
+  productId: requiredTrimmedString,
+  rev: requiredTrimmedString,
+  stockValuesJson: requiredTrimmedString,
   isActive: booleanSelectSchema,
   isOnOffer: booleanSelectSchema,
   showInNewIn: booleanSelectSchema,

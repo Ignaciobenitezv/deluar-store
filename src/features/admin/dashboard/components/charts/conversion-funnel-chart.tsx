@@ -26,8 +26,8 @@ export function ConversionFunnelChart({ data }: ConversionFunnelChartProps) {
   if (visibleData.length === 0 || visibleData[0]?.count === 0) {
     return (
       <DashboardChartEmpty
-        title="No hay sesiones para construir el funnel."
-        description="Cuando el tráfico empiece a entrar, esta vista mostrará el avance por etapas."
+        title="Sin datos para este período."
+        description="El funnel se mostrará cuando haya sesiones."
         compact
       />
     );
