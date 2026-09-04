@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Productos | Administración de DOTCOM",
+  title: "Productos | AdministraciÃ³n de DOTCOM",
 };
 
 type AdminProductsPageProps = {
@@ -57,33 +57,44 @@ export default async function AdminProductsPage({ searchParams }: AdminProductsP
 
   return (
     <AdminProductsShell lastUpdated={lastUpdated}>
-      <section className="grid gap-3 min-[420px]:grid-cols-2 sm:gap-4 xl:grid-cols-4">
+      <section className="grid grid-cols-2 gap-1.5 sm:gap-3 xl:grid-cols-4">
         <KpiCard title="Total productos" value={formatDashboardNumber(data.summary.total)} tone="accent" />
         <KpiCard title="Visibles" value={formatDashboardNumber(data.summary.visible)} tone="success" />
         <KpiCard title="Sin stock" value={formatDashboardNumber(data.summary.outOfStock)} tone="warning" />
         <KpiCard title="En oferta" value={formatDashboardNumber(data.summary.onOffer)} tone="danger" />
       </section>
 
-      <AdminProductsToolbar filters={data.filters} categoryTree={data.categories} filteredTotal={data.filteredTotal} />
+      <AdminProductsToolbar filters={data.filters} categoryTree={data.categories} />
 
-      <section className="overflow-hidden rounded-[28px] border border-[#e8ddd0] bg-white shadow-[0_12px_28px_rgba(15,23,42,0.04)]">
-        <div className={cn(dashboardUi.cardHeader, "border-b border-[#e7e2d8] bg-[#f4f7fb]")}>
-          <div className="min-w-0">
-            <h2 className="text-sm font-semibold tracking-[-0.02em] text-slate-900">Catálogo</h2>
+      <section className="mt-3 border-t border-slate-200/70 pt-3 bg-transparent lg:mt-0 lg:overflow-hidden lg:rounded-[28px] lg:border lg:border-[#e8ddd0] lg:bg-white lg:pt-0 lg:shadow-[0_12px_28px_rgba(15,23,42,0.04)]">
+        <div
+          className={cn(
+            "border-b border-slate-200/70 px-1.5 pb-3 pt-0 sm:px-2 sm:pb-3 sm:pt-1.5 lg:border-b lg:border-[#e7e2d8] lg:bg-[#f4f7fb] lg:px-4 lg:py-4",
+            dashboardUi.cardHeader,
+          )}
+        >
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 lg:text-sm lg:normal-case lg:tracking-[-0.02em] lg:text-slate-900">
+              Catálogo
+            </h2>
+            <p className="text-[11px] text-slate-500 lg:hidden">
+              {formatDashboardNumber(data.filteredTotal)} productos
+            </p>
           </div>
-          <div className="flex flex-wrap items-center justify-end gap-2 text-xs text-slate-500">
+
+          <div className="hidden flex-wrap items-center gap-2 text-[11px] text-slate-500 lg:justify-end lg:flex">
             <span className={dashboardUi.labelPill}>{formatDashboardNumber(data.filteredTotal)} encontrados</span>
             <span className={dashboardUi.labelPill}>
               Página {data.page} de {data.totalPages}
             </span>
-            <span className={dashboardUi.labelPill}>{DEFAULT_ADMIN_PRODUCTS_PAGE_SIZE} por página</span>
+            <span className={`${dashboardUi.labelPill} hidden sm:inline-flex`}>{DEFAULT_ADMIN_PRODUCTS_PAGE_SIZE} por página</span>
             {activeFilters ? <span className={dashboardUi.labelPill}>Filtros activos</span> : null}
           </div>
         </div>
 
         {data.items.length > 0 ? (
           <>
-            <div className="grid gap-3 px-4 py-4 sm:grid-cols-2 sm:px-5 lg:hidden">
+            <div className="divide-y divide-slate-200/80 px-1.5 pt-3 sm:grid sm:grid-cols-2 sm:gap-3 sm:divide-y-0 sm:px-2 lg:hidden">
               {data.items.map((item) => (
                 <AdminProductRowView key={item.id} product={item} variant="mobile" />
               ))}
@@ -113,7 +124,7 @@ export default async function AdminProductsPage({ searchParams }: AdminProductsP
             </div>
           </>
         ) : (
-          <div className="border-t border-slate-200/60 px-4 py-5 sm:px-5 sm:py-6">
+          <div className="px-1.5 py-4 sm:px-2 sm:py-5 lg:px-4 lg:py-5">
             <EmptyState
               title="No encontramos productos con estos filtros."
               description="Probá limpiando la búsqueda o ajustando los filtros activos."
@@ -129,21 +140,13 @@ export default async function AdminProductsPage({ searchParams }: AdminProductsP
           </div>
         )}
 
-        <div className="flex flex-col gap-3 border-t border-slate-200/60 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-          <p className="text-xs text-slate-500">
-            {data.filteredTotal > 0
-              ? `Mostrando ${formatDashboardNumber((data.page - 1) * data.pageSize + 1)}-${formatDashboardNumber(
-                  Math.min(data.page * data.pageSize, data.filteredTotal),
-                )} de ${formatDashboardNumber(data.filteredTotal)} productos`
-              : "Sin resultados para esta combinación de filtros."}
-          </p>
-
-          <div className="flex items-center gap-2">
+        <div className="mt-3 border-t border-slate-200/70 px-1.5 pt-3 pb-3 sm:mt-0 sm:border-t-0 sm:px-2 lg:px-4">
+          <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 sm:flex sm:items-center sm:justify-between sm:gap-3">
             <Link
               href={buildAdminProductsHref(data.filters, { page: Math.max(1, data.page - 1) })}
               aria-disabled={isFirstPage}
               className={cn(
-                "rounded-full border px-3 py-2 text-xs font-semibold transition",
+                "inline-flex h-9 items-center justify-center rounded-lg border px-2.5 text-xs font-semibold transition sm:rounded-full sm:px-3",
                 isFirstPage
                   ? "pointer-events-none border-slate-200 bg-slate-100 text-slate-400"
                   : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
@@ -151,11 +154,20 @@ export default async function AdminProductsPage({ searchParams }: AdminProductsP
             >
               Anterior
             </Link>
+
+                        <p className="min-w-0 whitespace-nowrap text-center text-[11px] leading-4 text-slate-500 sm:flex-1 sm:px-3">
+              {data.filteredTotal > 0
+                ? `${formatDashboardNumber((data.page - 1) * data.pageSize + 1)}-${formatDashboardNumber(
+                    Math.min(data.page * data.pageSize, data.filteredTotal),
+                  )} de ${formatDashboardNumber(data.filteredTotal)} | Página ${data.page} de ${data.totalPages}`
+                : "Sin resultados para esta combinación de filtros."}
+            </p>
+
             <Link
               href={buildAdminProductsHref(data.filters, { page: Math.min(data.totalPages, data.page + 1) })}
               aria-disabled={isLastPage}
               className={cn(
-                "rounded-full border px-3 py-2 text-xs font-semibold transition",
+                "inline-flex h-9 items-center justify-center rounded-lg border px-2.5 text-xs font-semibold transition sm:rounded-full sm:px-3",
                 isLastPage
                   ? "pointer-events-none border-slate-200 bg-slate-100 text-slate-400"
                   : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
@@ -164,8 +176,7 @@ export default async function AdminProductsPage({ searchParams }: AdminProductsP
               Siguiente
             </Link>
           </div>
-        </div>
-      </section>
+        </div>      </section>
     </AdminProductsShell>
   );
 }

@@ -46,61 +46,29 @@ export function AdminProductRowView({ product, variant }: AdminProductRowViewPro
 
   if (variant === "mobile") {
     return (
-      <article className="rounded-[24px] border border-slate-200/70 bg-white p-4 shadow-[0_8px_18px_rgba(15,23,42,0.028)]">
-        <div className="flex items-start gap-3">
-          <div className="relative h-[4rem] w-[3.5rem] shrink-0 overflow-hidden rounded-[18px] border border-[#e1d7ca] bg-slate-100">
+      <article className="border-b border-slate-200/80 py-3 last:border-b-0">
+        <div className="grid grid-cols-[6.625rem_minmax(0,1fr)] items-start gap-3">
+          <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-[18px] border border-[#e1d7ca] bg-slate-100">
             {currentProduct.imageUrl ? (
-              <Image src={currentProduct.imageUrl} alt={currentProduct.imageAlt} fill sizes="56px" className="object-cover" />
+              <Image src={currentProduct.imageUrl} alt={currentProduct.imageAlt} fill sizes="106px" className="object-cover" />
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-200 to-slate-100 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-200 to-slate-100 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">
                 Sin imagen
               </div>
             )}
           </div>
 
-          <div className="min-w-0 flex-1">
-            <Link href={`/admin/productos/${currentProduct.id}`} className="block text-sm font-semibold leading-5 text-slate-900 transition hover:underline">
-              {currentProduct.title}
-            </Link>
-            <p className="mt-1 text-xs text-slate-500">/{currentProduct.slug}</p>
-            {currentProduct.shortDescription ? (
-              <p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-500">{currentProduct.shortDescription}</p>
-            ) : null}
-          </div>
-        </div>
-
-        <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-          <div className="rounded-[18px] border border-[#e7ddd0] bg-[#fbf8f2] px-3 py-2.5">
-            <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Categoría</p>
-            <p className="mt-1 font-medium text-slate-900">{currentProduct.categoryLabel}</p>
-            <p className="mt-1 text-xs text-slate-500">{currentProduct.subcategoryLabel || "Sin subcategoría"}</p>
-          </div>
-
-          <div className="rounded-[18px] border border-[#e7ddd0] bg-[#fbf8f2] px-3 py-2.5">
-            <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Precio</p>
-            <p className="mt-1 font-medium text-slate-900">{currentProduct.priceLabel}</p>
-            {currentProduct.priceHint ? <p className="mt-1 text-xs text-slate-500">{currentProduct.priceHint}</p> : null}
-          </div>
-
-          <div className="rounded-[18px] border border-[#e7ddd0] bg-[#fbf8f2] px-3 py-2.5">
-            <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Stock</p>
-            <div
-              className={cn(
-                "mt-1 inline-flex w-full min-w-[10.75rem] max-w-[12rem] flex-col items-start gap-0.5 rounded-[16px] border px-3 py-2.5 text-left text-sm font-medium",
-                getStockToneClasses(currentProduct.stockTone),
-              )}
-            >
-              <span className="whitespace-nowrap text-[0.95rem] leading-5">{currentProduct.stockLabel}</span>
-              {currentProduct.stockHint ? <span className="text-[11px] font-normal leading-4 opacity-75">{currentProduct.stockHint}</span> : null}
-            </div>
-          </div>
-
-          <div className="rounded-[18px] border border-[#e7ddd0] bg-[#fbf8f2] px-3 py-2.5">
-            <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Estado</p>
-            <div className="mt-1 flex flex-wrap justify-center gap-2">
+          <div className="flex min-w-0 flex-col gap-2">
+            <div className="flex items-start justify-between gap-2">
+              <Link
+                href={`/admin/productos/${currentProduct.id}`}
+                className="min-w-0 flex-1 text-sm font-semibold leading-5 text-slate-950 transition hover:underline line-clamp-2"
+              >
+                {currentProduct.title}
+              </Link>
               <span
                 className={cn(
-                  "inline-flex items-center justify-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]",
+                  "inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em]",
                   currentProduct.visible
                     ? "border-emerald-200 bg-emerald-50 text-emerald-900"
                     : "border-slate-200 bg-slate-100 text-slate-600",
@@ -108,57 +76,55 @@ export function AdminProductRowView({ product, variant }: AdminProductRowViewPro
               >
                 {currentProduct.visible ? "Visible" : "Oculto"}
               </span>
-
-              {currentProduct.isOnOffer ? (
-                <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[11px] font-semibold tracking-[0.18em] text-amber-900">
-                  En oferta
-                </span>
-              ) : null}
-
-              {currentProduct.showInNewIn ? (
-                <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[11px] font-semibold tracking-[0.18em] text-sky-900">
-                  Lo nuevo
-                </span>
-              ) : null}
             </div>
-          </div>
 
-          <div className="rounded-[18px] border border-[#e7ddd0] bg-[#fbf8f2] px-3 py-2.5">
-            <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Variantes</p>
-            <p className="mt-1 font-medium text-slate-900">{currentProduct.variantLabel}</p>
-            <p className="mt-1 text-xs text-slate-500">
-              {currentProduct.hasVariants
-                ? currentProduct.variantSource === "colorVariants"
-                  ? "Modelo legacy normalizado"
-                  : "Variantes activas"
-                : "Modelo simple"}
-            </p>
-          </div>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Precio</p>
+                <p className="mt-0.5 text-sm font-semibold leading-5 text-slate-950">{currentProduct.priceLabel}</p>
+                {currentProduct.priceHint ? <p className="mt-0.5 text-xs text-slate-500">{currentProduct.priceHint}</p> : null}
+              </div>
 
-          <div className="rounded-[18px] border border-[#e7ddd0] bg-[#fbf8f2] px-3 py-2.5">
-            <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Actualizado</p>
-            <p className="mt-1 font-medium text-slate-900">{formatDashboardDateTime(new Date(currentProduct.updatedAt))}</p>
-            {typeof currentProduct.newInOrder === "number" ? (
-              <p className="mt-1 text-xs text-slate-500">Prioridad Lo nuevo: {currentProduct.newInOrder}</p>
-            ) : null}
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Stock</p>
+                <div className={cn("mt-0.5 inline-flex flex-col items-start", getStockToneClasses(currentProduct.stockTone))}>
+                  <span className="whitespace-nowrap text-sm font-semibold leading-5">{currentProduct.stockLabel}</span>
+                  {currentProduct.stockHint ? <span className="text-[11px] font-normal leading-4 opacity-75">{currentProduct.stockHint}</span> : null}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+        <div className="mt-2 grid grid-cols-2 gap-3">
+          <div className="min-w-0 flex flex-col gap-0.5">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Variantes</p>
+            <p className="text-[11px] leading-4 text-slate-900">{currentProduct.variantLabel}</p>
+          </div>
+
+          <div className="min-w-0 flex flex-col gap-0.5 text-right">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Actualizado</p>
+            <p className="text-[11px] leading-4 whitespace-nowrap text-slate-500">{formatDashboardDateTime(new Date(currentProduct.updatedAt))}</p>
+          </div>
+        </div>
+
+        <div className="mt-2 flex items-center justify-between gap-3">
           <Link
             href={`/admin/productos/${currentProduct.id}`}
             className={cn(
-              "inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full border px-3 py-2 text-xs font-semibold",
+              "inline-flex h-10 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg border px-3.5 text-[11px] font-semibold",
               dashboardUi.softAction,
             )}
           >
             <EyeIcon />
             Abrir
           </Link>
-          <div className="flex-1">
+          <div className="shrink-0">
             <AdminProductQuickEditDialog
               product={currentProduct}
               onProductUpdated={(updatedProduct) => setCurrentProduct(updatedProduct)}
+              triggerLabel="Edición rápida"
+              compactTrigger
             />
           </div>
         </div>
@@ -271,10 +237,7 @@ export function AdminProductRowView({ product, variant }: AdminProductRowViewPro
             <EyeIcon />
             Abrir
           </Link>
-          <AdminProductQuickEditDialog
-            product={currentProduct}
-            onProductUpdated={(updatedProduct) => setCurrentProduct(updatedProduct)}
-          />
+          <AdminProductQuickEditDialog product={currentProduct} onProductUpdated={(updatedProduct) => setCurrentProduct(updatedProduct)} />
         </div>
       </td>
     </tr>

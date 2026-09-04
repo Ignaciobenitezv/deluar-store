@@ -32,6 +32,8 @@ function normalizeStockValue(value: number) {
 type AdminProductQuickEditDialogProps = {
   product: AdminProductListItem;
   onProductUpdated?: (product: AdminProductListItem) => void;
+  triggerLabel?: string;
+  compactTrigger?: boolean;
 };
 
 type AdminProductQuickEditFormProps = {
@@ -239,7 +241,12 @@ function AdminProductQuickEditForm({ product, onClose, onProductUpdated }: Admin
   );
 }
 
-export function AdminProductQuickEditDialog({ product, onProductUpdated }: AdminProductQuickEditDialogProps) {
+export function AdminProductQuickEditDialog({
+  product,
+  onProductUpdated,
+  triggerLabel = "Editar rapido",
+  compactTrigger = false,
+}: AdminProductQuickEditDialogProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -247,13 +254,16 @@ export function AdminProductQuickEditDialog({ product, onProductUpdated }: Admin
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-[#d8cdbc] bg-[#faf7f1] px-4 py-2.5 text-xs font-semibold text-slate-800 transition hover:border-[#c8b9a4] hover:bg-[#f4ede3]"
+        className={cn(
+          "inline-flex items-center justify-center gap-2 whitespace-nowrap border border-[#d8cdbc] bg-[#faf7f1] font-semibold text-slate-800 transition hover:border-[#c8b9a4] hover:bg-[#f4ede3]",
+          compactTrigger ? "w-auto rounded-lg px-3.5 py-2 text-[11px]" : "w-full rounded-full px-4 py-2.5 text-xs",
+        )}
       >
         <svg aria-hidden="true" viewBox="0 0 20 20" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.75">
           <path strokeLinecap="round" strokeLinejoin="round" d="M13.75 3.75a1.77 1.77 0 0 1 2.5 0l.25.25a1.77 1.77 0 0 1 0 2.5l-8.8 8.8-3.65 1 1-3.65 8.7-8.9Z" />
           <path strokeLinecap="round" strokeLinejoin="round" d="M12.5 5 15 7.5" />
         </svg>
-        Editar rapido
+        {triggerLabel}
       </button>
 
       {open ? (
