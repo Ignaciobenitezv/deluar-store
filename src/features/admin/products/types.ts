@@ -259,6 +259,8 @@ export type AdminProductImageDraftSubmitNewItem = {
   existing: false;
   temporaryId: string;
   fileSignature: string;
+  uploadFileSignature?: string;
+  assetRef?: string;
   alt: string;
 };
 

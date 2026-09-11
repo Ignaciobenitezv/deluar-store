@@ -45,6 +45,8 @@ export const adminProductImageDraftNewSchema = z.object({
   existing: z.literal(false),
   temporaryId: requiredTrimmedString,
   fileSignature: requiredTrimmedString,
+  uploadFileSignature: requiredTrimmedString.optional(),
+  assetRef: requiredTrimmedString.optional(),
   alt: optionalTrimmedString,
 });
 

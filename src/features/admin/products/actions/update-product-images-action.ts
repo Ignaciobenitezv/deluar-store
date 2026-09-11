@@ -26,6 +26,7 @@ import {
 } from "../validation/product-images";
 import {
   MAX_PRODUCT_IMAGE_UPLOAD_BYTES,
+  SAFE_PRODUCT_IMAGE_UPLOAD_REQUEST_BYTES,
   isAllowedProductImageMimeType,
 } from "../lib/product-image-constraints";
 import type {
@@ -79,6 +80,32 @@ const DEFAULT_ACTION_STATE: AdminProductImageActionState = {
   status: "idle",
 };
 
+type UploadProductImageAssetActionState =
+  | {
+      status: "success";
+      temporaryId: string;
+      assetRef: string;
+      fileSignature: string;
+      fileName: string;
+      fileType: string;
+      fileSize: number;
+    }
+  | {
+      status: "error";
+      code:
+        | "UNSUPPORTED_FORMAT"
+        | "FILE_TOO_LARGE"
+        | "FILE_MISMATCH"
+        | "UPLOAD_FAILED"
+        | "NETWORK_ERROR";
+      message: string;
+    };
+
+type CleanupProductImageAssetsActionState = {
+  status: "success" | "error";
+  deletedAssetRefs: string[];
+};
+
 function extractFieldErrors(error: unknown) {
   if (!error || typeof error !== "object" || !("issues" in error)) {
     return {};
@@ -107,17 +134,6 @@ function buildErrorState(
 ): AdminProductImageActionState {
   return {
     status: "error",
-    message,
-    fieldErrors,
-  };
-}
-
-function buildPartialState(
-  message: string,
-  fieldErrors?: Partial<Record<AdminProductImageField, string[]>>,
-): AdminProductImageActionState {
-  return {
-    status: "partial",
     message,
     fieldErrors,
   };
@@ -290,6 +306,12 @@ type AdminProductImageQueryItem = SanityImageWithAlt & {
   _key?: string;
 };
 
+type UploadedAdminProductImageDraftSubmitInput = AdminProductImageDraftSubmitInput & {
+  existing: false;
+  assetRef: string;
+  uploadFileSignature: string;
+};
+
 function isUploadFileLike(value: unknown): value is File & UploadFileLike {
   if (!value || typeof value !== "object") {
     return false;
@@ -303,6 +325,12 @@ function isUploadFileLike(value: unknown): value is File & UploadFileLike {
     typeof candidate.size === "number" &&
     typeof candidate.arrayBuffer === "function"
   );
+}
+
+function hasUploadedAssetInfo(
+  item: AdminProductImageDraftSubmitInput & { existing: false },
+): item is UploadedAdminProductImageDraftSubmitInput {
+  return Boolean(item.assetRef?.trim() && item.uploadFileSignature?.trim());
 }
 
 function describeUploadValue(value: unknown) {
@@ -331,12 +359,19 @@ function describeUploadValue(value: unknown) {
 }
 
 function buildFileSignature(file: File) {
-  return `${file.name}:${file.size}:${file.lastModified}:${file.type}`;
+  return `${file.name}:${file.size}:${file.type}`;
 }
 
 function buildDraftImagesLog(draftImages: AdminProductImageDraftSubmitInput[]) {
   const existing: Array<{ position: number; key: string; alt: string }> = [];
-  const newImages: Array<{ position: number; temporaryId: string; fileSignature: string; alt: string }> = [];
+  const newImages: Array<{
+    position: number;
+    temporaryId: string;
+    fileSignature: string;
+    uploadFileSignature: string;
+    assetRef: string;
+    alt: string;
+  }> = [];
 
   for (const [index, item] of draftImages.entries()) {
     const position = index + 1;
@@ -354,6 +389,8 @@ function buildDraftImagesLog(draftImages: AdminProductImageDraftSubmitInput[]) {
       position,
       temporaryId: item.temporaryId,
       fileSignature: item.fileSignature,
+      uploadFileSignature: item.uploadFileSignature ?? "",
+      assetRef: item.assetRef ?? "",
       alt: item.alt?.trim() ?? "",
     });
   }
@@ -418,11 +455,11 @@ function buildExistingImageDocument(image: AdminProductImageItem, alt?: string):
 function buildFinalImages(args: {
   currentImages: AdminProductImageItem[];
   draftImages: AdminProductImageDraftSubmitInput[];
-  uploadedAssetRefs: Map<string, string>;
 }): AdminProductImageItem[] | null {
   const currentByKey = new Map(args.currentImages.map((image) => [image._key, image] as const));
   const seenExistingKeys = new Set<string>();
   const seenNewTemporaryIds = new Set<string>();
+  const seenNewAssetRefs = new Set<string>();
   const finalImages: AdminProductImageItem[] = [];
 
   for (const item of args.draftImages) {
@@ -446,14 +483,17 @@ function buildFinalImages(args: {
       return null;
     }
 
-    const assetRef = args.uploadedAssetRefs.get(item.temporaryId);
+    if (!hasUploadedAssetInfo(item)) {
+      return null;
+    }
 
-    if (!assetRef) {
+    if (seenNewAssetRefs.has(item.assetRef)) {
       return null;
     }
 
     seenNewTemporaryIds.add(item.temporaryId);
-    finalImages.push(buildSanityImageDocument(assetRef, item.alt?.trim() || undefined));
+    seenNewAssetRefs.add(item.assetRef);
+    finalImages.push(buildSanityImageDocument(item.assetRef, item.alt?.trim() || undefined));
   }
 
   return finalImages;
@@ -496,6 +536,192 @@ function parseFormValues(formData: FormData): ParsedFormValues {
   return {
     success: true,
     data: parsed.data,
+  };
+}
+
+async function countAssetReferences(assetRef: string) {
+  return sanityFreshFetch<number>(
+    `count(*[_id != $assetRef && references($assetRef)])`,
+    { assetRef },
+  );
+}
+
+export async function uploadProductImageAssetAction(formData: FormData): Promise<UploadProductImageAssetActionState> {
+  await requireAdminSession();
+
+  const productId = String(formData.get("productId") ?? "");
+  const temporaryId = String(formData.get("temporaryId") ?? "");
+  const expectedFileSignature = String(formData.get("fileSignature") ?? "");
+  const value = formData.get("file");
+
+  if (!productId.trim() || !temporaryId.trim() || !expectedFileSignature.trim()) {
+    return {
+      status: "error",
+      code: "FILE_MISMATCH",
+      message: "No pudimos validar una de las imagenes nuevas.",
+    };
+  }
+
+  if (!isUploadFileLike(value)) {
+    logger.warn("admin.products.images.single_upload_rejected", {
+      productId,
+      temporaryId,
+      reason: "not_file_like",
+      ...describeUploadValue(value),
+    });
+    return {
+      status: "error",
+      code: "FILE_MISMATCH",
+      message: "No pudimos leer una de las imagenes nuevas.",
+    };
+  }
+
+  const validationError = validateUploadFile(value);
+
+  if (validationError) {
+    logger.warn("admin.products.images.single_upload_rejected", {
+      productId,
+      temporaryId,
+      reason: validationError,
+      ...describeUploadValue(value),
+    });
+    return {
+      status: "error",
+      code: !isAllowedProductImageMimeType(value.type) ? "UNSUPPORTED_FORMAT" : "FILE_TOO_LARGE",
+      message: validationError,
+    };
+  }
+
+  if (value.size > SAFE_PRODUCT_IMAGE_UPLOAD_REQUEST_BYTES) {
+    logger.warn("admin.products.images.single_upload_rejected", {
+      productId,
+      temporaryId,
+      reason: "safe_request_limit_exceeded",
+      fileName: value.name,
+      fileType: value.type,
+      fileSize: value.size,
+      safeLimit: SAFE_PRODUCT_IMAGE_UPLOAD_REQUEST_BYTES,
+    });
+    return {
+      status: "error",
+      code: "FILE_TOO_LARGE",
+      message: "La imagen sigue siendo demasiado pesada para subirla de forma segura.",
+    };
+  }
+
+  const serverFileSignature = buildFileSignature(value);
+
+  if (serverFileSignature !== expectedFileSignature) {
+    logger.warn("admin.products.images.single_upload_rejected", {
+      productId,
+      temporaryId,
+      reason: "file_signature_mismatch",
+      expectedFileSignature,
+      serverFileSignature,
+      fileName: value.name,
+      fileType: value.type,
+      fileSize: value.size,
+    });
+    return {
+      status: "error",
+      code: "FILE_MISMATCH",
+      message: "Una imagen cambio antes de subirse. Volve a seleccionarla.",
+    };
+  }
+
+  try {
+    const writeClient = getAdminProductsWriteClient();
+    logger.debug("admin.products.images.single_upload_started", {
+      productId,
+      temporaryId,
+      fileName: value.name,
+      fileType: value.type,
+      fileSize: value.size,
+    });
+
+    const uploadedAsset = await writeClient.assets.upload("image", value, {
+      filename: value.name || `${productId}-${temporaryId}.jpg`,
+      contentType: value.type,
+    });
+
+    logger.debug("admin.products.images.single_upload_finished", {
+      productId,
+      temporaryId,
+      assetRef: uploadedAsset._id,
+      fileName: value.name,
+      fileType: value.type,
+      fileSize: value.size,
+    });
+
+    return {
+      status: "success",
+      temporaryId,
+      assetRef: uploadedAsset._id,
+      fileSignature: serverFileSignature,
+      fileName: value.name,
+      fileType: value.type,
+      fileSize: value.size,
+    };
+  } catch (error) {
+    logger.error("admin.products.images.single_upload_failed", {
+      productId,
+      temporaryId,
+      fileName: value.name,
+      fileType: value.type,
+      fileSize: value.size,
+      error: error instanceof Error ? error.message : String(error),
+    });
+
+    return {
+      status: "error",
+      code: "UPLOAD_FAILED",
+      message: "No pudimos subir una de las imagenes nuevas.",
+    };
+  }
+}
+
+export async function cleanupProductImageAssetsAction(
+  assetRefs: string[],
+): Promise<CleanupProductImageAssetsActionState> {
+  await requireAdminSession();
+
+  const uniqueAssetRefs = [...new Set(assetRefs.filter((assetRef) => assetRef.startsWith("image-")))];
+  const deletedAssetRefs: string[] = [];
+
+  if (uniqueAssetRefs.length === 0) {
+    return {
+      status: "success",
+      deletedAssetRefs,
+    };
+  }
+
+  const writeClient = getAdminProductsWriteClient();
+
+  for (const assetRef of uniqueAssetRefs) {
+    try {
+      const referencesCount = await countAssetReferences(assetRef);
+
+      if (referencesCount > 0) {
+        logger.warn("admin.products.images.cleanup_skipped_referenced_asset", {
+          assetRef,
+          referencesCount,
+        });
+        continue;
+      }
+
+      await writeClient.delete(assetRef);
+      deletedAssetRefs.push(assetRef);
+    } catch (error) {
+      logger.error("admin.products.images.cleanup_failed", {
+        assetRef,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  return {
+    status: deletedAssetRefs.length === uniqueAssetRefs.length ? "success" : "error",
+    deletedAssetRefs,
   };
 }
 
@@ -589,24 +815,23 @@ export async function commitProductImagesAction(
     return buildErrorState("No pudimos leer las imagenes actuales. Recargá y volvé a intentar.");
   }
 
-  const filesByTemporaryId = new Map<string, File>();
-  const receivedFiles: Array<{
-    fieldName: string;
-    temporaryId: string;
-    constructorName: string | null;
-    name: string | null;
-    type: string | null;
-    size: number | null;
-    hasArrayBuffer: boolean;
-    draftFileSignature: string | null;
-    serverFileSignature: string | null;
-    matchesDraftSignature: boolean | null;
-  }> = [];
-  const uploadValidationErrors: string[] = [];
-  const expectedNewImages = draftImages.filter(
+  const submittedNewImages = draftImages.filter(
     (item): item is AdminProductImageDraftSubmitInput & { existing: false } => !item.existing,
   );
-  const expectedTemporaryIds = new Set(expectedNewImages.map((item) => item.temporaryId));
+  const missingUploadedAssetInfo = submittedNewImages.filter((item) => !hasUploadedAssetInfo(item));
+
+  if (missingUploadedAssetInfo.length > 0) {
+    const state = buildErrorState("No coincidieron las imagenes nuevas con el estado local.", {
+      draftImagesJson: ["Una imagen nueva no fue subida antes de guardar la galeria."],
+    });
+    logCommitResult("missing_uploaded_asset_info", state, {
+      missingTemporaryIds: missingUploadedAssetInfo.map((item) => item.temporaryId),
+    });
+    return state;
+  }
+
+  const expectedNewImages = submittedNewImages.filter(hasUploadedAssetInfo);
+  const unexpectedFileFields: string[] = [];
 
   for (const [fieldName, value] of formData.entries()) {
     const temporaryId = getTemporaryIdFromFileField(fieldName);
@@ -615,183 +840,65 @@ export async function commitProductImagesAction(
       continue;
     }
 
-    if (!expectedTemporaryIds.has(temporaryId)) {
-      uploadValidationErrors.push(`Archivo ${fieldName}: no coincide con una imagen nueva del editor.`);
-      logger.warn("admin.products.images.file_rejected", {
-        productId: parsed.data.productId,
-        rev: parsed.data.rev,
-        fieldName,
-        temporaryId,
-        reason: "unexpected_temporary_id",
-        ...describeUploadValue(value),
-      });
-      continue;
-    }
-
-    if (!isUploadFileLike(value)) {
-      uploadValidationErrors.push(`Archivo ${fieldName}: no se pudo leer como archivo.`);
-      logger.warn("admin.products.images.file_rejected", {
-        productId: parsed.data.productId,
-        rev: parsed.data.rev,
-        fieldName,
-        temporaryId,
-        reason: "not_file_like",
-        ...describeUploadValue(value),
-      });
-      continue;
-    }
-
-    const validationError = validateUploadFile(value);
-
-    if (validationError) {
-      uploadValidationErrors.push(validationError);
-      logger.warn("admin.products.images.file_rejected", {
-        productId: parsed.data.productId,
-        rev: parsed.data.rev,
-        fieldName,
-        temporaryId,
-        reason: validationError,
-        ...describeUploadValue(value),
-      });
-      continue;
-    }
-
-    const draftItem = expectedNewImages.find((item) => item.temporaryId === temporaryId);
-    const serverFileSignature = buildFileSignature(value);
-
-    receivedFiles.push({
+    unexpectedFileFields.push(fieldName);
+    logger.warn("admin.products.images.file_rejected", {
+      productId: parsed.data.productId,
+      rev: parsed.data.rev,
       fieldName,
       temporaryId,
-      constructorName: value.constructor?.name ?? null,
-      name: value.name ?? null,
-      type: value.type ?? null,
-      size: value.size ?? null,
-      hasArrayBuffer: typeof value.arrayBuffer === "function",
-      draftFileSignature: draftItem?.fileSignature ?? null,
-      serverFileSignature,
-      matchesDraftSignature: draftItem ? draftItem.fileSignature === serverFileSignature : null,
+      reason: "commit_does_not_accept_file_bytes",
+      ...describeUploadValue(value),
     });
-
-    filesByTemporaryId.set(temporaryId, value);
   }
 
-  logger.debug("admin.products.images.received_files", {
-    productId: parsed.data.productId,
-    rev: parsed.data.rev,
-    count: receivedFiles.length,
-    files: receivedFiles,
-  });
-
-  if (uploadValidationErrors.length > 0) {
-    const state = buildErrorState("No pudimos guardar los cambios porque hay archivos invalidos.", {
-      files: uploadValidationErrors,
+  if (unexpectedFileFields.length > 0) {
+    const state = buildErrorState("No pudimos guardar los cambios porque el commit recibio archivos inesperados.", {
+      files: unexpectedFileFields.map((fieldName) => `Archivo ${fieldName}: subilo antes de guardar la galeria.`),
     });
-    logCommitResult("invalid_upload_files", state, {
-      expectedFiles: expectedNewImages.length,
-      receivedFiles: receivedFiles.length,
+    logCommitResult("unexpected_commit_files", state, {
+      expectedNewImages: expectedNewImages.length,
+      unexpectedFileFields,
     });
     return state;
   }
 
+  const expectedTemporaryIds = new Set<string>();
+  const expectedAssetRefs = new Set<string>();
+
   for (const item of expectedNewImages) {
-    logger.debug("admin.products.images.correlation_debug", {
-      draftTemporaryId: item.temporaryId,
-      draftTemporaryIdJson: JSON.stringify(item.temporaryId),
-      draftTemporaryIdLength: item.temporaryId.length,
-      availableKeys: [...filesByTemporaryId.keys()],
-      availableKeysJson: JSON.stringify([...filesByTemporaryId.keys()]),
-      availableKeyLengths: [...filesByTemporaryId.keys()].map((key) => key.length),
-      mapHas: filesByTemporaryId.has(item.temporaryId),
-    });
-
-    if (!filesByTemporaryId.has(item.temporaryId)) {
-      logger.debug("admin.products.images.correlation_missing_debug", {
-        requestedTemporaryId: item.temporaryId,
-        availableTemporaryIds: [...filesByTemporaryId.keys()],
+    if (expectedTemporaryIds.has(item.temporaryId) || expectedAssetRefs.has(item.assetRef)) {
+      const state = buildErrorState("No coincidieron las imagenes nuevas con el estado local.", {
+        draftImagesJson: ["Hay imagenes nuevas duplicadas en el estado local."],
       });
-
-      const state = buildErrorState("No coincidieron los archivos nuevos con el estado local.", {
-        files: ["No pudimos encontrar uno de los archivos nuevos en el formulario."],
-        draftImagesJson: ["No coincidieron los archivos nuevos con el estado local."],
-      });
-      logCommitResult("correlation_missing", state, {
+      logCommitResult("duplicate_new_image", state, {
         temporaryId: item.temporaryId,
-        expectedFiles: expectedNewImages.length,
-        receivedFiles: receivedFiles.length,
+        assetRef: item.assetRef,
       });
       return state;
     }
+
+    expectedTemporaryIds.add(item.temporaryId);
+    expectedAssetRefs.add(item.assetRef);
   }
 
   const writeClient = getAdminProductsWriteClient();
-  const uploadedAssetIds: string[] = [];
-  const uploadedAssetRefs = new Map<string, string>();
+  const newAssetRefs = [...expectedAssetRefs];
 
   try {
-    for (const item of draftImages) {
-      if (item.existing) {
-        continue;
-      }
+    if (newAssetRefs.length > 0) {
+      const existingAssets = await sanityFreshFetch<Array<{ _id: string }>>(
+        `*[_type == "sanity.imageAsset" && _id in $assetRefs]{_id}`,
+        { assetRefs: newAssetRefs },
+      );
+      const existingAssetRefs = new Set(existingAssets.map((asset) => asset._id));
+      const missingAssetRefs = newAssetRefs.filter((assetRef) => !existingAssetRefs.has(assetRef));
 
-      const file = filesByTemporaryId.get(item.temporaryId);
-
-      if (!file) {
-        logger.debug("admin.products.images.correlation_missing_debug", {
-          requestedTemporaryId: item.temporaryId,
-          availableTemporaryIds: [...filesByTemporaryId.keys()],
+      if (missingAssetRefs.length > 0) {
+        const state = buildErrorState("No pudimos validar una de las imagenes nuevas.", {
+          draftImagesJson: ["Una imagen nueva no tiene asset valido."],
         });
-
-        const state = buildErrorState("No coincidieron los archivos nuevos con el estado local.", {
-          files: ["No pudimos encontrar uno de los archivos nuevos en el formulario."],
-          draftImagesJson: ["No coincidieron los archivos nuevos con el estado local."],
-        });
-        logCommitResult("correlation_missing", state, {
-          temporaryId: item.temporaryId,
-          expectedFiles: expectedNewImages.length,
-          receivedFiles: receivedFiles.length,
-        });
-        return state;
-      }
-
-      try {
-        logCommitStage("uploading", {
-          productId: parsed.data.productId,
-          rev: parsed.data.rev,
-          temporaryId: item.temporaryId,
-          fileName: file.name,
-          fileType: file.type,
-          fileSize: file.size,
-        });
-
-        const uploadedAsset = await writeClient.assets.upload("image", file, {
-          filename: file.name || `${parsed.data.productId}-${item.temporaryId}.jpg`,
-          contentType: file.type,
-        });
-
-        uploadedAssetIds.push(uploadedAsset._id);
-        uploadedAssetRefs.set(item.temporaryId, uploadedAsset._id);
-        logCommitStage("uploaded", {
-          productId: parsed.data.productId,
-          rev: parsed.data.rev,
-          temporaryId: item.temporaryId,
-          assetId: uploadedAsset._id,
-        });
-      } catch (error) {
-        if (uploadedAssetIds.length > 0) {
-          logger.error("admin.products.images.orphan_asset", {
-            productId: parsed.data.productId,
-            rev: parsed.data.rev,
-            assetIds: uploadedAssetIds,
-            error: error instanceof Error ? error.message : String(error),
-          });
-        }
-
-        const state = buildPartialState("No pudimos guardar los cambios porque fallo una de las imagenes nuevas.", {
-          files: [`Archivo ${file.name || item.temporaryId}: no se pudo subir.`],
-        });
-        logCommitResult("upload_failed", state, {
-          temporaryId: item.temporaryId,
-          assetIds: uploadedAssetIds,
+        logCommitResult("missing_uploaded_asset", state, {
+          missingAssetRefs,
         });
         return state;
       }
@@ -800,7 +907,6 @@ export async function commitProductImagesAction(
     const finalImages = buildFinalImages({
       currentImages,
       draftImages,
-      uploadedAssetRefs,
     });
 
     if (!finalImages) {
@@ -808,7 +914,7 @@ export async function commitProductImagesAction(
         draftImagesJson: ["No pudimos guardar los cambios porque el estado local ya no coincide con el producto."],
       });
       logCommitResult("final_images_invalid", state, {
-        uploadedFiles: uploadedAssetRefs.size,
+        uploadedFiles: expectedNewImages.length,
       });
       return state;
     }
@@ -842,7 +948,7 @@ export async function commitProductImagesAction(
     logCommitStage("patch_committed", {
       productId: parsed.data.productId,
       rev: parsed.data.rev,
-      uploadedFiles: uploadedAssetRefs.size,
+      uploadedFiles: expectedNewImages.length,
       finalImages: finalImages.length,
     });
 
@@ -870,20 +976,11 @@ export async function commitProductImagesAction(
     logCommitResult("success", successState, {
       productId: parsed.data.productId,
       rev: committedProduct._rev,
-      uploadedFiles: uploadedAssetRefs.size,
+      uploadedFiles: expectedNewImages.length,
       finalImages: finalImages.length,
     });
     return successState;
   } catch (error) {
-    if (uploadedAssetIds.length > 0) {
-      logger.error("admin.products.images.orphan_asset", {
-        productId: parsed.data.productId,
-        rev: parsed.data.rev,
-        assetIds: uploadedAssetIds,
-        error: error instanceof Error ? error.message : String(error),
-      });
-    }
-
     if (isRevisionConflictError(error)) {
       const state: AdminProductImageActionState = {
         status: "conflict",
@@ -892,7 +989,8 @@ export async function commitProductImagesAction(
       logCommitResult("patch_conflict", state, {
         productId: parsed.data.productId,
         rev: parsed.data.rev,
-        uploadedFiles: uploadedAssetRefs.size,
+        uploadedFiles: expectedNewImages.length,
+        assetRefs: newAssetRefs,
       });
       return state;
     }
@@ -910,7 +1008,8 @@ export async function commitProductImagesAction(
     logCommitResult("patch_failed", state, {
       productId: parsed.data.productId,
       rev: parsed.data.rev,
-      uploadedFiles: uploadedAssetRefs.size,
+      uploadedFiles: expectedNewImages.length,
+      assetRefs: newAssetRefs,
     });
     return state;
   }

@@ -20,9 +20,16 @@ import {
   ALLOWED_IMAGE_MIME_TYPES,
   MAX_PRODUCT_IMAGE_UPLOAD_BYTES,
   MAX_PRODUCT_IMAGE_UPLOAD_TOTAL_BYTES,
+  PRODUCT_IMAGE_OPTIMIZATION_MAX_EDGE,
+  PRODUCT_IMAGE_OPTIMIZATION_QUALITY,
+  SAFE_PRODUCT_IMAGE_UPLOAD_REQUEST_BYTES,
   isAllowedProductImageMimeType,
 } from "../lib/product-image-constraints";
-import { commitProductImagesAction } from "../actions/update-product-images-action";
+import {
+  cleanupProductImageAssetsAction,
+  commitProductImagesAction,
+  uploadProductImageAssetAction,
+} from "../actions/update-product-images-action";
 import { useAdminProductRevision } from "../context/admin-product-revision-context";
 import type {
   AdminProductDetailData,
@@ -42,6 +49,19 @@ type PendingUploadSelection = {
   files: FileList | File[];
 };
 
+type UploadedDraftAsset = {
+  temporaryId: string;
+  assetRef: string;
+  originalFileSignature: string;
+  uploadFileSignature: string;
+};
+
+type ImageOptimizationResult = {
+  file: File;
+  fileSignature: string;
+  optimized: boolean;
+};
+
 function formatUploadLimit(bytes: number) {
   const megabytes = bytes / (1024 * 1024);
   return `${megabytes.toFixed(megabytes % 1 === 0 ? 0 : 1)} MB`;
@@ -51,11 +71,141 @@ const TOTAL_UPLOAD_LIMIT_MESSAGE =
   "Las imágenes seleccionadas superan el tamaño máximo permitido. Subí menos imágenes por vez.";
 
 function buildFileSignature(file: File) {
-  return `${file.name}:${file.size}:${file.lastModified}:${file.type}`;
+  return `${file.name}:${file.size}:${file.type}`;
 }
 
 function getTotalFileSize(files: Array<{ size: number }>) {
   return files.reduce((total, file) => total + file.size, 0);
+}
+
+function getFileExtension(fileName: string) {
+  const extension = fileName.split(".").pop()?.trim().toLowerCase();
+  return extension ? `.${extension}` : "";
+}
+
+function isHeicLikeFile(file: File) {
+  const extension = getFileExtension(file.name);
+  return file.type === "image/heic" || file.type === "image/heif" || extension === ".heic" || extension === ".heif";
+}
+
+function replaceFileExtension(fileName: string, extension: string) {
+  const trimmedName = fileName.trim() || "producto";
+  const dotIndex = trimmedName.lastIndexOf(".");
+  const baseName = dotIndex > 0 ? trimmedName.slice(0, dotIndex) : trimmedName;
+
+  return `${baseName}${extension}`;
+}
+
+function loadImageElement(file: File) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const url = window.URL.createObjectURL(file);
+    const image = new window.Image();
+
+    image.onload = () => {
+      window.URL.revokeObjectURL(url);
+      resolve(image);
+    };
+    image.onerror = () => {
+      window.URL.revokeObjectURL(url);
+      reject(new Error("image_load_failed"));
+    };
+    image.src = url;
+  });
+}
+
+function getOptimizedDimensions(width: number, height: number) {
+  const longestEdge = Math.max(width, height);
+
+  if (longestEdge <= PRODUCT_IMAGE_OPTIMIZATION_MAX_EDGE) {
+    return { width, height };
+  }
+
+  const scale = PRODUCT_IMAGE_OPTIMIZATION_MAX_EDGE / longestEdge;
+
+  return {
+    width: Math.max(1, Math.round(width * scale)),
+    height: Math.max(1, Math.round(height * scale)),
+  };
+}
+
+function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality?: number) {
+  return new Promise<Blob | null>((resolve) => {
+    canvas.toBlob(resolve, type, quality);
+  });
+}
+
+function detectCanvasAlpha(canvas: HTMLCanvasElement) {
+  const sampleSize = 96;
+  const sampleCanvas = document.createElement("canvas");
+  const context = sampleCanvas.getContext("2d", { willReadFrequently: true });
+
+  if (!context) {
+    return false;
+  }
+
+  sampleCanvas.width = sampleSize;
+  sampleCanvas.height = sampleSize;
+  context.drawImage(canvas, 0, 0, sampleSize, sampleSize);
+
+  const data = context.getImageData(0, 0, sampleSize, sampleSize).data;
+
+  for (let index = 3; index < data.length; index += 4) {
+    if (data[index] < 255) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+async function optimizeImageForSafeUpload(file: File): Promise<ImageOptimizationResult> {
+  if (file.size <= SAFE_PRODUCT_IMAGE_UPLOAD_REQUEST_BYTES) {
+    return {
+      file,
+      fileSignature: buildFileSignature(file),
+      optimized: false,
+    };
+  }
+
+  const image = await loadImageElement(file);
+  const dimensions = getOptimizedDimensions(image.naturalWidth || image.width, image.naturalHeight || image.height);
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d", { alpha: true });
+
+  if (!context) {
+    throw new Error("OPTIMIZATION_FAILED");
+  }
+
+  canvas.width = dimensions.width;
+  canvas.height = dimensions.height;
+  context.drawImage(image, 0, 0, dimensions.width, dimensions.height);
+
+  const sourceHasAlpha = file.type === "image/png" && detectCanvasAlpha(canvas);
+  const prefersWebp = file.type === "image/png" || file.type === "image/webp";
+  const targetType = prefersWebp ? "image/webp" : "image/jpeg";
+  const targetExtension = prefersWebp ? ".webp" : ".jpg";
+  let blob = await canvasToBlob(canvas, targetType, PRODUCT_IMAGE_OPTIMIZATION_QUALITY);
+
+  if (prefersWebp && (!blob || blob.type !== "image/webp")) {
+    blob = sourceHasAlpha
+      ? await canvasToBlob(canvas, "image/png")
+      : await canvasToBlob(canvas, "image/jpeg", PRODUCT_IMAGE_OPTIMIZATION_QUALITY);
+  }
+
+  if (!blob || blob.size <= 0 || blob.size > SAFE_PRODUCT_IMAGE_UPLOAD_REQUEST_BYTES) {
+    throw new Error("FILE_TOO_LARGE");
+  }
+
+  const optimizedFile = new File([blob], replaceFileExtension(file.name, targetExtension), {
+    type: blob.type || targetType,
+    lastModified: Date.now(),
+  });
+
+  return {
+    file: optimizedFile,
+    fileSignature: buildFileSignature(optimizedFile),
+    optimized: true,
+  };
 }
 
 function TrashIcon() {
@@ -131,7 +281,10 @@ function buildDraftImagesSignature(images: AdminProductImageDraftItem[]) {
   return images.map(buildDraftImageSignature).join("|");
 }
 
-function buildSubmitItem(image: AdminProductImageDraftItem): AdminProductImageDraftSubmitItem {
+function buildSubmitItem(
+  image: AdminProductImageDraftItem,
+  uploadedAssets: Map<string, UploadedDraftAsset>,
+): AdminProductImageDraftSubmitItem {
   if (image.existing) {
     return {
       existing: true,
@@ -141,10 +294,18 @@ function buildSubmitItem(image: AdminProductImageDraftItem): AdminProductImageDr
     };
   }
 
+  const uploadedAsset = uploadedAssets.get(image.temporaryId);
+
+  if (!uploadedAsset) {
+    throw new Error("FILE_MISMATCH");
+  }
+
   return {
     existing: false,
     temporaryId: image.temporaryId,
     fileSignature: image.fileSignature,
+    uploadFileSignature: uploadedAsset.uploadFileSignature,
+    assetRef: uploadedAsset.assetRef,
     alt: image.alt.trim(),
   };
 }
@@ -185,6 +346,7 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
     cloneDraftImages(initialDraftImages),
   );
   const draftImagesRef = useRef<AdminProductImageDraftItem[]>(cloneDraftImages(initialDraftImages));
+  const uploadedAssetCacheRef = useRef(new Map<string, UploadedDraftAsset>());
   const newFilesInputRef = useRef<HTMLInputElement>(null);
   const objectUrlsRef = useRef(new Set<string>());
   const [draftImages, setDraftImages] = useState<AdminProductImageDraftItem[]>(() => cloneDraftImages(initialDraftImages));
@@ -192,6 +354,7 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
   const [editorOpen, setEditorOpen] = useState(false);
   const [editorAlt, setEditorAlt] = useState("");
   const [selectionMessage, setSelectionMessage] = useState<string | null>(null);
+  const [saveProgressMessage, setSaveProgressMessage] = useState<string | null>(null);
   const [dropActive, setDropActive] = useState(false);
 
   useEffect(() => {
@@ -301,6 +464,11 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
         continue;
       }
 
+      if (isHeicLikeFile(file)) {
+        rejected.push(`${file.name || `Archivo ${position}`} no es compatible. UsÃ¡ JPG, PNG o WebP.`);
+        continue;
+      }
+
       if (!isAllowedProductImageMimeType(file.type)) {
         rejected.push(`Archivo ${position}: solo se aceptan JPG, PNG o WebP.`);
         continue;
@@ -348,8 +516,16 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
     addFiles({ files: event.dataTransfer.files });
   };
 
-  const handleCancelChanges = () => {
+  const handleCancelChanges = async () => {
     const currentDraftImages = draftImagesRef.current;
+    const cachedAssetsToCleanup = currentDraftImages
+      .filter((image): image is AdminProductImageDraftNewItem => !image.existing)
+      .flatMap((image) => {
+        const cachedAsset = uploadedAssetCacheRef.current.get(image.temporaryId);
+        return cachedAsset ? [cachedAsset] : [];
+      });
+
+    await cleanupUploadedAssets(cachedAssetsToCleanup);
 
     for (const image of currentDraftImages) {
       if (!image.existing) {
@@ -429,6 +605,11 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
     if (!image.existing) {
       window.URL.revokeObjectURL(image.previewUrl);
       objectUrlsRef.current.delete(image.previewUrl);
+      const cachedAsset = uploadedAssetCacheRef.current.get(image.temporaryId);
+
+      if (cachedAsset) {
+        void cleanupUploadedAssets([cachedAsset]);
+      }
     }
 
     setDraftImages((current) => {
@@ -443,6 +624,111 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
       setEditorOpen(false);
     }
   };
+
+  async function cleanupUploadedAssets(uploadedAssets: UploadedDraftAsset[]) {
+    if (uploadedAssets.length === 0) {
+      return;
+    }
+
+    try {
+      const cleanupResult = await cleanupProductImageAssetsAction(uploadedAssets.map((asset) => asset.assetRef));
+      const deletedAssetRefs = new Set(cleanupResult.deletedAssetRefs);
+
+      for (const asset of uploadedAssets) {
+        if (deletedAssetRefs.has(asset.assetRef)) {
+          uploadedAssetCacheRef.current.delete(asset.temporaryId);
+        }
+      }
+    } catch (error) {
+      logger.error("admin.products.images.client_cleanup_failed", {
+        productId: product.id,
+        assetRefs: uploadedAssets.map((asset) => asset.assetRef),
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  async function uploadDraftImage(
+    image: AdminProductImageDraftNewItem,
+    index: number,
+    total: number,
+  ): Promise<{ asset: UploadedDraftAsset; createdInThisRun: boolean }> {
+    const cachedAsset = uploadedAssetCacheRef.current.get(image.temporaryId);
+
+    if (cachedAsset?.originalFileSignature === image.fileSignature) {
+      return {
+        asset: cachedAsset,
+        createdInThisRun: false,
+      };
+    }
+
+    if (isHeicLikeFile(image.file)) {
+      throw new Error(`${image.file.name || "La imagen"} no es compatible. Usa JPG, PNG o WebP.`);
+    }
+
+    setSaveProgressMessage(`Subiendo imagen ${index + 1} de ${total}...`);
+
+    let uploadFile: ImageOptimizationResult;
+
+    try {
+      uploadFile = await optimizeImageForSafeUpload(image.file);
+    } catch (error) {
+      const code = error instanceof Error ? error.message : "OPTIMIZATION_FAILED";
+
+      if (code === "FILE_TOO_LARGE") {
+        throw new Error(
+          `${image.file.name || "La imagen"} supera el limite seguro por request y no pudimos reducirla lo suficiente.`,
+        );
+      }
+
+      throw new Error(`No pudimos optimizar ${image.file.name || "una imagen"} antes de subirla.`);
+    }
+
+    const formData = new FormData();
+    formData.set("productId", product.id);
+    formData.set("temporaryId", image.temporaryId);
+    formData.set("fileSignature", uploadFile.fileSignature);
+    formData.set("file", uploadFile.file, uploadFile.file.name);
+
+    let uploadResult: Awaited<ReturnType<typeof uploadProductImageAssetAction>>;
+
+    try {
+      uploadResult = await uploadProductImageAssetAction(formData);
+    } catch {
+      throw new Error("No pudimos conectar para subir una de las imagenes. Revisá la conexión e intentá de nuevo.");
+    }
+
+    if (uploadResult.status !== "success") {
+      throw new Error(uploadResult.message);
+    }
+
+    if (uploadResult.temporaryId !== image.temporaryId || uploadResult.fileSignature !== uploadFile.fileSignature) {
+      throw new Error("Una imagen no coincide con el archivo que se intentó subir.");
+    }
+
+    const uploadedAsset: UploadedDraftAsset = {
+      temporaryId: image.temporaryId,
+      assetRef: uploadResult.assetRef,
+      originalFileSignature: image.fileSignature,
+      uploadFileSignature: uploadResult.fileSignature,
+    };
+
+    logger.debug("admin.products.images.client_single_upload_result", {
+      productId: product.id,
+      temporaryId: image.temporaryId,
+      assetRef: uploadResult.assetRef,
+      originalFileSize: image.file.size,
+      uploadedFileSize: uploadResult.fileSize,
+      optimized: uploadFile.optimized,
+    });
+
+    uploadedAssetCacheRef.current.set(image.temporaryId, uploadedAsset);
+
+    return {
+      asset: uploadedAsset,
+      createdInThisRun: true,
+    };
+  }
 
   const handleSaveChanges = async () => {
     if (!canSave) {
@@ -472,21 +758,32 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
       return;
     }
 
-    const formData = new FormData();
-    formData.set("productId", product.id);
-    formData.set("rev", currentRev);
-    formData.set("draftImagesJson", JSON.stringify(currentDraftImages.map(buildSubmitItem)));
-
-    for (const image of currentDraftImages) {
-      if (!image.existing) {
-        formData.append(`file:${image.temporaryId}`, image.file, image.file.name);
-      }
-    }
-
     setSubmitState(INITIAL_STATE);
+    setSaveProgressMessage(null);
     setIsSaving(true);
 
+    const uploadedAssets = new Map<string, UploadedDraftAsset>();
+    const uploadedAssetsThisRun: UploadedDraftAsset[] = [];
+
     try {
+      for (const [index, image] of currentNewFiles.entries()) {
+        const uploadResult = await uploadDraftImage(image, index, currentNewFiles.length);
+        uploadedAssets.set(image.temporaryId, uploadResult.asset);
+
+        if (uploadResult.createdInThisRun) {
+          uploadedAssetsThisRun.push(uploadResult.asset);
+        }
+      }
+
+      const formData = new FormData();
+      formData.set("productId", product.id);
+      formData.set("rev", currentRev);
+      formData.set(
+        "draftImagesJson",
+        JSON.stringify(currentDraftImages.map((image) => buildSubmitItem(image, uploadedAssets))),
+      );
+
+      setSaveProgressMessage("Guardando galerÃ­a...");
       const nextState = await commitProductImagesAction(INITIAL_STATE, formData);
       setSubmitState(nextState);
 
@@ -518,14 +815,19 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
         setSelectedImageId(nextSelectedId);
         setEditorOpen(false);
         setSelectionMessage(null);
+        uploadedAssetCacheRef.current.clear();
+      } else {
+        await cleanupUploadedAssets(uploadedAssetsThisRun);
       }
     } catch (error) {
+      await cleanupUploadedAssets(uploadedAssetsThisRun);
       setSubmitState({
         status: "error",
-        message: "No pudimos guardar los cambios de imagen. Intentalo de nuevo.",
+        message: error instanceof Error ? error.message : "No pudimos guardar los cambios de imagen. Intentalo de nuevo.",
       });
       console.error("admin.products.images.submit_failed", error);
     } finally {
+      setSaveProgressMessage(null);
       setIsSaving(false);
     }
   };
@@ -554,6 +856,15 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
         {submitState.status !== "idle" ? (
           <div aria-live="polite" className={cn("mb-4 rounded-[18px] border px-4 py-3 text-sm", statusBoxClass)}>
             {submitState.message}
+          </div>
+        ) : null}
+
+        {saveProgressMessage ? (
+          <div
+            aria-live="polite"
+            className="mb-4 rounded-[18px] border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-medium text-sky-950"
+          >
+            {saveProgressMessage}
           </div>
         ) : null}
 
