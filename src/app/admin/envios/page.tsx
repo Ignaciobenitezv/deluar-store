@@ -49,33 +49,33 @@ export default async function AdminShipmentsPage({ searchParams }: AdminShipment
   return (
     <div className={dashboardUi.contentPadding}>
       <div className={dashboardUi.shellInner}>
-        <header className="rounded-[24px] border border-slate-200/70 bg-white px-4 py-4 shadow-[0_12px_28px_rgba(15,23,42,0.04)] sm:rounded-[28px] sm:px-5 sm:py-5 lg:px-6">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+        <header className="border-b border-slate-200/70 pb-4 lg:rounded-[24px] lg:border lg:border-slate-200/70 lg:bg-white lg:px-4 lg:py-4 lg:shadow-[0_12px_28px_rgba(15,23,42,0.04)]">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
             <div className="min-w-0 max-w-3xl">
-              <p className={dashboardUi.mutedLabel}>Operacion</p>
-              <h1 className="mt-3 text-[1.45rem] font-semibold tracking-[-0.05em] text-slate-950 sm:mt-4 sm:text-[2.35rem]">
-                Envos y etiquetas
+              <p className={dashboardUi.mutedLabel}>Operación</p>
+              <h1 className="mt-2 text-[1.45rem] font-semibold tracking-[-0.05em] text-slate-950 sm:mt-3 sm:text-[2.35rem]">
+                Envíos y etiquetas
               </h1>
               <p className="mt-2 max-w-2xl text-[12px] leading-5 text-slate-500 sm:text-base sm:leading-7">
                 Elegí pedidos y el transportista al generar archivos.
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 sm:self-start">
               <Link
                 href="/admin/orders"
                 className={cn(
-                  "inline-flex items-center justify-center rounded-full border px-4 py-2.5 text-sm font-semibold",
+                  "inline-flex items-center justify-center rounded-[10px] border px-3 py-2 text-[12px] font-semibold lg:rounded-full lg:px-4 lg:py-2.5 lg:text-sm",
                   dashboardUi.softAction,
                 )}
               >
-                Ir a ordenes
+                Ir a órdenes
               </Link>
             </div>
           </div>
         </header>
 
-        <section className="rounded-[24px] border border-slate-200/70 bg-white px-4 py-4 shadow-[0_12px_28px_rgba(15,23,42,0.04)] sm:px-5 sm:py-5">
+        <section className="border-b border-slate-200/70 py-4 lg:rounded-[24px] lg:border lg:border-slate-200/70 lg:bg-white lg:px-4 lg:py-4 lg:shadow-[0_12px_28px_rgba(15,23,42,0.04)]">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="flex flex-wrap gap-2">
               {TAB_OPTIONS.map((option) => {
@@ -87,29 +87,31 @@ export default async function AdminShipmentsPage({ searchParams }: AdminShipment
                     key={option.value}
                     href={buildHref(option.value, q)}
                     className={cn(
-                      "rounded-full border px-4 py-2 text-sm font-semibold transition",
-                      active ? dashboardUi.primaryAction : dashboardUi.softAction,
+                      "rounded-[10px] border px-3 py-2 text-[12px] font-semibold transition lg:rounded-full lg:px-4 lg:py-2 lg:text-sm",
+                      active
+                        ? "border-[#314158] bg-[#314158] !text-white shadow-[0_10px_22px_rgba(49,65,88,0.16)]"
+                        : dashboardUi.softAction,
                     )}
                   >
-                    {option.label} <span className="ml-1 opacity-70">({count})</span>
+                    {option.label} <span className={active ? "ml-1 !text-white/80" : "ml-1 opacity-70"}>({count})</span>
                   </Link>
                 );
               })}
             </div>
 
-            <form method="get" className="flex w-full max-w-xl gap-2 lg:w-auto">
+            <form method="get" className="grid w-full grid-cols-1 gap-2 min-[390px]:grid-cols-[minmax(0,1fr)_auto] min-[390px]:items-end lg:w-auto lg:max-w-xl">
               <input type="hidden" name="tab" value={activeTab} />
               <input
                 type="search"
                 name="q"
                 defaultValue={q}
                 placeholder="Pedido, destinatario o archivo"
-                className="w-full rounded-[16px] border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-[0_6px_16px_rgba(15,23,42,0.03)] outline-none transition placeholder:text-slate-400 focus:border-[#bda88d] focus:ring-2 focus:ring-[#d9c8b4]/60"
+                className="w-full rounded-[12px] border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-[0_6px_16px_rgba(15,23,42,0.03)] outline-none transition placeholder:text-slate-400 focus:border-[#bda88d] focus:ring-2 focus:ring-[#d9c8b4]/60"
               />
               <button
                 type="submit"
                 className={cn(
-                  "inline-flex items-center justify-center rounded-full border px-4 py-2.5 text-sm font-semibold",
+                  "inline-flex h-11 items-center justify-center rounded-[10px] border px-4 text-[12px] font-semibold whitespace-nowrap lg:rounded-full lg:px-4 lg:py-2.5 lg:text-sm",
                   dashboardUi.primaryAction,
                 )}
               >
@@ -119,7 +121,7 @@ export default async function AdminShipmentsPage({ searchParams }: AdminShipment
           </div>
         </section>
 
-        <section className="rounded-[24px] border border-slate-200/70 bg-white px-4 py-4 shadow-[0_12px_28px_rgba(15,23,42,0.04)] sm:px-5 sm:py-5">
+        <section className="border-b border-slate-200/70 py-4 lg:rounded-[24px] lg:border lg:border-slate-200/70 lg:bg-white lg:px-4 lg:py-4 lg:shadow-[0_12px_28px_rgba(15,23,42,0.04)]">
           <p className={dashboardUi.mutedLabel}>Estado</p>
           <p className="mt-2 text-sm leading-6 text-slate-500">
             Generado: el archivo fue creado. El envío todavía debe gestionarse en Andreani.

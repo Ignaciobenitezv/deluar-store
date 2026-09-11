@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { markTransferOrderPaidAction } from "@/app/admin/orders/actions";
 import { requireAdminSession } from "@/features/admin/auth";
+import { MarkOrderPaidButton } from "@/app/admin/orders/mark-paid-button";
 import { KpiCard } from "@/features/admin/dashboard/components/kpi-card";
 import { dashboardUi } from "@/features/admin/dashboard/lib/dashboard-ui";
 import {
@@ -219,14 +219,6 @@ function EyeIcon({ className }: { className?: string }) {
   );
 }
 
-function CheckIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className={className}>
-      <path d="m4.75 10.25 3.05 3.05L15.25 5.85" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 function ordersDetailActionClassName() {
   return cn(
     "inline-flex w-full items-center justify-center gap-2 rounded-[18px] border px-3.5 py-2.5 text-[13px] font-semibold whitespace-nowrap transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93a6bd]/35",
@@ -234,10 +226,98 @@ function ordersDetailActionClassName() {
   );
 }
 
-function ordersPaidActionClassName() {
+function ordersMobileDetailActionClassName() {
   return cn(
-    "inline-flex w-full items-center justify-center gap-2 rounded-[18px] border px-3.5 py-2.5 text-[13px] font-semibold whitespace-nowrap transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7e9f86]/35",
-    "border-[#58715f] bg-[#5f7b66] text-white shadow-[0_12px_24px_rgba(56,80,60,0.14)] hover:bg-[#4f6855]",
+    "inline-flex h-9 items-center justify-center gap-2 rounded-[10px] border px-3 text-[12px] font-semibold whitespace-nowrap transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#93a6bd]/35",
+    "border-[#d7e0ea] bg-[#f6f9fc] text-[#243247] shadow-[0_1px_0_rgba(255,255,255,0.65)_inset] hover:border-[#c7d3e1] hover:bg-[#eef4f9]",
+  );
+}
+
+function ordersMobilePaginationLinkClassName(disabled = false) {
+  return cn(
+    "inline-flex h-9 min-w-[5.25rem] items-center justify-center rounded-[10px] border px-3 text-xs font-semibold transition",
+    disabled
+      ? "pointer-events-none border-slate-200 bg-slate-100 text-slate-400"
+      : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
+  );
+}
+
+function MobilePaginationLink({
+  href,
+  children,
+  disabled = false,
+}: {
+  href: string;
+  children: React.ReactNode;
+  disabled?: boolean;
+}) {
+  const className = ordersMobilePaginationLinkClassName(disabled);
+
+  if (disabled) {
+    return <span className={className}>{children}</span>;
+  }
+
+  return (
+    <Link href={href} className={className}>
+      {children}
+    </Link>
+  );
+}
+
+function MobileOrderRow({ order }: { order: Order }) {
+  const pendingTransfer = isPendingTransfer(order);
+
+  return (
+    <article className="py-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold tracking-[-0.02em] text-slate-950">#{order.orderNumber}</p>
+          <p className="mt-1 text-xs text-slate-500">
+            {order.customer.firstName} {order.customer.lastName}
+          </p>
+          <p className="mt-0.5 truncate text-xs text-slate-500">{order.customer.email}</p>
+        </div>
+
+        <p className="shrink-0 text-sm font-semibold text-slate-950">{formatCurrency(order.total)}</p>
+      </div>
+
+      <p className="mt-3 text-sm leading-6 text-slate-700">
+        {getAdminShippingMethodLabel(order.shippingMethod)} · {getAdminPaymentMethodLabel(order.paymentMethod)}
+      </p>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <span
+          className={cn(
+            "inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]",
+            getOrderStatusBadgeClasses(order.status),
+          )}
+        >
+          {getAdminOrderStatusLabel(order.status)}
+        </span>
+        <span
+          className={cn(
+            "inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]",
+            getPaymentStatusBadgeClasses(order.paymentStatus),
+          )}
+        >
+          {getAdminPaymentStatusLabel(order.paymentStatus)}
+        </span>
+      </div>
+
+      {pendingTransfer ? (
+        <div className="mt-3 flex justify-end">
+          <MarkOrderPaidButton orderId={order.id} size="sm" />
+        </div>
+      ) : null}
+
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <p className="min-w-0 text-xs text-slate-500">{formatDashboardDateTime(order.createdAt)}</p>
+        <Link href={`/admin/orders/${order.id}`} className={ordersMobileDetailActionClassName()}>
+          <EyeIcon className="h-4 w-4 shrink-0" />
+          Ver detalle
+        </Link>
+      </div>
+    </article>
   );
 }
 
@@ -263,10 +343,232 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
   const startItem = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
   const endItem = totalCount === 0 ? 0 : Math.min(page * pageSize, totalCount);
   const visiblePages = getVisiblePages(page, pageCount);
+  const activeFilterCount = [
+    Boolean(filters.q),
+    filters.status !== "all",
+    filters.paymentMethod !== "all",
+    filters.shippingMethod !== "all",
+    filters.period !== "all",
+  ].filter(Boolean).length;
+
+  const mobileView = (
+    <section className="space-y-4 lg:hidden">
+      <header className="space-y-3">
+        <div className="min-w-0">
+          <h1 className="text-[1.45rem] font-semibold tracking-[-0.05em] text-slate-950">Órdenes</h1>
+          <p className="mt-1 text-[12px] leading-5 text-slate-500">
+            Gestioná pedidos, pagos y entregas desde un solo lugar.
+          </p>
+        </div>
+
+        <div className="flex w-full items-center justify-between gap-3">
+          <Link
+            href="/admin"
+            className={cn(
+              "inline-flex h-10 items-center justify-center rounded-[10px] border px-3 text-[12px] font-semibold transition",
+              dashboardUi.softAction,
+            )}
+          >
+            Volver al panel
+          </Link>
+          <form action="/api/admin/logout" method="post">
+            <button
+              type="submit"
+              className="inline-flex h-10 items-center justify-center rounded-[10px] border border-slate-200 bg-white px-3 text-[12px] font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Salir
+            </button>
+          </form>
+        </div>
+      </header>
+
+      <section className="grid grid-cols-2 gap-2.5">
+        <KpiCard title="Total órdenes" value={formatDashboardNumber(totalCount)} description="Coincidencias con los filtros actuales." tone="neutral" />
+        <KpiCard title="Pendientes" value={formatDashboardNumber(pendingCount)} description="Esperando pago o confirmación." tone="warning" />
+        <KpiCard title="Pagadas" value={formatDashboardNumber(paidCount)} description="Órdenes aprobadas o completadas." tone="success" />
+        <KpiCard title="Facturación" value={formatCurrency(billingTotal)} description="Suma de órdenes pagadas en la búsqueda actual." tone="accent" />
+      </section>
+
+      <section className="space-y-3 border-t border-slate-200/70 pt-3">
+        <div className="flex items-end justify-between gap-3">
+          <div className="min-w-0">
+            <p className={dashboardUi.mutedLabel}>Búsqueda y filtros</p>
+            <p className="mt-1 text-sm text-slate-500">Orden, cliente, pago y envío.</p>
+          </div>
+
+          <div className="min-w-0 text-right text-xs text-slate-500">
+            {totalCount > 0 ? `${formatDashboardNumber(totalCount)} pedidos` : "Sin pedidos"}
+          </div>
+        </div>
+
+        <form method="get" className="space-y-3">
+          <input type="hidden" name="page" value="1" />
+
+          <div className="grid grid-cols-1 gap-2 min-[390px]:grid-cols-[minmax(0,1fr)_auto] min-[390px]:items-end">
+            <label className="block min-w-0 space-y-2">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Buscar</span>
+              <input
+                type="search"
+                name="q"
+                defaultValue={filters.q}
+                placeholder="Orden, cliente o email"
+                className="w-full rounded-[12px] border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#bda88d] focus:ring-2 focus:ring-[#d9c8b4]/60"
+              />
+            </label>
+
+            <button
+              type="submit"
+              className={cn(
+                "inline-flex h-11 items-center justify-center rounded-[10px] border px-4 text-[12px] font-semibold whitespace-nowrap min-[390px]:w-auto",
+                dashboardUi.primaryAction,
+              )}
+            >
+              Buscar
+            </button>
+          </div>
+
+          {hasActiveFilters ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex h-7 items-center rounded-[10px] border border-slate-200 bg-white px-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                {formatDashboardNumber(activeFilterCount)} filtros
+              </span>
+              <Link
+                href={clearFiltersHref}
+                className={cn(
+                  "inline-flex h-7 items-center rounded-[10px] border px-2.5 text-[11px] font-semibold uppercase tracking-[0.18em]",
+                  dashboardUi.softAction,
+                )}
+              >
+                Limpiar
+              </Link>
+            </div>
+          ) : null}
+
+          <details className="rounded-[12px] border border-slate-200/70 bg-[#eef3f8] px-3 py-3">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[12px] font-semibold text-slate-900 [&::-webkit-details-marker]:hidden">
+              <span>Filtros</span>
+            </summary>
+
+            <div className="mt-3 grid gap-3">
+              <FilterSelect
+                label="Estado"
+                name="status"
+                value={filters.status}
+                options={ADMIN_ORDER_STATUS_OPTIONS.map((option) => ({
+                  value: option.value,
+                  label: option.label,
+                }))}
+              />
+              <FilterSelect
+                label="Método de pago"
+                name="paymentMethod"
+                value={filters.paymentMethod}
+                options={ADMIN_ORDER_PAYMENT_METHOD_OPTIONS.map((option) => ({
+                  value: option.value,
+                  label: option.label,
+                }))}
+              />
+              <FilterSelect
+                label="Tipo de envío"
+                name="shippingMethod"
+                value={filters.shippingMethod}
+                options={ADMIN_ORDER_SHIPPING_METHOD_OPTIONS.map((option) => ({
+                  value: option.value,
+                  label: option.label,
+                }))}
+              />
+              <FilterSelect
+                label="Fecha"
+                name="period"
+                value={filters.period}
+                options={ADMIN_ORDER_PERIOD_OPTIONS.map((option) => ({
+                  value: option.value,
+                  label: option.label,
+                }))}
+              />
+              <FilterSelect
+                label="Por página"
+                name="pageSize"
+                value={String(filters.pageSize)}
+                options={ADMIN_ORDER_PAGE_SIZES.map((value) => ({
+                  value: String(value),
+                  label: `${value} por página`,
+                }))}
+              />
+            </div>
+          </details>
+        </form>
+      </section>
+
+      <section className="border-t border-slate-200/70 pt-3">
+        <div className="flex items-end justify-between gap-3">
+          <div className="min-w-0">
+            <p className={dashboardUi.mutedLabel}>Órdenes</p>
+            <h2 className="mt-1 text-sm font-semibold tracking-[-0.02em] text-slate-900">
+              {formatDashboardNumber(totalCount)} pedidos
+            </h2>
+          </div>
+          {pageCount > 1 ? (
+            <p className="text-xs text-slate-500">
+              Página {formatDashboardNumber(page)} de {formatDashboardNumber(pageCount)}
+            </p>
+          ) : null}
+        </div>
+
+        {orders.length > 0 ? (
+          <div className="mt-3 divide-y divide-slate-200/80">
+            {orders.map((order) => (
+              <MobileOrderRow key={order.id} order={order} />
+            ))}
+          </div>
+        ) : (
+          <div className="mt-3 rounded-[18px] border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center">
+            <p className="text-sm font-semibold tracking-[-0.02em] text-slate-900">No hay órdenes con esos filtros.</p>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Probá limpiar la búsqueda o cambiar el estado, método de pago o fecha.
+            </p>
+            {hasActiveFilters ? (
+              <div className="mt-4">
+                <Link
+                  href={clearFiltersHref}
+                  className={cn(
+                    "inline-flex items-center justify-center rounded-[10px] border px-3 py-2 text-[12px] font-semibold",
+                    dashboardUi.softAction,
+                  )}
+                >
+                  Limpiar filtros
+                </Link>
+              </div>
+            ) : null}
+          </div>
+        )}
+
+        {totalCount > 0 ? (
+          <div className="mt-3 border-t border-slate-200/70 pt-3">
+            <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
+              <MobilePaginationLink href={buildOrdersHref(filters, { page: Math.max(1, page - 1) })} disabled={page <= 1}>
+                Anterior
+              </MobilePaginationLink>
+
+              <p className="min-w-0 whitespace-nowrap text-center text-[11px] leading-4 text-slate-500">
+                {formatDashboardNumber(startItem)}-{formatDashboardNumber(endItem)} de {formatDashboardNumber(totalCount)} | Página {formatDashboardNumber(page)} de {formatDashboardNumber(pageCount)}
+              </p>
+
+              <MobilePaginationLink href={buildOrdersHref(filters, { page: Math.min(pageCount, page + 1) })} disabled={page >= pageCount}>
+                Siguiente
+              </MobilePaginationLink>
+            </div>
+          </div>
+        ) : null}
+      </section>
+    </section>
+  );
 
   return (
     <div className={dashboardUi.contentPadding}>
       <div className={dashboardUi.shellInner}>
+        <div className="lg:hidden">{mobileView}</div>
+        <div className="hidden lg:block">
         <header className="rounded-[24px] border border-slate-200/70 bg-white px-4 py-4 shadow-[0_12px_28px_rgba(15,23,42,0.04)] sm:rounded-[28px] sm:px-5 sm:py-5 lg:px-6">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
             <div className="min-w-0 max-w-3xl">
@@ -533,16 +835,7 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
                           Ver detalle
                         </Link>
                         {isPendingTransfer(order) ? (
-                          <form action={markTransferOrderPaidAction} className="w-full">
-                            <input type="hidden" name="orderId" value={order.id} />
-                            <button
-                              type="submit"
-                              className={ordersPaidActionClassName()}
-                            >
-                              <CheckIcon className="h-4 w-4 shrink-0" />
-                              Marcar como pagada
-                            </button>
-                          </form>
+                          <MarkOrderPaidButton orderId={order.id} />
                         ) : null}
                       </div>
                     </article>
@@ -662,16 +955,7 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
                                 Ver detalle
                               </Link>
                               {isPendingTransfer(order) ? (
-                                <form action={markTransferOrderPaidAction}>
-                                  <input type="hidden" name="orderId" value={order.id} />
-                                  <button
-                                    type="submit"
-                                    className={ordersPaidActionClassName()}
-                                  >
-                                    <CheckIcon className="h-4 w-4 shrink-0" />
-                                    Marcar como pagada
-                                  </button>
-                                </form>
+                                <MarkOrderPaidButton orderId={order.id} />
                               ) : null}
                             </div>
                           </td>
@@ -746,6 +1030,7 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
             </div>
           </div>
         </section>
+        </div>
       </div>
     </div>
   );

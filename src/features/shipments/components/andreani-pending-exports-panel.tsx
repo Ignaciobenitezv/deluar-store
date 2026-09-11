@@ -269,7 +269,7 @@ export function AndreaniPendingExportsPanel({ shipments }: AndreaniPendingExport
 
   return (
     <section className="space-y-4">
-      <div className="rounded-[24px] border border-slate-200/70 bg-white px-4 py-4 shadow-[0_12px_28px_rgba(15,23,42,0.04)] sm:px-5 sm:py-5">
+      <div className="border-b border-slate-200/70 pb-4 lg:rounded-[24px] lg:border lg:border-slate-200/70 lg:bg-white lg:px-4 lg:py-4 lg:shadow-[0_12px_28px_rgba(15,23,42,0.04)]">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
             <p className={dashboardUi.mutedLabel}>Pendientes</p>
@@ -278,12 +278,12 @@ export function AndreaniPendingExportsPanel({ shipments }: AndreaniPendingExport
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-[minmax(0,1.15fr)_minmax(0,0.7fr)_minmax(0,1.5fr)] gap-1 min-[390px]:gap-1.5">
             <button
               type="button"
               onClick={selectAllExportable}
               className={cn(
-                "inline-flex items-center justify-center rounded-full border px-4 py-2.5 text-sm font-semibold",
+                "inline-flex h-9 min-w-0 w-full items-center justify-center rounded-[10px] border px-2 text-[11px] font-semibold leading-none whitespace-nowrap lg:rounded-full lg:px-4 lg:py-2.5 lg:text-sm",
                 dashboardUi.softAction,
               )}
             >
@@ -293,7 +293,7 @@ export function AndreaniPendingExportsPanel({ shipments }: AndreaniPendingExport
               type="button"
               onClick={clearSelection}
               className={cn(
-                "inline-flex items-center justify-center rounded-full border px-4 py-2.5 text-sm font-semibold",
+                "inline-flex h-9 min-w-0 w-full items-center justify-center rounded-[10px] border px-2 text-[11px] font-semibold leading-none whitespace-nowrap lg:rounded-full lg:px-4 lg:py-2.5 lg:text-sm",
                 dashboardUi.softAction,
               )}
             >
@@ -304,7 +304,7 @@ export function AndreaniPendingExportsPanel({ shipments }: AndreaniPendingExport
               onClick={() => openCarrierModal(selectedIds)}
               disabled={selectedExportableCount === 0 || isExporting}
               className={cn(
-                "inline-flex items-center justify-center rounded-full border px-4 py-2.5 text-sm font-semibold",
+                "inline-flex h-9 min-w-0 w-full items-center justify-center rounded-[10px] border px-2 text-[11px] font-semibold leading-none whitespace-nowrap lg:rounded-full lg:px-4 lg:py-2.5 lg:text-sm",
                 dashboardUi.primaryAction,
               )}
             >
@@ -338,16 +338,13 @@ export function AndreaniPendingExportsPanel({ shipments }: AndreaniPendingExport
 
       {shipments.length > 0 ? (
         <>
-          <div className="space-y-3 lg:hidden">
+          <div className="divide-y divide-slate-200/80 lg:hidden">
             {shipments.map((shipment) => {
               const checked = selectedIds.includes(shipment.shipmentId);
               const canSelect = shipment.exportable;
 
               return (
-                <article
-                  key={shipment.shipmentId}
-                  className="rounded-[20px] border border-slate-200/70 bg-white px-4 py-4 shadow-[0_8px_18px_rgba(15,23,42,0.03)]"
-                >
+                <article key={shipment.shipmentId} className="py-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-sm font-semibold tracking-[-0.02em] text-slate-950">#{shipment.orderNumber}</p>
@@ -405,7 +402,7 @@ export function AndreaniPendingExportsPanel({ shipments }: AndreaniPendingExport
                         type="button"
                         onClick={() => toggleShipment(shipment.shipmentId)}
                         className={cn(
-                          "inline-flex items-center justify-center rounded-full border px-4 py-2.5 text-sm font-semibold",
+                          "inline-flex items-center justify-center rounded-[10px] border px-3 py-2 text-[12px] font-semibold lg:rounded-full lg:px-4 lg:py-2.5 lg:text-sm",
                           checked ? dashboardUi.primaryAction : dashboardUi.softAction,
                         )}
                       >
@@ -419,7 +416,7 @@ export function AndreaniPendingExportsPanel({ shipments }: AndreaniPendingExport
                         onClick={() => openCarrierModal([shipment.shipmentId])}
                         disabled={isExporting}
                         className={cn(
-                          "inline-flex items-center justify-center rounded-full border px-4 py-2.5 text-sm font-semibold",
+                          "inline-flex items-center justify-center rounded-[10px] border px-3 py-2 text-[12px] font-semibold lg:rounded-full lg:px-4 lg:py-2.5 lg:text-sm",
                           dashboardUi.primaryAction,
                         )}
                       >
@@ -429,7 +426,7 @@ export function AndreaniPendingExportsPanel({ shipments }: AndreaniPendingExport
                       <Link
                         href={shipment.orderHref}
                         className={cn(
-                          "inline-flex items-center justify-center rounded-full border px-4 py-2.5 text-sm font-semibold",
+                          "inline-flex items-center justify-center rounded-[10px] border px-3 py-2 text-[12px] font-semibold lg:rounded-full lg:px-4 lg:py-2.5 lg:text-sm",
                           dashboardUi.softAction,
                         )}
                       >

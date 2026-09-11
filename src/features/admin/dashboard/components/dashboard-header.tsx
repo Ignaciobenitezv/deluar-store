@@ -1,4 +1,4 @@
-import { AdminLogoutButton } from "@/features/admin/components/admin-logout-button";
+import { cn } from "@/lib/utils";
 import { DateRangeFilter } from "./date-range-filter";
 import { dashboardUi } from "../lib/dashboard-ui";
 
@@ -6,51 +6,58 @@ type DashboardHeaderProps = {
   viewTitle: string;
   subtitle?: string;
   lastUpdated?: string;
+  eyebrow?: string;
   showDateRangeFilter?: boolean;
   showLogoutButton?: boolean;
+  compactMobile?: boolean;
 };
 
 export function DashboardHeader({
   viewTitle,
   subtitle,
   lastUpdated,
+  eyebrow = "DELUAR",
   showDateRangeFilter = true,
   showLogoutButton = true,
+  compactMobile = false,
 }: DashboardHeaderProps) {
   return (
-    <header className="relative z-30 rounded-[24px] border border-slate-200/70 bg-white px-4 py-3 shadow-[0_12px_28px_rgba(15,23,42,0.04)] sm:rounded-[28px] sm:px-5 sm:py-5 lg:px-6">
-      <div className="flex flex-col gap-3 2xl:flex-row 2xl:items-start 2xl:justify-between">
-        <div className="min-w-0 max-w-3xl">
-          <p className={`${dashboardUi.mutedLabel} hidden sm:block`}>Panel de comercio de DOTCOM</p>
-          <div className="hidden items-center gap-2 sm:mt-2 sm:flex">
-            <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">
-              Vista
-            </span>
-            <span className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
-              Analítica de comercio electrónico
-            </span>
-          </div>
-          <h1 className="text-[1.45rem] font-semibold tracking-[-0.05em] text-slate-950 sm:mt-4 sm:text-[2.35rem]">
+    <header className={cn("pb-6 sm:pb-8", compactMobile && "pb-4 sm:pb-6")}>
+      <div
+        className={cn(
+          "flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between",
+          compactMobile && "gap-2",
+        )}
+      >
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#9d7d62]">
+            {eyebrow}
+          </p>
+          <h1
+            className={cn(
+              "mt-2 font-semibold tracking-[-0.05em] text-slate-950",
+              compactMobile
+                ? "text-[1.75rem] sm:text-[2.25rem]"
+                : "text-[2.25rem] sm:text-[2.75rem]",
+            )}
+          >
             {viewTitle}
           </h1>
+          {lastUpdated ? (
+            <p className="mt-1.5 text-[11px] text-slate-400">{lastUpdated}</p>
+          ) : null}
           {subtitle ? (
-            <p className="mt-1 max-w-2xl text-[12px] leading-5 text-slate-500 sm:mt-3 sm:text-base sm:leading-7">
+            <p className="mt-2 max-w-xl text-[13px] leading-5 text-slate-500 sm:text-sm sm:leading-6">
               {subtitle}
             </p>
           ) : null}
         </div>
 
-        <div className="flex min-w-0 max-w-full flex-col gap-2 2xl:items-end">
-          {showDateRangeFilter ? <DateRangeFilter /> : null}
-          {showLogoutButton ? <AdminLogoutButton className="hidden sm:block" /> : null}
-          <p className="text-[10px] uppercase tracking-[0.16em] text-slate-500 sm:hidden">
-            Última actualización {lastUpdated ? "en tiempo real" : "pendiente"}
-          </p>
-          <div className="hidden rounded-[18px] border border-slate-200/70 bg-slate-50 px-4 py-3 text-xs text-slate-500 sm:block">
-            <p className="uppercase tracking-[0.18em]">Última actualización</p>
-            <p className="mt-1 font-medium text-slate-900">{lastUpdated ? "En tiempo real" : "Pendiente"}</p>
+        {showDateRangeFilter ? (
+          <div className="shrink-0">
+            <DateRangeFilter compactMobile={compactMobile} />
           </div>
-        </div>
+        ) : null}
       </div>
     </header>
   );

@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { dashboardUi } from "../lib/dashboard-ui";
 import { DashboardHeader } from "./dashboard-header";
 
@@ -6,27 +7,33 @@ type DashboardShellProps = {
   title?: string;
   subtitle?: string;
   lastUpdated?: string;
+  compactMobile?: boolean;
 };
 
-export function DashboardShell({ children, title = "Resumen", subtitle, lastUpdated }: DashboardShellProps) {
+export function DashboardShell({
+  children,
+  title = "Resumen",
+  subtitle,
+  lastUpdated,
+  compactMobile = false,
+}: DashboardShellProps) {
   return (
-    <main className={`${dashboardUi.pageOuter} min-w-0`}>
-      <div className={`mx-auto flex w-full min-w-0 ${dashboardUi.contentMaxWidth} px-3 py-3 sm:px-4 sm:py-4 lg:px-6 lg:py-6`}>
-        <div className={`${dashboardUi.shell} min-w-0 overflow-visible`}>
-          <div className="min-w-0 bg-[#f6f7fb]">
-            <div className={dashboardUi.contentPadding}>
-              <div className={dashboardUi.shellInner}>
-                <DashboardHeader
-                  viewTitle={title}
-                  subtitle={subtitle}
-                  lastUpdated={lastUpdated}
-                  showDateRangeFilter
-                />
-                <div className={dashboardUi.pageStack}>{children}</div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <main className="min-h-screen min-w-0">
+      <div
+        className={cn(
+          compactMobile
+            ? "sm:px-4 sm:py-6 lg:px-6 lg:py-8"
+            : dashboardUi.contentPadding,
+        )}
+      >
+        <DashboardHeader
+          viewTitle={title}
+          subtitle={subtitle}
+          lastUpdated={lastUpdated}
+          showDateRangeFilter
+          compactMobile={compactMobile}
+        />
+        <div>{children}</div>
       </div>
     </main>
   );

@@ -1,4 +1,3 @@
-import { dashboardStatBadgeStyles } from "../lib/dashboard-ui";
 import type { DashboardStatBadgeTone } from "../types/dashboard";
 
 type StatBadgeProps = {
@@ -7,13 +6,13 @@ type StatBadgeProps = {
   tone?: DashboardStatBadgeTone;
 };
 
-export function StatBadge({ label, value, tone = "neutral" }: StatBadgeProps) {
+export function StatBadge({ label, value }: StatBadgeProps) {
   return (
-    <div className={`rounded-[16px] border px-3 py-2.5 ${dashboardStatBadgeStyles[tone]} sm:rounded-[18px] sm:px-4 sm:py-3`}>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] opacity-75 sm:text-[11px] sm:tracking-[0.18em]">
+    <div className="min-w-0">
+      <p className="text-[9px] font-semibold uppercase tracking-[0.18em] text-slate-400 sm:text-[10px] sm:tracking-[0.20em]">
         {label}
       </p>
-      <p className="mt-0.5 text-[1rem] font-semibold tracking-[-0.02em] sm:mt-1 sm:text-lg">
+      <p className="mt-1 whitespace-nowrap text-[1rem] font-semibold tracking-[-0.02em] text-slate-900 sm:text-[1.1rem]">
         {value}
       </p>
     </div>

@@ -1,23 +1,11 @@
 "use client";
 
 import { useId } from "react";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  Line,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Area, AreaChart, CartesianGrid, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { cn } from "@/lib/utils";
 import { dashboardChartColors } from "./dashboard-chart-colors";
 import { DashboardChartEmpty } from "./dashboard-chart-empty";
-import {
-  formatDashboardNumber,
-  formatDashboardPrice,
-  formatDashboardShortDate,
-} from "../../lib/dashboard-formatters";
+import { formatDashboardNumber, formatDashboardPrice, formatDashboardShortDate } from "../../lib/dashboard-formatters";
 
 type RevenuePoint = {
   date: string;
@@ -30,6 +18,7 @@ type RevenuePoint = {
 
 type DashboardRevenueChartProps = {
   data: RevenuePoint[];
+  compactMobile?: boolean;
 };
 
 function formatCompactCurrency(value: number) {
@@ -48,19 +37,19 @@ function formatCompactNumber(value: number) {
   }).format(Number.isFinite(value) ? value : 0);
 }
 
-export function DashboardRevenueChart({ data }: DashboardRevenueChartProps) {
+export function DashboardRevenueChart({ data, compactMobile = false }: DashboardRevenueChartProps) {
   const gradientId = useId();
   const totalRevenue = data.reduce((accumulator, item) => accumulator + item.revenue, 0);
   const totalOrders = data.reduce((accumulator, item) => accumulator + item.paidOrders, 0);
   const totalUnits = data.reduce((accumulator, item) => accumulator + item.unitsSold, 0);
 
   if (data.length === 0) {
-    return <DashboardChartEmpty />;
+    return <DashboardChartEmpty compact={compactMobile} />;
   }
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-2 sm:grid-cols-3">
+    <div className={cn("space-y-4", compactMobile && "space-y-3")}>
+      <div className={cn("grid gap-2 sm:grid-cols-3", compactMobile && "hidden sm:grid")}>
         <div className="rounded-[16px] border border-slate-200/70 bg-slate-50 px-3 py-2.5">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Facturación</p>
           <p className="mt-1 text-sm font-semibold text-slate-950">{formatDashboardPrice(totalRevenue)}</p>
@@ -75,9 +64,12 @@ export function DashboardRevenueChart({ data }: DashboardRevenueChartProps) {
         </div>
       </div>
 
-      <div className="h-[340px] w-full min-w-0">
+      <div className={cn("w-full min-w-0", compactMobile ? "h-[220px] sm:h-[300px] lg:h-[340px]" : "h-[340px]")}>
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 12, right: 20, bottom: 18, left: 12 }}>
+          <AreaChart
+            data={data}
+            margin={compactMobile ? { top: 4, right: 12, bottom: 8, left: 4 } : { top: 12, right: 20, bottom: 18, left: 12 }}
+          >
             <defs>
               <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
                 <stop offset="5%" stopColor={dashboardChartColors.navy} stopOpacity={0.28} />
@@ -90,26 +82,26 @@ export function DashboardRevenueChart({ data }: DashboardRevenueChartProps) {
               tickLine={false}
               axisLine={false}
               interval="preserveStartEnd"
-              minTickGap={26}
-              tickMargin={10}
-              tick={{ fill: "#64748b", fontSize: 12 }}
+              minTickGap={compactMobile ? 18 : 26}
+              tickMargin={compactMobile ? 6 : 10}
+              tick={{ fill: "#64748b", fontSize: compactMobile ? 10 : 12 }}
             />
             <YAxis
               yAxisId="revenue"
               tickLine={false}
               axisLine={false}
-              width={88}
+              width={compactMobile ? 72 : 88}
               tickFormatter={(value) => formatCompactCurrency(Number(value))}
-              tick={{ fill: "#64748b", fontSize: 12 }}
+              tick={{ fill: "#64748b", fontSize: compactMobile ? 10 : 12 }}
             />
             <YAxis
               yAxisId="orders"
               orientation="right"
               tickLine={false}
               axisLine={false}
-              width={44}
+              width={compactMobile ? 34 : 44}
               tickFormatter={(value) => formatCompactNumber(Number(value))}
-              tick={{ fill: "#64748b", fontSize: 12 }}
+              tick={{ fill: "#64748b", fontSize: compactMobile ? 10 : 12 }}
             />
             <Tooltip
               content={({ active, payload }) => {

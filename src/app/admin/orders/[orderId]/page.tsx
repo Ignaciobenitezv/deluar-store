@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { markTransferOrderPaidAction } from "@/app/admin/orders/actions";
+import { MarkOrderPaidButton } from "@/app/admin/orders/mark-paid-button";
 import { requireAdminSession } from "@/features/admin/auth";
 import {
   getAdminOrderStatusLabel,
@@ -128,15 +128,7 @@ export default async function AdminOrderDetailPage({
 
         <div className="flex flex-wrap items-center gap-3">
           {pendingTransfer ? (
-            <form action={markTransferOrderPaidAction}>
-              <input type="hidden" name="orderId" value={order.id} />
-              <button
-                type="submit"
-                className="rounded bg-foreground px-4 py-2 text-sm font-semibold text-background"
-              >
-                Marcar como pagada
-              </button>
-            </form>
+            <MarkOrderPaidButton orderId={order.id} size="sm" />
           ) : null}
           <form action="/api/admin/logout" method="post">
             <button

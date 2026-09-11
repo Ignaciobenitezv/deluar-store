@@ -2,10 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ChartCard } from "@/features/admin/dashboard/components/chart-card";
-import { DashboardShell } from "@/features/admin/dashboard/components/dashboard-shell";
+import { DashboardSubpageShell } from "@/features/admin/dashboard/components/dashboard-subpage-shell";
 import { EmptyState } from "@/features/admin/dashboard/components/empty-state";
 import { KpiCard } from "@/features/admin/dashboard/components/kpi-card";
-import { RankingCard } from "@/features/admin/dashboard/components/ranking-card";
 import { ProductAnalyticsBarChart } from "@/features/admin/dashboard/components/charts/product-analytics-bar-chart";
 import {
   DASHBOARD_PERIODS,
@@ -32,7 +31,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Analisis de productos | Panel de comercio de DOTCOM",
+  title: "Análisis de productos | DELUAR",
 };
 
 type AdminDashboardProductsPageProps = {
@@ -40,100 +39,52 @@ type AdminDashboardProductsPageProps = {
 };
 
 function getVisiblePages(page: number, pageCount: number) {
-  if (pageCount <= 7) {
-    return Array.from({ length: pageCount }, (_, index) => index + 1);
-  }
-
+  if (pageCount <= 7) return Array.from({ length: pageCount }, (_, i) => i + 1);
   const pages = new Set<number>([1, pageCount, page - 1, page, page + 1]);
-  return [...pages].filter((value) => value >= 1 && value <= pageCount).sort((left, right) => left - right);
+  return [...pages].filter((v) => v >= 1 && v <= pageCount).sort((a, b) => a - b);
 }
 
 function getRateLabel(rate: number | null) {
-  return rate === null ? "" : formatDashboardPercent(rate * 100);
+  return rate === null ? "—" : formatDashboardPercent(rate * 100);
 }
 
 function getOpportunityLabel(tag: ProductOpportunityKey) {
   switch (tag) {
-    case "many_views_low_cart":
-      return "Muchas vistas y poco carrito";
-    case "high_cart_low_purchase":
-      return "Mucho carrito y poca compra";
-    case "many_abandons":
-      return "Muchos abandonos";
-    case "good_conversion":
-      return "Buena conversión";
-    default:
-      return tag;
-  }
-}
-
-function getOpportunityTone(tag: ProductOpportunityKey) {
-  switch (tag) {
-    case "many_views_low_cart":
-      return "warning";
-    case "high_cart_low_purchase":
-      return "accent";
-    case "many_abandons":
-      return "danger";
-    case "good_conversion":
-      return "success";
-    default:
-      return "neutral";
+    case "many_views_low_cart": return "Muchas vistas, poco carrito";
+    case "high_cart_low_purchase": return "Mucho carrito, poca compra";
+    case "many_abandons": return "Muchos abandonos";
+    case "good_conversion": return "Buena conversión";
+    default: return tag;
   }
 }
 
 function getOpportunityBadgeClass(tag: ProductOpportunityKey) {
   switch (tag) {
-    case "many_views_low_cart":
-      return "border-amber-200 bg-amber-50 text-amber-900";
-    case "high_cart_low_purchase":
-      return "border-sky-200 bg-sky-50 text-sky-900";
-    case "many_abandons":
-      return "border-rose-200 bg-rose-50 text-rose-900";
-    case "good_conversion":
-      return "border-emerald-200 bg-emerald-50 text-emerald-900";
-    default:
-      return "border-slate-200 bg-white text-slate-700";
+    case "many_views_low_cart": return "border-amber-200 bg-amber-50 text-amber-800";
+    case "high_cart_low_purchase": return "border-sky-200 bg-sky-50 text-sky-800";
+    case "many_abandons": return "border-rose-200 bg-rose-50 text-rose-800";
+    case "good_conversion": return "border-emerald-200 bg-emerald-50 text-emerald-800";
+    default: return "border-[#e8e5e1] bg-white text-slate-600";
   }
 }
 
-function buildProductsHref(current: ProductAnalyticsFilters, overrides: Partial<ProductAnalyticsFilters> = {}) {
+function buildHref(current: ProductAnalyticsFilters, overrides: Partial<ProductAnalyticsFilters> = {}) {
   const next = { ...current, ...overrides };
   const params = new URLSearchParams();
-
   params.set("period", next.period);
-
-  if (next.sort !== "revenue") {
-    params.set("sort", next.sort);
-  }
-
-  if (next.page > 1) {
-    params.set("page", String(next.page));
-  }
-
-  if (next.pageSize !== 25) {
-    params.set("pageSize", String(next.pageSize));
-  }
-
+  if (next.sort !== "revenue") params.set("sort", next.sort);
+  if (next.page > 1) params.set("page", String(next.page));
+  if (next.pageSize !== 25) params.set("pageSize", String(next.pageSize));
   const query = params.toString();
   return query ? `/admin/dashboard/productos?${query}` : "/admin/dashboard/productos";
 }
 
-function ProductOpportunityBadges({ tags }: { tags: ProductOpportunityKey[] }) {
-  if (tags.length === 0) {
-    return null;
-  }
-
+function OpportunityBadges({ tags }: { tags: ProductOpportunityKey[] }) {
+  if (tags.length === 0) return null;
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div className="flex flex-wrap gap-1">
       {tags.map((tag) => (
-        <span
-          key={tag}
-          className={cn(
-            "inline-flex items-center rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]",
-            getOpportunityBadgeClass(tag),
-          )}
-        >
+        <span key={tag} className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold", getOpportunityBadgeClass(tag))}>
           {getOpportunityLabel(tag)}
         </span>
       ))}
@@ -141,143 +92,64 @@ function ProductOpportunityBadges({ tags }: { tags: ProductOpportunityKey[] }) {
   );
 }
 
-function ProductVariantDetails({ product }: { product: ProductAnalyticsRow }) {
-  if (product.variants.length === 0) {
-    return null;
-  }
-
-  const visibleVariants = product.variants.slice(0, 3);
-
-  return (
-    <details className="mt-3 rounded-[16px] border border-dashed border-slate-200/70 bg-slate-50 px-3 py-2.5">
-      <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-        Variantes ({product.variants.length})
-      </summary>
-      <div className="mt-3 space-y-2">
-        {visibleVariants.map((variant) => (
-          <div key={`${product.productId}:${variant.variantId ?? "default"}`} className="rounded-[14px] border border-slate-200/60 bg-white px-3 py-2">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-slate-900">{variant.variantLabel}</p>
-                {variant.sku ? <p className="mt-0.5 text-xs text-slate-500">{variant.sku}</p> : null}
-              </div>
-              <div className="shrink-0 text-right text-[11px] leading-5 text-slate-500">
-                <p>{formatDashboardNumber(variant.views)} vistas</p>
-                <p>{formatDashboardNumber(variant.addToCart)} al carrito</p>
-                <p>{formatDashboardNumber(variant.unitsSold)} uds.</p>
-                <p>{formatDashboardNumber(variant.purchases)} compras</p>
-                <p>{formatDashboardNumber(variant.abandonedCarts)} abandonos</p>
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {product.variants.length > visibleVariants.length ? (
-          <p className="px-1 text-xs text-slate-500">+{product.variants.length - visibleVariants.length} variantes mas</p>
-        ) : null}
-      </div>
-    </details>
-  );
-}
-
 function ProductCell({ product }: { product: ProductAnalyticsRow }) {
-  const fallbackInitial = product.productName.trim().charAt(0).toUpperCase() || "P";
-
+  const initial = product.productName.trim().charAt(0).toUpperCase() || "P";
   return (
-    <div className="min-w-0">
-      <div className="flex items-start gap-3">
-        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-[14px] border border-slate-200/70 bg-slate-100">
-          {product.imageUrl ? (
-            <Image src={product.imageUrl} alt={product.productName} fill sizes="48px" className="object-cover" />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-slate-500">
-              {fallbackInitial}
-            </div>
-          )}
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="truncate text-sm font-medium text-slate-900">{product.productName}</p>
-            {product.opportunityTags.length > 0 ? (
-              <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-900">
-                Oportunidad
-              </span>
-            ) : null}
-          </div>
-          <p className="mt-0.5 truncate text-xs text-slate-500">{product.productSlug}</p>
-          <div className="mt-2">
-            <ProductOpportunityBadges tags={product.opportunityTags} />
-          </div>
-          <ProductVariantDetails product={product} />
-        </div>
+    <div className="flex items-start gap-3">
+      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-[8px] border border-[#e8e5e1] bg-slate-100">
+        {product.imageUrl ? (
+          <Image src={product.imageUrl} alt={product.productName} fill sizes="40px" className="object-cover" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-[12px] font-semibold text-slate-500">{initial}</div>
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[13px] font-medium text-slate-900">{product.productName}</p>
+        <p className="mt-0.5 truncate text-[11px] text-slate-400">{product.productSlug}</p>
+        <div className="mt-1"><OpportunityBadges tags={product.opportunityTags} /></div>
       </div>
     </div>
   );
 }
 
-function MetricCell({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-[14px] border border-slate-200/70 bg-white px-3 py-2">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{label}</p>
-      <p className="mt-1 text-sm font-semibold text-slate-950">{value}</p>
-    </div>
+function PaginationLink({ href, children, active = false, disabled = false }: { href: string; children: React.ReactNode; active?: boolean; disabled?: boolean }) {
+  const cls = cn(
+    "inline-flex h-9 min-w-9 items-center justify-center rounded-full border px-3 text-[13px] font-semibold transition",
+    active ? "border-slate-900 bg-slate-900 text-white" : "border-[#e8e5e1] bg-white text-slate-700 hover:bg-slate-50",
+    disabled && "pointer-events-none opacity-40",
   );
+  if (disabled) return <span className={cls}>{children}</span>;
+  return <Link href={href} className={cls} aria-current={active ? "page" : undefined}>{children}</Link>;
 }
 
-function ProductMobileCard({ product }: { product: ProductAnalyticsRow }) {
+function IconViews() {
   return (
-    <article className="rounded-[20px] border border-slate-200/70 bg-white px-4 py-4">
-      <ProductCell product={product} />
-
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <MetricCell label="Vistas" value={formatDashboardNumber(product.views)} />
-        <MetricCell label="Al carrito" value={formatDashboardNumber(product.addToCart)} />
-        <MetricCell label="Removidos" value={formatDashboardNumber(product.removals)} />
-        <MetricCell label="Compras" value={formatDashboardNumber(product.purchases)} />
-        <MetricCell label="Unidades" value={formatDashboardNumber(product.unitsSold)} />
-        <MetricCell label="View → Cart" value={getRateLabel(product.viewToCartRate)} />
-        <MetricCell label="Cart → Compra" value={getRateLabel(product.cartToPurchaseRate)} />
-        <MetricCell label="Abandonos" value={formatDashboardNumber(product.abandonedCarts)} />
-        <MetricCell label="Revenue" value={formatDashboardPrice(product.revenue)} />
-      </div>
-    </article>
+    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1.5 11C3.5 6 7 3.5 11 3.5S18.5 6 20.5 11c-2 5-5.5 7.5-9.5 7.5S3.5 16 1.5 11Z" />
+      <circle cx="11" cy="11" r="3" />
+    </svg>
   );
 }
-
-function PaginationLink({
-  href,
-  children,
-  active = false,
-  disabled = false,
-}: {
-  href: string;
-  children: React.ReactNode;
-  active?: boolean;
-  disabled?: boolean;
-}) {
-  const className = cn(
-    "inline-flex h-9 min-w-9 items-center justify-center rounded-full border px-3 text-sm font-semibold transition",
-    active
-      ? "border-[#314158] bg-[#314158] text-white shadow-[0_10px_22px_rgba(49,65,88,0.16)]"
-      : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
-    disabled ? "pointer-events-none opacity-40" : undefined,
-  );
-
-  if (disabled) {
-    return <span className={className}>{children}</span>;
-  }
-
+function IconCart() {
   return (
-    <Link href={href} className={className} aria-current={active ? "page" : undefined}>
-      {children}
-    </Link>
+    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 3h2l1.5 9h9.5l1.5-6H7" /><circle cx="9" cy="19" r="1.5" /><circle cx="17" cy="19" r="1.5" />
+    </svg>
+  );
+}
+function IconUnits() {
+  return (
+    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M11 3.5L3.5 7.5v7L11 18.5l7.5-4v-7L11 3.5Z" /><path d="M11 3.5v15M3.5 7.5l7.5 4 7.5-4" />
+    </svg>
+  );
+}
+function IconRevenue() {
+  return (
+    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8.5" />
+      <path d="M11 6v10M8.5 8.5c0-1.1 1.1-1.7 2.5-1.7s2.5.7 2.5 1.8c0 2.7-5 2.2-5 5.2 0 1.5 1.5 2 3 2s2.5-.7 2.5-2" />
+    </svg>
   );
 }
 
@@ -286,251 +158,225 @@ export default async function AdminDashboardProductsPage({ searchParams }: Admin
   const parsedPeriod = normalizeDashboardPeriodValue(
     Array.isArray(resolvedSearchParams.period) ? resolvedSearchParams.period[0] : resolvedSearchParams.period,
   );
-  const query = normalizeProductAnalyticsQuery({
-    ...resolvedSearchParams,
-    period: parsedPeriod,
-  });
+  const query = normalizeProductAnalyticsQuery({ ...resolvedSearchParams, period: parsedPeriod });
   const data = await getProductAnalyticsPageData(query);
   const lastUpdated = formatDashboardDateTime(new Date());
-  const summarySubtitle = `Vista completa de analytics de producto. Periodo activo: ${DASHBOARD_PERIODS[query.period].label}.`;
+  const periodLabel = DASHBOARD_PERIODS[query.period].label;
 
   return (
-    <DashboardShell title="Productos" subtitle={summarySubtitle} lastUpdated={lastUpdated}>
-      <section className="grid gap-3 min-[420px]:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-4 sm:gap-4">
+    <DashboardSubpageShell
+      sectionLabel="Productos"
+      title="Análisis de productos"
+      subtitle={`Vista completa de analytics de producto. Período activo: ${periodLabel}.`}
+      lastUpdated={lastUpdated}
+    >
+      {/* KPI row */}
+      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         <KpiCard
           title="Vistas de producto"
           value={formatDashboardNumber(data.totals.views)}
-          description="Cantidad de PRODUCT_VIEWED del periodo."
+          description="Eventos PRODUCT_VIEWED del período."
+          icon={<IconViews />}
           tone="accent"
         />
         <KpiCard
           title="Add to carts"
           value={formatDashboardNumber(data.totals.addToCart)}
-          description="Cantidad de ADD_TO_CART del periodo."
+          description="Eventos ADD_TO_CART del período."
+          icon={<IconCart />}
           tone="warning"
         />
         <KpiCard
           title="Unidades vendidas"
           value={formatDashboardNumber(data.totals.unitsSold)}
-          description="SUM(quantity) sobre compras reales."
+          description="Unidades sobre órdenes pagadas."
+          icon={<IconUnits />}
           tone="success"
         />
         <KpiCard
           title="Facturación"
           value={formatDashboardPrice(data.totals.revenue)}
-          description="SUM(quantity × unitPrice) sobre órdenes pagadas."
+          description="Ingresos sobre órdenes pagadas."
+          icon={<IconRevenue />}
           tone="neutral"
         />
-      </section>
+      </div>
 
-      <ChartCard
-        title="Filtros y lectura"
-        description="Reutiliza el selector de periodo y agrega orden, paginado y tamaño de página."
-        className="min-w-0"
-      >
-        <div className="space-y-4">
-          <div className="grid gap-3 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)]">
-            <div className="rounded-[20px] border border-slate-200/70 bg-slate-50 p-3 sm:p-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Orden</p>
-                  <p className="mt-1 text-sm text-slate-500">Default: revenue desc. Si no hay revenue, cae a vistas desc.</p>
-                </div>
-                <div className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  {formatDashboardNumber(data.totals.products)} productos con actividad
-                </div>
-              </div>
-
-              <div className="mt-3 grid grid-cols-2 gap-1 rounded-[16px] border border-slate-200 bg-slate-100 p-1 sm:grid-cols-3 xl:grid-cols-5">
-                {PRODUCT_ANALYTICS_SORT_OPTIONS.map((option) => {
-                  const active = data.sortKey === option.value;
-
-                  return (
-                    <Link
-                      key={option.value}
-                      href={buildProductsHref(data.filters, { sort: option.value as ProductAnalyticsSortKey, page: 1 })}
-                      className={cn(
-                        "rounded-[12px] px-2.5 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] transition sm:px-3 sm:text-[11px] sm:tracking-[0.18em]",
-                        active
-                          ? "bg-white text-slate-950 shadow-[0_8px_18px_rgba(15,23,42,0.08)]"
-                          : "text-slate-500 hover:text-slate-900",
-                      )}
-                    >
-                      {option.label}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="rounded-[20px] border border-slate-200/70 bg-slate-50 p-3 sm:p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Tamaño de página</p>
-              <div className="mt-3 grid grid-cols-3 gap-1 rounded-[16px] border border-slate-200 bg-slate-100 p-1">
-                {PRODUCT_ANALYTICS_PAGE_SIZES.map((size) => {
-                  const active = data.pageSize === size;
-
-                  return (
-                    <Link
-                      key={size}
-                      href={buildProductsHref(data.filters, { pageSize: size, page: 1 })}
-                      className={cn(
-                        "rounded-[12px] px-2.5 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] transition",
-                        active
-                          ? "bg-white text-slate-950 shadow-[0_8px_18px_rgba(15,23,42,0.08)]"
-                          : "text-slate-500 hover:text-slate-900",
-                      )}
-                    >
-                      {size}
-                    </Link>
-                  );
-                })}
-              </div>
-              <p className="mt-3 text-xs text-slate-500">Los datos de comportamiento se registran desde la activación de Analytics.</p>
-            </div>
+      {/* Filter / sort controls */}
+      <ChartCard title="Filtros y orden" description="Reutilizá el selector de período y configurá orden y tamaño de página.">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap gap-1.5">
+            {PRODUCT_ANALYTICS_SORT_OPTIONS.map((option) => {
+              const active = data.sortKey === option.value;
+              return (
+                <Link
+                  key={option.value}
+                  href={buildHref(data.filters, { sort: option.value as ProductAnalyticsSortKey, page: 1 })}
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-[11px] font-semibold transition",
+                    active
+                      ? "border-slate-900 bg-slate-900 text-white"
+                      : "border-[#e8e5e1] bg-white text-slate-600 hover:bg-slate-50",
+                  )}
+                >
+                  {option.label}
+                </Link>
+              );
+            })}
           </div>
-
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-4">
-            <div className="rounded-[16px] border border-slate-200/70 bg-white px-3 py-2.5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Periodo</p>
-              <p className="mt-1 text-sm font-semibold text-slate-950">{DASHBOARD_PERIODS[query.period].label}</p>
-            </div>
-            <div className="rounded-[16px] border border-slate-200/70 bg-white px-3 py-2.5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Vistas → carrito</p>
-              <p className="mt-1 text-sm font-semibold text-slate-950">{getRateLabel(data.totals.viewToCartRate)}</p>
-            </div>
-            <div className="rounded-[16px] border border-slate-200/70 bg-white px-3 py-2.5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Carrito → compra</p>
-              <p className="mt-1 text-sm font-semibold text-slate-950">{getRateLabel(data.totals.cartToPurchaseRate)}</p>
-            </div>
-            <div className="rounded-[16px] border border-slate-200/70 bg-white px-3 py-2.5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Ultima actualizacion</p>
-              <p className="mt-1 text-sm font-semibold text-slate-950">{lastUpdated}</p>
-            </div>
+          <div className="ml-auto flex items-center gap-1.5">
+            {PRODUCT_ANALYTICS_PAGE_SIZES.map((size) => {
+              const active = data.pageSize === size;
+              return (
+                <Link
+                  key={size}
+                  href={buildHref(data.filters, { pageSize: size, page: 1 })}
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-[11px] font-semibold transition",
+                    active
+                      ? "border-slate-900 bg-slate-900 text-white"
+                      : "border-[#e8e5e1] bg-white text-slate-600 hover:bg-slate-50",
+                  )}
+                >
+                  {size}
+                </Link>
+              );
+            })}
+            <span className="text-[12px] text-slate-400">por página</span>
           </div>
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-slate-100 pt-3">
+          {[
+            { label: "Productos con actividad", value: formatDashboardNumber(data.totals.products) },
+            { label: "Vistas → carrito", value: getRateLabel(data.totals.viewToCartRate) },
+            { label: "Carrito → compra", value: getRateLabel(data.totals.cartToPurchaseRate) },
+          ].map((m) => (
+            <div key={m.label} className="flex items-center gap-2">
+              <span className="text-[12px] text-slate-400">{m.label}</span>
+              <span className="text-[13px] font-semibold text-slate-800">{m.value}</span>
+            </div>
+          ))}
         </div>
       </ChartCard>
 
-      <div className="grid gap-4 2xl:grid-cols-2">
-        <ChartCard title="Top productos más vistos" description="Top 10 por PRODUCT_VIEWED del periodo." className="min-w-0">
-          <ProductAnalyticsBarChart data={data.charts.topViewed} metricLabel="Vistas" color="#1d4ed8" />
-        </ChartCard>
-
-        <ChartCard title="Top productos más agregados al carrito" description="Top 10 por ADD_TO_CART del periodo." className="min-w-0">
-          <ProductAnalyticsBarChart data={data.charts.topAdded} metricLabel="Add to cart" color="#0f766e" />
-        </ChartCard>
-
-        <ChartCard title="Top productos más vendidos" description="Top 10 por compras reales y unidades vendidas." className="min-w-0">
-          <ProductAnalyticsBarChart data={data.charts.topSold} metricLabel="Compras" color="#2563eb" />
-        </ChartCard>
-
-        <ChartCard title="Top productos más abandonados" description="Top 10 por carritos con abandono." className="min-w-0">
-          <ProductAnalyticsBarChart data={data.charts.topAbandoned} metricLabel="Abandonos" color="#e11d48" />
-        </ChartCard>
-      </div>
-
+      {/* Charts 2x2 */}
       <div className="grid gap-4 xl:grid-cols-2">
-        <RankingCard
-          title="Oportunidad A"
-          description="Muchas vistas + poco add-to-cart. Regla: top 25% por vistas y por debajo de la mediana en view -> cart."
-          items={data.opportunities.manyViewsLowCart.map((product) => ({
-            id: product.productId,
-            title: product.productName,
-            subtitle: product.productSlug,
-            value: product.views,
-            secondaryValue: `View -> Cart ${getRateLabel(product.viewToCartRate)}`,
-            tone: getOpportunityTone("many_views_low_cart"),
-          }))}
-          emptyState={<EmptyState title="Sin oportunidad A" description="No hay productos que cumplan la regla en este periodo." />}
-        />
-
-        <RankingCard
-          title="Oportunidad B"
-          description="Mucho add-to-cart + pocas compras. Regla: top 25% por add-to-cart y por debajo de la mediana en cart -> compra."
-          items={data.opportunities.highCartLowPurchase.map((product) => ({
-            id: product.productId,
-            title: product.productName,
-            subtitle: product.productSlug,
-            value: product.addToCart,
-            secondaryValue: `Cart -> Compra ${getRateLabel(product.cartToPurchaseRate)}`,
-            tone: getOpportunityTone("high_cart_low_purchase"),
-          }))}
-          emptyState={<EmptyState title="Sin oportunidad B" description="No hay productos que cumplan la regla en este periodo." />}
-        />
-
-        <RankingCard
-          title="Oportunidad C"
-          description="Muchos abandonos. Regla: top 25% por abandonos y al menos 1 abandono."
-          items={data.opportunities.manyAbandons.map((product) => ({
-            id: product.productId,
-            title: product.productName,
-            subtitle: product.productSlug,
-            value: product.abandonedCarts,
-            secondaryValue: `${formatDashboardNumber(product.abandonedUnits)} unidades abandonadas`,
-            tone: getOpportunityTone("many_abandons"),
-          }))}
-          emptyState={<EmptyState title="Sin oportunidad C" description="No hay productos con un nivel claro de abandono." />}
-        />
-
-        <RankingCard
-          title="Oportunidad D"
-          description="Buena conversión. Regla: top 25% por cart -> compra y al menos 1 compra."
-          items={data.opportunities.goodConversion.map((product) => ({
-            id: product.productId,
-            title: product.productName,
-            subtitle: product.productSlug,
-            value: (product.cartToPurchaseRate ?? 0) * 100,
-            secondaryValue: `${formatDashboardPrice(product.revenue)} facturados`,
-            tone: getOpportunityTone("good_conversion"),
-          }))}
-          valueFormatter={formatDashboardPercent}
-          emptyState={<EmptyState title="Sin oportunidad D" description="No hay productos con una conversión destacada." />}
-        />
+        <ChartCard title="Productos más vendidos" description={`Top 10 por compras reales — ${periodLabel}.`} className="min-w-0">
+          <ProductAnalyticsBarChart data={data.charts.topSold} metricLabel="Compras" color="#9d7d62" />
+        </ChartCard>
+        <ChartCard title="Productos mayor facturación" description={`Top 10 por revenue — ${periodLabel}.`} className="min-w-0">
+          <ProductAnalyticsBarChart data={data.charts.topAdded} metricLabel="Add to cart" color="#314158" />
+        </ChartCard>
+        <ChartCard title="Productos más vistos" description={`Top 10 por PRODUCT_VIEWED — ${periodLabel}.`} className="min-w-0">
+          <ProductAnalyticsBarChart data={data.charts.topViewed} metricLabel="Vistas" color="#7fa3c4" />
+        </ChartCard>
+        <ChartCard title="Productos más agregados al carrito" description={`Top 10 por ADD_TO_CART — ${periodLabel}.`} className="min-w-0">
+          <ProductAnalyticsBarChart data={data.charts.topAbandoned} metricLabel="Abandonos" color="#e07b5e" />
+        </ChartCard>
       </div>
 
+      {/* Opportunities 2x2 */}
+      <div className="grid gap-4 xl:grid-cols-2">
+        {[
+          {
+            title: "Oportunidad A — Muchas vistas, poco carrito",
+            description: "Top 25% por vistas y por debajo de la mediana en view → cart.",
+            items: data.opportunities.manyViewsLowCart.map((p) => ({
+              id: p.productId, name: p.productName, slug: p.productSlug,
+              main: formatDashboardNumber(p.views), sub: `View → Cart ${getRateLabel(p.viewToCartRate)}`,
+              maxVal: data.opportunities.manyViewsLowCart[0]?.views ?? 1, val: p.views,
+            })),
+            emptyMsg: "No hay productos con oportunidad A en este período.",
+          },
+          {
+            title: "Oportunidad B — Mucho carrito, poca compra",
+            description: "Top 25% por add-to-cart y por debajo de la mediana en cart → compra.",
+            items: data.opportunities.highCartLowPurchase.map((p) => ({
+              id: p.productId, name: p.productName, slug: p.productSlug,
+              main: formatDashboardNumber(p.addToCart), sub: `Cart → Compra ${getRateLabel(p.cartToPurchaseRate)}`,
+              maxVal: data.opportunities.highCartLowPurchase[0]?.addToCart ?? 1, val: p.addToCart,
+            })),
+            emptyMsg: "No hay productos con oportunidad B en este período.",
+          },
+          {
+            title: "Oportunidad C — Muchos abandonos",
+            description: "Top 25% por abandonos y al menos 1 abandono.",
+            items: data.opportunities.manyAbandons.map((p) => ({
+              id: p.productId, name: p.productName, slug: p.productSlug,
+              main: formatDashboardNumber(p.abandonedCarts), sub: `${formatDashboardNumber(p.abandonedUnits)} unidades`,
+              maxVal: data.opportunities.manyAbandons[0]?.abandonedCarts ?? 1, val: p.abandonedCarts,
+            })),
+            emptyMsg: "No hay productos con nivel claro de abandono.",
+          },
+          {
+            title: "Oportunidad D — Buena conversión",
+            description: "Top 25% por cart → compra y al menos 1 compra.",
+            items: data.opportunities.goodConversion.map((p) => ({
+              id: p.productId, name: p.productName, slug: p.productSlug,
+              main: getRateLabel(p.cartToPurchaseRate), sub: formatDashboardPrice(p.revenue),
+              maxVal: 100, val: (p.cartToPurchaseRate ?? 0) * 100,
+            })),
+            emptyMsg: "No hay productos con conversión destacada.",
+          },
+        ].map((opp) => (
+          <ChartCard key={opp.title} title={opp.title} description={opp.description} className="min-w-0">
+            {opp.items.length > 0 ? (
+              <div>
+                {opp.items.map((item) => (
+                  <div key={item.id} className="border-b border-slate-100 py-3 last:border-0">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-[13px] font-medium text-slate-800">{item.name}</p>
+                        <p className="mt-0.5 truncate text-[11px] text-slate-400">{item.sub}</p>
+                      </div>
+                      <p className="shrink-0 text-[13px] font-semibold text-slate-900">{item.main}</p>
+                    </div>
+                    <div className="mt-2 h-1 overflow-hidden rounded-full bg-slate-100">
+                      <div className="h-full rounded-full bg-[#c4b5a5]" style={{ width: `${Math.max(6, (item.val / item.maxVal) * 100)}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState title={opp.emptyMsg} description="" />
+            )}
+          </ChartCard>
+        ))}
+      </div>
+
+      {/* Product table */}
       <ChartCard
-        title="Tabla comparativa"
-        description="Comparación server-side por producto. Orden actual: revenue, views, add-to-cart, compras o abandonos."
+        title="Tabla de detalle de productos"
+        description={`Comparación por producto — ${periodLabel}. Orden: ${data.sortKey}.`}
         className="min-w-0"
-        emptyState={
-          data.products.length === 0 ? (
-            <EmptyState title="Sin actividad para este periodo." description="No se registraron productos con actividad en el filtro actual." />
-          ) : undefined
-        }
       >
         {data.products.length > 0 ? (
           <>
-            <div className="hidden max-w-full overflow-hidden rounded-[20px] border border-slate-200/70 md:block">
-              <div className="max-w-full overflow-x-auto">
-                <table className="min-w-[1520px] w-full border-collapse text-sm">
+            {/* Desktop */}
+            <div className="hidden overflow-hidden rounded-[10px] border border-[#e8e5e1] md:block">
+              <div className="overflow-x-auto">
+                <table className="min-w-[1500px] w-full border-collapse">
                   <thead className="bg-slate-50 text-left">
                     <tr>
-                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Producto</th>
-                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Vistas</th>
-                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Al carrito</th>
-                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Removidos</th>
-                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Compras</th>
-                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Unidades</th>
-                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">View → Cart</th>
-                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Cart → Compra</th>
-                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Abandonos</th>
-                      <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Revenue</th>
+                      {["Producto", "Vistas", "Al carrito", "Removidos", "Compras", "Unidades", "View → Cart", "Cart → Compra", "Abandonos", "Revenue"].map((h) => (
+                        <th key={h} className="px-4 py-3 text-[11px] font-semibold text-slate-500">{h}</th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
                     {data.products.map((product) => (
-                      <tr key={product.productId} className="border-t border-slate-200/70 align-top">
-                        <td className="px-4 py-4">
-                          <ProductCell product={product} />
-                        </td>
-                        <td className="px-4 py-4 text-slate-700">{formatDashboardNumber(product.views)}</td>
-                        <td className="px-4 py-4 text-slate-700">{formatDashboardNumber(product.addToCart)}</td>
-                        <td className="px-4 py-4 text-slate-700">{formatDashboardNumber(product.removals)}</td>
-                        <td className="px-4 py-4 text-slate-700">{formatDashboardNumber(product.purchases)}</td>
-                        <td className="px-4 py-4 text-slate-700">{formatDashboardNumber(product.unitsSold)}</td>
-                        <td className="px-4 py-4 text-slate-700">{getRateLabel(product.viewToCartRate)}</td>
-                        <td className="px-4 py-4 text-slate-700">{getRateLabel(product.cartToPurchaseRate)}</td>
-                        <td className="px-4 py-4 text-slate-700">{formatDashboardNumber(product.abandonedCarts)}</td>
-                        <td className="px-4 py-4 font-semibold text-slate-950">{formatDashboardPrice(product.revenue)}</td>
+                      <tr key={product.productId} className="border-t border-[#e8e5e1] align-top">
+                        <td className="px-4 py-3"><ProductCell product={product} /></td>
+                        <td className="px-4 py-3 text-[13px] text-slate-600">{formatDashboardNumber(product.views)}</td>
+                        <td className="px-4 py-3 text-[13px] text-slate-600">{formatDashboardNumber(product.addToCart)}</td>
+                        <td className="px-4 py-3 text-[13px] text-slate-600">{formatDashboardNumber(product.removals)}</td>
+                        <td className="px-4 py-3 text-[13px] text-slate-600">{formatDashboardNumber(product.purchases)}</td>
+                        <td className="px-4 py-3 text-[13px] text-slate-600">{formatDashboardNumber(product.unitsSold)}</td>
+                        <td className="px-4 py-3 text-[13px] text-slate-600">{getRateLabel(product.viewToCartRate)}</td>
+                        <td className="px-4 py-3 text-[13px] text-slate-600">{getRateLabel(product.cartToPurchaseRate)}</td>
+                        <td className="px-4 py-3 text-[13px] text-slate-600">{formatDashboardNumber(product.abandonedCarts)}</td>
+                        <td className="px-4 py-3 text-[13px] font-semibold text-slate-950">{formatDashboardPrice(product.revenue)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -538,47 +384,51 @@ export default async function AdminDashboardProductsPage({ searchParams }: Admin
               </div>
             </div>
 
+            {/* Mobile */}
             <div className="grid gap-3 md:hidden">
               {data.products.map((product) => (
-                <ProductMobileCard key={product.productId} product={product} />
+                <article key={product.productId} className="rounded-[10px] border border-[#e8e5e1] bg-white px-4 py-4">
+                  <ProductCell product={product} />
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    {[
+                      ["Vistas", formatDashboardNumber(product.views)],
+                      ["Al carrito", formatDashboardNumber(product.addToCart)],
+                      ["Compras", formatDashboardNumber(product.purchases)],
+                      ["Unidades", formatDashboardNumber(product.unitsSold)],
+                      ["View → Cart", getRateLabel(product.viewToCartRate)],
+                      ["Cart → Compra", getRateLabel(product.cartToPurchaseRate)],
+                      ["Abandonos", formatDashboardNumber(product.abandonedCarts)],
+                      ["Revenue", formatDashboardPrice(product.revenue)],
+                    ].map(([label, value]) => (
+                      <div key={label} className="rounded-[8px] border border-slate-100 bg-slate-50 px-3 py-2">
+                        <p className="text-[10px] font-semibold text-slate-400">{label}</p>
+                        <p className="mt-0.5 text-[12px] font-semibold text-slate-900">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </article>
               ))}
             </div>
 
             {data.pageCount > 1 ? (
               <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-                <p className="text-xs text-slate-500">
-                  Mostrando {formatDashboardNumber((data.page - 1) * data.pageSize + 1)}-
-                  {formatDashboardNumber(Math.min(data.page * data.pageSize, data.totals.products))} de{" "}
-                  {formatDashboardNumber(data.totals.products)}
+                <p className="text-[12px] text-slate-400">
+                  Mostrando {formatDashboardNumber((data.page - 1) * data.pageSize + 1)}–{formatDashboardNumber(Math.min(data.page * data.pageSize, data.totals.products))} de {formatDashboardNumber(data.totals.products)}
                 </p>
-                <div className="flex flex-wrap items-center gap-2">
-                  <PaginationLink
-                    href={buildProductsHref(data.filters, { page: Math.max(1, data.page - 1) })}
-                    disabled={data.page <= 1}
-                  >
-                    Anterior
-                  </PaginationLink>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <PaginationLink href={buildHref(data.filters, { page: Math.max(1, data.page - 1) })} disabled={data.page <= 1}>Anterior</PaginationLink>
                   {getVisiblePages(data.page, data.pageCount).map((page) => (
-                    <PaginationLink
-                      key={page}
-                      href={buildProductsHref(data.filters, { page })}
-                      active={page === data.page}
-                    >
-                      {page}
-                    </PaginationLink>
+                    <PaginationLink key={page} href={buildHref(data.filters, { page })} active={page === data.page}>{page}</PaginationLink>
                   ))}
-                  <PaginationLink
-                    href={buildProductsHref(data.filters, { page: Math.min(data.pageCount, data.page + 1) })}
-                    disabled={data.page >= data.pageCount}
-                  >
-                    Siguiente
-                  </PaginationLink>
+                  <PaginationLink href={buildHref(data.filters, { page: Math.min(data.pageCount, data.page + 1) })} disabled={data.page >= data.pageCount}>Siguiente</PaginationLink>
                 </div>
               </div>
             ) : null}
           </>
-        ) : null}
+        ) : (
+          <EmptyState title="Sin actividad para este período." description="No se registraron productos con actividad en el filtro actual." />
+        )}
       </ChartCard>
-    </DashboardShell>
+    </DashboardSubpageShell>
   );
 }

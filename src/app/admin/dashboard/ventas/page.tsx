@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import { ChartCard } from "@/features/admin/dashboard/components/chart-card";
 import { DashboardRevenueChart } from "@/features/admin/dashboard/components/charts/dashboard-revenue-chart";
-import { DashboardShell } from "@/features/admin/dashboard/components/dashboard-shell";
+import { DashboardSubpageShell } from "@/features/admin/dashboard/components/dashboard-subpage-shell";
 import { EmptyState } from "@/features/admin/dashboard/components/empty-state";
 import { KpiCard } from "@/features/admin/dashboard/components/kpi-card";
-import { RankingCard } from "@/features/admin/dashboard/components/ranking-card";
-import { StatBadge } from "@/features/admin/dashboard/components/stat-badge";
 import {
   DASHBOARD_PERIODS,
   getDashboardMetrics,
@@ -14,6 +12,7 @@ import {
 import {
   formatDashboardDateTime,
   formatDashboardNumber,
+  formatDashboardPercent,
   formatDashboardPrice,
   formatDashboardShortDate,
 } from "@/features/admin/dashboard/lib/dashboard-formatters";
@@ -21,14 +20,45 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Ventas | Panel de comercio de DOTCOM",
+  title: "Ventas | DELUAR",
 };
 
 type AdminDashboardSalesPageProps = {
-  searchParams?: Promise<{
-    period?: string;
-  }>;
+  searchParams?: Promise<{ period?: string }>;
 };
+
+function IconRevenue() {
+  return (
+    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8.5" />
+      <path d="M11 6v10M8.5 8.5c0-1.1 1.1-1.7 2.5-1.7s2.5.7 2.5 1.8c0 2.7-5 2.2-5 5.2 0 1.5 1.5 2 3 2s2.5-.7 2.5-2" />
+    </svg>
+  );
+}
+function IconOrders() {
+  return (
+    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M7.5 9V7.5A3.5 3.5 0 0 1 11 4a3.5 3.5 0 0 1 3.5 3.5V9" />
+      <path d="M4 9h14L16.5 18H5.5L4 9Z" />
+    </svg>
+  );
+}
+function IconTicket() {
+  return (
+    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="4" y="4.5" width="14" height="13" rx="2.5" />
+      <path d="M8 10h6M8 13.5h4" />
+    </svg>
+  );
+}
+function IconUnits() {
+  return (
+    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M11 3.5L3.5 7.5v7L11 18.5l7.5-4v-7L11 3.5Z" />
+      <path d="M11 3.5v15M3.5 7.5l7.5 4 7.5-4" />
+    </svg>
+  );
+}
 
 export default async function AdminDashboardSalesPage({ searchParams }: AdminDashboardSalesPageProps) {
   const resolvedSearchParams = await searchParams;
@@ -38,124 +68,158 @@ export default async function AdminDashboardSalesPage({ searchParams }: AdminDas
 
   const bestDays = [...metrics.sales.daily]
     .filter((item) => item.revenue > 0)
-    .sort((left, right) => right.revenue - left.revenue)
+    .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 7);
 
-  const salesStateBadges = [
-    {
-      label: "Pedidos creados",
-      value: formatDashboardNumber(metrics.conversion.checkoutOrders),
-      tone: "neutral" as const,
-    },
-    {
-      label: "Pedidos pagados",
-      value: formatDashboardNumber(metrics.conversion.paidOrders),
-      tone: "approved" as const,
-    },
-    {
-      label: "Pendientes",
-      value: formatDashboardNumber(metrics.conversion.pendingOrders),
-      tone: "warning" as const,
-    },
-    {
-      label: "Fallidos / cancelados",
-      value: formatDashboardNumber(metrics.conversion.failedOrders + metrics.conversion.cancelledOrders),
-      tone: "failed" as const,
-    },
+  const daysWithSales = metrics.sales.daily.filter((d) => d.revenue > 0).length;
+
+  const orderStatusRows = [
+    { label: "Pedidos creados", value: formatDashboardNumber(metrics.conversion.checkoutOrders), color: "bg-slate-300" },
+    { label: "Pagados / aprobados", value: formatDashboardNumber(metrics.conversion.paidOrders), color: "bg-emerald-400" },
+    { label: "Pendientes", value: formatDashboardNumber(metrics.conversion.pendingOrders), color: "bg-amber-400" },
+    { label: "Fallidos / cancelados", value: formatDashboardNumber(metrics.conversion.failedOrders + metrics.conversion.cancelledOrders), color: "bg-rose-400" },
   ];
 
+  const periodLabel = DASHBOARD_PERIODS[period].label;
+
   return (
-    <DashboardShell
+    <DashboardSubpageShell
+      sectionLabel="Ventas"
       title="Ventas"
-      subtitle={`Ventas basadas en órdenes reales. Período activo: ${DASHBOARD_PERIODS[period].label}.`}
+      subtitle={`Facturación basada en órdenes reales. Período activo: ${periodLabel}.`}
       lastUpdated={lastUpdated}
     >
-      <section className="grid gap-3 min-[420px]:grid-cols-2 sm:gap-4 xl:grid-cols-4">
+      {/* KPI row */}
+      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         <KpiCard
-          title="Facturación total"
+          title="Facturación"
           value={formatDashboardPrice(metrics.summary.billingTotal)}
           description="Solo órdenes pagadas o aprobadas."
+          icon={<IconRevenue />}
           tone="success"
         />
         <KpiCard
           title="Pedidos pagados"
           value={formatDashboardNumber(metrics.summary.paidOrders)}
           description="Órdenes incluidas en la facturación."
+          icon={<IconOrders />}
           tone="accent"
         />
         <KpiCard
           title="Ticket promedio"
           value={formatDashboardPrice(metrics.summary.averageTicket)}
-          description="Promedio sobre órdenes pagadas del período."
+          description="Promedio sobre órdenes pagadas."
+          icon={<IconTicket />}
           tone="warning"
         />
         <KpiCard
           title="Unidades vendidas"
           value={formatDashboardNumber(metrics.summary.unitsSold)}
           description="Unidades ligadas a órdenes pagadas."
+          icon={<IconUnits />}
           tone="neutral"
         />
-      </section>
+      </div>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+      {/* Main analytics row */}
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_0.45fr]">
         <ChartCard
           title="Evolución de ventas"
-          description="Evolución del período activo con métricas reales."
+          description={`Facturación diaria — ${periodLabel}.`}
         >
           <DashboardRevenueChart data={metrics.sales.daily} />
         </ChartCard>
 
-        <RankingCard
-          title="Mejores días de venta"
-          description="Ordenados por facturación total."
-          items={bestDays.map((item) => ({
-            id: item.date,
-            title: formatDashboardShortDate(item.date),
-            subtitle: `${formatDashboardNumber(item.paidOrders)} pedidos`,
-            value: item.revenue,
-            secondaryValue: formatDashboardPrice(item.revenue),
-            tone: "accent",
-          }))}
-          valueFormatter={formatDashboardPrice}
-          emptyState={
-            <EmptyState
-              title="Sin ventas para ranking"
-              description="No hay días con facturación en el período seleccionado."
-            />
-          }
-        />
-      </div>
-
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-        <ChartCard title="Estado de ventas" description="Estado comercial del período.">
-          <div className="grid gap-3 min-[420px]:grid-cols-2">
-            {salesStateBadges.map((item) => (
-              <StatBadge key={item.label} label={item.label} value={item.value} tone={item.tone} />
+        {/* Period summary */}
+        <ChartCard title="Resumen del período" description={periodLabel}>
+          <div className="space-y-0">
+            {[
+              { label: "Facturación total", value: formatDashboardPrice(metrics.summary.billingTotal) },
+              { label: "Ticket promedio", value: formatDashboardPrice(metrics.summary.averageTicket) },
+              { label: "Pedidos pagados", value: formatDashboardNumber(metrics.summary.paidOrders) },
+              { label: "Unidades vendidas", value: formatDashboardNumber(metrics.summary.unitsSold) },
+              { label: "Días con ventas", value: `${formatDashboardNumber(daysWithSales)} días` },
+            ].map((row) => (
+              <div key={row.label} className="flex items-center justify-between gap-3 border-b border-slate-100 py-3 last:border-0">
+                <p className="text-[13px] text-slate-500">{row.label}</p>
+                <p className="text-[13px] font-semibold text-slate-900">{row.value}</p>
+              </div>
             ))}
           </div>
         </ChartCard>
+      </div>
 
-        <ChartCard
-          title="Ticket promedio"
-          description="Ticket promedio de órdenes pagadas."
-          emptyState={metrics.summary.paidOrders === 0 ? <EmptyState title="Sin ticket promedio" description="Sin datos para este período." /> : undefined}
-        >
-          {metrics.summary.paidOrders > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2">
-              <KpiCard
-                title="Ticket promedio"
-                value={formatDashboardPrice(metrics.summary.averageTicket)}
-                description="Promedio sobre órdenes pagadas."
-                tone="success"
-              />
-              <div className="rounded-[20px] border border-slate-200/70 bg-slate-50 p-5">
-                <p className="text-sm font-medium text-slate-900">Cálculo</p>
-                <p className="mt-2 text-sm leading-6 text-slate-500">Facturación aprobada dividida por órdenes pagadas.</p>
+      {/* Lower 3-col */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {/* Estado de órdenes */}
+        <ChartCard title="Estado de órdenes" description="Ciclo de vida de los pedidos del período.">
+          {orderStatusRows.map((row) => (
+            <div key={row.label} className="flex items-center justify-between gap-3 border-b border-slate-100 py-3 last:border-0">
+              <div className="flex items-center gap-2.5">
+                <span className={`h-2 w-2 shrink-0 rounded-full ${row.color}`} />
+                <p className="text-[13px] text-slate-600">{row.label}</p>
               </div>
+              <p className="text-[13px] font-semibold text-slate-900">{row.value}</p>
             </div>
-          ) : null}
+          ))}
+          <div className="mt-3 border-t border-slate-100 pt-3">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[12px] text-slate-400">Tasa de pago</p>
+              <p className="text-[12px] font-semibold text-slate-700">
+                {metrics.conversion.checkoutOrders > 0
+                  ? formatDashboardPercent((metrics.conversion.paidOrders / metrics.conversion.checkoutOrders) * 100)
+                  : "—"}
+              </p>
+            </div>
+          </div>
+        </ChartCard>
+
+        {/* Mejores días */}
+        <ChartCard title="Mejores días de venta" description="Ordenados por facturación del período.">
+          {bestDays.length > 0 ? (
+            <div>
+              {bestDays.slice(0, 6).map((day) => (
+                <div key={day.date} className="flex items-center justify-between gap-3 border-b border-slate-100 py-3 last:border-0">
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-medium text-slate-800">{formatDashboardShortDate(day.date)}</p>
+                    <p className="text-[11px] text-slate-400">{formatDashboardNumber(day.paidOrders)} pedidos</p>
+                  </div>
+                  <p className="shrink-0 text-[13px] font-semibold text-slate-900">
+                    {formatDashboardPrice(day.revenue)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState title="Sin ventas en el período" description="No hay días con facturación registrada." />
+          )}
+        </ChartCard>
+
+        {/* Conversión de ventas */}
+        <ChartCard title="Conversión de ventas" description="Del checkout a la compra completada.">
+          <div className="space-y-0">
+            {[
+              { label: "Órdenes creadas", value: formatDashboardNumber(metrics.conversion.checkoutOrders) },
+              { label: "Compras completadas", value: formatDashboardNumber(metrics.conversion.paidOrders) },
+              { label: "Pendientes de pago", value: formatDashboardNumber(metrics.conversion.pendingOrders) },
+              { label: "Canceladas / fallidas", value: formatDashboardNumber(metrics.conversion.failedOrders + metrics.conversion.cancelledOrders) },
+            ].map((row) => (
+              <div key={row.label} className="flex items-center justify-between gap-3 border-b border-slate-100 py-3 last:border-0">
+                <p className="text-[13px] text-slate-500">{row.label}</p>
+                <p className="text-[13px] font-semibold text-slate-900">{row.value}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 rounded-[8px] bg-[#f6f3ef] px-3 py-2.5">
+            <p className="text-[11px] text-slate-500">Tasa de conversión de pago</p>
+            <p className="mt-1 text-[1.25rem] font-semibold tracking-[-0.03em] text-slate-900">
+              {metrics.conversion.checkoutOrders > 0
+                ? formatDashboardPercent((metrics.conversion.paidOrders / metrics.conversion.checkoutOrders) * 100)
+                : "—"}
+            </p>
+          </div>
         </ChartCard>
       </div>
-    </DashboardShell>
+    </DashboardSubpageShell>
   );
 }
