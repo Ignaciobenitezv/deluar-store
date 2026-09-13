@@ -7,9 +7,16 @@ type AdminProductsShellProps = {
   children: React.ReactNode;
   lastUpdated?: string;
   updatedAt?: string;
+  /** Rendered beside the header links — the catalog list passes the create action. */
+  primaryAction?: React.ReactNode;
 };
 
-export function AdminProductsShell({ children, lastUpdated, updatedAt }: AdminProductsShellProps) {
+export function AdminProductsShell({
+  children,
+  lastUpdated,
+  updatedAt,
+  primaryAction,
+}: AdminProductsShellProps) {
   const resolvedUpdatedAt = updatedAt ?? lastUpdated;
 
   return (
@@ -25,7 +32,6 @@ export function AdminProductsShell({ children, lastUpdated, updatedAt }: AdminPr
                       <p className={`${dashboardUi.mutedLabel} hidden sm:block`}>Administrador de catálogo</p>
 
                       <div className="hidden flex-wrap gap-2 sm:mt-2 sm:flex">
-                        <span className={dashboardUi.pill}>Solo lectura</span>
                         <span className={dashboardUi.pill}>Catálogo operativo</span>
                       </div>
 
@@ -69,6 +75,9 @@ export function AdminProductsShell({ children, lastUpdated, updatedAt }: AdminPr
                         >
                           Ver analítica
                         </Link>
+                        {primaryAction ? (
+                          <div className="col-span-2 sm:col-span-1">{primaryAction}</div>
+                        ) : null}
                       </div>
                     </div>
                   </div>

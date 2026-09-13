@@ -81,11 +81,14 @@ const adminProductProjection = groq`
 export const adminProductsInventoryQuery = groq`
   *[_type == "product"] | order(_updatedAt desc, title asc) {
     _id,
+    "sanityProductId": _id,
     title,
     "slug": slug.current,
     basePrice,
     transferPrice,
     stock,
+    isActive,
+    "categoryTitle": category->title,
     images,
     variants[]{
       _key,

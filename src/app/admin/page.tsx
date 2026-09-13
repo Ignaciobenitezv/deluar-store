@@ -1,13 +1,39 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
-import { AdminLogoutButton } from "@/features/admin/components/admin-logout-button";
 import type { BetterAuthSession } from "@/features/admin/better-auth";
 import { MobilePrimaryModuleLink, MobileSecondaryModuleLink } from "@/app/admin/admin-home-mobile-cards";
 import { formatDashboardNumber, formatDashboardPrice } from "@/features/admin/dashboard/lib/dashboard-formatters";
 import { getDashboardMetrics } from "@/features/admin/dashboard/server/dashboard-service";
 import { requireAdminSession } from "@/features/admin/auth";
 import { dashboardUi } from "@/features/admin/dashboard/lib/dashboard-ui";
+import {
+  HomeKpi,
+  HomeModule,
+  HomeModuleCard,
+  HomeSectionTitle,
+} from "@/features/admin/home/components/home-modules";
+import { HomeHero } from "@/features/admin/home/components/home-hero";
+import { HomeSidebar } from "@/features/admin/home/components/home-sidebar";
+import { HomeBackdrop } from "@/features/admin/home/components/home-backdrop";
+import { HomeTopbar } from "@/features/admin/home/components/home-topbar";
+import motion from "@/features/admin/home/components/home-motion.module.css";
+import { SpotlightArea } from "@/features/admin/home/components/home-spotlight";
+import { QuickActions, RecentOrders, StorefrontBanner } from "@/features/admin/home/components/home-panels";
+import { bucketSeries } from "@/features/admin/dashboard/components/overview/overview-ui";
+import { moduleTone } from "@/features/admin/home/components/home-ui";
+import {
+  IconBolt,
+  IconClock,
+  IconCustomers,
+  IconOrders,
+  IconPlus,
+  IconProducts,
+  IconSales,
+  IconShipping,
+  IconStats,
+  IconStock,
+  IconTag,
+} from "@/features/admin/home/components/home-icons";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -15,21 +41,6 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Panel de administración | DOTCOM",
 };
-
-function ArrowRightIcon({ className }: { className?: string } = {}) {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 20 20"
-      className={cn("h-4 w-4", className)}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M7 4.5 12.5 10 7 15.5" />
-    </svg>
-  );
-}
 
 function CatalogIcon({ className }: { className?: string } = {}) {
   return (
@@ -96,57 +107,27 @@ function MobileLogoutButton() {
   );
 }
 
-type HubCardProps = {
-  href: string;
-  title: string;
-  description: string;
-  cta: string;
-  badge: string;
-  icon: ReactNode;
-  iconTone: string;
-  badgeTone: string;
-  tone: {
-    surface: string;
-    icon: string;
-  };
-};
-
-function HubCard({ href, title, description, cta, badge, icon, iconTone, badgeTone }: HubCardProps) {
-  return (
-    <Link
-      href={href}
-      className={cn(
-        "group flex h-full min-h-[260px] flex-col justify-between rounded-[28px] border border-[#e8ddd0] bg-white p-5 shadow-[0_12px_28px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-[#dbcdbd] hover:shadow-[0_18px_36px_rgba(15,23,42,0.08)] sm:p-6",
-      )}
-    >
-      <div className="flex items-start justify-between gap-4">
-        <div className={cn("flex h-12 w-12 items-center justify-center rounded-2xl border", iconTone)}>{icon}</div>
-        <span
-          className={cn(
-            "inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]",
-            badgeTone,
-          )}
-        >
-          {badge}
-        </span>
-      </div>
-
-      <div className="mt-5">
-        <h2 className="text-[1.15rem] font-semibold tracking-[-0.03em] text-slate-950 sm:text-[1.25rem]">{title}</h2>
-        <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">{description}</p>
-      </div>
-
-      <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#314158] transition group-hover:translate-x-0.5">
-        <span>{cta}</span>
-        <ArrowRightIcon />
-      </div>
-    </Link>
-  );
-}
-
 export default async function AdminHomePage() {
   const [session, metrics] = await Promise.all([requireAdminSession(), getDashboardMetrics("30d")]);
   const displayName = getAdminDisplayName(session);
+  const now = new Date();
+  // es-AR lowercases the weekday; the label reads as a heading, so it leads uppercase.
+  const rawDateLabel = new Intl.DateTimeFormat("es-AR", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(now);
+  const dateLabel = rawDateLabel.charAt(0).toUpperCase() + rawDateLabel.slice(1);
+  const activeProducts = metrics.products.catalog.filter((product) => product.isActive).length;
+  /** The real comparison, including its absence: stock and unique buyers have
+      no previous window in the service, so those two stay unmeasurable. */
+  const toDelta = (source?: { direction: "up" | "down" | "flat" | "unmeasurable"; changePercent: number | null }) => ({
+    direction: source?.direction ?? ("unmeasurable" as const),
+    changePercent: Math.abs(source?.changePercent ?? 0),
+  });
+  const unmeasured = { direction: "unmeasurable" as const, changePercent: 0 };
 
   const totalProducts = metrics.products.stockDistribution.reduce((accumulator, item) => accumulator + item.products, 0);
   const mobileSnapshot = [
@@ -164,69 +145,6 @@ export default async function AdminHomePage() {
       label: "Facturación",
       value: formatDashboardPrice(metrics.summary.billingTotal),
       href: "/admin/dashboard",
-    },
-  ] as const;
-
-  const cards = [
-    {
-      href: "/admin/productos",
-      title: "Productos",
-      description: "Gestioná catálogo, stock, precios e imágenes.",
-      cta: "Abrir",
-      badge: "Disponible",
-      icon: <CatalogIcon />,
-      iconTone: "border-white/55 bg-white/45 text-[#314158]",
-      badgeTone: "border-sky-200 bg-sky-50 text-sky-900",
-      tone: {
-        surface: "border-white/70 bg-[linear-gradient(145deg,rgba(214,235,248,0.88),rgba(247,251,255,0.66))]",
-        icon: "border-white/55 bg-white/45 text-[#314158]",
-        glow: "bg-[radial-gradient(circle_at_74%_18%,rgba(255,255,255,0.5),transparent_58%)]",
-      },
-    },
-    {
-      href: "/admin/orders",
-      title: "Órdenes",
-      description: "Revisá pedidos, pagos y entregas.",
-      cta: "Abrir",
-      badge: "Disponible",
-      icon: <OrdersIcon />,
-      iconTone: "border-white/55 bg-white/45 text-[#7d5f39]",
-      badgeTone: "border-amber-200 bg-amber-50 text-amber-900",
-      tone: {
-        surface: "border-white/70 bg-[linear-gradient(145deg,rgba(247,233,214,0.9),rgba(253,248,241,0.68))]",
-        icon: "border-white/55 bg-white/45 text-[#7d5f39]",
-        glow: "bg-[radial-gradient(circle_at_74%_18%,rgba(255,255,255,0.46),transparent_58%)]",
-      },
-    },
-    {
-      href: "/admin/dashboard",
-      title: "Estadísticas",
-      description: "Ventas y rendimiento del ecommerce.",
-      cta: "Ver",
-      badge: "Disponible",
-      icon: <ChartIcon />,
-      iconTone: "border-white/55 bg-white/45 text-[#2f6f52]",
-      badgeTone: "border-emerald-200 bg-emerald-50 text-emerald-900",
-      tone: {
-        surface: "border-white/70 bg-[linear-gradient(145deg,rgba(222,244,236,0.88),rgba(247,251,249,0.66))]",
-        icon: "border-white/55 bg-white/45 text-[#2f6f52]",
-        glow: "bg-[radial-gradient(circle_at_74%_18%,rgba(255,255,255,0.42),transparent_58%)]",
-      },
-    },
-    {
-      href: "/admin/envios",
-      title: "Envíos y etiquetas",
-      description: "Prepará despachos y descargá archivos.",
-      cta: "Ver",
-      badge: "Operativo",
-      icon: <ShipmentsIcon />,
-      iconTone: "border-white/55 bg-white/45 text-[#6f5837]",
-      badgeTone: "border-amber-200 bg-amber-50 text-amber-900",
-      tone: {
-        surface: "border-white/70 bg-[linear-gradient(145deg,rgba(251,226,215,0.88),rgba(254,248,245,0.66))]",
-        icon: "border-white/55 bg-white/45 text-[#6f5837]",
-        glow: "bg-[radial-gradient(circle_at_74%_18%,rgba(255,255,255,0.4),transparent_58%)]",
-      },
     },
   ] as const;
 
@@ -294,8 +212,8 @@ export default async function AdminHomePage() {
   ] as const;
 
   return (
-    <main className={dashboardUi.pageOuter}>
-      <div className="mx-auto flex min-h-screen w-full max-w-[1680px] flex-col px-3 pt-3 pb-2.5 sm:px-4 sm:py-4 lg:px-6 lg:py-6">
+    <main className={cn(dashboardUi.pageOuter, "lg:bg-[#e3e6ec]")}>
+      <div className="mx-auto flex min-h-screen w-full max-w-[1680px] flex-col px-3 pt-3 pb-2.5 sm:px-4 sm:py-4 lg:max-w-none lg:p-0">
         <div className="relative isolate overflow-hidden lg:hidden bg-[linear-gradient(180deg,rgba(236,236,248,1),rgba(239,240,250,1)_34%,rgba(243,241,251,1)_70%,rgba(246,245,251,1)_100%)]">
           <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_14%_10%,rgba(171,183,255,0.44),transparent_24%),radial-gradient(circle_at_52%_34%,rgba(130,112,220,0.22),transparent_34%),radial-gradient(circle_at_84%_14%,rgba(233,216,255,0.38),transparent_26%),radial-gradient(circle_at_72%_88%,rgba(180,227,234,0.24),transparent_30%)]" />
           <div className="pointer-events-none absolute left-[-16%] top-[3.2rem] z-0 h-72 w-72 rounded-full bg-[#d5d7ff]/44 blur-[148px]" />
@@ -378,59 +296,172 @@ export default async function AdminHomePage() {
           <div className="pointer-events-none absolute inset-x-[-8%] bottom-[-2rem] z-0 h-80 bg-[radial-gradient(circle_at_28%_14%,rgba(132,110,220,0.22),transparent_34%),radial-gradient(circle_at_70%_30%,rgba(107,194,220,0.16),transparent_32%),radial-gradient(circle_at_54%_66%,rgba(224,191,150,0.12),transparent_38%)] blur-[120px]" />
         </div>
 
-        <div className="hidden min-h-0 flex-1 flex-col overflow-hidden lg:flex">
-          <div className={`${dashboardUi.contentPadding} flex min-h-0 flex-1 flex-col`}>
-            <div className={dashboardUi.shellInner}>
-              <header className="rounded-[24px] border border-slate-200/70 bg-white px-4 py-4 shadow-[0_12px_28px_rgba(15,23,42,0.04)] sm:rounded-[28px] sm:px-5 sm:py-5 lg:px-6">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                  <div className="min-w-0 max-w-3xl">
-                    <p className={dashboardUi.mutedLabel}>Panel de administración</p>
-                    <h1 className="mt-3 text-[1.45rem] font-semibold tracking-[-0.05em] text-slate-950 sm:mt-4 sm:text-[2.35rem]">
-                      Elegí el área que querés gestionar
-                    </h1>
-                    <p className="mt-2 max-w-2xl text-[12px] leading-5 text-slate-500 sm:text-base sm:leading-7">
-                      Acceso rápido a los módulos principales del Admin. Usá esta pantalla como punto de entrada para
-                      catálogo, órdenes y análisis.
-                    </p>
-                  </div>
+        <div className="relative hidden flex-1 lg:flex lg:gap-5 lg:p-5">
+          <HomeBackdrop />
 
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className={dashboardUi.pill}>Acceso rápido</span>
-                    <span className={dashboardUi.pill}>Navegación principal</span>
-                    <AdminLogoutButton className="sm:ml-2" />
-                  </div>
-                </div>
-              </header>
+          <div className="relative z-10 flex shrink-0">
+            <HomeSidebar displayName={displayName} />
+          </div>
 
-              <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                {cards.map((card) => (
-                  <HubCard key={card.href} {...card} />
-                ))}
-              </section>
+          <div className="relative z-10 flex min-w-0 flex-1 flex-col">
+            <HomeTopbar displayName={displayName} />
 
-              <section className={dashboardUi.card}>
-                <div className={dashboardUi.cardBody}>
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="min-w-0">
-                      <p className={dashboardUi.mutedLabel}>Atajos</p>
-                      <p className="mt-2 text-sm leading-6 text-slate-500">
-                        Desde el hub también podés entrar a resúmenes, reportes y vistas operativas ya disponibles.
-                      </p>
-                    </div>
-                    <Link
-                      href="/admin/dashboard"
-                      className={cn(
-                        "inline-flex items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold",
-                        dashboardUi.softAction,
-                      )}
-                    >
-                      Ir al resumen
-                      <ArrowRightIcon />
-                    </Link>
-                  </div>
-                </div>
-              </section>
+            <div className="min-w-0 flex-1 space-y-[18px]">
+            {/* ── Greeting ───────────────────────────────────────────────── */}
+            <div className={motion.rise}>
+              <HomeHero displayName={displayName} dateLabel={dateLabel} />
             </div>
+
+            {/* ── The period's headline numbers ──────────────────────────── */}
+            <SpotlightArea className={cn(motion.rise, "grid grid-cols-2 gap-[18px] xl:grid-cols-4")}>
+              <HomeKpi
+                label="Ventas (30 días)"
+                icon={<IconSales />}
+                tone={moduleTone.stats}
+                value={formatDashboardPrice(metrics.summary.billingTotal)}
+                series={bucketSeries(metrics.sales.daily.map((day) => day.revenue))}
+                delta={toDelta(metrics.comparison.billingTotal)}
+                context="vs. período anterior"
+                href="/admin/dashboard/ventas"
+              />
+              <HomeKpi
+                label="Pedidos (30 días)"
+                icon={<IconOrders />}
+                tone={moduleTone.orders}
+                value={formatDashboardNumber(metrics.summary.createdOrders)}
+                series={bucketSeries(metrics.sales.daily.map((day) => day.createdOrders))}
+                delta={toDelta(metrics.comparison.paidOrders)}
+                context="vs. período anterior"
+                href="/admin/orders"
+              />
+              <HomeKpi
+                label="Clientes (30 días)"
+                icon={<IconCustomers />}
+                tone={moduleTone.customers}
+                value={formatDashboardNumber(metrics.customers.uniqueCustomers)}
+                delta={unmeasured}
+                context={`${formatDashboardNumber(metrics.customers.newCustomers)} nuevos en el período`}
+                href="/admin/dashboard/clientes"
+              />
+              <HomeKpi
+                label="Productos activos"
+                icon={<IconProducts />}
+                tone={moduleTone.products}
+                value={formatDashboardNumber(activeProducts)}
+                delta={unmeasured}
+                context={`de ${formatDashboardNumber(totalProducts)} en el catálogo`}
+                href="/admin/productos"
+              />
+            </SpotlightArea>
+
+            {/* ── Row 3 · the doors ──────────────────────────────────────── */}
+            <div className={cn(motion.rise, "pt-1.5")} style={{ animationDelay: "140ms" }}>
+              <HomeSectionTitle
+                title="Módulos principales"
+                note="Accedé rápidamente a las secciones más importantes del Admin."
+              />
+              <SpotlightArea className="mt-[18px] grid grid-cols-2 gap-[20px] lg:grid-cols-3 xl:grid-cols-5">
+                <HomeModuleCard
+                  href="/admin/productos"
+                  title="Productos"
+                  description="Gestioná catálogo, stock, precios e imágenes."
+                  cta="Abrir"
+                  icon={<IconProducts />}
+                  tone={moduleTone.products}
+                  alert={
+                    metrics.summary.lowStockProducts > 0
+                      ? {
+                          label: `${formatDashboardNumber(metrics.summary.lowStockProducts)} con stock bajo`,
+                        }
+                      : null
+                  }
+                />
+                <HomeModuleCard
+                  href="/admin/orders"
+                  title="Órdenes"
+                  description="Revisá pedidos, pagos y entregas."
+                  cta="Abrir"
+                  icon={<IconOrders />}
+                  tone={moduleTone.orders}
+                  alert={
+                    metrics.alerts.paidPendingPreparationOrders > 0
+                      ? {
+                          label: `${formatDashboardNumber(metrics.alerts.paidPendingPreparationOrders)} por preparar`,
+                        }
+                      : null
+                  }
+                />
+                <HomeModuleCard
+                  href="/admin/dashboard"
+                  title="Estadísticas"
+                  description="Ventas y rendimiento del ecommerce."
+                  cta="Ver"
+                  icon={<IconStats />}
+                  tone={moduleTone.stats}
+                />
+                <HomeModuleCard
+                  href="/admin/envios"
+                  title="Envíos y etiquetas"
+                  description="Prepará despachos y descargá archivos."
+                  cta="Ver"
+                  icon={<IconShipping />}
+                  tone={moduleTone.shipping}
+                />
+                <HomeModuleCard
+                  href="/admin/dashboard/clientes"
+                  title="Clientes"
+                  description="Conocé a tus clientes y su comportamiento."
+                  cta="Ver"
+                  icon={<IconCustomers />}
+                  tone={moduleTone.customers}
+                />
+              </SpotlightArea>
+            </div>
+
+            {/* ── Row 4 · what just happened / what to do next ───────────── */}
+            <div className={cn(motion.rise, "grid grid-cols-1 gap-[20px] pt-1.5 xl:grid-cols-2")} style={{ animationDelay: "210ms" }}>
+              <HomeModule
+                title="Pedidos recientes"
+                note="Últimos pedidos registrados en tu tienda."
+                icon={<IconClock />}
+                action={{ href: "/admin/orders", label: "Ver todos" }}
+              >
+                <RecentOrders orders={metrics.ledger.orders.slice(0, 5)} now={now} />
+              </HomeModule>
+
+              <HomeModule
+                title="Atajos útiles"
+                note="Accedé rápidamente a tareas frecuentes."
+                icon={<IconBolt />}
+              >
+                <QuickActions
+                  actions={[
+                    {
+                      href: "/admin/productos",
+                      label: "Crear producto",
+                      icon: <IconPlus />,
+                    },
+                    {
+                      href: "/admin/productos?stock=low",
+                      label: "Gestionar stock",
+                      icon: <IconStock />,
+                    },
+                    {
+                      href: "/admin/orders?status=PAID",
+                      label: "Ver pedidos pendientes",
+                      icon: <IconOrders className="h-[17px] w-[17px]" />,
+                    },
+                    {
+                      href: "/admin/envios",
+                      label: "Descargar etiquetas",
+                      icon: <IconTag />,
+                    },
+                  ]}
+                />
+                <StorefrontBanner />
+              </HomeModule>
+            </div>
+          </div>
           </div>
         </div>
       </div>

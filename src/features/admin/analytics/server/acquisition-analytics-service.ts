@@ -41,6 +41,10 @@ export type AcquisitionSourceRow = {
   medium: string;
   sessions: number;
   visitors: number;
+  /** PRODUCT_VIEWED events fired by this source's sessions. */
+  productViews: number;
+  /** Sessions per day of the period, for the row's trend mark. */
+  trend: number[];
   addToCart: number;
   checkoutStarted: number;
   orders: number;
@@ -167,6 +171,8 @@ type AcquisitionBucket = {
   landingPage: string;
   referrer: string;
   sessions: number;
+  productViews: number;
+  dailySessions: Map<string, number>;
   visitors: Set<string>;
   addToCartSessions: Set<string>;
   checkoutStartedSessions: Set<string>;
@@ -302,6 +308,23 @@ function normalizeReferrerLabel(value: string | null | undefined) {
   return normalizeReferrerHost(value) ?? "Directo";
 }
 
+function formatAcquisitionDateKey(date: Date) {
+  const shifted = new Date(date.getTime() - ARGENTINA_UTC_OFFSET_MS);
+  return shifted.toISOString().slice(0, 10);
+}
+
+function buildPeriodDayKeys(start: Date, end: Date) {
+  const keys: string[] = [];
+  const cursor = new Date(start);
+
+  while (cursor.getTime() <= end.getTime()) {
+    keys.push(formatAcquisitionDateKey(cursor));
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+
+  return keys;
+}
+
 function createBucket(params: {
   source: string;
   medium: string;
@@ -312,6 +335,8 @@ function createBucket(params: {
   return {
     ...params,
     sessions: 0,
+    productViews: 0,
+    dailySessions: new Map<string, number>(),
     visitors: new Set<string>(),
     addToCartSessions: new Set<string>(),
     checkoutStartedSessions: new Set<string>(),
@@ -353,7 +378,7 @@ function compareStringsAsc(left: string, right: string) {
   return left.localeCompare(right);
 }
 
-function finalizeBucket(bucket: AcquisitionBucket) {
+function finalizeBucket(bucket: AcquisitionBucket, periodDayKeys: string[] = []) {
   const sessions = bucket.sessions;
   const visitors = bucket.visitors.size;
   const addToCart = bucket.addToCartSessions.size;
@@ -375,6 +400,9 @@ function finalizeBucket(bucket: AcquisitionBucket) {
     referrer: bucket.referrer,
     sessions,
     visitors,
+    productViews: bucket.productViews,
+    // One entry per day of the period, so every row's trend shares one x scale.
+    trend: periodDayKeys.map((key) => bucket.dailySessions.get(key) ?? 0),
     addToCart,
     checkoutStarted,
     orders,
@@ -424,6 +452,8 @@ function toSourceRow(row: ReturnType<typeof finalizeBucket>): AcquisitionSourceR
     medium: row.medium,
     sessions: row.sessions,
     visitors: row.visitors,
+    productViews: row.productViews,
+    trend: row.trend,
     addToCart: row.addToCart,
     checkoutStarted: row.checkoutStarted,
     orders: row.orders,
@@ -540,7 +570,11 @@ export async function getAcquisitionAnalyticsPageData(filters: AcquisitionFilter
               in: sessionIds,
             },
             type: {
-              in: [AnalyticsEventType.ADD_TO_CART, AnalyticsEventType.CHECKOUT_STARTED],
+              in: [
+                AnalyticsEventType.PRODUCT_VIEWED,
+                AnalyticsEventType.ADD_TO_CART,
+                AnalyticsEventType.CHECKOUT_STARTED,
+              ],
             },
           },
           select: {
@@ -624,6 +658,21 @@ export async function getAcquisitionAnalyticsPageData(filters: AcquisitionFilter
     const campaignBucket = campaignBuckets.get(labels.campaignKey);
     const landingBucket = landingPageBuckets.get(labels.landingPageKey);
     const referrerBucket = referrerBuckets.get(labels.referrerKey);
+
+    if (event.type === AnalyticsEventType.PRODUCT_VIEWED) {
+      if (sourceBucket) {
+        sourceBucket.productViews += 1;
+      }
+      if (campaignBucket) {
+        campaignBucket.productViews += 1;
+      }
+      if (landingBucket) {
+        landingBucket.productViews += 1;
+      }
+      if (referrerBucket) {
+        referrerBucket.productViews += 1;
+      }
+    }
 
     if (event.type === AnalyticsEventType.ADD_TO_CART) {
       sourceBucket?.addToCartSessions.add(event.sessionId);
@@ -756,10 +805,14 @@ export async function getAcquisitionAnalyticsPageData(filters: AcquisitionFilter
     }
   }
 
-  const finalizedSources = [...sourceBuckets.values()].map(finalizeBucket);
-  const finalizedCampaigns = [...campaignBuckets.values()].map(finalizeBucket);
-  const finalizedLandingPages = [...landingPageBuckets.values()].map(finalizeBucket);
-  const finalizedReferrers = [...referrerBuckets.values()].map(finalizeBucket);
+  const periodDayKeys = buildPeriodDayKeys(start, end);
+
+  const finalizedSources = [...sourceBuckets.values()].map((bucket) =>
+    finalizeBucket(bucket, periodDayKeys),
+  );
+  const finalizedCampaigns = [...campaignBuckets.values()].map((bucket) => finalizeBucket(bucket));
+  const finalizedLandingPages = [...landingPageBuckets.values()].map((bucket) => finalizeBucket(bucket));
+  const finalizedReferrers = [...referrerBuckets.values()].map((bucket) => finalizeBucket(bucket));
 
   finalizedSources.sort((left, right) => compareNumbersDesc(left.billingTotal, right.billingTotal) || compareNumbersDesc(left.sessions, right.sessions) || compareStringsAsc(left.source, right.source));
   finalizedCampaigns.sort((left, right) => compareNumbersDesc(left.billingTotal, right.billingTotal) || compareNumbersDesc(left.sessions, right.sessions) || compareStringsAsc(left.campaign, right.campaign));

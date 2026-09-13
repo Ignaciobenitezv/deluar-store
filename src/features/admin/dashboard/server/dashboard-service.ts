@@ -41,14 +41,73 @@ export type DashboardPeriod = keyof typeof DASHBOARD_PERIODS;
 type InventoryProduct = AdminProductStockSource & {
   sanityProductId: string;
   slug: string;
+  isActive?: boolean | null;
+  categoryTitle?: string | null;
+};
+
+export type DashboardLedgerState =
+  | "fulfilled"
+  | "paid"
+  | "pending"
+  | "failed"
+  | "cancelled"
+  | "created";
+
+export type DashboardLedgerEntry = {
+  id: string;
+  orderNumber: string;
+  createdAt: string;
+  dateKey: string;
+  dateLabel: string;
+  timeLabel: string;
+  customerName: string;
+  customerEmail: string;
+  units: number;
+  total: number;
+  paymentMethodLabel: string;
+  installments: number | null;
+  statusLabel: string;
+  paymentStatusLabel: string;
+  state: DashboardLedgerState;
+};
+
+/**
+ * A delta is only expressible when the previous window is fully covered by the
+ * store's history AND its value is non-zero. Everything else resolves to a
+ * neutral reading instead of a manufactured percentage.
+ */
+export type DashboardDelta = {
+  current: number;
+  previous: number;
+  changePercent: number | null;
+  direction: "up" | "down" | "flat" | "unmeasurable";
+};
+
+export type DashboardComparison = {
+  available: boolean;
+  reason: "ok" | "history_short";
+  previousRange: {
+    start: Date;
+    end: Date;
+  };
+  billingTotal: DashboardDelta;
+  paidOrders: DashboardDelta;
+  averageTicket: DashboardDelta;
+  unitsSold: DashboardDelta;
+  daysWithSales: DashboardDelta;
 };
 
 export type DashboardMetrics = {
   period: DashboardPeriod;
+  generatedAt: string;
   dateRange: {
     start: Date;
     end: Date;
   };
+  ledger: {
+    orders: DashboardLedgerEntry[];
+  };
+  comparison: DashboardComparison;
   summary: {
     billingTotal: number;
     paidOrders: number;
@@ -67,6 +126,11 @@ export type DashboardMetrics = {
       paidOrders: number;
       unitsSold: number;
       revenue: number;
+      /** The equivalent day of the previous window, aligned by index. */
+      previousDate: string | null;
+      previousLabel: string | null;
+      previousRevenue: number;
+      previousPaidOrders: number;
     }[];
   };
   conversion: {
@@ -122,6 +186,22 @@ export type DashboardMetrics = {
       status: "in_stock" | "low_stock" | "out_of_stock";
       label: string;
       products: number;
+    }[];
+    /** The catalog itself, so a page can filter and read stock per product. */
+    catalog: {
+      productId: string;
+      productName: string;
+      productSlug: string;
+      category: string;
+      stock: number;
+      isActive: boolean;
+      stockStatus: "in_stock" | "low_stock" | "out_of_stock";
+    }[];
+    /** Revenue split by the category each sold product belongs to. */
+    categoryRevenue: {
+      category: string;
+      revenue: number;
+      share: number;
     }[];
   };
   customers: {
@@ -205,8 +285,11 @@ export type DashboardMetrics = {
 };
 
 const dashboardOrderSelect = {
+  id: true,
+  orderNumber: true,
   status: true,
   paymentStatus: true,
+  installments: true,
   createdAt: true,
   total: true,
   shippingCost: true,
@@ -286,6 +369,19 @@ function getPeriodStart(period: DashboardPeriod, now = new Date()) {
   return start;
 }
 
+function buildDateBucketsFrom(start: Date, totalDays: number) {
+  return Array.from({ length: totalDays }, (_, index) => {
+    const date = new Date(start);
+    date.setUTCDate(start.getUTCDate() + index);
+
+    return {
+      date,
+      key: formatDateKey(date),
+      label: formatDateLabel(date),
+    };
+  });
+}
+
 function buildDateBuckets(period: DashboardPeriod, now = new Date()) {
   const totalDays = DASHBOARD_PERIODS[period].days;
   const start = getPeriodStart(period, now);
@@ -342,6 +438,80 @@ function createOrderPeriodFilter(start: Date, end: Date) {
   };
 }
 
+function formatLedgerDate(date: Date) {
+  return new Intl.DateTimeFormat("es-AR", {
+    timeZone: ARGENTINA_TIME_ZONE,
+    day: "2-digit",
+    month: "short",
+  }).format(date);
+}
+
+function formatLedgerTime(date: Date) {
+  return new Intl.DateTimeFormat("es-AR", {
+    timeZone: ARGENTINA_TIME_ZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+}
+
+function getPreviousWindow(period: DashboardPeriod, start: Date) {
+  const previousStart = new Date(start);
+  previousStart.setUTCDate(previousStart.getUTCDate() - DASHBOARD_PERIODS[period].days);
+
+  return {
+    start: previousStart,
+    end: new Date(start.getTime() - 1),
+  };
+}
+
+function buildDelta(current: number, previous: number, available: boolean): DashboardDelta {
+  if (!available) {
+    return { current, previous: 0, changePercent: null, direction: "unmeasurable" };
+  }
+
+  if (previous === 0) {
+    return {
+      current,
+      previous,
+      changePercent: null,
+      direction: current === 0 ? "flat" : "unmeasurable",
+    };
+  }
+
+  const changePercent = ((current - previous) / previous) * 100;
+
+  return {
+    current,
+    previous,
+    changePercent,
+    direction:
+      Math.abs(changePercent) < 0.05 ? "flat" : changePercent > 0 ? "up" : "down",
+  };
+}
+
+function resolveLedgerState(order: {
+  status: string;
+  paymentStatus: string;
+}): DashboardLedgerState {
+  if (isFulfilledOrder(order)) {
+    return "fulfilled";
+  }
+  if (isPaidOrder(order)) {
+    return "paid";
+  }
+  if (isCancelledOrder(order)) {
+    return "cancelled";
+  }
+  if (isFailedOrder(order)) {
+    return "failed";
+  }
+  if (isPendingPaymentOrder(order)) {
+    return "pending";
+  }
+  return "created";
+}
+
 export function normalizeDashboardPeriodValue(value: string | undefined) {
   return normalizeDashboardPeriod(value);
 }
@@ -353,18 +523,26 @@ export async function getDashboardMetrics(
   const start = getPeriodStart(period, now);
   const end = now;
 
-  const [ordersInPeriod, customersLifetime, currentProducts] = await Promise.all([
-    prisma.order.findMany({
-      where: createOrderPeriodFilter(start, end),
-      select: dashboardOrderSelect,
-      orderBy: { createdAt: "asc" },
-    }),
-    prisma.order.findMany({
-      select: customerOrderSelect,
-      orderBy: { createdAt: "asc" },
-    }),
-    sanityFreshFetch<InventoryProduct[]>(adminProductsInventoryQuery),
-  ]);
+  const previousWindow = getPreviousWindow(period, start);
+
+  const [ordersInPeriod, ordersInPreviousPeriod, customersLifetime, currentProducts] =
+    await Promise.all([
+      prisma.order.findMany({
+        where: createOrderPeriodFilter(start, end),
+        select: dashboardOrderSelect,
+        orderBy: { createdAt: "asc" },
+      }),
+      prisma.order.findMany({
+        where: createOrderPeriodFilter(previousWindow.start, previousWindow.end),
+        select: dashboardOrderSelect,
+        orderBy: { createdAt: "asc" },
+      }),
+      prisma.order.findMany({
+        select: customerOrderSelect,
+        orderBy: { createdAt: "asc" },
+      }),
+      sanityFreshFetch<InventoryProduct[]>(adminProductsInventoryQuery),
+    ]);
 
   const ordersCreated = ordersInPeriod.length;
   const paidOrdersList = ordersInPeriod.filter(isPaidOrder);
@@ -666,7 +844,7 @@ export async function getDashboardMetrics(
         typeof stockValue === "number" && stockValue > 0 && stockValue <= LOW_STOCK_THRESHOLD,
     )
     .map((product) => ({
-      productId: product.product.sanityProductId,
+      productId: product.product.sanityProductId ?? product.product.slug,
       productName: product.product.title,
       productSlug: product.product.slug,
       stock: product.stockValue ?? 0,
@@ -680,7 +858,7 @@ export async function getDashboardMetrics(
     }))
     .filter(({ stockValue }) => typeof stockValue === "number" && stockValue <= 0)
     .map((product) => ({
-      productId: product.product.sanityProductId,
+      productId: product.product.sanityProductId ?? product.product.slug,
       productName: product.product.title,
       productSlug: product.product.slug,
       stock: product.stockValue ?? 0,
@@ -689,6 +867,46 @@ export async function getDashboardMetrics(
 
   const lowStock = lowStockAll.slice(0, 10);
   const outOfStock = outOfStockAll.slice(0, 10);
+
+  const catalog = currentProducts.map((product) => {
+    const stockValue = resolveAdminProductEffectiveStock(product) ?? 0;
+
+    return {
+      // The slug is unique in Sanity, so it keeps rows keyable even if an id
+      // ever fails to come back.
+      productId: product.sanityProductId ?? product.slug,
+      productName: product.title,
+      productSlug: product.slug,
+      category: product.categoryTitle?.trim() || "Sin categoría",
+      stock: stockValue,
+      isActive: product.isActive !== false,
+      stockStatus:
+        stockValue <= 0
+          ? ("out_of_stock" as const)
+          : stockValue <= LOW_STOCK_THRESHOLD
+            ? ("low_stock" as const)
+            : ("in_stock" as const),
+    };
+  });
+
+  // Revenue joins the catalog by slug, so each sold product lands in the
+  // category Sanity records for it and nothing is bucketed by guesswork.
+  const categoryBySlug = new Map(catalog.map((item) => [item.productSlug, item.category]));
+  const revenueByCategory = new Map<string, number>();
+
+  for (const product of productStats.values()) {
+    const category = categoryBySlug.get(product.productSlug) ?? "Sin categoría";
+    revenueByCategory.set(category, (revenueByCategory.get(category) ?? 0) + product.revenue);
+  }
+
+  const categoryRevenueTotal = [...revenueByCategory.values()].reduce((sum, value) => sum + value, 0);
+  const categoryRevenue = [...revenueByCategory.entries()]
+    .map(([category, revenue]) => ({
+      category,
+      revenue,
+      share: categoryRevenueTotal > 0 ? (revenue / categoryRevenueTotal) * 100 : 0,
+    }))
+    .sort((left, right) => right.revenue - left.revenue || left.category.localeCompare(right.category));
   const stockDistribution = [
     {
       status: "in_stock" as const,
@@ -740,21 +958,115 @@ export async function getDashboardMetrics(
     "Dispositivo",
   ];
 
-  const daily = dateBuckets.map((bucket) => ({
-    date: bucket.key,
-    label: bucket.label,
-    createdOrders: createdByDate.get(bucket.key) ?? 0,
-    paidOrders: paidByDate.get(bucket.key) ?? 0,
-    unitsSold: unitsByDate.get(bucket.key) ?? 0,
-    revenue: revenueByDate.get(bucket.key) ?? 0,
-  }));
+  // The previous window on the same day grid: index i of one period lines up
+  // with index i of the other, which is what lets a single chart overlay them.
+  const previousBuckets = buildDateBucketsFrom(
+    previousWindow.start,
+    DASHBOARD_PERIODS[period].days,
+  );
+  const previousRevenueByDate = new Map(previousBuckets.map((bucket) => [bucket.key, 0]));
+  const previousPaidByDate = new Map(previousBuckets.map((bucket) => [bucket.key, 0]));
+
+  for (const order of ordersInPreviousPeriod) {
+    if (!isPaidOrder(order)) {
+      continue;
+    }
+
+    const key = formatDateKey(order.createdAt);
+    previousRevenueByDate.set(key, (previousRevenueByDate.get(key) ?? 0) + toNumber(order.total));
+    previousPaidByDate.set(key, (previousPaidByDate.get(key) ?? 0) + 1);
+  }
+
+  const daily = dateBuckets.map((bucket, index) => {
+    const previousBucket = previousBuckets[index];
+
+    return {
+      date: bucket.key,
+      label: bucket.label,
+      createdOrders: createdByDate.get(bucket.key) ?? 0,
+      paidOrders: paidByDate.get(bucket.key) ?? 0,
+      unitsSold: unitsByDate.get(bucket.key) ?? 0,
+      revenue: revenueByDate.get(bucket.key) ?? 0,
+      previousDate: previousBucket?.key ?? null,
+      previousLabel: previousBucket?.label ?? null,
+      previousRevenue: previousBucket
+        ? (previousRevenueByDate.get(previousBucket.key) ?? 0)
+        : 0,
+      previousPaidOrders: previousBucket
+        ? (previousPaidByDate.get(previousBucket.key) ?? 0)
+        : 0,
+    };
+  });
+
+  const daysWithSales = daily.filter((day) => day.revenue > 0).length;
+
+  // The previous window only counts as comparable when the store's history
+  // actually covers it. Otherwise every delta would compare against an absence.
+  const firstOrderEver = customersLifetime[0]?.createdAt;
+  const comparisonAvailable =
+    firstOrderEver !== undefined && firstOrderEver.getTime() <= previousWindow.start.getTime();
+
+  const previousPaidOrdersList = ordersInPreviousPeriod.filter(isPaidOrder);
+  const previousBillingTotal = previousPaidOrdersList.reduce(
+    (accumulator, order) => accumulator + toNumber(order.total),
+    0,
+  );
+  const previousPaidOrders = previousPaidOrdersList.length;
+  const previousUnitsSold = previousPaidOrdersList.reduce(
+    (accumulator, order) =>
+      accumulator + order.items.reduce((sum, item) => sum + item.quantity, 0),
+    0,
+  );
+  const previousDaysWithSales = new Set(
+    previousPaidOrdersList.map((order) => formatDateKey(order.createdAt)),
+  ).size;
+
+  const comparison: DashboardComparison = {
+    available: comparisonAvailable,
+    reason: comparisonAvailable ? "ok" : "history_short",
+    previousRange: previousWindow,
+    billingTotal: buildDelta(billingTotal, previousBillingTotal, comparisonAvailable),
+    paidOrders: buildDelta(paidOrders, previousPaidOrders, comparisonAvailable),
+    averageTicket: buildDelta(
+      averageTicket,
+      previousPaidOrders > 0 ? previousBillingTotal / previousPaidOrders : 0,
+      comparisonAvailable,
+    ),
+    unitsSold: buildDelta(totalUnitsSold, previousUnitsSold, comparisonAvailable),
+    daysWithSales: buildDelta(daysWithSales, previousDaysWithSales, comparisonAvailable),
+  };
+
+  const ledgerOrders: DashboardLedgerEntry[] = [...ordersInPeriod]
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .map((order) => ({
+      id: order.id,
+      orderNumber: order.orderNumber,
+      createdAt: order.createdAt.toISOString(),
+      dateKey: formatDateKey(order.createdAt),
+      dateLabel: formatLedgerDate(order.createdAt),
+      timeLabel: formatLedgerTime(order.createdAt),
+      customerName: order.customer.fullName,
+      customerEmail: order.customer.email,
+      units: order.items.reduce((sum, item) => sum + item.quantity, 0),
+      total: toNumber(order.total),
+      paymentMethodLabel: getAdminPaymentMethodLabel(order.paymentMethod),
+      installments: order.installments ?? null,
+      statusLabel: getAdminOrderStatusLabel(order.status),
+      paymentStatusLabel: getAdminPaymentStatusLabel(order.paymentStatus),
+      state: resolveLedgerState(order),
+    }));
 
   return {
     period,
+    generatedAt: now.toISOString(),
     dateRange: {
       start,
       end,
     },
+    ledger: {
+      orders: ledgerOrders,
+    },
+    comparison,
     summary: {
       billingTotal,
       paidOrders,
@@ -786,6 +1098,8 @@ export async function getDashboardMetrics(
       lowStock,
       outOfStock,
       stockDistribution,
+      catalog,
+      categoryRevenue,
     },
     customers: {
       uniqueCustomers: customerStats.size,

@@ -12,7 +12,6 @@ import {
   YAxis,
 } from "recharts";
 import { dashboardChartColors } from "./dashboard-chart-colors";
-import { DashboardChartEmpty } from "./dashboard-chart-empty";
 import { useElementWidth } from "./use-element-width";
 
 export type AcquisitionBarChartPoint = {
@@ -65,7 +64,6 @@ export function AcquisitionHorizontalBarChart({
     .filter((item) => item.value > 0)
     .sort((left, right) => right.value - left.value || left.label.localeCompare(right.label))
     .slice(0, 10);
-  const totalValue = visibleData.reduce((accumulator, item) => accumulator + item.value, 0);
   const yAxisWidth = width < 420 ? 120 : width < 560 ? 140 : width < 720 ? 164 : 196;
   const chartMargin =
     width < 420
@@ -94,26 +92,33 @@ export function AcquisitionHorizontalBarChart({
   }
 
   if (visibleData.length === 0) {
+    // A local empty state rather than the shared one: this chart belongs to a
+    // single route, and its surface follows that route's analytics system.
     return (
-      <DashboardChartEmpty
-        title={emptyTitle ?? "Sin datos para este período."}
-        description={emptyDescription ?? "Los datos se mostrarán acá."}
-        compact
-      />
+      <div className="flex h-full min-h-[100px] items-center justify-center rounded-[8px] border border-dashed border-[#dfe5ec] bg-[#f8fafc] px-4 py-6 text-center">
+        <div className="max-w-sm">
+          <p className="text-[13.5px] font-medium text-slate-700">
+            {emptyTitle ?? "Sin datos para este período."}
+          </p>
+          <p className="mt-1 text-[12px] leading-[1.45] text-slate-500">
+            {emptyDescription ?? "Los datos se mostrarán acá."}
+          </p>
+        </div>
+      </div>
     );
   }
 
   return (
-    <div ref={ref} className="space-y-4 min-w-0">
-      <div className="rounded-[16px] border border-slate-200/70 bg-slate-50 px-3 py-2.5">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{metricLabel}</p>
-        <p className="mt-1 text-sm font-semibold text-slate-950">{formatMetric(totalValue)}</p>
-      </div>
-
-      <div className="h-[340px] w-full min-w-0 overflow-hidden">
+    <div ref={ref} className="min-w-0">
+      {/* The plot grows with the number of bars instead of holding a fixed
+          340px box: two sources in a 340px frame is mostly empty space. */}
+      <div
+        className="w-full min-w-0 overflow-hidden"
+        style={{ height: Math.min(Math.max(visibleData.length * 46 + 56, 140), 340) }}
+      >
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={visibleData} layout="vertical" margin={chartMargin}>
-            <CartesianGrid stroke={dashboardChartColors.grid} strokeDasharray="4 4" horizontal={false} />
+            <CartesianGrid stroke="#eef2f7" strokeDasharray="4 4" horizontal={false} />
             <XAxis
               type="number"
               tickLine={false}

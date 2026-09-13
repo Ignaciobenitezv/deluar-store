@@ -398,6 +398,20 @@ export type AbandonedCartsPageData = {
     averageTimeMinutes: number;
     averageTimeLabel: string;
   };
+  /** One entry per day of the period, from the same filtered set. */
+  daily: {
+    date: string;
+    label: string;
+    carts: number;
+    checkouts: number;
+    value: number;
+  }[];
+  /** Abandoned carts grouped by the traffic source that brought them. */
+  sources: {
+    source: string;
+    count: number;
+    share: number;
+  }[];
   pageCount: number;
   page: number;
   pageSize: number;
@@ -405,6 +419,34 @@ export type AbandonedCartsPageData = {
   sourceOptions: string[];
   campaignOptions: string[];
 };
+
+function toDayKey(date: Date) {
+  return new Date(date.getTime() - ARGENTINA_UTC_OFFSET_MS).toISOString().slice(0, 10);
+}
+
+function toDayLabel(date: Date) {
+  return new Intl.DateTimeFormat("es-AR", {
+    timeZone: ARGENTINA_TIME_ZONE,
+    day: "numeric",
+    month: "short",
+  }).format(date);
+}
+
+/**
+ * Every day of the period, so the evolution chart keeps its axis whether or not
+ * a given day saw an abandonment.
+ */
+function buildDailyBuckets(start: Date, end: Date) {
+  const days: { date: string; label: string; carts: number; checkouts: number; value: number }[] = [];
+  const cursor = new Date(start);
+
+  while (cursor.getTime() <= end.getTime()) {
+    days.push({ date: toDayKey(cursor), label: toDayLabel(cursor), carts: 0, checkouts: 0, value: 0 });
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+
+  return days;
+}
 
 export async function getAbandonedCartsPageData(filters: AbandonedCartsFilters): Promise<AbandonedCartsPageData> {
   const now = new Date();
@@ -495,6 +537,39 @@ export async function getAbandonedCartsPageData(filters: AbandonedCartsFilters):
       : 0;
   const averageTimeLabel = formatElapsedMinutes(averageTimeMinutes);
 
+  const daily = buildDailyBuckets(dateRange.start, dateRange.end);
+  const dailyByKey = new Map(daily.map((day) => [day.date, day]));
+
+  for (const row of filteredRows) {
+    const bucket = dailyByKey.get(toDayKey(row.abandonedAt));
+
+    if (!bucket) {
+      continue;
+    }
+
+    if (row.status === "CHECKOUT_ABANDONED") {
+      bucket.checkouts += 1;
+    } else {
+      bucket.carts += 1;
+    }
+
+    bucket.value += row.subtotal;
+  }
+
+  const sourceCounts = new Map<string, number>();
+
+  for (const row of filteredRows) {
+    sourceCounts.set(row.sourceLabel, (sourceCounts.get(row.sourceLabel) ?? 0) + 1);
+  }
+
+  const sources = [...sourceCounts.entries()]
+    .map(([source, count]) => ({
+      source,
+      count,
+      share: totalCount > 0 ? (count / totalCount) * 100 : 0,
+    }))
+    .sort((left, right) => right.count - left.count || left.source.localeCompare(right.source));
+
   return {
     filters: {
       ...filters,
@@ -512,6 +587,8 @@ export async function getAbandonedCartsPageData(filters: AbandonedCartsFilters):
       averageTimeMinutes,
       averageTimeLabel,
     },
+    daily,
+    sources,
     pageCount,
     page,
     pageSize: filters.pageSize,

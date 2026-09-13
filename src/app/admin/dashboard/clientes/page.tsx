@@ -1,26 +1,37 @@
-import Link from "next/link";
 import type { Metadata } from "next";
-import { CustomerEvolutionChart } from "@/features/admin/analytics/components/customer-evolution-chart";
+import { DateRangeFilter } from "@/features/admin/dashboard/components/date-range-filter";
+import {
+  CustomerKpi,
+  CustomerModule,
+  IconBuyers,
+  IconNew,
+  IconRate,
+  IconReturning,
+} from "@/features/admin/dashboard/components/customers/customer-modules";
+import {
+  CustomerEvolution,
+  SegmentLegend,
+} from "@/features/admin/dashboard/components/customers/customer-charts";
+import { SegmentDonut } from "@/features/admin/dashboard/components/customers/customer-donut";
+import {
+  CustomerListTable,
+  ShareBars,
+  TopCustomersTable,
+} from "@/features/admin/dashboard/components/customers/customer-tables";
+import {
+  DASHBOARD_PERIODS,
+  getDashboardMetrics,
+  normalizeDashboardPeriodValue,
+} from "@/features/admin/dashboard/server/dashboard-service";
 import {
   getCustomerAnalyticsPageData,
   normalizeCustomerAnalyticsQuery,
-  type CustomerAnalyticsFilters,
-  type CustomerAnalyticsPageData,
-  type CustomerAnalyticsSortKey,
 } from "@/features/admin/analytics/server/customer-analytics-service";
-import { ChartCard } from "@/features/admin/dashboard/components/chart-card";
-import { DashboardSubpageShell } from "@/features/admin/dashboard/components/dashboard-subpage-shell";
-import { EmptyState } from "@/features/admin/dashboard/components/empty-state";
-import { KpiCard } from "@/features/admin/dashboard/components/kpi-card";
 import {
-  formatDashboardDateTime,
   formatDashboardNumber,
   formatDashboardPercent,
   formatDashboardPrice,
-  formatDashboardShortDate,
-  maskDashboardEmail,
 } from "@/features/admin/dashboard/lib/dashboard-formatters";
-import { DASHBOARD_PERIODS } from "@/features/admin/dashboard/server/dashboard-service";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -29,666 +40,322 @@ export const metadata: Metadata = {
   title: "Clientes | DELUAR",
 };
 
+const ARGENTINA_TIME_ZONE = "America/Argentina/Buenos_Aires";
+
 type AdminDashboardCustomersPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
-const customerSortOptions: Array<{ value: CustomerAnalyticsSortKey; label: string }> = [
-  { value: "revenue", label: "Facturación" },
-  { value: "orders", label: "Pedidos" },
-  { value: "averageTicket", label: "Ticket promedio" },
-  { value: "ltv", label: "LTV observado" },
-];
-
-const pageSizeOptions = [10, 25, 50];
-
-type CustomerRow = CustomerAnalyticsPageData["table"]["rows"][number];
-
-function buildCustomerHref(filters: CustomerAnalyticsFilters, overrides: Partial<CustomerAnalyticsFilters> = {}) {
-  const next = { ...filters, ...overrides };
-  const params = new URLSearchParams();
-
-  params.set("period", next.period);
-  if (next.q) params.set("q", next.q);
-  if (next.sort !== "revenue") params.set("sort", next.sort);
-  if (next.page > 1) params.set("page", String(next.page));
-  if (next.pageSize !== 10) params.set("pageSize", String(next.pageSize));
-
-  const query = params.toString();
-  return query ? `/admin/dashboard/clientes?${query}` : "/admin/dashboard/clientes";
+function readParam(value: string | string[] | undefined) {
+  return (Array.isArray(value) ? value[0] : value) ?? "";
 }
 
-function formatNullableDays(value: number | null | undefined) {
-  if (typeof value !== "number" || !Number.isFinite(value)) return "—";
-  if (value <= 0) return "menos de 1 día";
-  if (value === 1) return "1 día";
-  return `${formatDashboardNumber(value)} días`;
+function formatGeneratedAt(value: Date) {
+  return new Intl.DateTimeFormat("es-AR", {
+    timeZone: ARGENTINA_TIME_ZONE,
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(value);
 }
 
-function formatCustomerHeading(row: CustomerRow) {
-  return row.displayName || maskDashboardEmail(row.email);
+function formatPurchaseDate(value: string) {
+  const date = new Date(value);
+
+  if (!Number.isFinite(date.getTime())) {
+    return "—";
+  }
+
+  return new Intl.DateTimeFormat("es-AR", {
+    timeZone: ARGENTINA_TIME_ZONE,
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(date);
 }
 
-function statusToneClass(status: CustomerRow["status"]) {
-  return status === "Nuevo"
-    ? "border-amber-200 bg-amber-50 text-amber-700"
-    : "border-emerald-200 bg-emerald-50 text-emerald-700";
-}
+const FIELD =
+  "w-full rounded-[6px] border border-[#e2e8f0] bg-white px-3 py-[8px] text-[13px] text-slate-900 outline-none transition-colors hover:border-[#cbd5e1] focus:border-[#3b7ff5] focus:ring-2 focus:ring-[#3b7ff5]/15";
+const FIELD_LABEL =
+  "mb-1.5 block text-[10.5px] font-semibold uppercase tracking-[0.12em] text-slate-500";
 
-function IconBuyers() {
-  return (
-    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="8" r="3.5" />
-      <path d="M4.5 19c0-3.314 2.91-6 6.5-6s6.5 2.686 6.5 6" />
-    </svg>
-  );
-}
-function IconOrders() {
-  return (
-    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M7.5 9V7.5A3.5 3.5 0 0 1 11 4a3.5 3.5 0 0 1 3.5 3.5V9" />
-      <path d="M4 9h14L16.5 18H5.5L4 9Z" />
-    </svg>
-  );
-}
-function IconRevenue() {
-  return (
-    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8.5" />
-      <path d="M11 6v10M8.5 8.5c0-1.1 1.1-1.7 2.5-1.7s2.5.7 2.5 1.8c0 2.7-5 2.2-5 5.2 0 1.5 1.5 2 3 2s2.5-.7 2.5-2" />
-    </svg>
-  );
-}
-function IconRepurchase() {
-  return (
-    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 11a7 7 0 0 1 7-7 7 7 0 0 1 5 2.1" />
-      <path d="M18 11a7 7 0 0 1-7 7 7 7 0 0 1-5-2.1" />
-      <path d="M16 7l2-2 2 2M4 15l-2 2-2-2" />
-    </svg>
-  );
-}
-
-function ShareBar({
-  title,
-  leftLabel,
-  rightLabel,
-  leftValue,
-  rightValue,
-  leftShare,
-  rightShare,
-}: {
-  title: string;
-  leftLabel: string;
-  rightLabel: string;
-  leftValue: string;
-  rightValue: string;
-  leftShare: number;
-  rightShare: number;
-}) {
-  return (
-    <div className="rounded-[10px] border border-[#e8e5e1] bg-[#faf9f7] px-4 py-4">
-      <p className="text-[12px] font-semibold text-slate-500">{title}</p>
-      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-200">
-        <div className="flex h-full w-full">
-          <div className="bg-amber-400" style={{ width: `${Math.max(leftShare, 0)}%` }} />
-          <div className="bg-emerald-400" style={{ width: `${Math.max(rightShare, 0)}%` }} />
-        </div>
-      </div>
-      <div className="mt-3 flex items-end justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-[11px] text-slate-400">{leftLabel}</p>
-          <p className="mt-0.5 text-[15px] font-semibold tracking-[-0.02em] text-slate-900">{leftValue}</p>
-          <p className="mt-0.5 text-[11px] text-slate-400">{formatDashboardPercent(leftShare)}</p>
-        </div>
-        <div className="min-w-0 text-right">
-          <p className="text-[11px] text-slate-400">{rightLabel}</p>
-          <p className="mt-0.5 text-[15px] font-semibold tracking-[-0.02em] text-slate-900">{rightValue}</p>
-          <p className="mt-0.5 text-[11px] text-slate-400">{formatDashboardPercent(rightShare)}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function InsightCard({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone: "neutral" | "success" | "warning" | "accent";
-}) {
-  const toneClass = {
-    neutral: "border-[#e8e5e1] bg-[#faf9f7]",
-    success: "border-emerald-200 bg-emerald-50",
-    warning: "border-amber-200 bg-amber-50",
-    accent: "border-sky-200 bg-sky-50",
-  }[tone];
-
-  return (
-    <div className={cn("rounded-[10px] border px-4 py-4", toneClass)}>
-      <p className="text-[11px] font-semibold text-slate-500">{label}</p>
-      <p className="mt-2 text-[13px] leading-5 text-slate-700">{value}</p>
-    </div>
-  );
-}
-
-function FrequencyCard({ label, customers, share }: { label: string; customers: number; share: number }) {
-  return (
-    <div className="rounded-[10px] border border-[#e8e5e1] bg-white px-4 py-4">
-      <p className="text-[11px] font-semibold text-slate-500">{label}</p>
-      <p className="mt-2 text-[1.15rem] font-semibold tracking-[-0.04em] text-slate-950">
-        {formatDashboardNumber(customers)}
-      </p>
-      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
-        <div className="h-full rounded-full bg-[#c4b5a5]" style={{ width: `${Math.max(share, 0)}%` }} />
-      </div>
-      <p className="mt-1.5 text-[11px] text-slate-400">{formatDashboardPercent(share)}</p>
-    </div>
-  );
-}
-
-function MetricRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between gap-3 border-b border-slate-100 py-3 last:border-0">
-      <p className="text-[13px] text-slate-500">{label}</p>
-      <p className="text-[13px] font-semibold text-slate-900">{value}</p>
-    </div>
-  );
-}
-
-function CustomerMobileCard({ row }: { row: CustomerRow }) {
-  return (
-    <article className="rounded-[10px] border border-[#e8e5e1] bg-white px-4 py-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="truncate text-[13px] font-semibold text-slate-950">{formatCustomerHeading(row)}</p>
-          <p className="mt-0.5 truncate text-[12px] text-slate-500">{maskDashboardEmail(row.email)}</p>
-        </div>
-        <span className={cn("shrink-0 rounded-[6px] border px-2 py-0.5 text-[11px] font-semibold", statusToneClass(row.status))}>
-          {row.status}
-        </span>
-      </div>
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        {[
-          { label: "Pedidos", value: formatDashboardNumber(row.periodOrders) },
-          { label: "Unidades", value: formatDashboardNumber(row.periodUnits) },
-          { label: "Facturación", value: formatDashboardPrice(row.periodRevenue) },
-          { label: "Ticket", value: formatDashboardPrice(row.periodAverageTicket) },
-          { label: "Primera compra", value: formatDashboardShortDate(row.firstPurchaseAt) },
-          { label: "Última compra", value: formatDashboardShortDate(row.lastPurchaseAt) },
-        ].map((item) => (
-          <div key={item.label} className="rounded-[8px] border border-[#e8e5e1] bg-[#faf9f7] px-3 py-2.5">
-            <p className="text-[11px] text-slate-400">{item.label}</p>
-            <p className="mt-0.5 text-[13px] font-semibold text-slate-900">{item.value}</p>
-          </div>
-        ))}
-        <div className="col-span-2 rounded-[8px] border border-[#e8e5e1] bg-[#faf9f7] px-3 py-2.5">
-          <p className="text-[11px] text-slate-400">Días entre compras</p>
-          <p className="mt-0.5 text-[13px] font-semibold text-slate-900">{formatNullableDays(row.daysBetweenPurchases)}</p>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function TopCustomerMobileCard({ row }: { row: CustomerRow }) {
-  return (
-    <article className="rounded-[10px] border border-[#e8e5e1] bg-white px-4 py-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="truncate text-[13px] font-semibold text-slate-950">{formatCustomerHeading(row)}</p>
-          <p className="mt-0.5 truncate text-[12px] text-slate-500">{maskDashboardEmail(row.email)}</p>
-        </div>
-        <span className={cn("shrink-0 rounded-[6px] border px-2 py-0.5 text-[11px] font-semibold", statusToneClass(row.status))}>
-          {row.status}
-        </span>
-      </div>
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        {[
-          { label: "Pedidos", value: formatDashboardNumber(row.periodOrders) },
-          { label: "Facturación", value: formatDashboardPrice(row.periodRevenue) },
-          { label: "Ticket", value: formatDashboardPrice(row.periodAverageTicket) },
-          { label: "LTV observado", value: formatDashboardPrice(row.ltvObserved) },
-          { label: "Primera compra", value: formatDashboardShortDate(row.firstPurchaseAt) },
-          { label: "Última compra", value: formatDashboardShortDate(row.lastPurchaseAt) },
-        ].map((item) => (
-          <div key={item.label} className="rounded-[8px] border border-[#e8e5e1] bg-[#faf9f7] px-3 py-2.5">
-            <p className="text-[11px] text-slate-400">{item.label}</p>
-            <p className="mt-0.5 text-[13px] font-semibold text-slate-900">{item.value}</p>
-          </div>
-        ))}
-      </div>
-    </article>
-  );
-}
-
-function TablePagination({
-  filters,
-  page,
-  pageCount,
-  totalCount,
-}: {
-  filters: CustomerAnalyticsFilters;
-  page: number;
-  pageCount: number;
-  totalCount: number;
-}) {
-  const hasPrev = page > 1;
-  const hasNext = page < pageCount;
-  const visibleCount = Math.min(filters.pageSize, Math.max(totalCount - (page - 1) * filters.pageSize, 0));
-
-  return (
-    <div className="flex flex-col gap-3 border-t border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-[12px] text-slate-400">
-        Mostrando {formatDashboardNumber(visibleCount)} de {formatDashboardNumber(totalCount)} · pág. {formatDashboardNumber(page)} de {formatDashboardNumber(pageCount)}
-      </p>
-      <div className="flex flex-wrap items-center gap-2">
-        {hasPrev ? (
-          <Link
-            href={buildCustomerHref(filters, { page: page - 1 })}
-            className="rounded-[8px] border border-[#e8e5e1] bg-white px-3 py-1.5 text-[12px] font-semibold text-slate-600 transition hover:bg-slate-50"
-          >
-            Anterior
-          </Link>
-        ) : (
-          <span className="rounded-[8px] border border-[#e8e5e1] bg-[#faf9f7] px-3 py-1.5 text-[12px] font-semibold text-slate-300">
-            Anterior
-          </span>
-        )}
-        <span className="rounded-[8px] border border-[#e8e5e1] bg-[#faf9f7] px-3 py-1.5 text-[12px] font-semibold text-slate-500">
-          {formatDashboardNumber(page)} / {formatDashboardNumber(pageCount)}
-        </span>
-        {hasNext ? (
-          <Link
-            href={buildCustomerHref(filters, { page: page + 1 })}
-            className="rounded-[8px] border border-[#e8e5e1] bg-white px-3 py-1.5 text-[12px] font-semibold text-slate-600 transition hover:bg-slate-50"
-          >
-            Siguiente
-          </Link>
-        ) : (
-          <span className="rounded-[8px] border border-[#e8e5e1] bg-[#faf9f7] px-3 py-1.5 text-[12px] font-semibold text-slate-300">
-            Siguiente
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
-
-export default async function AdminDashboardCustomersPage({ searchParams }: AdminDashboardCustomersPageProps) {
+export default async function AdminDashboardCustomersPage({
+  searchParams,
+}: AdminDashboardCustomersPageProps) {
   const resolvedSearchParams = (await searchParams) ?? {};
+  const period = normalizeDashboardPeriodValue(readParam(resolvedSearchParams.period));
+  const segmentFilter = readParam(resolvedSearchParams.segment) || "all";
+
   const query = normalizeCustomerAnalyticsQuery(resolvedSearchParams);
-  const metrics = await getCustomerAnalyticsPageData(query);
-  const lastUpdated = formatDashboardDateTime(new Date());
+  const [metrics, dashboard] = await Promise.all([
+    getCustomerAnalyticsPageData(query),
+    getDashboardMetrics(period),
+  ]);
 
-  const currentFilters: CustomerAnalyticsFilters = {
-    period: metrics.period,
-    sort: query.sort,
-    q: query.q,
-    page: metrics.table.page,
-    pageSize: metrics.table.pageSize,
-  };
+  const periodLabel = DASHBOARD_PERIODS[period].label;
+  const lastUpdated = formatGeneratedAt(new Date());
+  const { summary, split, evolution, frequency, cohorts, topCustomers } = metrics;
 
-  const hasTopCustomers = metrics.topCustomers.length > 0;
-  const hasCohorts = metrics.cohorts.length > 0;
-  const hasInsights = metrics.insights.length > 0;
-  const hasFrequency = metrics.frequency.length > 0;
-  const hasTableRows = metrics.table.rows.length > 0;
-  const hasSecondPurchase = metrics.secondPurchase.customers > 0;
+  /** Segment filtering happens over the rows already fetched. */
+  const listRows = metrics.table.rows.filter((row) =>
+    segmentFilter === "all" ? true : row.status === segmentFilter,
+  );
 
-  const periodLabel = DASHBOARD_PERIODS[metrics.period].label;
+  const provinces = dashboard.location.provinces.slice(0, 5);
+  const provinceOrders = dashboard.location.provinces.reduce(
+    (sum, province) => sum + province.orders,
+    0,
+  );
+
+  const locationRows = provinces.map((province) => ({
+    key: province.province,
+    label: province.province,
+    value: province.orders,
+    share: provinceOrders > 0 ? (province.orders / provinceOrders) * 100 : 0,
+  }));
+
+  const frequencyRows = frequency.map((bucket) => ({
+    key: bucket.label,
+    label: bucket.label,
+    value: bucket.customers,
+    share: bucket.share,
+  }));
+
+  const cohortRows = cohorts.slice(0, 5).map((cohort) => ({
+    key: cohort.cohort,
+    label: cohort.cohort,
+    value: cohort.secondPurchase,
+    share: cohort.secondPurchaseRate,
+  }));
 
   return (
-    <DashboardSubpageShell
-      sectionLabel="Clientes"
-      title="Clientes"
-      subtitle={`Compradores y recurrencia. Período activo: ${periodLabel}.`}
-      lastUpdated={lastUpdated}
-    >
-      {/* Primary KPI row */}
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-        <KpiCard
-          title="Compradores únicos"
-          value={formatDashboardNumber(metrics.summary.uniqueBuyers)}
-          description="Clientes únicos con al menos una compra válida."
-          icon={<IconBuyers />}
-          tone="accent"
-        />
-        <KpiCard
-          title="Pedidos"
-          value={formatDashboardNumber(metrics.summary.orders)}
-          description="Compras pagadas reales del período."
-          icon={<IconOrders />}
-          tone="neutral"
-        />
-        <KpiCard
-          title="Facturación"
-          value={formatDashboardPrice(metrics.summary.revenue)}
-          description="Suma de órdenes pagadas del período."
-          icon={<IconRevenue />}
-          tone="success"
-        />
-        <KpiCard
-          title="Tasa de recompra"
-          value={formatDashboardPercent(metrics.summary.repurchaseRate)}
-          description="Clientes recurrentes sobre compradores únicos."
-          icon={<IconRepurchase />}
-          tone="warning"
-        />
-      </div>
-
-      {/* Evolution + split */}
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_0.42fr]">
-        <ChartCard
-          title="Evolución de clientes"
-          description={`Nuevos y recurrentes por día — ${periodLabel}.`}
-          className="min-w-0"
-        >
-          <CustomerEvolutionChart data={metrics.evolution} />
-        </ChartCard>
-
-        <ChartCard title="Nuevos vs recurrentes" description="Distribución de compradores del período.">
-          <div className="space-y-3">
-            <ShareBar
-              title="Compradores"
-              leftLabel="Nuevos"
-              rightLabel="Recurrentes"
-              leftValue={formatDashboardNumber(metrics.split.newCustomers)}
-              rightValue={formatDashboardNumber(metrics.split.recurrentCustomers)}
-              leftShare={metrics.split.newCustomerShare}
-              rightShare={metrics.split.recurrentCustomerShare}
-            />
-            <ShareBar
-              title="Facturación"
-              leftLabel="Nuevos"
-              rightLabel="Recurrentes"
-              leftValue={formatDashboardPrice(metrics.split.newRevenue)}
-              rightValue={formatDashboardPrice(metrics.split.recurrentRevenue)}
-              leftShare={metrics.split.newRevenueShare}
-              rightShare={metrics.split.recurrentRevenueShare}
-            />
-          </div>
-          <div className="mt-4 space-y-0">
-            <MetricRow label="Ticket promedio" value={formatDashboardPrice(metrics.summary.averageTicket)} />
-            <MetricRow label="Pedidos por cliente" value={formatDashboardNumber(metrics.summary.ordersPerCustomer)} />
-            <MetricRow label="LTV observado promedio" value={formatDashboardPrice(metrics.summary.ltvObservedAverage)} />
-          </div>
-        </ChartCard>
-      </div>
-
-      {/* Top clientes + Frecuencia */}
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_0.45fr]">
-        <ChartCard title="Top clientes" description="Clientes con mayor facturación del período.">
-          {hasTopCustomers ? (
-            <>
-              <div className="hidden overflow-x-auto md:block">
-                <table className="w-full border-collapse text-sm">
-                  <thead className="border-b border-slate-100 text-left">
-                    <tr>
-                      {["Cliente", "Pedidos", "Facturación", "Ticket", "1ª compra", "Última compra", "LTV", "Estado"].map((h) => (
-                        <th key={h} className="px-4 py-3 text-[11px] font-semibold text-slate-400">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {metrics.topCustomers.map((row) => (
-                      <tr key={row.key} className="border-b border-slate-100 last:border-0">
-                        <td className="px-4 py-3">
-                          <p className="text-[13px] font-medium text-slate-900">{formatCustomerHeading(row)}</p>
-                          <p className="text-[11px] text-slate-400">{maskDashboardEmail(row.email)}</p>
-                        </td>
-                        <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.periodOrders)}</td>
-                        <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardPrice(row.periodRevenue)}</td>
-                        <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardPrice(row.periodAverageTicket)}</td>
-                        <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardShortDate(row.firstPurchaseAt)}</td>
-                        <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardShortDate(row.lastPurchaseAt)}</td>
-                        <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardPrice(row.ltvObserved)}</td>
-                        <td className="px-4 py-3">
-                          <span className={cn("rounded-[6px] border px-2 py-0.5 text-[11px] font-semibold", statusToneClass(row.status))}>
-                            {row.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <div className="grid gap-3 md:hidden">
-                {metrics.topCustomers.map((row) => (
-                  <TopCustomerMobileCard key={row.key} row={row} />
-                ))}
-              </div>
-            </>
-          ) : (
-            <EmptyState title="No hay clientes para mostrar." description="Sin datos para este período." />
-          )}
-        </ChartCard>
-
-        <ChartCard title="Frecuencia de compra" description="Cantidad de compras por cliente.">
-          {hasFrequency ? (
-            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
-              {metrics.frequency.map((bucket) => (
-                <FrequencyCard key={bucket.label} label={bucket.label} customers={bucket.customers} share={bucket.share} />
-              ))}
-            </div>
-          ) : (
-            <EmptyState title="No hay frecuencia para mostrar." description="Sin datos para este período." />
-          )}
-        </ChartCard>
-      </div>
-
-      {/* Segunda compra + Cohorts */}
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <ChartCard title="Segunda compra" description="Tiempo entre primera y segunda compra.">
-          {hasSecondPurchase ? (
-            <div className="space-y-0">
-              <MetricRow label="Clientes con segunda compra" value={formatDashboardNumber(metrics.secondPurchase.customers)} />
-              <MetricRow label="Promedio entre compras" value={formatNullableDays(metrics.secondPurchase.averageDays)} />
-              <MetricRow label="Mediana entre compras" value={formatNullableDays(metrics.secondPurchase.medianDays)} />
-            </div>
-          ) : (
-            <EmptyState title="Todavía no hay suficientes segundas compras." description="Sin datos para este período." />
-          )}
-        </ChartCard>
-
-        <ChartCard title="Cohortes" description="Mes de primera compra y recompra.">
-          {hasCohorts ? (
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-sm">
-                <thead className="border-b border-slate-100 text-left">
-                  <tr>
-                    {["Mes", "Adquiridos", "2ª compra", "% 2ª compra"].map((h) => (
-                      <th key={h} className="px-4 py-3 text-[11px] font-semibold text-slate-400">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {metrics.cohorts.map((row) => (
-                    <tr key={row.cohort} className="border-b border-slate-100 last:border-0">
-                      <td className="px-4 py-3 text-[13px] font-medium text-slate-900">{row.cohort}</td>
-                      <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.acquired)}</td>
-                      <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.secondPurchase)}</td>
-                      <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardPercent(row.secondPurchaseRate)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <EmptyState title="No hay cohortes para mostrar." description="Sin datos para este período." />
-          )}
-        </ChartCard>
-      </div>
-
-      {/* Insights */}
-      <ChartCard title="Señales" description="Resumen del período.">
-        {hasInsights ? (
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            {metrics.insights.map((insight) => (
-              <InsightCard key={`${insight.label}::${insight.value}`} label={insight.label} value={insight.value} tone={insight.tone} />
-            ))}
-          </div>
-        ) : (
-          <EmptyState title="Sin señales." description="Sin datos para este período." />
-        )}
-        <div className="mt-4 rounded-[10px] border border-[#e8e5e1] bg-[#faf9f7] px-4 py-4">
-          <p className="text-[12px] font-semibold text-slate-500">Calidad de datos</p>
-          <div className="mt-2 space-y-1.5 text-[13px] leading-5 text-slate-500">
-            <p>Las métricas se calculan sobre compras con información suficiente para identificar al comprador.</p>
-            <p>Las compras sin identificador confiable no se incluyen. LTV observado = facturación histórica acumulada.</p>
-            <p>{metrics.notes.dataQualityNote}</p>
-          </div>
+    <main className="flex min-h-screen flex-col bg-[#f1f5f9]">
+      <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-5 border-b border-slate-200/70 bg-white px-6 lg:px-8">
+        <nav aria-label="Ubicación" className="min-w-0 flex-1">
+          <ol className="flex items-center gap-2 text-[13px]">
+            <li className="font-medium text-slate-400">Estadísticas</li>
+            <li aria-hidden className="text-slate-300">
+              /
+            </li>
+            <li className="font-semibold text-slate-900" aria-current="page">
+              Clientes
+            </li>
+          </ol>
+        </nav>
+        <div className="flex shrink-0 items-center gap-3">
+          <span className="hidden text-[12px] tabular-nums text-slate-400 lg:block">
+            {lastUpdated}
+          </span>
+          <DateRangeFilter topBar />
         </div>
-      </ChartCard>
+      </header>
 
-      {/* Full customer table */}
-      <ChartCard title="Tabla de clientes" description="Búsqueda, orden y paginación." className="min-w-0">
-        <div className="space-y-4">
-          {/* Search form */}
-          <form method="get" className="flex flex-wrap items-end gap-3">
-            <input type="hidden" name="period" value={currentFilters.period} />
-            <input type="hidden" name="sort" value={currentFilters.sort} />
-            <input type="hidden" name="page" value="1" />
-            <input type="hidden" name="pageSize" value={currentFilters.pageSize} />
+      <div className="flex-1 px-6 pb-12 pt-6 lg:px-8">
+        <div className="w-full min-w-0">
+          <h1 className="text-[2.1rem] font-semibold leading-none tracking-[-0.04em] text-slate-950">
+            Clientes
+          </h1>
+          <p className="mt-3 text-[13.5px] text-slate-500">
+            Conocé a tus clientes, su comportamiento y su valor · {periodLabel}
+          </p>
 
-            <div className="min-w-0 flex-1">
-              <label className="block">
-                <span className="mb-1.5 block text-[11px] font-semibold text-slate-400">Buscar cliente</span>
-                <input
-                  type="search"
-                  name="q"
-                  defaultValue={currentFilters.q}
-                  placeholder="Nombre, email o teléfono"
-                  className="w-full rounded-[8px] border border-[#e8e5e1] bg-white px-3.5 py-2.5 text-[13px] text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-300 focus:ring-2 focus:ring-slate-100"
-                />
-              </label>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="submit"
-                className="rounded-[8px] border border-slate-800 bg-slate-800 px-4 py-2.5 text-[12px] font-semibold text-white transition hover:bg-slate-700"
-              >
-                Buscar
-              </button>
-              {currentFilters.q ? (
-                <Link
-                  href={buildCustomerHref({ ...currentFilters, q: "" }, { page: 1 })}
-                  className="rounded-[8px] border border-[#e8e5e1] bg-white px-4 py-2.5 text-[12px] font-semibold text-slate-600 transition hover:bg-slate-50"
-                >
-                  Limpiar
-                </Link>
-              ) : null}
-            </div>
-          </form>
-
-          {/* Sort + page size pills */}
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex flex-wrap gap-1.5">
-              {customerSortOptions.map((option) => {
-                const active = currentFilters.sort === option.value;
-                return (
-                  <Link
-                    key={option.value}
-                    href={buildCustomerHref(currentFilters, { sort: option.value, page: 1 })}
-                    className={cn(
-                      "rounded-[8px] border px-3 py-1.5 text-[12px] font-semibold transition",
-                      active
-                        ? "border-slate-800 bg-slate-800 text-white"
-                        : "border-[#e8e5e1] bg-white text-slate-600 hover:bg-slate-50",
-                    )}
-                  >
-                    {option.label}
-                  </Link>
-                );
-              })}
-            </div>
-            <div className="ml-auto flex items-center gap-1.5">
-              <span className="text-[11px] text-slate-400">Por página</span>
-              {pageSizeOptions.map((option) => {
-                const active = currentFilters.pageSize === option;
-                return (
-                  <Link
-                    key={option}
-                    href={buildCustomerHref(currentFilters, { pageSize: option, page: 1 })}
-                    className={cn(
-                      "rounded-[8px] border px-3 py-1.5 text-[12px] font-semibold transition",
-                      active
-                        ? "border-[#c4b5a5] bg-[#f4efea] text-[#6b4f3a]"
-                        : "border-[#e8e5e1] bg-white text-slate-600 hover:bg-slate-50",
-                    )}
-                  >
-                    {formatDashboardNumber(option)}
-                  </Link>
-                );
-              })}
-            </div>
+          {/* ── Row 1 · four KPIs ───────────────────────────────────────────── */}
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <CustomerKpi
+              icon={<IconBuyers />}
+              tone="primary"
+              label="Compradores únicos"
+              value={formatDashboardNumber(summary.uniqueBuyers)}
+              series={evolution.map((point) => point.newCustomers + point.recurrentCustomers)}
+              note={`${formatDashboardNumber(summary.orders)} pedidos en el período`}
+            />
+            <CustomerKpi
+              icon={<IconNew />}
+              tone="primary"
+              label="Clientes nuevos"
+              value={formatDashboardNumber(summary.newCustomers)}
+              series={evolution.map((point) => point.newCustomers)}
+              note={`${formatDashboardPercent(split.newCustomerShare)} de los compradores`}
+            />
+            <CustomerKpi
+              icon={<IconReturning />}
+              tone="secondary"
+              label="Clientes recurrentes"
+              value={formatDashboardNumber(summary.recurrentCustomers)}
+              series={evolution.map((point) => point.recurrentCustomers)}
+              note={`${formatDashboardPercent(split.recurrentCustomerShare)} de los compradores`}
+            />
+            <CustomerKpi
+              icon={<IconRate />}
+              tone="secondary"
+              label="Tasa de recompra"
+              value={formatDashboardPercent(summary.repurchaseRate)}
+              series={[]}
+              note={`${formatDashboardNumber(summary.ordersPerCustomer)} pedidos por cliente`}
+            />
           </div>
 
-          {/* Table */}
-          {hasTableRows ? (
-            <>
-              <div className="hidden overflow-x-auto md:block">
-                <table className="w-full border-collapse text-sm">
-                  <thead className="border-b border-slate-100 text-left">
-                    <tr>
-                      {["Cliente", "Pedidos", "Unidades", "Facturación", "Ticket", "1ª compra", "Última compra", "Entre compras", "Estado"].map((h) => (
-                        <th key={h} className="px-4 py-3 text-[11px] font-semibold text-slate-400">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {metrics.table.rows.map((row) => (
-                      <tr key={row.key} className="border-b border-slate-100 last:border-0">
-                        <td className="px-4 py-3">
-                          <p className="text-[13px] font-medium text-slate-900">{formatCustomerHeading(row)}</p>
-                          <p className="text-[11px] text-slate-400">{maskDashboardEmail(row.email)}</p>
-                        </td>
-                        <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.periodOrders)}</td>
-                        <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.periodUnits)}</td>
-                        <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardPrice(row.periodRevenue)}</td>
-                        <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardPrice(row.periodAverageTicket)}</td>
-                        <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardShortDate(row.firstPurchaseAt)}</td>
-                        <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardShortDate(row.lastPurchaseAt)}</td>
-                        <td className="px-4 py-3 text-[13px] text-slate-700">{formatNullableDays(row.daysBetweenPurchases)}</td>
-                        <td className="px-4 py-3">
-                          <span className={cn("rounded-[6px] border px-2 py-0.5 text-[11px] font-semibold", statusToneClass(row.status))}>
-                            {row.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+          {/* ── Row 2 · evolution 62% / split 38% ───────────────────────────── */}
+          <div className="mt-3 grid min-w-0 grid-cols-1 gap-3 xl:grid-cols-[1.62fr_1fr]">
+            <CustomerModule
+              title="Evolución de nuevos y recurrentes"
+              note="Cantidad de clientes por día."
+              legend={<SegmentLegend />}
+            >
+              <CustomerEvolution data={evolution} height={240} />
+            </CustomerModule>
 
-              <div className="grid gap-3 md:hidden">
-                {metrics.table.rows.map((row) => (
-                  <CustomerMobileCard key={row.key} row={row} />
-                ))}
-              </div>
-
-              <TablePagination
-                filters={currentFilters}
-                page={metrics.table.page}
-                pageCount={metrics.table.pageCount}
-                totalCount={metrics.table.totalCount}
+            <CustomerModule title="Nuevos vs. recurrentes" note="Distribución de clientes.">
+              <SegmentDonut
+                newValue={split.newCustomers}
+                recurrentValue={split.recurrentCustomers}
+                centerValue={formatDashboardNumber(summary.uniqueBuyers)}
+                centerLabel="clientes"
+                formatValue={formatDashboardNumber}
               />
-            </>
-          ) : (
-            <EmptyState
-              title="No hay clientes para este período."
-              description={
-                currentFilters.q
-                  ? "La búsqueda no devolvió resultados. Probá limpiando el filtro o ajustando el término."
-                  : "Sin datos para este período."
-              }
+            </CustomerModule>
+          </div>
+
+          {/* ── Row 3 · ranking 50 / frequency 50 ───────────────────────────── */}
+          <div className="mt-3 grid min-w-0 grid-cols-1 gap-3 xl:grid-cols-2">
+            <CustomerModule
+              title="Clientes con mayor facturación"
+              note="Ranking de clientes por total facturado."
+              action={{ href: "/admin/customers", label: "Ver todos" }}
+            >
+              <TopCustomersTable rows={topCustomers.slice(0, 5)} />
+            </CustomerModule>
+
+            <CustomerModule
+              title="Clientes por frecuencia de compra"
+              note="Cantidad de pedidos por cliente."
+            >
+              <ShareBars
+                rows={frequencyRows}
+                emptyMessage="Sin compradores en el período."
+                labelWidth={84}
+              />
+            </CustomerModule>
+          </div>
+
+          {/* ── Row 4 · three equal columns ─────────────────────────────────── */}
+          <div className="mt-3 grid min-w-0 grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
+            <CustomerModule
+              title="Ubicación de clientes"
+              note="Principales provincias por cantidad de pedidos."
+            >
+              <ShareBars
+                rows={locationRows}
+                emptyMessage="Sin provincias registradas en los envíos del período."
+                labelWidth={104}
+              />
+            </CustomerModule>
+
+            <CustomerModule
+              title="Recompra por cohorte"
+              note="Clientes que volvieron a comprar, por mes de alta."
+            >
+              <ShareBars
+                rows={cohortRows}
+                emptyMessage="Todavía no hay cohortes con historia suficiente."
+                labelWidth={84}
+              />
+            </CustomerModule>
+
+            <CustomerModule
+              title="Reparto de facturación"
+              note="Cuánto aporta cada segmento."
+            >
+              <SegmentDonut
+                newValue={split.newRevenue}
+                recurrentValue={split.recurrentRevenue}
+                centerValue={formatDashboardPrice(summary.revenue)}
+                centerLabel="facturado"
+                formatValue={formatDashboardPrice}
+              />
+            </CustomerModule>
+          </div>
+
+          {/* ── Row 5 · filters ─────────────────────────────────────────────── */}
+          <CustomerModule
+            title="Filtros"
+            note="Filtrá por segmento o búsqueda."
+            className="mt-3"
+          >
+            <form method="get" className="px-5 pb-5">
+              <input type="hidden" name="period" value={period} />
+
+              <div className="flex flex-wrap items-end gap-3">
+                <label className="min-w-0 flex-1 basis-[200px]">
+                  <span className={FIELD_LABEL}>Segmento</span>
+                  <select name="segment" defaultValue={segmentFilter} className={FIELD}>
+                    <option value="all">Todos</option>
+                    <option value="Nuevo">Nuevo</option>
+                    <option value="Recurrente">Recurrente</option>
+                  </select>
+                </label>
+
+                <label className="min-w-0 flex-[2] basis-[260px]">
+                  <span className={FIELD_LABEL}>Búsqueda</span>
+                  <input
+                    type="search"
+                    name="q"
+                    defaultValue={query.q}
+                    placeholder="Nombre o email…"
+                    className={cn(FIELD, "placeholder:text-slate-400")}
+                  />
+                </label>
+
+                <div className="flex shrink-0 items-center gap-2">
+                  <a
+                    href={`/admin/dashboard/clientes?period=${period}`}
+                    className="rounded-[6px] border border-[#e2e8f0] bg-white px-4 py-[8px] text-[13px] font-medium text-slate-700 transition-colors hover:border-[#cbd5e1] hover:text-slate-900"
+                  >
+                    Limpiar
+                  </a>
+                  <button
+                    type="submit"
+                    className="rounded-[6px] bg-[#3b7ff5] px-5 py-[8px] text-[13px] font-medium text-white transition-colors hover:bg-[#2f6de0]"
+                  >
+                    Aplicar
+                  </button>
+                </div>
+              </div>
+            </form>
+          </CustomerModule>
+
+          {/* ── Row 6 · the list ────────────────────────────────────────────── */}
+          <CustomerModule
+            title="Listado de clientes"
+            note="Información de tus clientes en el período seleccionado."
+            legend={
+              <span className="shrink-0 text-[12px] tabular-nums text-slate-500">
+                {formatDashboardNumber(listRows.length)}{" "}
+                {listRows.length === 1 ? "cliente" : "clientes"}
+                {metrics.table.pageCount > 1
+                  ? ` · página ${metrics.table.page} de ${metrics.table.pageCount}`
+                  : ""}
+              </span>
+            }
+            className="mt-3"
+          >
+            <CustomerListTable
+              rows={listRows.map((row) => ({
+                key: row.key,
+                displayName: row.displayName,
+                email: row.email,
+                periodOrders: row.periodOrders,
+                periodUnits: row.periodUnits,
+                periodRevenue: row.periodRevenue,
+                lastPurchaseLabel: formatPurchaseDate(row.lastPurchaseAt),
+                status: row.status,
+              }))}
             />
-          )}
+          </CustomerModule>
         </div>
-      </ChartCard>
-    </DashboardSubpageShell>
+      </div>
+    </main>
   );
 }

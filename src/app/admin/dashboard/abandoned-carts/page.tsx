@@ -1,26 +1,39 @@
-import Link from "next/link";
 import type { Metadata } from "next";
-import { ChartCard } from "@/features/admin/dashboard/components/chart-card";
-import { DashboardSubpageShell } from "@/features/admin/dashboard/components/dashboard-subpage-shell";
-import { EmptyState } from "@/features/admin/dashboard/components/empty-state";
-import { KpiCard } from "@/features/admin/dashboard/components/kpi-card";
+import { DateRangeFilter } from "@/features/admin/dashboard/components/date-range-filter";
+import {
+  AbandonedEmpty,
+  AbandonedKpi,
+  AbandonedModule,
+  IconCart,
+  IconCheckout,
+  IconTicket,
+  IconValue,
+} from "@/features/admin/dashboard/components/abandoned/abandoned-modules";
+import {
+  AbandonedEvolution,
+  StageDonut,
+} from "@/features/admin/dashboard/components/abandoned/abandoned-charts";
+import {
+  AbandonedCartsTable,
+  AbandonedProductsTable,
+  SourceBars,
+} from "@/features/admin/dashboard/components/abandoned/abandoned-tables";
 import {
   DASHBOARD_PERIODS,
   normalizeDashboardPeriodValue,
 } from "@/features/admin/dashboard/server/dashboard-service";
 import {
-  formatDashboardDateTime,
   formatDashboardNumber,
   formatDashboardPrice,
 } from "@/features/admin/dashboard/lib/dashboard-formatters";
-import { cn } from "@/lib/utils";
-import type { AnalyticsCartStatus as AnalyticsCartStatusEnum } from "@/generated/prisma/client";
 import {
   formatAbandonedCartDateTime,
-  formatAbandonedCartDuration,
   getAbandonedCartsPageData,
   normalizeAbandonedCartsQuery,
 } from "@/features/admin/analytics/server/abandoned-carts-service";
+import { getProductAnalyticsPageData } from "@/features/admin/analytics/server/product-analytics-service";
+import { buildAbandonedPreview } from "@/features/admin/dashboard/components/abandoned/preview-data";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -28,366 +41,330 @@ export const metadata: Metadata = {
   title: "Carritos abandonados | DELUAR",
 };
 
+const ARGENTINA_TIME_ZONE = "America/Argentina/Buenos_Aires";
+
 type AdminDashboardAbandonedCartsPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
-function getStageLabel(value: "all" | "CART_ABANDONED" | "CHECKOUT_ABANDONED") {
-  switch (value) {
-    case "CART_ABANDONED": return "Carrito abandonado";
-    case "CHECKOUT_ABANDONED": return "Checkout abandonado";
-    default: return "Todos";
-  }
+function formatGeneratedAt(value: Date) {
+  return new Intl.DateTimeFormat("es-AR", {
+    timeZone: ARGENTINA_TIME_ZONE,
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(value);
 }
 
-function getStageBadgeClasses(value: AnalyticsCartStatusEnum) {
-  switch (value) {
-    case "CHECKOUT_ABANDONED": return "border-sky-200 bg-sky-50 text-sky-800";
-    case "CART_ABANDONED":
-    default: return "border-amber-200 bg-amber-50 text-amber-800";
-  }
-}
+const FIELD =
+  "w-full rounded-[6px] border border-[#e2e8f0] bg-white px-3 py-[7px] text-[13px] text-slate-900 outline-none transition-colors hover:border-[#cbd5e1] focus:border-[#4f52c9] focus:ring-2 focus:ring-[#4f52c9]/15";
+const FIELD_LABEL = "mb-1.5 block text-[10.5px] font-semibold uppercase tracking-[0.12em] text-slate-500";
 
-function getStatusAfterBadgeClasses(value: string) {
-  switch (value) {
-    case "Comprado después": return "border-emerald-200 bg-emerald-50 text-emerald-800";
-    case "Orden creada": return "border-sky-200 bg-sky-50 text-sky-800";
-    default: return "border-[#e8e5e1] bg-white text-slate-600";
-  }
-}
-
-function buildHref(current: ReturnType<typeof normalizeAbandonedCartsQuery>, overrides: Partial<ReturnType<typeof normalizeAbandonedCartsQuery>> = {}) {
-  const next = { ...current, ...overrides };
-  const params = new URLSearchParams();
-  params.set("period", next.period);
-  if (next.stage !== "all") params.set("stage", next.stage);
-  if (next.source !== "all") params.set("source", next.source);
-  if (next.campaign !== "all") params.set("campaign", next.campaign);
-  if (next.q) params.set("q", next.q);
-  if (next.page > 1) params.set("page", String(next.page));
-  if (next.pageSize !== 25) params.set("pageSize", String(next.pageSize));
-  const query = params.toString();
-  return query ? `/admin/dashboard/abandoned-carts?${query}` : "/admin/dashboard/abandoned-carts";
-}
-
-function getVisiblePages(page: number, pageCount: number) {
-  if (pageCount <= 7) return Array.from({ length: pageCount }, (_, i) => i + 1);
-  const pages = new Set<number>([1, pageCount, page - 1, page, page + 1]);
-  return [...pages].filter((v) => v >= 1 && v <= pageCount).sort((a, b) => a - b);
-}
-
-function PaginationLink({ href, children, active = false, disabled = false }: { href: string; children: React.ReactNode; active?: boolean; disabled?: boolean }) {
-  const cls = cn(
-    "inline-flex h-9 min-w-9 items-center justify-center rounded-full border px-3 text-[13px] font-semibold transition",
-    active ? "border-slate-900 bg-slate-900 text-white" : "border-[#e8e5e1] bg-white text-slate-700 hover:bg-slate-50",
-    disabled && "pointer-events-none opacity-40",
-  );
-  if (disabled) return <span className={cls}>{children}</span>;
-  return <Link href={href} className={cls} aria-current={active ? "page" : undefined}>{children}</Link>;
-}
-
-function IconCart() {
-  return (
-    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 3h2l1.5 9h9.5l1.5-6H7" /><circle cx="9" cy="19" r="1.5" /><circle cx="17" cy="19" r="1.5" />
-    </svg>
-  );
-}
-function IconCheckout() {
-  return (
-    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="5" width="16" height="12" rx="2" /><path d="M3 9h16" />
-    </svg>
-  );
-}
-function IconValue() {
-  return (
-    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8.5" />
-      <path d="M11 6v10M8.5 8.5c0-1.1 1.1-1.7 2.5-1.7s2.5.7 2.5 1.8c0 2.7-5 2.2-5 5.2 0 1.5 1.5 2 3 2s2.5-.7 2.5-2" />
-    </svg>
-  );
-}
-function IconTicket() {
-  return (
-    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="4" y="4.5" width="14" height="13" rx="2.5" /><path d="M8 10h6M8 13.5h4" />
-    </svg>
-  );
-}
-
-export default async function AdminDashboardAbandonedCartsPage({ searchParams }: AdminDashboardAbandonedCartsPageProps) {
+export default async function AdminDashboardAbandonedCartsPage({
+  searchParams,
+}: AdminDashboardAbandonedCartsPageProps) {
   const resolvedSearchParams = (await searchParams) ?? {};
   const parsedPeriod = normalizeDashboardPeriodValue(
-    Array.isArray(resolvedSearchParams.period) ? resolvedSearchParams.period[0] : resolvedSearchParams.period,
+    Array.isArray(resolvedSearchParams.period)
+      ? resolvedSearchParams.period[0]
+      : resolvedSearchParams.period,
   );
   const query = normalizeAbandonedCartsQuery({ ...resolvedSearchParams, period: parsedPeriod });
-  const data = await getAbandonedCartsPageData(query);
-  const lastUpdated = formatDashboardDateTime(new Date());
+
+  const [data, productData] = await Promise.all([
+    getAbandonedCartsPageData(query),
+    getProductAnalyticsPageData({ period: query.period, sort: "abandonments", page: 1, pageSize: 10 }),
+  ]);
+
+  const periodLabel = DASHBOARD_PERIODS[query.period].label;
+  const lastUpdated = formatGeneratedAt(new Date());
+
+  /**
+   * Development-only look at the populated layout. It never reaches production
+   * and never touches the database: the rows below are invented and the page
+   * says so on screen.
+   */
+  const previewRequested =
+    process.env.NODE_ENV !== "production" &&
+    (Array.isArray(resolvedSearchParams.preview)
+      ? resolvedSearchParams.preview[0]
+      : resolvedSearchParams.preview) === "1";
+  const preview = previewRequested ? buildAbandonedPreview(data.daily) : null;
+
+  const totals = preview?.totals ?? data.totals;
+  const daily = preview?.daily ?? data.daily;
+  const sources = preview?.sources ?? data.sources;
 
   const stageOptions = [
     { value: "all", label: "Todos" },
     { value: "CART_ABANDONED", label: "Carrito abandonado" },
     { value: "CHECKOUT_ABANDONED", label: "Checkout abandonado" },
   ];
-  const sourceOptions = [{ value: "all", label: "Todas" }, ...data.sourceOptions.map((v) => ({ value: v, label: v }))];
-  const campaignOptions = [{ value: "all", label: "Todas" }, ...data.campaignOptions.map((v) => ({ value: v, label: v }))];
-  const stageLabel = getStageLabel(query.stage);
-  const periodLabel = DASHBOARD_PERIODS[query.period].label;
+  const sourceOptions = [
+    { value: "all", label: "Todas" },
+    ...data.sourceOptions.map((value) => ({ value, label: value })),
+  ];
+  const campaignOptions = [
+    { value: "all", label: "Todas" },
+    ...data.campaignOptions.map((value) => ({ value, label: value })),
+  ];
+
+  // Daily ticket comes from the two daily figures the service already returns.
+  const ticketSeries = daily.map((day) => {
+    const count = day.carts + day.checkouts;
+    return count > 0 ? day.value / count : 0;
+  });
+
+  const abandonedProducts =
+    preview?.products ??
+    productData.products
+      .filter((row) => row.abandonedCarts > 0)
+      .slice(0, 5)
+      .map((row) => ({
+        productId: row.productId,
+        productName: row.productName,
+        imageUrl: row.imageUrl,
+        abandonedCarts: row.abandonedCarts,
+      }));
+
+  const cartRows = preview?.carts ?? data.carts.map((cart) => ({
+    cartId: cart.cartId,
+    abandonedAtLabel: formatAbandonedCartDateTime(cart.abandonedAt),
+    customerLabel: `${cart.visitorId.slice(0, 8)}…`,
+    productSummary: cart.productSummary,
+    subtotal: cart.subtotal,
+    status: cart.status,
+    stageLabel: cart.stageLabel,
+    sourceLabel: cart.sourceLabel,
+    campaignLabel: cart.campaignLabel,
+  }));
 
   return (
-    <DashboardSubpageShell
-      sectionLabel="Carritos abandonados"
-      title="Carritos abandonados"
-      subtitle={`Vista operativa de carritos abandonados. Período activo: ${periodLabel}.`}
-      lastUpdated={lastUpdated}
-    >
-      {/* KPI row */}
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-        <KpiCard
-          title="Carritos abandonados"
-          value={formatDashboardNumber(data.totals.cartAbandonedCount)}
-          description="Con status CART_ABANDONED."
-          icon={<IconCart />}
-          tone="warning"
-        />
-        <KpiCard
-          title="Checkouts abandonados"
-          value={formatDashboardNumber(data.totals.checkoutAbandonedCount)}
-          description="Con status CHECKOUT_ABANDONED."
-          icon={<IconCheckout />}
-          tone="accent"
-        />
-        <KpiCard
-          title="Valor total abandonado"
-          value={formatDashboardPrice(data.totals.totalValue)}
-          description="Suma del subtotal sobre abandonos."
-          icon={<IconValue />}
-          tone="danger"
-        />
-        <KpiCard
-          title="Ticket promedio"
-          value={formatDashboardPrice(data.totals.averageTicket)}
-          description="Promedio de subtotal por carrito."
-          icon={<IconTicket />}
-          tone="neutral"
-        />
-      </div>
+    <main className="flex min-h-screen flex-col bg-[#f1f5f9]">
+      <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-5 border-b border-slate-200/70 bg-white px-6 lg:px-8">
+        <nav aria-label="Ubicación" className="min-w-0 flex-1">
+          <ol className="flex items-center gap-2 text-[13px]">
+            <li className="font-medium text-slate-400">Estadísticas</li>
+            <li aria-hidden className="text-slate-300">
+              /
+            </li>
+            <li className="font-semibold text-slate-900" aria-current="page">
+              Carritos abandonados
+            </li>
+          </ol>
+        </nav>
+        <div className="flex shrink-0 items-center gap-3">
+          <span className="hidden text-[12px] tabular-nums text-slate-400 lg:block">
+            {lastUpdated}
+          </span>
+          <DateRangeFilter topBar />
+        </div>
+      </header>
 
-      {/* Filters + Summary */}
-      <div className="grid gap-4 xl:grid-cols-[1fr_0.4fr]">
-        {/* Filters */}
-        <ChartCard title="Filtros" description="Filtrá por etapa, fuente, campaña o búsqueda libre.">
-          <form method="get" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-            <input type="hidden" name="period" value={query.period} />
-            <input type="hidden" name="page" value="1" />
+      <div className="flex-1 px-6 pb-12 pt-6 lg:px-8">
+        <div className="w-full min-w-0">
+          <h1 className="text-[2.1rem] font-semibold leading-none tracking-[-0.04em] text-slate-950">
+            Carritos abandonados
+          </h1>
+          <p className="mt-3 text-[13.5px] text-slate-500">
+            Usuarios que agregaron productos al carrito pero no finalizaron la compra ·{" "}
+            {periodLabel}
+          </p>
 
-            {/* Etapa */}
-            <label className="block min-w-0">
-              <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400 mb-1.5">Etapa</span>
-              <select name="stage" defaultValue={query.stage}
-                className="w-full rounded-[8px] border border-[#e8e5e1] bg-white px-3 py-2 text-[13px] text-slate-900 outline-none focus:border-[#bda88d] focus:ring-2 focus:ring-[#d9c8b4]/60">
-                {stageOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
-            </label>
-
-            {/* Fuente */}
-            <label className="block min-w-0">
-              <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400 mb-1.5">Fuente</span>
-              <select name="source" defaultValue={query.source}
-                className="w-full rounded-[8px] border border-[#e8e5e1] bg-white px-3 py-2 text-[13px] text-slate-900 outline-none focus:border-[#bda88d] focus:ring-2 focus:ring-[#d9c8b4]/60">
-                {sourceOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
-            </label>
-
-            {/* Campaña */}
-            <label className="block min-w-0">
-              <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400 mb-1.5">Campaña</span>
-              <select name="campaign" defaultValue={query.campaign}
-                className="w-full rounded-[8px] border border-[#e8e5e1] bg-white px-3 py-2 text-[13px] text-slate-900 outline-none focus:border-[#bda88d] focus:ring-2 focus:ring-[#d9c8b4]/60">
-                {campaignOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
-            </label>
-
-            {/* Tamaño */}
-            <label className="block min-w-0">
-              <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400 mb-1.5">Por página</span>
-              <select name="pageSize" defaultValue={String(query.pageSize)}
-                className="w-full rounded-[8px] border border-[#e8e5e1] bg-white px-3 py-2 text-[13px] text-slate-900 outline-none focus:border-[#bda88d] focus:ring-2 focus:ring-[#d9c8b4]/60">
-                {["25", "50", "100"].map((v) => <option key={v} value={v}>{v}</option>)}
-              </select>
-            </label>
-
-            {/* Búsqueda */}
-            <label className="block min-w-0">
-              <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400 mb-1.5">Búsqueda</span>
-              <input type="search" name="q" defaultValue={query.q} placeholder="cartId, sesión, producto…"
-                className="w-full rounded-[8px] border border-[#e8e5e1] bg-white px-3 py-2 text-[13px] text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#bda88d] focus:ring-2 focus:ring-[#d9c8b4]/60" />
-            </label>
-
-            <div className="flex items-end">
-              <button type="submit"
-                className="w-full rounded-[8px] border border-slate-900 bg-slate-900 px-4 py-2 text-[13px] font-semibold text-white transition hover:bg-slate-800">
-                Aplicar
-              </button>
-            </div>
-          </form>
-
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            {[stageLabel, `${formatDashboardNumber(data.pageSize)} por página`, `${formatDashboardNumber(data.totals.totalCount)} resultados`].map((tag) => (
-              <span key={tag} className="rounded-full border border-[#e8e5e1] bg-[#faf9f7] px-3 py-1 text-[11px] font-semibold text-slate-500">
-                {tag}
+          {preview ? (
+            <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-[10px] border border-[#f5d0a9] bg-[#fdf6ec] px-4 py-3">
+              <span className="rounded-full bg-[#b45309] px-2.5 py-[3px] text-[11px] font-semibold uppercase tracking-[0.08em] text-white">
+                Datos de demostración
               </span>
-            ))}
+              <span className="text-[12.5px] text-[#8a5a12]">
+                Nada de esto es real ni está guardado. Quitá <code>?preview=1</code> de la URL
+                para volver a los datos del período.
+              </span>
+            </div>
+          ) : null}
+
+          {/* ── Row 1 · four KPIs ───────────────────────────────────────────── */}
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <AbandonedKpi
+              icon={<IconCart />}
+              tone="friction"
+              label="Carritos abandonados"
+              value={formatDashboardNumber(totals.cartAbandonedCount)}
+              context={`De ${formatDashboardNumber(totals.totalCount)} abandonos del período`}
+              series={daily.map((day) => day.carts)}
+            />
+            <AbandonedKpi
+              icon={<IconCheckout />}
+              tone="friction"
+              label="Checkouts abandonados"
+              value={formatDashboardNumber(totals.checkoutAbandonedCount)}
+              context="Llegaron al checkout y no compraron"
+              series={daily.map((day) => day.checkouts)}
+            />
+            <AbandonedKpi
+              icon={<IconValue />}
+              tone="info"
+              label="Valor total abandonado"
+              value={formatDashboardPrice(totals.totalValue)}
+              context={`${formatDashboardNumber(totals.totalUnits)} unidades sin comprar`}
+              series={daily.map((day) => day.value)}
+            />
+            <AbandonedKpi
+              icon={<IconTicket />}
+              tone="neutral"
+              label="Ticket promedio"
+              value={formatDashboardPrice(totals.averageTicket)}
+              context={`Tiempo medio hasta el abandono: ${totals.averageTimeLabel}`}
+              series={ticketSeries}
+            />
           </div>
-        </ChartCard>
 
-        {/* Summary */}
-        <ChartCard title="Resumen" description="Datos complementarios del período.">
-          {[
-            { label: "Total abandonos", value: formatDashboardNumber(data.totals.totalCount) },
-            { label: "Unidades abandonadas", value: formatDashboardNumber(data.totals.totalUnits) },
-            { label: "Tiempo medio hasta abandono", value: formatAbandonedCartDuration(data.totals.averageTimeMinutes) },
-            { label: "Valor total", value: formatDashboardPrice(data.totals.totalValue) },
-            { label: "Ticket promedio", value: formatDashboardPrice(data.totals.averageTicket) },
-          ].map((row) => (
-            <div key={row.label} className="flex items-center justify-between gap-3 border-b border-slate-100 py-3 last:border-0">
-              <p className="text-[13px] text-slate-500">{row.label}</p>
-              <p className="text-[13px] font-semibold text-slate-900">{row.value}</p>
-            </div>
-          ))}
-        </ChartCard>
-      </div>
+          {/* ── Row 2 · evolution 59% / stage 39% ───────────────────────────── */}
+          <div className="mt-3 grid min-w-0 grid-cols-1 gap-3 xl:grid-cols-[1.5fr_1fr]">
+            <AbandonedModule
+              title="Evolución de carritos abandonados"
+              note="Cantidad de carritos por día."
+            >
+              <AbandonedEvolution data={daily} height={230} />
+            </AbandonedModule>
 
-      {/* Cart list */}
-      <ChartCard
-        title="Lista de carritos abandonados"
-        description="Ordenado por fecha de abandono descendente."
-        className="min-w-0"
-      >
-        {data.carts.length > 0 ? (
-          <>
-            {/* Desktop table */}
-            <div className="hidden overflow-hidden rounded-[10px] border border-[#e8e5e1] sm:block">
-              <div className="overflow-x-auto">
-                <table className="min-w-[1280px] w-full border-collapse">
-                  <thead className="bg-slate-50 text-left">
-                    <tr>
-                      {["Fecha", "Etapa", "Productos", "Unidades", "Subtotal", "Tiempo", "Fuente", "Campaña", "Estado posterior", "Acción"].map((h) => (
-                        <th key={h} className="px-4 py-3 text-[11px] font-semibold text-slate-500">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.carts.map((cart) => (
-                      <tr key={cart.cartId} className="border-t border-[#e8e5e1] align-top">
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <p className="text-[13px] font-medium text-slate-900">{formatAbandonedCartDateTime(cart.abandonedAt)}</p>
-                          <p className="mt-0.5 text-[11px] text-slate-400">{cart.cartId}</p>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className={cn("inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold", getStageBadgeClasses(cart.status))}>
-                            {cart.stageLabel}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <p className="max-w-[280px] text-[13px] font-medium text-slate-900">{cart.productSummary}</p>
-                          <p className="mt-0.5 text-[11px] text-slate-400">{cart.productDetailsLabel}</p>
-                        </td>
-                        <td className="px-4 py-3 text-[13px] text-slate-600">{formatDashboardNumber(cart.itemCount)}</td>
-                        <td className="px-4 py-3 text-[13px] font-semibold text-slate-950">{formatDashboardPrice(cart.subtotal)}</td>
-                        <td className="px-4 py-3 text-[13px] text-slate-600">{cart.timeToAbandonLabel}</td>
-                        <td className="px-4 py-3">
-                          <p className="text-[13px] font-medium text-slate-900">{cart.sourceLabel}</p>
-                          <p className="mt-0.5 text-[11px] text-slate-400">{cart.referrerLabel}</p>
-                        </td>
-                        <td className="px-4 py-3 text-[13px] text-slate-600">{cart.campaignLabel}</td>
-                        <td className="px-4 py-3">
-                          <span className={cn("inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold", getStatusAfterBadgeClasses(cart.statusAfterLabel))}>
-                            {cart.statusAfterLabel}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <Link
-                            href={`/admin/dashboard/abandoned-carts/${cart.cartId}`}
-                            className="inline-flex rounded-[8px] border border-[#e8e5e1] bg-white px-3 py-1.5 text-[12px] font-semibold text-slate-700 transition hover:bg-slate-50"
-                          >
-                            Ver detalle
-                          </Link>
-                        </td>
-                      </tr>
+            <AbandonedModule
+              title="Carritos por etapa"
+              note="Última etapa alcanzada antes de abandonar."
+            >
+              <StageDonut
+                cartCount={totals.cartAbandonedCount}
+                checkoutCount={totals.checkoutAbandonedCount}
+              />
+            </AbandonedModule>
+          </div>
+
+          {/* ── Row 3 · sources 43% / products 55% ──────────────────────────── */}
+          <div className="mt-3 grid min-w-0 grid-cols-1 gap-3 xl:grid-cols-[1fr_1.28fr]">
+            <AbandonedModule
+              title="Fuentes de tráfico"
+              note="De dónde provienen los carritos abandonados."
+            >
+              <SourceBars rows={sources.slice(0, 6)} />
+            </AbandonedModule>
+
+            <AbandonedModule
+              title="Productos más abandonados"
+              note="Productos más agregados al carrito pero no comprados."
+              action={{ href: "/admin/dashboard/productos", label: "Ver todos" }}
+            >
+              <AbandonedProductsTable rows={abandonedProducts} total={totals.totalCount} />
+            </AbandonedModule>
+          </div>
+
+          {/* ── Row 4 · filters, compact and secondary ──────────────────────── */}
+          <AbandonedModule
+            title="Filtros"
+            note="Filtrá por etapa, fuente, campaña o búsqueda libre."
+            className="mt-3"
+          >
+            <form method="get" className="px-5 pb-5">
+              <input type="hidden" name="period" value={query.period} />
+              <input type="hidden" name="page" value="1" />
+
+              <div className="flex flex-wrap items-end gap-3">
+                <label className="min-w-0 flex-1 basis-[150px]">
+                  <span className={FIELD_LABEL}>Etapa</span>
+                  <select name="stage" defaultValue={query.stage} className={FIELD}>
+                    {stageOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                  </select>
+                </label>
 
-            {/* Mobile cards */}
-            <div className="grid gap-3 sm:hidden">
-              {data.carts.map((cart) => (
-                <article key={cart.cartId} className="rounded-[10px] border border-[#e8e5e1] bg-white px-4 py-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-[13px] font-semibold text-slate-950">{formatAbandonedCartDateTime(cart.abandonedAt)}</p>
-                      <p className="mt-0.5 text-[11px] text-slate-400">{cart.cartId}</p>
-                    </div>
-                    <span className={cn("inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold", getStageBadgeClasses(cart.status))}>
-                      {cart.stageLabel}
-                    </span>
-                  </div>
-                  <div className="mt-3 grid grid-cols-2 gap-2">
-                    {[
-                      ["Subtotal", formatDashboardPrice(cart.subtotal)],
-                      ["Unidades", formatDashboardNumber(cart.itemCount)],
-                      ["Tiempo", cart.timeToAbandonLabel],
-                      ["Estado posterior", cart.statusAfterLabel],
-                    ].map(([label, value]) => (
-                      <div key={label} className="rounded-[8px] border border-slate-100 bg-slate-50 px-3 py-2">
-                        <p className="text-[10px] font-semibold text-slate-400">{label}</p>
-                        <p className="mt-0.5 text-[12px] font-semibold text-slate-900">{value}</p>
-                      </div>
+                <label className="min-w-0 flex-1 basis-[150px]">
+                  <span className={FIELD_LABEL}>Fuente</span>
+                  <select name="source" defaultValue={query.source} className={FIELD}>
+                    {sourceOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
                     ))}
-                  </div>
-                  <div className="mt-3 flex justify-end">
-                    <Link
-                      href={`/admin/dashboard/abandoned-carts/${cart.cartId}`}
-                      className="inline-flex rounded-[8px] border border-[#e8e5e1] bg-white px-3 py-1.5 text-[12px] font-semibold text-slate-700 transition hover:bg-slate-50"
-                    >
-                      Ver detalle
-                    </Link>
-                  </div>
-                </article>
-              ))}
-            </div>
+                  </select>
+                </label>
 
-            {/* Pagination */}
-            {data.pageCount > 1 ? (
-              <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-                <p className="text-[12px] text-slate-400">
-                  Mostrando {formatDashboardNumber((data.page - 1) * data.pageSize + 1)}–{formatDashboardNumber(Math.min(data.page * data.pageSize, data.totals.totalCount))} de {formatDashboardNumber(data.totals.totalCount)}
-                </p>
-                <div className="flex items-center gap-1.5">
-                  <PaginationLink href={buildHref(query, { page: Math.max(1, data.page - 1) })} disabled={data.page <= 1}>Anterior</PaginationLink>
-                  {getVisiblePages(data.page, data.pageCount).map((page) => (
-                    <PaginationLink key={page} href={buildHref(query, { page })} active={page === data.page}>{page}</PaginationLink>
-                  ))}
-                  <PaginationLink href={buildHref(query, { page: Math.min(data.pageCount, data.page + 1) })} disabled={data.page >= data.pageCount}>Siguiente</PaginationLink>
+                <label className="min-w-0 flex-1 basis-[150px]">
+                  <span className={FIELD_LABEL}>Campaña</span>
+                  <select name="campaign" defaultValue={query.campaign} className={FIELD}>
+                    {campaignOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="min-w-0 flex-[1.4] basis-[190px]">
+                  <span className={FIELD_LABEL}>Búsqueda</span>
+                  <input
+                    type="search"
+                    name="q"
+                    defaultValue={query.q}
+                    placeholder="ID, sesión o producto…"
+                    className={cn(FIELD, "placeholder:text-slate-400")}
+                  />
+                </label>
+
+                <div className="flex shrink-0 items-center gap-2">
+                  <a
+                    href={`/admin/dashboard/abandoned-carts?period=${query.period}`}
+                    className="rounded-[6px] border border-[#e2e8f0] bg-white px-3.5 py-[7px] text-[13px] font-medium text-slate-700 transition-colors hover:border-[#cbd5e1] hover:text-slate-900"
+                  >
+                    Limpiar
+                  </a>
+                  <button
+                    type="submit"
+                    className="rounded-[6px] bg-[#4f52c9] px-4 py-[7px] text-[13px] font-medium text-white transition-colors hover:bg-[#4348b4]"
+                  >
+                    Aplicar
+                  </button>
                 </div>
+
+                <label className="min-w-0 shrink-0 basis-[128px]">
+                  <span className={FIELD_LABEL}>Por página</span>
+                  <select name="pageSize" defaultValue={String(query.pageSize)} className={FIELD}>
+                    {["25", "50", "100"].map((value) => (
+                      <option key={value} value={value}>
+                        {value}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               </div>
+            </form>
+          </AbandonedModule>
+
+          {/* ── Row 5 · the list ────────────────────────────────────────────── */}
+          <AbandonedModule
+            title="Lista de carritos abandonados"
+            note="Ordenado por fecha de abandono descendente."
+            control={
+              <span className="shrink-0 text-[12px] tabular-nums text-slate-500">
+                {formatDashboardNumber(totals.totalCount)}{" "}
+                {totals.totalCount === 1 ? "resultado" : "resultados"}
+                {(preview?.pageCount ?? data.pageCount) > 1
+                  ? ` · página ${preview?.page ?? data.page} de ${preview?.pageCount ?? data.pageCount}`
+                  : ""}
+              </span>
+            }
+            className="mt-3"
+          >
+            <AbandonedCartsTable rows={cartRows} />
+            {totals.totalCount === 0 ? (
+              <AbandonedEmpty message={`Ningún carrito quedó sin finalizar entre los ${periodLabel.toLowerCase()}. La ausencia de abandonos también es una lectura del período.`} />
             ) : null}
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[#e8e5e1] bg-[#faf9f7]">
-              <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5 text-slate-400" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 3h2l1.5 9h9.5l1.5-6H7" /><circle cx="9" cy="19" r="1.5" /><circle cx="17" cy="19" r="1.5" />
-              </svg>
-            </div>
-            <p className="mt-3 text-[14px] font-semibold text-slate-800">No hay carritos abandonados en este período</p>
-            <p className="mt-1 text-[13px] text-slate-400">Probá cambiar el período o quitar filtros.</p>
-          </div>
-        )}
-      </ChartCard>
-    </DashboardSubpageShell>
+          </AbandonedModule>
+        </div>
+      </div>
+    </main>
   );
 }

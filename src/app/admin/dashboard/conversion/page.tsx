@@ -1,13 +1,34 @@
 import type { Metadata } from "next";
-import { ChartCard } from "@/features/admin/dashboard/components/chart-card";
-import { DashboardSubpageShell } from "@/features/admin/dashboard/components/dashboard-subpage-shell";
-import { EmptyState } from "@/features/admin/dashboard/components/empty-state";
-import { KpiCard } from "@/features/admin/dashboard/components/kpi-card";
-import { ConversionAbandonmentComparison } from "@/features/admin/dashboard/components/charts/conversion-abandonment-comparison";
-import { ConversionFunnelChart } from "@/features/admin/dashboard/components/charts/conversion-funnel-chart";
-import { ConversionTimelineChart } from "@/features/admin/dashboard/components/charts/conversion-timeline-chart";
+import { DateRangeFilter } from "@/features/admin/dashboard/components/date-range-filter";
 import {
-  formatDashboardDateTime,
+  OverviewEmpty,
+  OverviewModule,
+} from "@/features/admin/dashboard/components/overview/overview-ui";
+import { ConversionKpi } from "@/features/admin/dashboard/components/conversion/conversion-kpi";
+import {
+  IconAlert,
+  IconCart,
+  IconCheckout,
+  IconClock,
+  IconDoc,
+  IconMoney,
+  IconRate,
+  IconSessions,
+  IconTrend,
+  IconVisitors,
+} from "@/features/admin/dashboard/components/conversion/conversion-icons";
+import { ConversionFunnel } from "@/features/admin/dashboard/components/conversion/conversion-funnel";
+import { ConversionTimeline } from "@/features/admin/dashboard/components/conversion/conversion-timeline";
+import {
+  SourceConversionTable,
+  ViewedProductsTable,
+} from "@/features/admin/dashboard/components/conversion/conversion-tables";
+import {
+  ConversionEmpty,
+  StatGroup,
+  StatHighlights,
+} from "@/features/admin/dashboard/components/conversion/stat-group";
+import {
   formatDashboardNumber,
   formatDashboardPercent,
   formatDashboardPrice,
@@ -17,6 +38,8 @@ import {
   normalizeDashboardPeriodValue,
 } from "@/features/admin/dashboard/server/dashboard-service";
 import { getConversionAnalyticsMetrics } from "@/features/admin/analytics/server/conversion-analytics-service";
+import { getAcquisitionAnalyticsPageData } from "@/features/admin/analytics/server/acquisition-analytics-service";
+import { getProductAnalyticsPageData } from "@/features/admin/analytics/server/product-analytics-service";
 
 export const dynamic = "force-dynamic";
 
@@ -24,183 +47,279 @@ export const metadata: Metadata = {
   title: "Conversión | DELUAR",
 };
 
+const ARGENTINA_TIME_ZONE = "America/Argentina/Buenos_Aires";
+
 type AdminDashboardConversionPageProps = {
   searchParams?: Promise<{ period?: string }>;
 };
 
-function IconSessions() {
-  return (
-    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 5h14M4 11h14M4 17h7" />
-    </svg>
-  );
-}
-function IconCart() {
-  return (
-    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 3h2l1.5 9h9.5l1.5-6H7" />
-      <circle cx="9" cy="19" r="1.5" /><circle cx="17" cy="19" r="1.5" />
-    </svg>
-  );
-}
-function IconPurchases() {
-  return (
-    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M7.5 9V7.5A3.5 3.5 0 0 1 11 4a3.5 3.5 0 0 1 3.5 3.5V9" />
-      <path d="M4 9h14L16.5 18H5.5L4 9Z" />
-    </svg>
-  );
-}
-function IconConversionRate() {
-  return (
-    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 5.5h16l-5 7v5.5l-6-1.5v-4L3 5.5Z" />
-    </svg>
-  );
+function formatGeneratedAt(value: Date) {
+  return new Intl.DateTimeFormat("es-AR", {
+    timeZone: ARGENTINA_TIME_ZONE,
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(value);
 }
 
-function MetricCell({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-[8px] border border-[#e8e5e1] bg-[#faf9f7] px-3.5 py-3">
-      <p className="text-[11px] font-semibold text-slate-400">{label}</p>
-      <p className="mt-1 text-[1rem] font-semibold tracking-[-0.02em] text-slate-900">{value}</p>
-    </div>
-  );
-}
-
-export default async function AdminDashboardConversionPage({ searchParams }: AdminDashboardConversionPageProps) {
+export default async function AdminDashboardConversionPage({
+  searchParams,
+}: AdminDashboardConversionPageProps) {
   const resolvedSearchParams = await searchParams;
   const period = normalizeDashboardPeriodValue(resolvedSearchParams?.period);
-  const metrics = await getConversionAnalyticsMetrics(period);
-  const lastUpdated = formatDashboardDateTime(new Date());
+
+  const [metrics, acquisition, products] = await Promise.all([
+    getConversionAnalyticsMetrics(period),
+    getAcquisitionAnalyticsPageData({ period, sort: "sessions" }),
+    getProductAnalyticsPageData({ period, sort: "views", page: 1, pageSize: 10 }),
+  ]);
+
   const periodLabel = DASHBOARD_PERIODS[period].label;
+  const lastUpdated = formatGeneratedAt(new Date());
+
+  // Conversion has no previous-period window in the service, so the cards carry
+  // their own daily series and no delta rather than a manufactured one.
+  const sessionSeries = metrics.timeline.map((point) => point.sessions);
+  const purchaseSeries = metrics.timeline.map((point) => point.purchases);
+  const conversionSeries = metrics.timeline.map((point) =>
+    point.sessions > 0 ? (point.purchases / point.sessions) * 100 : 0,
+  );
+
+  // The reference shows the dashed panel whenever nothing was abandoned; the
+  // value readings only exist when there is something to value.
+  const noAbandonments =
+    metrics.abandonment.cart.count === 0 && metrics.abandonment.checkout.count === 0;
+
+  const viewedProducts = products.products.filter((row) => row.views > 0).slice(0, 5);
+  const sources = acquisition.sources.slice(0, 5);
 
   return (
-    <DashboardSubpageShell
-      sectionLabel="Conversión"
-      title="Conversión"
-      subtitle={`Funnel, abandono y pagos reales. Período activo: ${periodLabel}.`}
-      lastUpdated={lastUpdated}
-    >
-      {/* KPI row */}
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-        <KpiCard
-          title="Sesiones"
-          value={formatDashboardNumber(metrics.summary.sessions)}
-          description="Sesiones iniciadas en el período."
-          icon={<IconSessions />}
-          tone="neutral"
-        />
-        <KpiCard
-          title="Add to cart"
-          value={formatDashboardNumber(metrics.activity.addToCartSessions)}
-          description="Sesiones que agregaron al carrito."
-          icon={<IconCart />}
-          tone="accent"
-        />
-        <KpiCard
-          title="Compras"
-          value={formatDashboardNumber(metrics.summary.purchases)}
-          description="Compras completadas en el período."
-          icon={<IconPurchases />}
-          tone="success"
-        />
-        <KpiCard
-          title="Conversión"
-          value={formatDashboardPercent(metrics.summary.conversionRate)}
-          description="Sesiones con compra sobre totales."
-          icon={<IconConversionRate />}
-          tone="warning"
-        />
-      </div>
+    <main className="flex min-h-screen flex-col bg-[#f1f5f9]">
+      <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-5 border-b border-slate-200/70 bg-white px-6 lg:px-8">
+        <nav aria-label="Ubicación" className="min-w-0 flex-1">
+          <ol className="flex items-center gap-2 text-[13px]">
+            <li className="font-medium text-slate-400">Estadísticas</li>
+            <li aria-hidden className="text-slate-300">
+              /
+            </li>
+            <li className="font-semibold text-slate-900" aria-current="page">
+              Conversión
+            </li>
+          </ol>
+        </nav>
+        <div className="flex shrink-0 items-center gap-3">
+          <span className="hidden items-center gap-2 text-[12px] tabular-nums text-slate-400 lg:flex">
+            <span aria-hidden className="h-[6px] w-[6px] rounded-full bg-[#1f9d55]" />
+            Actualizado {lastUpdated}
+          </span>
+          <DateRangeFilter topBar />
+        </div>
+      </header>
 
-      {/* Main analytics row */}
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_0.52fr]">
-        {/* Funnel */}
-        <ChartCard
-          title="Funnel principal"
-          description="Sesiones únicas por etapa del proceso de compra."
-        >
-          <ConversionFunnelChart data={metrics.funnel} />
-        </ChartCard>
+      <div className="flex-1 px-6 pb-12 pt-6 lg:px-8">
+        <div className="w-full min-w-0">
+          <h1 className="text-[2.1rem] font-semibold leading-none tracking-[-0.04em] text-slate-950">
+            Conversión
+          </h1>
+          <p className="mt-3 text-[13.5px] text-slate-500">
+            Rendimiento del funnel, abandonos y pagos · {periodLabel}
+          </p>
 
-        {/* Right column: abandonment + payment conversion */}
-        <div className="flex flex-col gap-4">
-          {/* Actividad y abandono */}
-          <ChartCard
-            title="Actividad y abandono"
-            description="Sesiones que avanzaron y carritos efectivamente abandonados."
+          {/* ── Row 1 · four readings of the period ─────────────────────────── */}
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <ConversionKpi
+              icon={<IconSessions />}
+              accent
+              label="Sesiones"
+              value={formatDashboardNumber(metrics.summary.sessions)}
+              description="Sesiones iniciadas en el período"
+            />
+            <ConversionKpi
+              icon={<IconVisitors />}
+              label="Visitantes únicos"
+              value={formatDashboardNumber(metrics.summary.uniqueVisitors)}
+              // The timeline counts sessions, not visitors: this one has no
+              // daily series to draw, so it does not pretend to have one.
+              description="Usuarios distintos en esas sesiones"
+            />
+            <ConversionKpi
+              icon={<IconCart />}
+              label="Compras"
+              value={formatDashboardNumber(metrics.summary.purchases)}
+              description="Compras completadas en el período"
+            />
+            <ConversionKpi
+              icon={<IconRate />}
+              label="Tasa de conversión"
+              value={formatDashboardPercent(metrics.summary.conversionRate)}
+              description="Sesiones que terminaron en compra"
+            />
+          </div>
+
+          {/* ── Row 2 · funnel leads, diagnostics stack beside it ───────────── */}
+          <div className="mt-3 grid min-w-0 grid-cols-1 gap-3 xl:grid-cols-[1.13fr_1fr]">
+            <OverviewModule
+              title="Funnel principal"
+              note="Sesiones que avanzan y convierten en cada etapa del proceso."
+            >
+              <ConversionFunnel stages={metrics.funnel} />
+            </OverviewModule>
+
+            <div className="flex min-w-0 flex-col gap-3">
+              <OverviewModule
+                title="Actividad y abandonos"
+                note="Usuarios que no completaron la compra."
+                bodyClassName="flex flex-col"
+              >
+                <StatGroup
+                  className="grid-cols-3"
+                  stats={[
+                    {
+                      label: "Carritos abandonados",
+                      icon: <IconCart />,
+                      value: formatDashboardNumber(metrics.abandonment.cart.count),
+                    },
+                    {
+                      label: "Checkouts abandonados",
+                      icon: <IconDoc />,
+                      value: formatDashboardNumber(metrics.abandonment.checkout.count),
+                    },
+                    {
+                      label: "Pagos fallidos",
+                      icon: <IconAlert />,
+                      value: formatDashboardNumber(metrics.payment.failedOrders),
+                    },
+                  ]}
+                />
+                {noAbandonments ? (
+                  <div>
+                    <ConversionEmpty
+                      title="Sin actividad reciente"
+                      description="Se mostrará cuando haya carritos o checkouts abandonados."
+                    />
+                  </div>
+                ) : (
+                  <StatGroup
+                    className="grid-cols-2"
+                    stats={[
+                      {
+                        label: "Valor en carritos abandonados",
+                      icon: <IconCart />,
+                        value: formatDashboardPrice(metrics.abandonment.cart.value),
+                      },
+                      {
+                        label: "Valor en checkouts abandonados",
+                      icon: <IconDoc />,
+                        value: formatDashboardPrice(metrics.abandonment.checkout.value),
+                      },
+                    ]}
+                  />
+                )}
+              </OverviewModule>
+
+              <OverviewModule
+                title="Conversión de pago"
+                note="Desde la orden creada hasta la compra confirmada."
+                bodyClassName="flex flex-col"
+              >
+                <StatGroup
+                  className="grid-cols-2 sm:grid-cols-4"
+                  stats={[
+                    {
+                      label: "Checkouts",
+                      icon: <IconCheckout />,
+                      value: formatDashboardNumber(metrics.activity.checkoutStartedSessions),
+                    },
+                    {
+                      label: "Pagos iniciados",
+                      icon: <IconCart />,
+                      value: formatDashboardNumber(metrics.payment.ordersCreated),
+                    },
+                    {
+                      label: "Pagos exitosos",
+                      icon: <IconClock />,
+                      value: formatDashboardNumber(metrics.payment.purchasesCompleted),
+                    },
+                    {
+                      label: "Pagos fallidos",
+                      icon: <IconAlert />,
+                      value: formatDashboardNumber(metrics.payment.failedOrders),
+                    },
+                  ]}
+                />
+                <StatHighlights
+                  items={[
+                    {
+                      label: "Facturación",
+                      value: formatDashboardPrice(metrics.payment.billingTotal),
+                      icon: <IconMoney />,
+                      tone: "positive" as const,
+                    },
+                    {
+                      label: "Orden → pago",
+                      value: formatDashboardPercent(metrics.payment.completionRate),
+                      icon: <IconTrend />,
+                      tone: "info" as const,
+                    },
+                  ]}
+                />
+              </OverviewModule>
+            </div>
+          </div>
+
+          {/* ── Row 3 · the journey over time, full width ───────────────────── */}
+          <OverviewModule
+            title="Conversión en el tiempo"
+            note={`Evolución diaria de sesiones, carrito, checkout y compras · ${periodLabel}.`}
+            className="mt-3"
           >
-            {metrics.activity.addToCartSessions === 0 &&
-            metrics.activity.checkoutStartedSessions === 0 &&
-            metrics.abandonment.cart.count === 0 &&
-            metrics.abandonment.checkout.count === 0 ? (
-              <EmptyState
-                title="Sin actividad registrada"
-                description="Cuando existan sesiones con carrito o checkout, aparecerán aquí."
+            <ConversionTimeline data={metrics.timeline} height={300} />
+          </OverviewModule>
+
+          {/* ── Row 4 · where traffic comes from, what it looks at ──────────── */}
+          <div className="mt-3 grid min-w-0 grid-cols-1 gap-3 xl:grid-cols-2">
+            <OverviewModule
+              title="Fuentes de tráfico y conversión"
+              note="Rendimiento por fuente de adquisición."
+              action={{ href: "/admin/dashboard/adquisicion", label: "Ver todas" }}
+            >
+              {sources.length > 0 ? (
+                <SourceConversionTable
+                  rows={sources.map((row) => ({
+                    source: row.source,
+                    sessions: row.sessions,
+                    addToCart: row.addToCart,
+                    checkoutStarted: row.checkoutStarted,
+                    purchases: row.purchases,
+                    conversionRate: row.conversionRate,
+                  }))}
+                />
+              ) : (
+                <OverviewEmpty message="Sin sesiones registradas en el período." />
+              )}
+            </OverviewModule>
+
+            <OverviewModule
+              title="Productos más vistos"
+              note="Productos que más interés generaron desde la entrada."
+              action={{ href: "/admin/dashboard/productos", label: "Ver productos" }}
+            >
+              <ViewedProductsTable
+                rows={viewedProducts.map((row) => ({
+                  productId: row.productId,
+                  productName: row.productName,
+                  imageUrl: row.imageUrl,
+                  views: row.views,
+                  addToCart: row.addToCart,
+                  viewToCartRate: row.viewToCartRate,
+                }))}
               />
-            ) : (
-              <>
-                <div className="grid grid-cols-2 gap-2">
-                  <MetricCell label="Agregaron al carrito" value={formatDashboardNumber(metrics.activity.addToCartSessions)} />
-                  <MetricCell label="Iniciaron checkout" value={formatDashboardNumber(metrics.activity.checkoutStartedSessions)} />
-                  <MetricCell label="Carritos abandonados" value={formatDashboardNumber(metrics.activity.cartAbandoned)} />
-                  <MetricCell label="Checkouts abandonados" value={formatDashboardNumber(metrics.activity.checkoutAbandoned)} />
-                </div>
-                <div className="mt-4">
-                  <ConversionAbandonmentComparison data={[metrics.abandonment.cart, metrics.abandonment.checkout]} />
-                </div>
-              </>
-            )}
-          </ChartCard>
-
-          {/* Conversión de pago */}
-          <ChartCard
-            title="Conversión de pago"
-            description="Lectura operativa de órdenes creadas y estados."
-          >
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              <MetricCell label="Órdenes creadas" value={formatDashboardNumber(metrics.payment.ordersCreated)} />
-              <MetricCell label="Completadas" value={formatDashboardNumber(metrics.payment.purchasesCompleted)} />
-              <MetricCell label="Pendientes" value={formatDashboardNumber(metrics.payment.pendingOrders)} />
-              <MetricCell label="Fallidas" value={formatDashboardNumber(metrics.payment.failedOrders)} />
-              <MetricCell label="Canceladas" value={formatDashboardNumber(metrics.payment.cancelledOrders)} />
-              <MetricCell label="Expiradas" value={formatDashboardNumber(metrics.payment.expiredOrders)} />
-            </div>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <div className="rounded-[8px] border border-emerald-200 bg-emerald-50 px-3.5 py-3">
-                <p className="text-[11px] font-semibold text-emerald-600">Facturación</p>
-                <p className="mt-1 text-[1rem] font-semibold tracking-[-0.02em] text-emerald-900">
-                  {formatDashboardPrice(metrics.payment.billingTotal)}
-                </p>
-              </div>
-              <div className="rounded-[8px] border border-sky-200 bg-sky-50 px-3.5 py-3">
-                <p className="text-[11px] font-semibold text-sky-600">Tasa de pago</p>
-                <p className="mt-1 text-[1rem] font-semibold tracking-[-0.02em] text-sky-900">
-                  {formatDashboardPercent(metrics.payment.completionRate)}
-                </p>
-              </div>
-            </div>
-          </ChartCard>
-
-          {/* Snapshots */}
-          <ChartCard title="Estado actual" description="Carritos y checkouts activos ahora (sin filtro de período).">
-            <div className="grid grid-cols-2 gap-2">
-              <MetricCell label="Carritos activos" value={formatDashboardNumber(metrics.snapshots.activeCarts)} />
-              <MetricCell label="Checkouts abiertos" value={formatDashboardNumber(metrics.snapshots.openCheckouts)} />
-            </div>
-          </ChartCard>
+            </OverviewModule>
+          </div>
         </div>
       </div>
-
-      {/* Timeline chart */}
-      <ChartCard
-        title="Conversión en el tiempo"
-        description={`Serie diaria de sesiones, add to cart, checkout y compras — ${periodLabel}.`}
-        className="min-w-0"
-      >
-        <ConversionTimelineChart data={metrics.timeline} />
-      </ChartCard>
-    </DashboardSubpageShell>
+    </main>
   );
 }

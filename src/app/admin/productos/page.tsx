@@ -6,6 +6,7 @@ import { KpiCard } from "@/features/admin/dashboard/components/kpi-card";
 import { formatDashboardDateTime, formatDashboardNumber } from "@/features/admin/dashboard/lib/dashboard-formatters";
 import { dashboardUi } from "@/features/admin/dashboard/lib/dashboard-ui";
 import { AdminProductRowView } from "@/features/admin/products/components/admin-product-row-view";
+import { AdminProductCreateDialog } from "@/features/admin/products/components/admin-product-create-dialog";
 import { AdminProductsShell } from "@/features/admin/products/components/admin-products-shell";
 import { AdminProductsToolbar } from "@/features/admin/products/components/admin-products-toolbar";
 import { DEFAULT_ADMIN_PRODUCTS_PAGE_SIZE, getAdminProductsPageData } from "@/features/admin/products/server/admin-products-service";
@@ -56,7 +57,10 @@ export default async function AdminProductsPage({ searchParams }: AdminProductsP
   const isLastPage = data.page >= data.totalPages;
 
   return (
-    <AdminProductsShell lastUpdated={lastUpdated}>
+    <AdminProductsShell
+      lastUpdated={lastUpdated}
+      primaryAction={<AdminProductCreateDialog categoryTree={data.categories} />}
+    >
       <section className="grid grid-cols-2 gap-1.5 sm:gap-3 xl:grid-cols-4">
         <KpiCard title="Total productos" value={formatDashboardNumber(data.summary.total)} tone="accent" />
         <KpiCard title="Visibles" value={formatDashboardNumber(data.summary.visible)} tone="success" />

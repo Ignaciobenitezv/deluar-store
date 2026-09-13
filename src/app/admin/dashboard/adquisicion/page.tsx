@@ -1,20 +1,33 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ChartCard } from "@/features/admin/dashboard/components/chart-card";
-import { DashboardSubpageShell } from "@/features/admin/dashboard/components/dashboard-subpage-shell";
-import { EmptyState } from "@/features/admin/dashboard/components/empty-state";
-import { KpiCard } from "@/features/admin/dashboard/components/kpi-card";
-import { AcquisitionHorizontalBarChart } from "@/features/admin/dashboard/components/charts/acquisition-horizontal-bar-chart";
+import { DateRangeFilter } from "@/features/admin/dashboard/components/date-range-filter";
 import {
-  formatDashboardDateTime,
-  formatDashboardNumber,
-  formatDashboardPercent,
-  formatDashboardPrice,
-} from "@/features/admin/dashboard/lib/dashboard-formatters";
+  AcqHighlight,
+  AcqKpi,
+  AcqModule,
+  IconConversion,
+  IconMoney,
+  IconPurchases,
+  IconRevenue,
+  IconSessions,
+  IconTraffic,
+  IconVisitors,
+  type HighlightTone,
+} from "@/features/admin/dashboard/components/acquisition/acquisition-ui";
+import {
+  OverviewEmpty,
+  overviewColor,
+} from "@/features/admin/dashboard/components/overview/overview-ui";
+import { AcquisitionHorizontalBarChart } from "@/features/admin/dashboard/components/charts/acquisition-horizontal-bar-chart";
 import {
   DASHBOARD_PERIODS,
   normalizeDashboardPeriodValue,
 } from "@/features/admin/dashboard/server/dashboard-service";
+import {
+  formatDashboardNumber,
+  formatDashboardPercent,
+  formatDashboardPrice,
+} from "@/features/admin/dashboard/lib/dashboard-formatters";
 import { cn } from "@/lib/utils";
 import {
   getAcquisitionAnalyticsPageData,
@@ -29,6 +42,8 @@ export const metadata: Metadata = {
   title: "Adquisición | DELUAR",
 };
 
+const ARGENTINA_TIME_ZONE = "America/Argentina/Buenos_Aires";
+
 type AdminDashboardAcquisitionPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
@@ -41,7 +56,10 @@ const acquisitionSortOptions: Array<{ value: AcquisitionSortKey; label: string }
   { value: "abandonments", label: "Abandonos" },
 ];
 
-function buildAcquisitionHref(filters: AcquisitionFilters, overrides: Partial<AcquisitionFilters> = {}) {
+function buildAcquisitionHref(
+  filters: AcquisitionFilters,
+  overrides: Partial<AcquisitionFilters> = {},
+) {
   const next = { ...filters, ...overrides };
   const params = new URLSearchParams();
   params.set("period", next.period);
@@ -50,176 +68,117 @@ function buildAcquisitionHref(filters: AcquisitionFilters, overrides: Partial<Ac
   return query ? `/admin/dashboard/adquisicion?${query}` : "/admin/dashboard/adquisicion";
 }
 
-function IconSessions() {
-  return (
-    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 5h14M4 11h14M4 17h7" />
-    </svg>
-  );
-}
-function IconVisitors() {
-  return (
-    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="8" r="3.5" />
-      <path d="M4 19c0-3.3 3.1-6 7-6s7 2.7 7 6" />
-    </svg>
-  );
-}
-function IconPurchases() {
-  return (
-    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M7.5 9V7.5A3.5 3.5 0 0 1 11 4a3.5 3.5 0 0 1 3.5 3.5V9" />
-      <path d="M4 9h14L16.5 18H5.5L4 9Z" />
-    </svg>
-  );
-}
-function IconRevenue() {
-  return (
-    <svg viewBox="0 0 22 22" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8.5" />
-      <path d="M11 6v10M8.5 8.5c0-1.1 1.1-1.7 2.5-1.7s2.5.7 2.5 1.8c0 2.7-5 2.2-5 5.2 0 1.5 1.5 2 3 2s2.5-.7 2.5-2" />
-    </svg>
-  );
+function formatGeneratedAt(value: Date) {
+  return new Intl.DateTimeFormat("es-AR", {
+    timeZone: ARGENTINA_TIME_ZONE,
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(value);
 }
 
-function SourceMobileCard({ row }: {
-  row: { source: string; medium: string; sessions: number; visitors: number; addToCart: number; checkoutStarted: number; orders: number; purchases: number; conversionRate: number; billingTotal: number; averageTicket: number; abandonments: number; };
+const CELL = "px-2 py-2 align-middle whitespace-nowrap text-[13px] tabular-nums text-slate-600";
+
+/**
+ * Fixed columns with declared widths: the reference shows no horizontal
+ * scrollbar on any table, so the grid is sized to the space available instead
+ * of overflowing it.
+ */
+function DataTable({
+  headers,
+  widths,
+  children,
+  dense = false,
+}: {
+  headers: string[];
+  widths: string[];
+  children: React.ReactNode;
+  /** Half-width modules pack the same column count into half the space. */
+  dense?: boolean;
 }) {
   return (
-    <article className="rounded-[10px] border border-[#e8e5e1] bg-white px-4 py-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="truncate text-[13px] font-semibold text-slate-950">{row.source}</p>
-          <p className="mt-0.5 truncate text-[12px] text-slate-400">{row.medium}</p>
-        </div>
-        <span className="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-semibold text-slate-500">
-          {formatDashboardPercent(row.conversionRate)}
-        </span>
-      </div>
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        {[
-          ["Sesiones", formatDashboardNumber(row.sessions)],
-          ["Visitantes", formatDashboardNumber(row.visitors)],
-          ["Add to cart", formatDashboardNumber(row.addToCart)],
-          ["Compras", formatDashboardNumber(row.purchases)],
-          ["Facturación", formatDashboardPrice(row.billingTotal)],
-          ["Abandonos", formatDashboardNumber(row.abandonments)],
-        ].map(([label, value]) => (
-          <div key={label} className="rounded-[8px] border border-slate-100 bg-slate-50 px-3 py-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">{label}</p>
-            <p className="mt-0.5 text-[12px] font-semibold text-slate-900">{value}</p>
-          </div>
+    <table className="w-full table-fixed border-collapse">
+      <colgroup>
+        {widths.map((width, index) => (
+          <col key={index} style={{ width }} />
         ))}
-      </div>
-    </article>
+      </colgroup>
+      <thead>
+        <tr className="border-y border-[#e3e8ef] bg-[#f8fafc]">
+          {headers.map((header) => (
+            <th
+              key={header}
+              scope="col"
+              className={cn(
+                "px-2 py-2.5 text-left align-bottom font-semibold uppercase text-slate-500",
+                dense
+                  ? "px-1.5 text-[9.5px] leading-[1.25] tracking-[0.05em]"
+                  : "text-[10px] leading-[1.25] tracking-[0.07em]",
+              )}
+            >
+              {header}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>{children}</tbody>
+    </table>
   );
 }
 
-function CampaignMobileCard({ row }: {
-  row: { campaign: string; source: string; medium: string; sessions: number; addToCart: number; checkoutStarted: number; purchases: number; conversionRate: number; billingTotal: number; };
-}) {
-  return (
-    <article className="rounded-[10px] border border-[#e8e5e1] bg-white px-4 py-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="truncate text-[13px] font-semibold text-slate-950">{row.campaign}</p>
-          <p className="mt-0.5 truncate text-[12px] text-slate-400">{row.source}{row.medium !== "—" ? ` · ${row.medium}` : ""}</p>
-        </div>
-        <span className="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-semibold text-slate-500">
-          {formatDashboardPercent(row.conversionRate)}
-        </span>
-      </div>
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        {[
-          ["Sesiones", formatDashboardNumber(row.sessions)],
-          ["Add to cart", formatDashboardNumber(row.addToCart)],
-          ["Compras", formatDashboardNumber(row.purchases)],
-          ["Facturación", formatDashboardPrice(row.billingTotal)],
-        ].map(([label, value]) => (
-          <div key={label} className="rounded-[8px] border border-slate-100 bg-slate-50 px-3 py-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">{label}</p>
-            <p className="mt-0.5 text-[12px] font-semibold text-slate-900">{value}</p>
-          </div>
-        ))}
-      </div>
-    </article>
-  );
-}
-
-function LandingMobileCard({ row }: {
-  row: { landingPage: string; sessions: number; addToCart: number; purchases: number; conversionRate: number; billingTotal: number; };
-}) {
-  return (
-    <article className="rounded-[10px] border border-[#e8e5e1] bg-white px-4 py-4">
-      <p className="break-all text-[13px] font-semibold text-slate-950">{row.landingPage}</p>
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        {[
-          ["Sesiones", formatDashboardNumber(row.sessions)],
-          ["Add to cart", formatDashboardNumber(row.addToCart)],
-          ["Compras", formatDashboardNumber(row.purchases)],
-          ["Conversión", formatDashboardPercent(row.conversionRate)],
-          ["Facturación", formatDashboardPrice(row.billingTotal)],
-        ].map(([label, value]) => (
-          <div key={label} className="rounded-[8px] border border-slate-100 bg-slate-50 px-3 py-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">{label}</p>
-            <p className="mt-0.5 text-[12px] font-semibold text-slate-900">{value}</p>
-          </div>
-        ))}
-      </div>
-    </article>
-  );
-}
-
-function ReferrerMobileCard({ row }: {
-  row: { referrer: string; sessions: number; purchases: number; billingTotal: number; };
-}) {
-  return (
-    <article className="rounded-[10px] border border-[#e8e5e1] bg-white px-4 py-4">
-      <p className="break-all text-[13px] font-semibold text-slate-950">{row.referrer}</p>
-      <div className="mt-3 grid grid-cols-3 gap-2">
-        {[
-          ["Sesiones", formatDashboardNumber(row.sessions)],
-          ["Compras", formatDashboardNumber(row.purchases)],
-          ["Facturación", formatDashboardPrice(row.billingTotal)],
-        ].map(([label, value]) => (
-          <div key={label} className="rounded-[8px] border border-slate-100 bg-slate-50 px-3 py-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">{label}</p>
-            <p className="mt-0.5 text-[12px] font-semibold text-slate-900">{value}</p>
-          </div>
-        ))}
-      </div>
-    </article>
-  );
-}
-
-export default async function AdminDashboardAcquisitionPage({ searchParams }: AdminDashboardAcquisitionPageProps) {
+export default async function AdminDashboardAcquisitionPage({
+  searchParams,
+}: AdminDashboardAcquisitionPageProps) {
   const resolvedSearchParams = (await searchParams) ?? {};
   const normalizedPeriod = normalizeDashboardPeriodValue(
-    Array.isArray(resolvedSearchParams.period) ? resolvedSearchParams.period[0] : resolvedSearchParams.period,
+    Array.isArray(resolvedSearchParams.period)
+      ? resolvedSearchParams.period[0]
+      : resolvedSearchParams.period,
   );
   const query = normalizeAcquisitionQuery({ ...resolvedSearchParams, period: normalizedPeriod });
   const metrics = await getAcquisitionAnalyticsPageData(query);
-  const lastUpdated = formatDashboardDateTime(new Date());
+
+  const lastUpdated = formatGeneratedAt(new Date());
+  const periodLabel = DASHBOARD_PERIODS[query.period].label;
+  const currentFilters: AcquisitionFilters = { period: query.period, sort: query.sort };
 
   const sourceSessionsChart = [...metrics.sources]
     .sort((a, b) => b.sessions - a.sessions || b.billingTotal - a.billingTotal)
     .slice(0, 8)
-    .map((row) => ({ id: `${row.source}::${row.medium}`, label: row.source, subtitle: row.medium !== "—" ? row.medium : undefined, value: row.sessions }));
+    .map((row) => ({
+      id: `${row.source}::${row.medium}`,
+      label: row.source,
+      subtitle: row.medium !== "—" ? row.medium : undefined,
+      value: row.sessions,
+    }));
 
   const sourceRevenueChart = [...metrics.sources]
     .sort((a, b) => b.billingTotal - a.billingTotal || b.sessions - a.sessions)
     .slice(0, 8)
-    .map((row) => ({ id: `${row.source}::${row.medium}`, label: row.source, subtitle: row.medium !== "—" ? row.medium : undefined, value: row.billingTotal }));
+    .map((row) => ({
+      id: `${row.source}::${row.medium}`,
+      label: row.source,
+      subtitle: row.medium !== "—" ? row.medium : undefined,
+      value: row.billingTotal,
+    }));
 
-  const sourceConversionCandidates = metrics.sources.filter((row) => row.sessions >= metrics.sampleSizeRule.minSessionsForConversionRank);
-  const sourceConversionChartSource = sourceConversionCandidates.length > 0 ? sourceConversionCandidates : metrics.sources;
+  const sourceConversionCandidates = metrics.sources.filter(
+    (row) => row.sessions >= metrics.sampleSizeRule.minSessionsForConversionRank,
+  );
+  const sourceConversionChartSource =
+    sourceConversionCandidates.length > 0 ? sourceConversionCandidates : metrics.sources;
   const sourceConversionChart = [...sourceConversionChartSource]
     .sort((a, b) => b.conversionRate - a.conversionRate || b.sessions - a.sessions)
     .slice(0, 8)
     .map((row) => ({
       id: `${row.source}::${row.medium}`,
       label: row.source,
-      subtitle: row.sessions >= metrics.sampleSizeRule.minSessionsForConversionRank ? row.medium : `Muestra: ${formatDashboardNumber(row.sessions)} sesiones`,
+      subtitle:
+        row.sessions >= metrics.sampleSizeRule.minSessionsForConversionRank
+          ? row.medium
+          : `Muestra: ${formatDashboardNumber(row.sessions)} sesiones`,
       value: row.conversionRate,
     }));
 
@@ -233,287 +192,383 @@ export default async function AdminDashboardAcquisitionPage({ searchParams }: Ad
       value: row.billingTotal,
     }));
 
-  const currentFilters: AcquisitionFilters = { period: query.period, sort: query.sort };
-  const hasSourceRows = metrics.sources.length > 0;
-  const hasCampaignRows = metrics.campaigns.length > 0;
-  const hasLandingRows = metrics.landingPages.length > 0;
-  const hasReferrerRows = metrics.referrers.length > 0;
-  const periodLabel = DASHBOARD_PERIODS[query.period].label;
+  const highlights: Array<{
+    fallback: string;
+    data: (typeof metrics.highlights)["traffic"];
+    icon: React.ReactNode;
+    tone: HighlightTone;
+  }> = [
+    {
+      fallback: "Fuente con más tráfico",
+      data: metrics.highlights.traffic,
+      icon: <IconTraffic />,
+      tone: "neutral",
+    },
+    {
+      fallback: "Fuente con más compras",
+      data: metrics.highlights.purchases,
+      icon: <IconPurchases />,
+      tone: "positive",
+    },
+    {
+      fallback: "Mejor conversión",
+      data: metrics.highlights.conversion,
+      icon: <IconConversion />,
+      tone: "info",
+    },
+    {
+      fallback: "Fuente con más facturación",
+      data: metrics.highlights.revenue,
+      icon: <IconMoney />,
+      tone: "warning",
+    },
+  ];
 
   return (
-    <DashboardSubpageShell
-      sectionLabel="Adquisición"
-      title="Adquisición"
-      subtitle={`Fuentes y rendimiento del tráfico. Período activo: ${periodLabel}.`}
-      lastUpdated={lastUpdated}
-    >
-      {/* KPI row */}
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-        <KpiCard
-          title="Sesiones"
-          value={formatDashboardNumber(metrics.summary.sessions)}
-          description="Sesiones iniciadas en el período."
-          icon={<IconSessions />}
-          tone="neutral"
-        />
-        <KpiCard
-          title="Visitantes"
-          value={formatDashboardNumber(metrics.summary.uniqueVisitors)}
-          description="Visitantes únicos identificados."
-          icon={<IconVisitors />}
-          tone="accent"
-        />
-        <KpiCard
-          title="Compras"
-          value={formatDashboardNumber(metrics.summary.purchases)}
-          description="Compras atribuidas a la sesión."
-          icon={<IconPurchases />}
-          tone="success"
-        />
-        <KpiCard
-          title="Facturación"
-          value={formatDashboardPrice(metrics.summary.billingTotal)}
-          description="Ingresos atribuidos por sesión."
-          icon={<IconRevenue />}
-          tone="warning"
-        />
-      </div>
+    <main className="flex min-h-screen flex-col bg-[#f1f5f9]">
+      <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-5 border-b border-slate-200/70 bg-white px-6 lg:px-8">
+        <nav aria-label="Ubicación" className="min-w-0 flex-1">
+          <ol className="flex items-center gap-2 text-[13px]">
+            <li className="font-medium text-slate-400">Estadísticas</li>
+            <li aria-hidden className="text-slate-300">
+              /
+            </li>
+            <li className="font-semibold text-slate-900" aria-current="page">
+              Adquisición
+            </li>
+          </ol>
+        </nav>
+        <div className="flex shrink-0 items-center gap-3">
+          <span className="hidden items-center gap-2 text-[12px] tabular-nums text-slate-400 lg:flex">
+            <span aria-hidden className="h-[6px] w-[6px] rounded-full bg-[#1f9d55]" />
+            Actualizado {lastUpdated}
+          </span>
+          <DateRangeFilter topBar />
+        </div>
+      </header>
 
-      {/* Secondary metrics */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {[
-          { label: "Add to cart", value: formatDashboardNumber(metrics.summary.addToCartSessions) },
-          { label: "Checkout iniciado", value: formatDashboardNumber(metrics.summary.checkoutStartedSessions) },
-          { label: "Conversión", value: formatDashboardPercent(metrics.summary.conversionRate) },
-          { label: "Ticket promedio", value: formatDashboardPrice(metrics.summary.averageTicket) },
-        ].map((m) => (
-          <div key={m.label} className="rounded-[10px] border border-[#e8e5e1] bg-white px-4 py-3.5 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">{m.label}</p>
-            <p className="mt-1.5 text-[1.25rem] font-semibold leading-none tracking-[-0.03em] text-slate-900">{m.value}</p>
+      <div className="flex-1 px-6 pb-12 pt-6 lg:px-8">
+        <div className="w-full min-w-0">
+          <h1 className="text-[2.4rem] font-semibold leading-none tracking-[-0.04em] text-slate-950">
+            Adquisición
+          </h1>
+          <p className="mt-3 text-[13.5px] text-slate-500">
+            Fuentes y rendimiento del tráfico · {periodLabel}
+          </p>
+
+          {/* ── Row 1 · four equal KPIs ─────────────────────────────────────── */}
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <AcqKpi
+              icon={<IconSessions />}
+              accent
+              label="Sesiones"
+              value={formatDashboardNumber(metrics.summary.sessions)}
+              description="Sesiones iniciadas dentro de la cohorte."
+            />
+            <AcqKpi
+              icon={<IconVisitors />}
+              label="Visitantes"
+              value={formatDashboardNumber(metrics.summary.uniqueVisitors)}
+              description="Visitantes únicos en esas sesiones."
+            />
+            <AcqKpi
+              icon={<IconPurchases />}
+              label="Compras"
+              value={formatDashboardNumber(metrics.summary.purchases)}
+              description="Compras reales atribuidas a la sesión."
+            />
+            <AcqKpi
+              icon={<IconRevenue />}
+              label="Facturación"
+              value={formatDashboardPrice(metrics.summary.billingTotal)}
+              description="Ingresos totales atribuidos por sesión."
+            />
           </div>
-        ))}
-      </div>
 
-      {/* Source highlights */}
-      <ChartCard title="Resumen de fuentes" description={`Principales fuentes del período — ${periodLabel}.`}>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {[
-            { label: metrics.highlights.traffic?.label ?? "Fuente con más tráfico", value: metrics.highlights.traffic?.value ?? "Sin datos", subtitle: metrics.highlights.traffic?.subtitle },
-            { label: metrics.highlights.purchases?.label ?? "Fuente con más compras", value: metrics.highlights.purchases?.value ?? "Sin datos", subtitle: metrics.highlights.purchases?.subtitle },
-            { label: metrics.highlights.conversion?.label ?? "Mejor conversión", value: metrics.highlights.conversion?.value ?? "Sin datos", subtitle: metrics.highlights.conversion?.subtitle },
-            { label: metrics.highlights.revenue?.label ?? "Mayor facturación", value: metrics.highlights.revenue?.value ?? "Sin datos", subtitle: metrics.highlights.revenue?.subtitle },
-          ].map((tile) => (
-            <div key={tile.label} className="rounded-[10px] border border-[#e8e5e1] bg-[#faf9f7] px-4 py-3.5">
-              <p className="text-[11px] font-semibold text-slate-400">{tile.label}</p>
-              <p className="mt-1.5 text-[1.1rem] font-semibold tracking-[-0.03em] text-slate-950">{tile.value}</p>
-              {tile.subtitle ? <p className="mt-0.5 text-[11px] text-slate-400">{tile.subtitle}</p> : null}
+          {/* ── Row 2 · four standalone source highlights ───────────────────── */}
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {highlights.map((item) => (
+              <AcqHighlight
+                key={item.fallback}
+                label={item.data?.label ?? item.fallback}
+                value={item.data?.value ?? "Sin datos"}
+                subtitle={item.data?.subtitle}
+                href={item.data?.href}
+                icon={item.icon}
+                tone={item.tone}
+              />
+            ))}
+          </div>
+
+          {/* ── Row 3 · 50 / 50 ─────────────────────────────────────────────── */}
+          <div className="mt-3 grid min-w-0 grid-cols-1 gap-3 xl:grid-cols-2">
+            <AcqModule
+              title="Sesiones por fuente"
+              note="Comparación de fuentes de tráfico por sesiones de la cohorte."
+              periodLabel={periodLabel}
+            >
+              <div className="px-5 pb-5">
+                <AcquisitionHorizontalBarChart
+                  data={sourceSessionsChart}
+                  metricLabel="Sesiones"
+                  metricFormat="number"
+                  color={overviewColor.series}
+                  emptyTitle="Sin datos para este período."
+                  emptyDescription="Las fuentes se mostrarán cuando haya sesiones."
+                />
+              </div>
+            </AcqModule>
+
+            <AcqModule
+              title="Facturación por fuente"
+              note="Ingresos atribuidos por sesión de atribución."
+              periodLabel={periodLabel}
+            >
+              <div className="px-5 pb-5">
+                <AcquisitionHorizontalBarChart
+                  data={sourceRevenueChart}
+                  metricLabel="Facturación"
+                  metricFormat="currency"
+                  color={overviewColor.series}
+                  emptyTitle="Sin datos para este período."
+                  emptyDescription="Las fuentes se mostrarán cuando haya compras."
+                />
+              </div>
+            </AcqModule>
+          </div>
+
+          {/* ── Row 4 · 50 / 50 ─────────────────────────────────────────────── */}
+          <div className="mt-3 grid min-w-0 grid-cols-1 gap-3 xl:grid-cols-2">
+            <AcqModule
+              title="Conversión por fuente"
+              note="Conversión de sesiones con compra sobre sesiones totales."
+              periodLabel={periodLabel}
+            >
+              <div className="px-5 pb-5">
+                <AcquisitionHorizontalBarChart
+                  data={sourceConversionChart}
+                  metricLabel="Conversión"
+                  metricFormat="percentage"
+                  color={overviewColor.series}
+                  emptyTitle="Sin datos para este período."
+                  emptyDescription="La conversión se mostrará cuando haya sesiones."
+                />
+              </div>
+            </AcqModule>
+
+            <AcqModule
+              title="Top campañas"
+              note="Campañas con mayor facturación atribuida."
+              periodLabel={periodLabel}
+            >
+              <div className="px-5 pb-5">
+                <AcquisitionHorizontalBarChart
+                  data={campaignChart}
+                  metricLabel="Facturación"
+                  metricFormat="currency"
+                  color={overviewColor.series}
+                  emptyTitle="Sin campañas para este período."
+                  emptyDescription="Las campañas se mostrarán cuando haya UTMs."
+                />
+              </div>
+            </AcqModule>
+          </div>
+
+          {/* ── Row 5 · full width source table ─────────────────────────────── */}
+          <AcqModule
+            title="Tabla principal de fuentes"
+            note="Ordená por facturación, sesiones, compras, conversión o abandonos."
+            action={{ href: "/admin/dashboard/conversion", label: "Ver conversión" }}
+            className="mt-3"
+          >
+            <div className="flex flex-wrap gap-2 px-5 pb-4">
+              {acquisitionSortOptions.map((option) => {
+                const active = query.sort === option.value;
+
+                return (
+                  <Link
+                    key={option.value}
+                    href={buildAcquisitionHref(currentFilters, { sort: option.value })}
+                    className={cn(
+                      "rounded-full border px-3.5 py-1.5 text-[12px] font-medium transition-colors",
+                      active
+                        ? "border-[#4f52c9] bg-[#4f52c9] text-white"
+                        : "border-[#e3e8ef] bg-white text-slate-600 hover:border-[#cbd5e1] hover:text-slate-900",
+                    )}
+                  >
+                    {option.label}
+                  </Link>
+                );
+              })}
             </div>
-          ))}
-        </div>
-      </ChartCard>
 
-      {/* Source charts 2-col */}
-      <div className="grid gap-4 xl:grid-cols-2">
-        <ChartCard title="Sesiones por fuente" description="Fuentes de tráfico ordenadas por sesiones." className="min-w-0">
-          <AcquisitionHorizontalBarChart data={sourceSessionsChart} metricLabel="Sesiones" metricFormat="number" emptyTitle="Sin datos para este período." emptyDescription="Las fuentes se mostrarán cuando haya sesiones." />
-        </ChartCard>
-        <ChartCard title="Facturación por fuente" description="Ingresos atribuidos por fuente de sesión." className="min-w-0">
-          <AcquisitionHorizontalBarChart data={sourceRevenueChart} metricLabel="Facturación" metricFormat="currency" emptyTitle="Sin datos para este período." emptyDescription="Las fuentes se mostrarán cuando haya compras." />
-        </ChartCard>
-        <ChartCard title="Conversión por fuente" description="Sesiones con compra sobre sesiones totales. Se priorizan fuentes con al menos 10 sesiones." className="min-w-0">
-          <AcquisitionHorizontalBarChart data={sourceConversionChart} metricLabel="Conversión" metricFormat="percentage" emptyTitle="Sin datos para este período." emptyDescription="La conversión se mostrará cuando haya sesiones." />
-        </ChartCard>
-        <ChartCard title="Top campañas" description="Campañas con mayor facturación atribuida." className="min-w-0">
-          <AcquisitionHorizontalBarChart data={campaignChart} metricLabel="Facturación" metricFormat="currency" emptyTitle="Sin campañas para este período." emptyDescription="Las campañas se mostrarán cuando haya UTMs." />
-        </ChartCard>
-      </div>
-
-      {/* Source table */}
-      <ChartCard title="Tabla principal de fuentes" description="Ordená por facturación, sesiones, compras, conversión o abandonos." className="min-w-0">
-        <div className="flex flex-wrap gap-2">
-          {acquisitionSortOptions.map((option) => {
-            const active = query.sort === option.value;
-            return (
-              <Link
-                key={option.value}
-                href={buildAcquisitionHref(currentFilters, { sort: option.value })}
-                className={cn(
-                  "rounded-full border px-3 py-1.5 text-[11px] font-semibold transition",
-                  active
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-[#e8e5e1] bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50",
-                )}
+            {metrics.sources.length > 0 ? (
+              <DataTable
+                widths={[
+                  "3%", "10%", "6%", "7.5%", "8%", "9%", "8%",
+                  "7.5%", "7.5%", "9%", "9.5%", "7%", "8%",
+                ]}
+                headers={[
+                  "#",
+                  "Fuente",
+                  "Medium",
+                  "Sesiones",
+                  "Visitantes",
+                  "Add to cart",
+                  "Checkout",
+                  "Órdenes",
+                  "Compras",
+                  "Conversión",
+                  "Facturación",
+                  "Ticket",
+                  "Abandonos",
+                ]}
               >
-                {option.label}
-              </Link>
-            );
-          })}
-        </div>
-        <div className="mt-4">
-          {hasSourceRows ? (
-            <>
-              <div className="hidden overflow-hidden rounded-[10px] border border-[#e8e5e1] md:block">
-                <div className="overflow-x-auto">
-                  <table className="min-w-[1480px] w-full border-collapse">
-                    <thead className="bg-slate-50 text-left">
-                      <tr>
-                        {["Fuente", "Medium", "Sesiones", "Visitantes", "Add to cart", "Checkout", "Órdenes", "Compras", "Conversión", "Facturación", "Ticket", "Abandonos"].map((h) => (
-                          <th key={h} className="px-4 py-3 text-[11px] font-semibold text-slate-500">{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {metrics.sources.map((row) => (
-                        <tr key={`${row.source}::${row.medium}`} className="border-t border-[#e8e5e1]">
-                          <td className="px-4 py-3 text-[13px] font-medium text-slate-900">{row.source}</td>
-                          <td className="px-4 py-3 text-[13px] text-slate-500">{row.medium}</td>
-                          <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.sessions)}</td>
-                          <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.visitors)}</td>
-                          <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.addToCart)}</td>
-                          <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.checkoutStarted)}</td>
-                          <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.orders)}</td>
-                          <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.purchases)}</td>
-                          <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardPercent(row.conversionRate)}</td>
-                          <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardPrice(row.billingTotal)}</td>
-                          <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardPrice(row.averageTicket)}</td>
-                          <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.abandonments)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              <div className="grid gap-3 md:hidden">
-                {metrics.sources.map((row) => (
-                  <SourceMobileCard key={`${row.source}::${row.medium}`} row={row} />
+                {metrics.sources.map((row, index) => (
+                  <tr
+                    key={`${row.source}::${row.medium}`}
+                    className="border-b border-[#eef2f7] last:border-b-0"
+                  >
+                    <td className={cn(CELL, "text-slate-400")}>{index + 1}</td>
+                    <td className={cn(CELL, "truncate font-medium text-slate-900")} title={row.source}>
+                      {row.source}
+                    </td>
+                    <td className={cn(CELL, "text-slate-400")}>{row.medium}</td>
+                    <td className={CELL}>{formatDashboardNumber(row.sessions)}</td>
+                    <td className={CELL}>{formatDashboardNumber(row.visitors)}</td>
+                    <td className={CELL}>{formatDashboardNumber(row.addToCart)}</td>
+                    <td className={CELL}>{formatDashboardNumber(row.checkoutStarted)}</td>
+                    <td className={CELL}>{formatDashboardNumber(row.orders)}</td>
+                    <td className={CELL}>{formatDashboardNumber(row.purchases)}</td>
+                    <td
+                      className={cn(
+                        CELL,
+                        "font-semibold",
+                        row.conversionRate > 0 ? "text-[#14804b]" : "text-slate-400",
+                      )}
+                    >
+                      {formatDashboardPercent(row.conversionRate)}
+                    </td>
+                    <td className={cn(CELL, "font-semibold text-slate-900")}>
+                      {formatDashboardPrice(row.billingTotal)}
+                    </td>
+                    <td className={CELL}>{formatDashboardPrice(row.averageTicket)}</td>
+                    <td className={CELL}>{formatDashboardNumber(row.abandonments)}</td>
+                  </tr>
                 ))}
-              </div>
-            </>
-          ) : (
-            <EmptyState title="Sin datos para este período." description="La tabla se mostrará cuando haya sesiones." />
-          )}
-        </div>
-      </ChartCard>
+              </DataTable>
+            ) : (
+              <OverviewEmpty message="Sin sesiones registradas en el período." />
+            )}
+          </AcqModule>
 
-      {/* Campaigns table */}
-      <ChartCard title="Campañas" description="Comparación de campañas UTM del período." className="min-w-0">
-        {hasCampaignRows ? (
-          <>
-            <div className="hidden overflow-hidden rounded-[10px] border border-[#e8e5e1] md:block">
-              <div className="overflow-x-auto">
-                <table className="min-w-[1120px] w-full border-collapse">
-                  <thead className="bg-slate-50 text-left">
-                    <tr>
-                      {["Campaña", "Fuente", "Sesiones", "Add to cart", "Checkout", "Compras", "Conversión", "Facturación"].map((h) => (
-                        <th key={h} className="px-4 py-3 text-[11px] font-semibold text-slate-500">{h}</th>
-                      ))}
+          {/* ── Row 6 · 50 / 50 ─────────────────────────────────────────────── */}
+          <div className="mt-3 grid min-w-0 grid-cols-1 gap-3 xl:grid-cols-2">
+            <AcqModule
+              title="Campañas"
+              note="Comparación de campañas del período."
+              periodLabel={periodLabel}
+            >
+              {metrics.campaigns.length > 0 ? (
+                <DataTable
+                  dense
+                  widths={[
+                    "5%", "19%", "14%", "10%", "12%", "10%", "9%", "10%", "11%",
+                  ]}
+                  headers={[
+                    "#",
+                    "Campaña",
+                    "Fuente",
+                    "Sesiones",
+                    "Add to cart",
+                    "Checkout",
+                    "Compras",
+                    "Conversión",
+                    "Facturación",
+                  ]}
+                >
+                  {metrics.campaigns.map((row, index) => (
+                    <tr
+                      key={`${row.campaign}::${row.source}::${row.medium}`}
+                      className="border-b border-[#eef2f7] last:border-b-0"
+                    >
+                      <td className={cn(CELL, "text-slate-400")}>{index + 1}</td>
+                      <td className={cn(CELL, "truncate font-medium text-slate-900")} title={row.campaign}>
+                        {row.campaign}
+                      </td>
+                      <td className={cn(CELL, "truncate text-slate-400")} title={row.source}>
+                        {row.source}
+                      </td>
+                      <td className={CELL}>{formatDashboardNumber(row.sessions)}</td>
+                      <td className={CELL}>{formatDashboardNumber(row.addToCart)}</td>
+                      <td className={CELL}>{formatDashboardNumber(row.checkoutStarted)}</td>
+                      <td className={CELL}>{formatDashboardNumber(row.purchases)}</td>
+                      <td
+                        className={cn(
+                          CELL,
+                          "font-semibold",
+                          row.conversionRate > 0 ? "text-[#14804b]" : "text-slate-400",
+                        )}
+                      >
+                        {formatDashboardPercent(row.conversionRate)}
+                      </td>
+                      <td className={cn(CELL, "font-semibold text-slate-900")}>
+                        {formatDashboardPrice(row.billingTotal)}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {metrics.campaigns.map((row) => (
-                      <tr key={`${row.campaign}::${row.source}::${row.medium}`} className="border-t border-[#e8e5e1]">
-                        <td className="px-4 py-3">
-                          <p className="text-[13px] font-medium text-slate-900">{row.campaign}</p>
-                          <p className="text-[11px] text-slate-400">{row.medium !== "—" ? row.medium : "Sin medium"}</p>
-                        </td>
-                        <td className="px-4 py-3 text-[13px] text-slate-500">{row.source}</td>
-                        <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.sessions)}</td>
-                        <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.addToCart)}</td>
-                        <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.checkoutStarted)}</td>
-                        <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.purchases)}</td>
-                        <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardPercent(row.conversionRate)}</td>
-                        <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardPrice(row.billingTotal)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div className="grid gap-3 md:hidden">
-              {metrics.campaigns.map((row) => (
-                <CampaignMobileCard key={`${row.campaign}::${row.source}::${row.medium}`} row={row} />
-              ))}
-            </div>
-          </>
-        ) : (
-          <EmptyState title="Sin campañas para este período." description="La tabla se mostrará cuando haya campañas UTM." />
-        )}
-      </ChartCard>
+                  ))}
+                </DataTable>
+              ) : (
+                <OverviewEmpty message="Sin campañas UTM registradas en el período." />
+              )}
+            </AcqModule>
 
-      {/* Landing + Referrer 2-col */}
-      <div className="grid gap-4 xl:grid-cols-2">
-        <ChartCard title="Landing pages" description="Páginas de entrada del período." className="min-w-0">
-          {hasLandingRows ? (
-            <>
-              <div className="hidden overflow-hidden rounded-[10px] border border-[#e8e5e1] md:block">
-                <div className="overflow-x-auto">
-                  <table className="min-w-[900px] w-full border-collapse">
-                    <thead className="bg-slate-50 text-left">
-                      <tr>
-                        {["Landing page", "Sesiones", "Add to cart", "Compras", "Conversión", "Facturación"].map((h) => (
-                          <th key={h} className="px-4 py-3 text-[11px] font-semibold text-slate-500">{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {metrics.landingPages.map((row) => (
-                        <tr key={row.landingPage} className="border-t border-[#e8e5e1]">
-                          <td className="px-4 py-3 text-[13px] font-medium text-slate-900 break-all">{row.landingPage}</td>
-                          <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.sessions)}</td>
-                          <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.addToCart)}</td>
-                          <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.purchases)}</td>
-                          <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardPercent(row.conversionRate)}</td>
-                          <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardPrice(row.billingTotal)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              <div className="grid gap-3 md:hidden">
-                {metrics.landingPages.map((row) => <LandingMobileCard key={row.landingPage} row={row} />)}
-              </div>
-            </>
-          ) : (
-            <EmptyState title="Sin landing pages para este período." description="La tabla se mostrará cuando haya sesiones." />
-          )}
-        </ChartCard>
-
-        <ChartCard title="Referencias" description="Referrers del período." className="min-w-0">
-          {hasReferrerRows ? (
-            <>
-              <div className="hidden overflow-hidden rounded-[10px] border border-[#e8e5e1] md:block">
-                <div className="overflow-x-auto">
-                  <table className="min-w-[700px] w-full border-collapse">
-                    <thead className="bg-slate-50 text-left">
-                      <tr>
-                        {["Referrer", "Sesiones", "Compras", "Facturación"].map((h) => (
-                          <th key={h} className="px-4 py-3 text-[11px] font-semibold text-slate-500">{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {metrics.referrers.map((row) => (
-                        <tr key={row.referrer} className="border-t border-[#e8e5e1]">
-                          <td className="px-4 py-3 text-[13px] font-medium text-slate-900 break-all">{row.referrer}</td>
-                          <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.sessions)}</td>
-                          <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardNumber(row.purchases)}</td>
-                          <td className="px-4 py-3 text-[13px] text-slate-700">{formatDashboardPrice(row.billingTotal)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              <div className="grid gap-3 md:hidden">
-                {metrics.referrers.map((row) => <ReferrerMobileCard key={row.referrer} row={row} />)}
-              </div>
-            </>
-          ) : (
-            <EmptyState title="Sin referencias para este período." description="La tabla se mostrará cuando haya referrers." />
-          )}
-        </ChartCard>
+            <AcqModule
+              title="Landing pages"
+              note="Páginas de entrada del período."
+              periodLabel={periodLabel}
+            >
+              {metrics.landingPages.length > 0 ? (
+                <DataTable
+                  dense
+                  widths={["5%", "37%", "13%", "15%", "13%", "17%"]}
+                  headers={[
+                    "#",
+                    "Landing page",
+                    "Sesiones",
+                    "Add to cart",
+                    "Compras",
+                    "Facturación",
+                  ]}
+                >
+                  {metrics.landingPages.map((row, index) => (
+                    <tr
+                      key={row.landingPage}
+                      className="border-b border-[#eef2f7] last:border-b-0"
+                    >
+                      <td className={cn(CELL, "text-slate-400")}>{index + 1}</td>
+                      <td
+                        className={cn(CELL, "truncate font-medium text-slate-900")}
+                        title={row.landingPage}
+                      >
+                        {row.landingPage}
+                      </td>
+                      <td className={CELL}>{formatDashboardNumber(row.sessions)}</td>
+                      <td className={CELL}>{formatDashboardNumber(row.addToCart)}</td>
+                      <td className={CELL}>{formatDashboardNumber(row.purchases)}</td>
+                      <td className={cn(CELL, "font-semibold text-slate-900")}>
+                        {formatDashboardPrice(row.billingTotal)}
+                      </td>
+                    </tr>
+                  ))}
+                </DataTable>
+              ) : (
+                <OverviewEmpty message="Sin landing pages registradas en el período." />
+              )}
+            </AcqModule>
+          </div>
+        </div>
       </div>
-    </DashboardSubpageShell>
+    </main>
   );
 }

@@ -1,4 +1,5 @@
 import type { ProductLogistics } from "@/features/catalog/logistics";
+import type { AdminProductCreateField } from "./validation/create-product";
 
 export type AdminProductSource = "variants" | "colorVariants";
 
@@ -327,4 +328,20 @@ export type AdminProductVariantActionState =
   | {
       status: "conflict";
       message: string;
+    };
+
+export type AdminProductCreateActionState =
+  | {
+      status: "idle";
+    }
+  | {
+      status: "success";
+      message: string;
+      productId: string;
+      slug: string;
+    }
+  | {
+      status: "error";
+      message: string;
+      fieldErrors?: Partial<Record<AdminProductCreateField, string[]>>;
     };
