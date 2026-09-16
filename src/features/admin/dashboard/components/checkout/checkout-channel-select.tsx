@@ -31,7 +31,7 @@ export function CheckoutChannelSelect({
         params.set("channel", event.target.value);
         router.push(`${pathname}?${params.toString()}`);
       }}
-      className="shrink-0 rounded-[6px] border border-[#e2e8f0] bg-white px-3 py-[6px] text-[12.5px] text-slate-700 outline-none transition-colors hover:border-[#cbd5e1] focus:border-[#3b7ff5] focus:ring-2 focus:ring-[#3b7ff5]/15 disabled:cursor-default disabled:text-slate-400"
+      className="shrink-0 rounded-[6px] border border-border bg-surface px-3 py-[6px] text-[12.5px] text-text-primary outline-none transition-colors hover:border-border focus:border-primary/40 focus:ring-2 focus:ring-primary/20 disabled:cursor-default disabled:text-text-secondary"
     >
       {options.map((option) => (
         <option key={option.value} value={option.value}>

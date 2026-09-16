@@ -64,8 +64,8 @@ function ActionFeedback({ state }: { state: ShipmentActionState }) {
 
   const tone =
     state.status === "success"
-      ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-      : "border-rose-200 bg-rose-50 text-rose-900";
+      ? "border-success/25 bg-success-soft text-success"
+      : "border-danger/25 bg-danger-soft text-danger";
 
   return (
     <div className={`rounded-2xl border px-4 py-3 text-sm ${tone}`}>
@@ -116,8 +116,8 @@ function RecipientEditor({
   return (
     <div className="space-y-3 rounded-2xl border border-border bg-background/70 p-4">
       <div className="space-y-1">
-        <p className="text-xs uppercase tracking-[0.18em] text-muted">Datos del destinatario</p>
-        <p className="text-sm text-muted">
+        <p className="text-xs uppercase tracking-[0.18em] text-text-secondary">Datos del destinatario</p>
+        <p className="text-sm text-text-secondary">
           Completa o corrige el snapshot de este envio. No modifica el cliente global.
         </p>
       </div>
@@ -126,7 +126,7 @@ function RecipientEditor({
         <input type="hidden" name="orderId" value={orderId} />
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Nombre *</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Nombre *</span>
           <input
             type="text"
             name="firstName"
@@ -136,7 +136,7 @@ function RecipientEditor({
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Apellido *</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Apellido *</span>
           <input
             type="text"
             name="lastName"
@@ -146,7 +146,7 @@ function RecipientEditor({
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">DNI *</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">DNI *</span>
           <input
             type="text"
             name="dni"
@@ -156,7 +156,7 @@ function RecipientEditor({
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Email *</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Email *</span>
           <input
             type="email"
             name="email"
@@ -166,7 +166,7 @@ function RecipientEditor({
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Telefono *</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Telefono *</span>
           <input
             type="text"
             name="phone"
@@ -176,7 +176,7 @@ function RecipientEditor({
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Codigo de area *</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Codigo de area *</span>
           <input
             type="text"
             name="phoneAreaCode"
@@ -186,7 +186,7 @@ function RecipientEditor({
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Numero local *</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Numero local *</span>
           <input
             type="text"
             name="phoneNumber"
@@ -196,7 +196,7 @@ function RecipientEditor({
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Calle *</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Calle *</span>
           <input
             type="text"
             name="street"
@@ -206,7 +206,7 @@ function RecipientEditor({
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Numero *</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Numero *</span>
           <input
             type="text"
             name="streetNumber"
@@ -216,7 +216,7 @@ function RecipientEditor({
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Piso</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Piso</span>
           <input
             type="text"
             name="floor"
@@ -226,7 +226,7 @@ function RecipientEditor({
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Departamento</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Departamento</span>
           <input
             type="text"
             name="apartment"
@@ -236,7 +236,7 @@ function RecipientEditor({
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Localidad *</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Localidad *</span>
           <input
             type="text"
             name="city"
@@ -246,7 +246,7 @@ function RecipientEditor({
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Provincia *</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Provincia *</span>
           <input
             type="text"
             name="province"
@@ -256,7 +256,7 @@ function RecipientEditor({
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Codigo postal *</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Codigo postal *</span>
           <input
             type="text"
             name="postalCode"
@@ -266,7 +266,7 @@ function RecipientEditor({
         </label>
 
         <label className="grid gap-1 text-sm md:col-span-2 xl:col-span-3">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Observaciones</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Observaciones</span>
           <textarea
             name="notes"
             defaultValue={shippingAddress?.notes ?? ""}
@@ -323,7 +323,7 @@ function CarrierEditor({ shipment, orderId }: { shipment: ShipmentAdminView; ord
         <input type="hidden" name="shipmentId" value={shipment.id} />
         <input type="hidden" name="orderId" value={orderId} />
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Carrier</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Carrier</span>
           <select
             name="carrier"
             defaultValue={shipment.carrier ?? ""}
@@ -376,8 +376,8 @@ function BranchEditor({ shipment, orderId }: { shipment: ShipmentAdminView; orde
   return (
     <div className="space-y-3 rounded-2xl border border-border bg-background/70 p-4">
       <div className="space-y-1">
-        <p className="text-xs uppercase tracking-[0.18em] text-muted">Sucursal de destino</p>
-        <p className="text-sm text-muted">
+        <p className="text-xs uppercase tracking-[0.18em] text-text-secondary">Sucursal de destino</p>
+        <p className="text-sm text-text-secondary">
           Carga manual temporal hasta conectar el catalogo del transportista.
         </p>
       </div>
@@ -387,7 +387,7 @@ function BranchEditor({ shipment, orderId }: { shipment: ShipmentAdminView; orde
         <input type="hidden" name="orderId" value={orderId} />
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">External ID *</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">External ID *</span>
           <input
             type="text"
             name="branchExternalId"
@@ -397,7 +397,7 @@ function BranchEditor({ shipment, orderId }: { shipment: ShipmentAdminView; orde
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Codigo</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Codigo</span>
           <input
             type="text"
             name="branchCode"
@@ -407,7 +407,7 @@ function BranchEditor({ shipment, orderId }: { shipment: ShipmentAdminView; orde
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Nombre *</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Nombre *</span>
           <input
             type="text"
             name="branchName"
@@ -417,7 +417,7 @@ function BranchEditor({ shipment, orderId }: { shipment: ShipmentAdminView; orde
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Direccion *</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Direccion *</span>
           <input
             type="text"
             name="branchAddress"
@@ -427,7 +427,7 @@ function BranchEditor({ shipment, orderId }: { shipment: ShipmentAdminView; orde
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Localidad *</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Localidad *</span>
           <input
             type="text"
             name="branchCity"
@@ -437,7 +437,7 @@ function BranchEditor({ shipment, orderId }: { shipment: ShipmentAdminView; orde
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Provincia *</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Provincia *</span>
           <input
             type="text"
             name="branchProvince"
@@ -447,7 +447,7 @@ function BranchEditor({ shipment, orderId }: { shipment: ShipmentAdminView; orde
         </label>
 
         <label className="grid gap-1 text-sm md:col-span-2 xl:col-span-1">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Codigo postal *</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Codigo postal *</span>
           <input
             type="text"
             name="branchPostalCode"
@@ -469,8 +469,8 @@ function BranchEditor({ shipment, orderId }: { shipment: ShipmentAdminView; orde
 
       <ActionFeedback state={state} />
 
-      <div className="rounded-2xl border border-border bg-background/80 p-4 text-sm text-muted">
-        <p className="font-medium text-foreground">Sucursal guardada</p>
+      <div className="rounded-2xl border border-border bg-background/80 p-4 text-sm text-text-secondary">
+        <p className="font-medium text-text-primary">Sucursal guardada</p>
         <div className="mt-2 grid gap-1">
           <p>External ID: {shipment.branchExternalId ?? "-"}</p>
           <p>Codigo: {shipment.branchCode ?? "-"}</p>
@@ -518,7 +518,7 @@ function PrepareShipmentButton({ orderId }: { orderId: string }) {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-full border border-foreground bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:cursor-not-allowed disabled:opacity-70"
+          className="rounded-full border border-primary bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {pending ? "Preparando..." : "Preparar envio"}
         </button>
@@ -562,7 +562,7 @@ function MarkReadyButton({ shipmentId, orderId }: { shipmentId: string; orderId:
         <button
           type="submit"
           disabled={pending}
-          className="rounded-full border border-foreground bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:cursor-not-allowed disabled:opacity-70"
+          className="rounded-full border border-primary bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {pending ? "Validando..." : "Marcar listo"}
         </button>
@@ -583,8 +583,8 @@ function ParcelEditor({
     <div className="rounded-2xl border border-border bg-background/80 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-muted">Bulto {parcel.sequence}</p>
-          <p className="mt-1 text-sm text-muted">
+          <p className="text-xs uppercase tracking-[0.16em] text-text-secondary">Bulto {parcel.sequence}</p>
+          <p className="mt-1 text-sm text-text-secondary">
             Peso calculado: {formatNumber(parcel.calculatedWeightGrams)} g
           </p>
         </div>
@@ -594,7 +594,7 @@ function ParcelEditor({
           <input type="hidden" name="orderId" value={orderId} />
           <button
             type="submit"
-            className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700"
+            className="rounded-full border border-danger/25 bg-danger-soft px-3 py-1.5 text-xs font-semibold text-danger"
           >
             Eliminar
           </button>
@@ -606,7 +606,7 @@ function ParcelEditor({
         <input type="hidden" name="orderId" value={orderId} />
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Peso final (g)</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Peso final (g)</span>
           <input
             type="number"
             name="weightGrams"
@@ -618,7 +618,7 @@ function ParcelEditor({
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Alto (cm)</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Alto (cm)</span>
           <input
             type="number"
             name="heightCm"
@@ -630,7 +630,7 @@ function ParcelEditor({
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Ancho (cm)</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Ancho (cm)</span>
           <input
             type="number"
             name="widthCm"
@@ -642,7 +642,7 @@ function ParcelEditor({
         </label>
 
         <label className="grid gap-1 text-sm">
-          <span className="text-xs uppercase tracking-[0.16em] text-muted">Profundidad (cm)</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-text-secondary">Profundidad (cm)</span>
           <input
             type="number"
             name="depthCm"
@@ -663,7 +663,7 @@ function ParcelEditor({
         </div>
       </form>
 
-      <p className="mt-3 text-xs leading-5 text-muted">
+      <p className="mt-3 text-xs leading-5 text-text-secondary">
         Andreani requiere que alto + ancho + profundidad sea al menos 35 cm.
       </p>
     </div>
@@ -694,11 +694,11 @@ function ShipmentDraftCard({
     <article className="rounded-3xl border border-border bg-surface p-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-muted">Shipment DRAFT</p>
-          <h3 className="mt-1 text-lg font-semibold text-foreground">
+          <p className="text-xs uppercase tracking-[0.18em] text-text-secondary">Shipment DRAFT</p>
+          <h3 className="mt-1 text-lg font-semibold text-text-primary">
             {getShipmentStatusLabel(shipment.status)}
           </h3>
-          <p className="mt-1 text-sm text-muted">Creado {formatDate(shipment.createdAt)}</p>
+          <p className="mt-1 text-sm text-text-secondary">Creado {formatDate(shipment.createdAt)}</p>
         </div>
 
         <CarrierEditor shipment={shipment} orderId={orderId} />
@@ -706,37 +706,37 @@ function ShipmentDraftCard({
 
       <div className="mt-4 grid gap-3 text-sm md:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-2xl border border-border bg-background/80 p-3">
-          <p className="text-xs uppercase tracking-[0.16em] text-muted">Bultos</p>
-          <p className="mt-1 text-base font-semibold text-foreground">{shipment.parcels.length}</p>
+          <p className="text-xs uppercase tracking-[0.16em] text-text-secondary">Bultos</p>
+          <p className="mt-1 text-base font-semibold text-text-primary">{shipment.parcels.length}</p>
         </div>
         <div className="rounded-2xl border border-border bg-background/80 p-3">
-          <p className="text-xs uppercase tracking-[0.16em] text-muted">Peso calculado</p>
-          <p className="mt-1 text-base font-semibold text-foreground">
+          <p className="text-xs uppercase tracking-[0.16em] text-text-secondary">Peso calculado</p>
+          <p className="mt-1 text-base font-semibold text-text-primary">
             {formatNumber(calculatedWeight)} g
           </p>
         </div>
         <div className="rounded-2xl border border-border bg-background/80 p-3">
-          <p className="text-xs uppercase tracking-[0.16em] text-muted">Peso final</p>
-          <p className="mt-1 text-base font-semibold text-foreground">{formatNumber(finalWeight)} g</p>
+          <p className="text-xs uppercase tracking-[0.16em] text-text-secondary">Peso final</p>
+          <p className="mt-1 text-base font-semibold text-text-primary">{formatNumber(finalWeight)} g</p>
         </div>
         <div className="rounded-2xl border border-border bg-background/80 p-3">
-          <p className="text-xs uppercase tracking-[0.16em] text-muted">Readiness</p>
-          <p className="mt-1 text-base font-semibold text-foreground">
+          <p className="text-xs uppercase tracking-[0.16em] text-text-secondary">Readiness</p>
+          <p className="mt-1 text-base font-semibold text-text-primary">
             {shipment.readinessErrors.length === 0 ? "OK" : "Pendiente"}
           </p>
         </div>
       </div>
 
       <div className="mt-5 space-y-2">
-        <h4 className="text-sm font-semibold uppercase tracking-[0.16em] text-muted">Errores</h4>
+        <h4 className="text-sm font-semibold uppercase tracking-[0.16em] text-text-secondary">Errores</h4>
         {shipment.readinessErrors.length > 0 ? (
-          <ul className="space-y-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
+          <ul className="space-y-2 rounded-2xl border border-danger/25 bg-danger-soft px-4 py-3 text-sm text-danger">
             {shipment.readinessErrors.map((error) => (
               <li key={`${error.field}-${error.code}`}>{error.message}</li>
             ))}
           </ul>
         ) : (
-          <p className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+          <p className="rounded-2xl border border-success/25 bg-success-soft px-4 py-3 text-sm text-success">
             El shipment esta listo para validacion final.
           </p>
         )}
@@ -747,7 +747,7 @@ function ShipmentDraftCard({
           shipment.carrier ? (
             <BranchEditor shipment={shipment} orderId={orderId} />
           ) : (
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <div className="rounded-2xl border border-warning/25 bg-warning-soft px-4 py-3 text-sm text-warning">
               Primero selecciona un carrier para cargar la sucursal de destino.
             </div>
           )
@@ -772,7 +772,7 @@ function ShipmentDraftCard({
         <MarkReadyButton shipmentId={shipment.id} orderId={orderId} />
       </div>
 
-      <div className="mt-5 rounded-2xl border border-border bg-background/80 p-4 text-sm text-muted">
+      <div className="mt-5 rounded-2xl border border-border bg-background/80 p-4 text-sm text-text-secondary">
         <p>Tracking: {shipment.trackingNumber ?? "-"}</p>
         <p className="mt-1">Carrier external id: {shipment.carrierExternalId ?? "-"}</p>
         <p className="mt-1">
@@ -780,7 +780,7 @@ function ShipmentDraftCard({
         </p>
         {hasBranch ? (
           <div className="mt-3 rounded-xl border border-border bg-surface p-3 text-sm">
-            <p className="font-medium text-foreground">Sucursal</p>
+            <p className="font-medium text-text-primary">Sucursal</p>
             <div className="mt-2 grid gap-1">
               <p>External ID: {shipment.branchExternalId ?? "-"}</p>
               <p>Codigo: {shipment.branchCode ?? "-"}</p>
@@ -802,14 +802,14 @@ function ShipmentHistoryCard({ shipment }: { shipment: ShipmentAdminView }) {
     <article className="rounded-3xl border border-border bg-background p-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-muted">Shipment historico</p>
-          <h3 className="mt-1 text-lg font-semibold text-foreground">
+          <p className="text-xs uppercase tracking-[0.18em] text-text-secondary">Shipment historico</p>
+          <h3 className="mt-1 text-lg font-semibold text-text-primary">
             {getShipmentStatusLabel(shipment.status)}
           </h3>
-          <p className="mt-1 text-sm text-muted">Creado {formatDate(shipment.createdAt)}</p>
+          <p className="mt-1 text-sm text-text-secondary">Creado {formatDate(shipment.createdAt)}</p>
         </div>
 
-        <div className="text-right text-sm text-muted">
+        <div className="text-right text-sm text-text-secondary">
           <p>{getShipmentCarrierLabel(shipment.carrier)}</p>
           <p className="mt-1">{shipment.parcels.length} bulto(s)</p>
         </div>
@@ -817,18 +817,18 @@ function ShipmentHistoryCard({ shipment }: { shipment: ShipmentAdminView }) {
 
       <div className="mt-4 grid gap-3 text-sm md:grid-cols-3">
         <div className="rounded-2xl border border-border bg-surface p-3">
-          <p className="text-xs uppercase tracking-[0.16em] text-muted">Peso final</p>
-          <p className="mt-1 text-base font-semibold text-foreground">
+          <p className="text-xs uppercase tracking-[0.16em] text-text-secondary">Peso final</p>
+          <p className="mt-1 text-base font-semibold text-text-primary">
             {formatNumber(sumIfComplete(shipment.parcels.map((parcel) => parcel.weightGrams)))} g
           </p>
         </div>
         <div className="rounded-2xl border border-border bg-surface p-3">
-          <p className="text-xs uppercase tracking-[0.16em] text-muted">Ready at</p>
-          <p className="mt-1 text-base font-semibold text-foreground">{formatDate(shipment.readyAt)}</p>
+          <p className="text-xs uppercase tracking-[0.16em] text-text-secondary">Ready at</p>
+          <p className="mt-1 text-base font-semibold text-text-primary">{formatDate(shipment.readyAt)}</p>
         </div>
         <div className="rounded-2xl border border-border bg-surface p-3">
-          <p className="text-xs uppercase tracking-[0.16em] text-muted">Tracking</p>
-          <p className="mt-1 text-base font-semibold text-foreground">{shipment.trackingNumber ?? "-"}</p>
+          <p className="text-xs uppercase tracking-[0.16em] text-text-secondary">Tracking</p>
+          <p className="mt-1 text-base font-semibold text-text-primary">{shipment.trackingNumber ?? "-"}</p>
         </div>
       </div>
 
@@ -839,8 +839,8 @@ function ShipmentHistoryCard({ shipment }: { shipment: ShipmentAdminView }) {
       shipment.branchCity ||
       shipment.branchProvince ||
       shipment.branchPostalCode ? (
-        <div className="mt-4 rounded-2xl border border-border bg-surface p-3 text-sm text-muted">
-          <p className="font-medium text-foreground">Sucursal</p>
+        <div className="mt-4 rounded-2xl border border-border bg-surface p-3 text-sm text-text-secondary">
+          <p className="font-medium text-text-primary">Sucursal</p>
           <div className="mt-2 grid gap-1">
             <p>External ID: {shipment.branchExternalId ?? "-"}</p>
             <p>Codigo: {shipment.branchCode ?? "-"}</p>
@@ -878,9 +878,9 @@ export function ShipmentAdminPanel({
     <section className="mt-6 rounded-3xl border border-border bg-surface p-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-muted">Shipment</p>
-          <h2 className="mt-1 text-xl font-semibold text-foreground">Preparacion de envio</h2>
-          <p className="mt-1 text-sm text-muted">
+          <p className="text-xs uppercase tracking-[0.18em] text-text-secondary">Shipment</p>
+          <h2 className="mt-1 text-xl font-semibold text-text-primary">Preparacion de envio</h2>
+          <p className="mt-1 text-sm text-text-secondary">
             Capa carrier-agnostic para preparar el envio sin llamar todavia a Andreani ni Correo Argentino.
           </p>
         </div>
@@ -902,7 +902,7 @@ export function ShipmentAdminPanel({
 
       {historyShipments.length > 0 ? (
         <div className="mt-6 space-y-4">
-          <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-muted">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-text-secondary">
             Shipments historicos
           </h3>
           <div className="space-y-4">

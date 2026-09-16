@@ -83,8 +83,8 @@ export function DeltaChip({
 }) {
   if (delta.direction === "unmeasurable") {
     return (
-      <span className="inline-flex items-center gap-1 text-[12px] text-slate-400">
-        <span aria-hidden className="text-slate-300">
+      <span className="inline-flex items-center gap-1 text-[12px] text-text-secondary">
+        <span aria-hidden className="text-text-secondary">
           —
         </span>
         sin base previa
@@ -93,7 +93,7 @@ export function DeltaChip({
   }
 
   if (delta.direction === "flat") {
-    return <span className="text-[12px] text-slate-500">Sin cambios</span>;
+    return <span className="text-[12px] text-text-secondary">Sin cambios</span>;
   }
 
   const rising = delta.direction === "up";
@@ -135,8 +135,8 @@ export function PaymentKpi({
   const palette = {
     primary: { bar: paymentColor.primary, tile: paymentColor.tile, ink: paymentColor.primary },
     secondary: { bar: "#7dabf9", tile: paymentColor.tileSoft, ink: "#6f9bea" },
-    positive: { bar: "#14804b", tile: "#e8f5ee", ink: "#0f6b3d" },
-    negative: { bar: "#e2564d", tile: "#fbeceb", ink: "#c0392f" },
+    positive: { bar: "var(--admin-success)", tile: "var(--admin-success-soft)", ink: "var(--admin-success)" },
+    negative: { bar: "var(--admin-danger)", tile: "var(--admin-danger-soft)", ink: "var(--admin-danger)" },
   }[tone];
 
   const max = Math.max(...series, 0);
@@ -150,14 +150,14 @@ export function PaymentKpi({
       >
         {icon}
       </span>
-      <p className="mt-3.5 truncate text-[13px] text-slate-600">{label}</p>
+      <p className="mt-3.5 truncate text-[13px] text-text-secondary">{label}</p>
 
       <div className="mt-2 flex items-end justify-between gap-4">
         {/* A money figure runs far longer than a count, so the type steps down
             rather than colliding with the mark beside it. */}
         <p
           className={cn(
-            "min-w-0 font-semibold leading-none tabular-nums tracking-[-0.035em] text-slate-900",
+            "min-w-0 font-semibold leading-none tabular-nums tracking-[-0.035em] text-text-primary",
             value.length > 11 ? "text-[1.35rem]" : value.length > 8 ? "text-[1.55rem]" : "text-[1.8rem]",
           )}
         >
@@ -179,7 +179,7 @@ export function PaymentKpi({
         ) : null}
       </div>
 
-      <p className="mt-2.5 flex flex-wrap items-center gap-x-1.5 text-[12px] text-slate-500">
+      <p className="mt-2.5 flex flex-wrap items-center gap-x-1.5 text-[12px] text-text-secondary">
         <DeltaChip delta={delta} invert={invertDelta} />
         {delta.direction === "unmeasurable" ? null : <span>vs. período anterior</span>}
       </p>

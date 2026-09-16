@@ -54,7 +54,7 @@ export function AbandonedEvolution({
           <select
             value={seriesKey}
             onChange={(event) => setSeriesKey(event.target.value as SeriesKey)}
-            className="cursor-pointer appearance-none rounded-[6px] border border-[#e2e8f0] bg-white py-[6px] pl-3 pr-8 text-[12.5px] font-medium text-slate-900 transition-colors hover:border-[#cbd5e1]"
+            className="cursor-pointer appearance-none rounded-[6px] border border-border bg-surface py-[6px] pl-3 pr-8 text-[12.5px] font-medium text-text-primary transition-colors hover:border-border"
           >
             {(Object.keys(SERIES) as SeriesKey[]).map((key) => (
               <option key={key} value={key}>
@@ -65,7 +65,7 @@ export function AbandonedEvolution({
           <svg
             viewBox="0 0 12 12"
             aria-hidden
-            className="pointer-events-none absolute right-3 h-3 w-3 text-slate-400"
+            className="pointer-events-none absolute right-3 h-3 w-3 text-text-secondary"
             fill="none"
             stroke="currentColor"
             strokeWidth="1.6"
@@ -80,11 +80,11 @@ export function AbandonedEvolution({
       <div style={{ height }} className="relative w-full min-w-0">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
-            <CartesianGrid stroke="#eef2f7" vertical={false} />
+            <CartesianGrid stroke="var(--border)" vertical={false} />
             <XAxis
               dataKey="label"
               tickLine={false}
-              axisLine={{ stroke: "#e2e8f0" }}
+              axisLine={{ stroke: "var(--border)" }}
               interval="preserveStartEnd"
               minTickGap={36}
               tickMargin={12}
@@ -118,9 +118,9 @@ export function AbandonedEvolution({
                   }
 
                   return (
-                    <div className="rounded-[6px] border border-[#e2e8f0] bg-white px-3.5 py-2.5 shadow-[0_6px_20px_rgba(15,23,42,0.10)]">
-                      <p className="text-[12px] text-slate-500">{point.label}</p>
-                      <p className="mt-1.5 text-[14px] font-semibold tabular-nums text-slate-900">
+                    <div className="rounded-[6px] border border-border bg-surface px-3.5 py-2.5 shadow-[var(--admin-shadow-md)]">
+                      <p className="text-[12px] text-text-secondary">{point.label}</p>
+                      <p className="mt-1.5 text-[14px] font-semibold tabular-nums text-text-primary">
                         {config.money
                           ? formatDashboardPrice(point.value)
                           : formatDashboardNumber(point[seriesKey])}
@@ -141,7 +141,7 @@ export function AbandonedEvolution({
         </ResponsiveContainer>
 
         {!hasValues ? (
-          <p className="pointer-events-none absolute inset-0 flex items-center justify-center pb-6 text-[12.5px] text-slate-500">
+          <p className="pointer-events-none absolute inset-0 flex items-center justify-center pb-6 text-[12.5px] text-text-secondary">
             Sin abandonos registrados en el período.
           </p>
         ) : null}
@@ -188,7 +188,7 @@ export function StageDonut({
             cy={SIZE / 2}
             r={RADIUS}
             fill="none"
-            stroke="#eef2f7"
+            stroke="var(--border)"
             strokeWidth={STROKE}
           />
           {total > 0
@@ -217,10 +217,10 @@ export function StageDonut({
             : null}
         </svg>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-[1.8rem] font-semibold leading-none tabular-nums tracking-[-0.035em] text-slate-900">
+          <span className="text-[1.8rem] font-semibold leading-none tabular-nums tracking-[-0.035em] text-text-primary">
             {formatDashboardNumber(total)}
           </span>
-          <span className="mt-1.5 text-[12px] text-slate-500">
+          <span className="mt-1.5 text-[12px] text-text-secondary">
             {total === 1 ? "carrito" : "carritos"}
           </span>
         </div>
@@ -241,7 +241,7 @@ export function StageDonut({
               <span
                 className={cn(
                   "min-w-0 flex-1 truncate text-[13px]",
-                  empty ? "text-slate-400" : "text-slate-700",
+                  empty ? "text-text-secondary" : "text-text-primary",
                 )}
               >
                 {slice.label}
@@ -249,12 +249,12 @@ export function StageDonut({
               <span
                 className={cn(
                   "w-8 shrink-0 text-right text-[13.5px] font-semibold tabular-nums",
-                  empty ? "text-slate-400" : "text-slate-900",
+                  empty ? "text-text-secondary" : "text-text-primary",
                 )}
               >
                 {formatDashboardNumber(slice.value)}
               </span>
-              <span className="w-12 shrink-0 text-right text-[12px] tabular-nums text-slate-500">
+              <span className="w-12 shrink-0 text-right text-[12px] tabular-nums text-text-secondary">
                 {total > 0 ? `${share.toFixed(0)}%` : "—"}
               </span>
             </li>

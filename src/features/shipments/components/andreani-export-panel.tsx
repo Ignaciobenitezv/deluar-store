@@ -153,14 +153,14 @@ export function AndreaniExportPanel({ shipments, summary }: AndreaniExportPanelP
     <section className="rounded-3xl border border-border bg-surface p-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-muted">Andreani</p>
-          <h3 className="mt-1 text-lg font-semibold text-foreground">Exportacion masiva</h3>
-          <p className="mt-1 text-sm text-muted">
+          <p className="text-xs uppercase tracking-[0.18em] text-text-secondary">Andreani</p>
+          <h3 className="mt-1 text-lg font-semibold text-text-primary">Exportacion masiva</h3>
+          <p className="mt-1 text-sm text-text-secondary">
             Selecciona shipments READY con carrier ANDREANI y descarga el Excel oficial.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-border bg-background/80 px-4 py-3 text-sm text-muted">
+        <div className="rounded-2xl border border-border bg-background/80 px-4 py-3 text-sm text-text-secondary">
           <p>Total visibles: {summary.total}</p>
           <p>Exportables: {summary.exportable}</p>
           <p>Bloqueados: {summary.blocked}</p>
@@ -172,8 +172,8 @@ export function AndreaniExportPanel({ shipments, summary }: AndreaniExportPanelP
           className={cn(
             "mt-4 rounded-2xl border px-4 py-3 text-sm",
             feedback.status === "success"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-              : "border-rose-200 bg-rose-50 text-rose-900",
+              ? "border-success/25 bg-success-soft text-success"
+              : "border-danger/25 bg-danger-soft text-danger",
           )}
         >
           <p className="font-medium">{feedback.message}</p>
@@ -209,7 +209,7 @@ export function AndreaniExportPanel({ shipments, summary }: AndreaniExportPanelP
           type="button"
           onClick={handleExport}
           disabled={selectedCount === 0 || isExporting}
-          className="rounded-full border border-foreground bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:cursor-not-allowed disabled:opacity-70"
+          className="rounded-full border border-primary bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isExporting ? "Generando Excel..." : `Exportar Andreani (${selectedCount})`}
         </button>
@@ -217,14 +217,14 @@ export function AndreaniExportPanel({ shipments, summary }: AndreaniExportPanelP
 
       <div className="mt-5 space-y-6">
         <div className="space-y-3">
-          <h4 className="text-sm font-semibold uppercase tracking-[0.16em] text-muted">
+          <h4 className="text-sm font-semibold uppercase tracking-[0.16em] text-text-secondary">
             Listos para exportar
           </h4>
           {exportableShipments.length > 0 ? (
             <div className="overflow-hidden rounded-2xl border border-border bg-background">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-border text-left text-sm">
-                  <thead className="bg-surface text-xs uppercase tracking-[0.14em] text-muted">
+                  <thead className="bg-surface text-xs uppercase tracking-[0.14em] text-text-secondary">
                     <tr>
                       <th className="px-4 py-3">Sel.</th>
                       <th className="px-4 py-3">Pedido</th>
@@ -250,17 +250,17 @@ export function AndreaniExportPanel({ shipments, summary }: AndreaniExportPanelP
                             />
                           </td>
                           <td className="px-4 py-3">
-                            <p className="font-medium text-foreground">{shipment.orderNumber}</p>
-                            <p className="mt-1 text-xs text-muted">{shipment.shipmentId}</p>
+                            <p className="font-medium text-text-primary">{shipment.orderNumber}</p>
+                            <p className="mt-1 text-xs text-text-secondary">{shipment.shipmentId}</p>
                           </td>
                           <td className="px-4 py-3">
-                            <p className="font-medium text-foreground">{shipment.recipientName}</p>
-                            <p className="mt-1 text-xs text-muted">{shipment.carrier}</p>
+                            <p className="font-medium text-text-primary">{shipment.recipientName}</p>
+                            <p className="mt-1 text-xs text-text-secondary">{shipment.carrier}</p>
                           </td>
                           <td className="px-4 py-3">{formatMethodLabel(shipment.shippingMethod)}</td>
                           <td className="px-4 py-3">{shipment.parcelCount}</td>
                           <td className="px-4 py-3">{shipment.branchName ?? "-"}</td>
-                          <td className="px-4 py-3 text-emerald-700">OK</td>
+                          <td className="px-4 py-3 text-success">OK</td>
                         </tr>
                       );
                     })}
@@ -269,7 +269,7 @@ export function AndreaniExportPanel({ shipments, summary }: AndreaniExportPanelP
               </div>
             </div>
           ) : (
-            <p className="rounded-2xl border border-border bg-background px-4 py-3 text-sm text-muted">
+            <p className="rounded-2xl border border-border bg-background px-4 py-3 text-sm text-text-secondary">
               No hay shipments exportables por ahora.
             </p>
           )}
@@ -277,20 +277,20 @@ export function AndreaniExportPanel({ shipments, summary }: AndreaniExportPanelP
 
         {blockedShipments.length > 0 ? (
           <div className="space-y-3">
-            <h4 className="text-sm font-semibold uppercase tracking-[0.16em] text-muted">
+            <h4 className="text-sm font-semibold uppercase tracking-[0.16em] text-text-secondary">
               Bloqueados
             </h4>
             <div className="space-y-3">
               {blockedShipments.map((shipment) => (
-                <article key={shipment.shipmentId} className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-900">
+                <article key={shipment.shipmentId} className="rounded-2xl border border-danger/25 bg-danger-soft p-4 text-sm text-danger">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <p className="font-semibold">{shipment.orderNumber}</p>
-                      <p className="mt-1 text-xs uppercase tracking-[0.14em] text-rose-700">
+                      <p className="mt-1 text-xs uppercase tracking-[0.14em] text-danger">
                         {formatMethodLabel(shipment.shippingMethod)} · {shipment.shipmentId}
                       </p>
                     </div>
-                    <div className="rounded-full border border-rose-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-rose-700">
+                    <div className="rounded-full border border-danger/25 bg-surface px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-danger">
                       No exportable
                     </div>
                   </div>

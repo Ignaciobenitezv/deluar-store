@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { dashboardUi } from "@/features/admin/dashboard/lib/dashboard-ui";
-import { cn } from "@/lib/utils";
 import { AdminProductDetailUpdatedAt, AdminProductUpdatedAt } from "./admin-product-updated-at";
+import { AdminProductsModuleTabs } from "@/features/admin/shell/admin-products-module-tabs";
 
 type AdminProductsShellProps = {
   children: React.ReactNode;
@@ -11,82 +10,50 @@ type AdminProductsShellProps = {
   primaryAction?: React.ReactNode;
 };
 
-export function AdminProductsShell({
-  children,
-  lastUpdated,
-  updatedAt,
-  primaryAction,
-}: AdminProductsShellProps) {
+const secondaryLinkClass =
+  "inline-flex h-9 items-center justify-center rounded-xl border border-border bg-surface px-3.5 text-[12.5px] font-medium text-text-primary transition-colors duration-150 hover:bg-surface-elevated";
+
+export function AdminProductsShell({ children, lastUpdated, updatedAt, primaryAction }: AdminProductsShellProps) {
   const resolvedUpdatedAt = updatedAt ?? lastUpdated;
 
   return (
-    <main className={`${dashboardUi.pageOuter} overflow-x-visible`}>
-      <div className="mx-auto w-full max-w-[1800px] px-3 pt-3 pb-[calc(4rem+env(safe-area-inset-bottom))] sm:px-4 sm:pt-4 sm:pb-6 lg:px-6 lg:py-6">
-        <div className="overflow-visible lg:rounded-[30px] lg:border lg:border-slate-200/50 lg:bg-white lg:shadow-[0_12px_28px_rgba(15,23,42,0.035)]">
-          <div className="min-w-0 bg-[#f6f7fb] lg:bg-transparent">
-            <div className="px-0 py-3 sm:px-4 sm:py-4 lg:px-6 lg:py-6">
-              <div className={dashboardUi.shellInner}>
-                <header className="rounded-[24px] border border-slate-200/70 bg-white px-3 py-3 shadow-[0_12px_28px_rgba(15,23,42,0.04)] sm:rounded-[28px] sm:px-5 sm:py-5 lg:px-6">
-                  <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="min-w-0 max-w-3xl">
-                      <p className={`${dashboardUi.mutedLabel} hidden sm:block`}>Administrador de catálogo</p>
+    <main className="min-h-screen bg-background">
+      <div className="mx-auto w-full max-w-[1800px] px-3 pt-3 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-4 lg:px-6 lg:py-6">
+        <div className="space-y-3 sm:space-y-4">
+          {/* Level 1 nav for the whole módulo (Productos | Categorías) —
+              shared by the list, Crear producto, Editar producto, and
+              Categorías, so it lives here once instead of on every page.
+              Each page still owns its own heading (see `children`) — this
+              bar used to carry a redundant fixed "Productos" title on top
+              of that, which is what got removed. */}
+          <AdminProductsModuleTabs />
 
-                      <div className="hidden flex-wrap gap-2 sm:mt-2 sm:flex">
-                        <span className={dashboardUi.pill}>Catálogo operativo</span>
-                      </div>
-
-                      <h1 className="mt-0 text-[1.55rem] font-semibold tracking-[-0.05em] text-slate-950 sm:mt-4 sm:text-[2.35rem]">
-                        Productos
-                      </h1>
-
-                      <p className="mt-1 max-w-2xl text-[12px] leading-5 text-slate-500 sm:mt-2 sm:text-base sm:leading-7">
-                        Listado operativo del catálogo.
-                      </p>
-                    </div>
-
-                    <div className="flex flex-col gap-2 sm:items-end">
-                      {resolvedUpdatedAt ? (
-                        updatedAt ? (
-                          <div className="hidden sm:block">
-                            <AdminProductDetailUpdatedAt initialUpdatedAt={resolvedUpdatedAt} variant="badge" />
-                          </div>
-                        ) : (
-                          <div className="hidden sm:block">
-                            <AdminProductUpdatedAt initialUpdatedAt={resolvedUpdatedAt} variant="badge" />
-                          </div>
-                        )
-                      ) : null}
-
-                      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-                        <Link
-                          href="/admin"
-                          className={cn(
-                            "inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 sm:px-4 sm:py-2 sm:text-sm",
-                          )}
-                        >
-                          Volver al panel
-                        </Link>
-                        <Link
-                          href="/admin/dashboard/productos"
-                          className={cn(
-                            "inline-flex items-center justify-center rounded-full border px-3 py-2 text-xs font-semibold sm:px-4 sm:py-2 sm:text-sm",
-                            dashboardUi.softAction,
-                          )}
-                        >
-                          Ver analítica
-                        </Link>
-                        {primaryAction ? (
-                          <div className="col-span-2 sm:col-span-1">{primaryAction}</div>
-                        ) : null}
-                      </div>
-                    </div>
-                  </div>
-                </header>
-
-                <div className={dashboardUi.pageStack}>{children}</div>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {resolvedUpdatedAt ? (
+              <div className="hidden sm:block">
+                {updatedAt ? (
+                  <AdminProductDetailUpdatedAt initialUpdatedAt={resolvedUpdatedAt} variant="badge" />
+                ) : (
+                  <AdminProductUpdatedAt initialUpdatedAt={resolvedUpdatedAt} variant="badge" />
+                )}
               </div>
-            </div>
+            ) : null}
+
+            <Link href="/admin" className={secondaryLinkClass}>
+              Volver al panel
+            </Link>
+            <Link href="/admin/dashboard/productos" className={secondaryLinkClass}>
+              Ver analítica
+            </Link>
+            {/* On mobile this action moves next to the page's own "Productos"
+                heading instead (see productos/page.tsx) — it stayed here
+                unconditionally before, wrapping onto its own line below
+                these two nav links instead of reading as the module's main
+                action. Desktop composition is unchanged. */}
+            {primaryAction ? <div className="hidden sm:block">{primaryAction}</div> : null}
           </div>
+
+          <div className="space-y-3 sm:space-y-4">{children}</div>
         </div>
       </div>
     </main>

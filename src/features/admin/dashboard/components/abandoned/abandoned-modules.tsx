@@ -69,9 +69,9 @@ export function AbandonedKpi({
   series: number[];
 }) {
   const palette = {
-    friction: { tile: "#fbeceb", ink: overviewColor.negative, bar: overviewColor.negative },
-    info: { tile: "#eef0fc", ink: overviewColor.action, bar: overviewColor.action },
-    neutral: { tile: "#f1f5f9", ink: overviewColor.muted, bar: overviewColor.borderStrong },
+    friction: { tile: "var(--admin-danger-soft)", ink: overviewColor.negative, bar: overviewColor.negative },
+    info: { tile: "var(--admin-info-soft)", ink: overviewColor.action, bar: overviewColor.action },
+    neutral: { tile: "var(--admin-surface-elevated)", ink: overviewColor.muted, bar: overviewColor.borderStrong },
   }[tone];
 
   const max = Math.max(...series, 0);
@@ -87,11 +87,11 @@ export function AbandonedKpi({
         >
           {icon}
         </span>
-        <p className="mt-3.5 text-[1.9rem] font-semibold leading-none tabular-nums tracking-[-0.035em] text-slate-900">
+        <p className="mt-3.5 text-[1.9rem] font-semibold leading-none tabular-nums tracking-[-0.035em] text-text-primary">
           {value}
         </p>
-        <p className="mt-2 truncate text-[13px] text-slate-600">{label}</p>
-        <p className="mt-2 text-[11.5px] leading-[1.35] text-slate-500">{context}</p>
+        <p className="mt-2 truncate text-[13px] text-text-secondary">{label}</p>
+        <p className="mt-2 text-[11.5px] leading-[1.35] text-text-secondary">{context}</p>
       </div>
 
       <div className="flex h-[54px] w-[34%] shrink-0 items-end gap-[2px]">
@@ -138,7 +138,7 @@ export function AbandonedModule({
           (action ? (
             <Link
               href={action.href}
-              className="shrink-0 text-[12px] font-medium text-[#4f52c9] underline-offset-[3px] hover:underline"
+              className="shrink-0 text-[12px] font-medium text-primary underline-offset-[3px] hover:underline"
             >
               {action.label} →
             </Link>

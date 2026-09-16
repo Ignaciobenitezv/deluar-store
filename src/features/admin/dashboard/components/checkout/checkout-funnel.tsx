@@ -35,8 +35,8 @@ export function CheckoutFunnel({ stages }: { stages: CheckoutFunnelStage[] }) {
           return (
             <li key={stage.key} className="flex items-center gap-4">
               <div className="w-[136px] shrink-0">
-                <p className="truncate text-[12.5px] leading-tight text-slate-600">{stage.label}</p>
-                <p className="mt-1 text-[15px] font-semibold leading-none tabular-nums text-slate-900">
+                <p className="truncate text-[12.5px] leading-tight text-text-secondary">{stage.label}</p>
+                <p className="mt-1 text-[15px] font-semibold leading-none tabular-nums text-text-primary">
                   {formatDashboardNumber(stage.count)}
                 </p>
               </div>
@@ -60,7 +60,7 @@ export function CheckoutFunnel({ stages }: { stages: CheckoutFunnelStage[] }) {
               </svg>
 
               <div className="flex w-[104px] shrink-0 items-center justify-end gap-2.5">
-                <span className="text-[13px] font-medium tabular-nums text-slate-700">
+                <span className="text-[13px] font-medium tabular-nums text-text-primary">
                   {hasVolume ? `${stage.share.toFixed(0)}%` : "—"}
                 </span>
                 {index > 0 && stage.dropCount > 0 ? (
@@ -134,7 +134,7 @@ export function ConversionRing({
             cy={SIZE / 2}
             r={RADIUS}
             fill="none"
-            stroke="#eef2f7"
+            stroke="var(--border)"
             strokeWidth={STROKE}
           />
           {total > 0
@@ -164,10 +164,10 @@ export function ConversionRing({
             : null}
         </svg>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-          <span className="text-[1.55rem] font-semibold leading-none tabular-nums tracking-[-0.035em] text-slate-900">
+          <span className="text-[1.55rem] font-semibold leading-none tabular-nums tracking-[-0.035em] text-text-primary">
             {total > 0 ? `${rate.toFixed(0)}%` : "—"}
           </span>
-          <span className="mt-1 text-[11.5px] text-slate-500">tasa de finalización</span>
+          <span className="mt-1 text-[11.5px] text-text-secondary">tasa de finalización</span>
         </div>
       </div>
 
@@ -184,16 +184,16 @@ export function ConversionRing({
                 style={{ backgroundColor: slice.color, opacity: empty ? 0.4 : 1 }}
               />
               <span
-                className={`min-w-0 flex-1 truncate text-[13px] ${empty ? "text-slate-400" : "text-slate-700"}`}
+                className={`min-w-0 flex-1 truncate text-[13px] ${empty ? "text-text-secondary" : "text-text-primary"}`}
               >
                 {slice.label}
               </span>
               <span
-                className={`shrink-0 text-right text-[13.5px] font-semibold tabular-nums ${empty ? "text-slate-400" : "text-slate-900"}`}
+                className={`shrink-0 text-right text-[13.5px] font-semibold tabular-nums ${empty ? "text-text-secondary" : "text-text-primary"}`}
               >
                 {formatDashboardNumber(slice.value)}
               </span>
-              <span className="w-11 shrink-0 text-right text-[12px] tabular-nums text-slate-500">
+              <span className="w-11 shrink-0 text-right text-[12px] tabular-nums text-text-secondary">
                 {total > 0 ? `${share.toFixed(0)}%` : "—"}
               </span>
             </li>

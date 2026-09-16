@@ -26,7 +26,7 @@ export function DropOffBars({
       {rows.map((row) => (
         <li key={row.key} className="flex items-center gap-3 py-[7px]">
           <span
-            className="shrink-0 truncate text-[12.5px] text-slate-700"
+            className="shrink-0 truncate text-[12.5px] text-text-primary"
             style={{ width: labelWidth }}
           >
             {row.label}
@@ -45,10 +45,10 @@ export function DropOffBars({
               }}
             />
           </span>
-          <span className="w-10 shrink-0 text-right text-[12.5px] font-medium tabular-nums text-slate-900">
+          <span className="w-10 shrink-0 text-right text-[12.5px] font-medium tabular-nums text-text-primary">
             {formatDashboardNumber(row.value)}
           </span>
-          <span className="w-9 shrink-0 text-right text-[12.5px] tabular-nums text-slate-500">
+          <span className="w-9 shrink-0 text-right text-[12.5px] tabular-nums text-text-secondary">
             {row.share.toFixed(0)}%
           </span>
         </li>
@@ -76,7 +76,7 @@ export function ShareBars({
       {rows.map((row) => (
         <li key={row.key} className="flex items-center gap-2.5 py-[7px]">
           <span
-            className="shrink-0 truncate text-[12px] text-slate-600"
+            className="shrink-0 truncate text-[12px] text-text-secondary"
             style={{ width: labelWidth }}
           >
             {row.label}
@@ -94,7 +94,7 @@ export function ShareBars({
               }}
             />
           </span>
-          <span className="w-9 shrink-0 text-right text-[12px] tabular-nums text-slate-500">
+          <span className="w-9 shrink-0 text-right text-[12px] tabular-nums text-text-secondary">
             {row.share.toFixed(0)}%
           </span>
         </li>
@@ -144,7 +144,7 @@ export function MethodDonut({
             cy={RING_SIZE / 2}
             r={RING_RADIUS}
             fill="none"
-            stroke="#eef2f7"
+            stroke="var(--border)"
             strokeWidth={RING_STROKE}
           />
           {rows.map((row, index) => {
@@ -174,13 +174,13 @@ export function MethodDonut({
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
           <span
             className={cn(
-              "font-semibold leading-none tabular-nums tracking-[-0.035em] text-slate-900",
+              "font-semibold leading-none tabular-nums tracking-[-0.035em] text-text-primary",
               centerValue.length > 6 ? "text-[1.1rem]" : "text-[1.45rem]",
             )}
           >
             {centerValue}
           </span>
-          <span className="mt-1 text-[11px] text-slate-500">{centerLabel}</span>
+          <span className="mt-1 text-[11px] text-text-secondary">{centerLabel}</span>
         </div>
       </div>
 
@@ -192,8 +192,8 @@ export function MethodDonut({
               className="h-[9px] w-[9px] shrink-0 rounded-full"
               style={{ backgroundColor: overviewCategorical[index % overviewCategorical.length] }}
             />
-            <span className="min-w-0 flex-1 truncate text-[12.5px] text-slate-700">{row.label}</span>
-            <span className="w-9 shrink-0 text-right text-[12.5px] tabular-nums text-slate-500">
+            <span className="min-w-0 flex-1 truncate text-[12.5px] text-text-primary">{row.label}</span>
+            <span className="w-9 shrink-0 text-right text-[12.5px] tabular-nums text-text-secondary">
               {row.share.toFixed(0)}%
             </span>
           </li>

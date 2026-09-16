@@ -74,7 +74,7 @@ export function AcquisitionHorizontalBarChart({
           ? { top: 12, right: 16, bottom: 12, left: 12 }
           : { top: 12, right: 24, bottom: 12, left: 14 };
   const labelPosition = width < 560 ? "insideRight" : "right";
-  const labelFill = width < 560 ? "#ffffff" : "#334155";
+  const labelFill = width < 560 ? "#ffffff" : "var(--admin-text-primary)";
   const tickLabelLength = width < 560 ? 18 : width < 720 ? 24 : 30;
 
   function formatMetric(value: number) {
@@ -95,12 +95,12 @@ export function AcquisitionHorizontalBarChart({
     // A local empty state rather than the shared one: this chart belongs to a
     // single route, and its surface follows that route's analytics system.
     return (
-      <div className="flex h-full min-h-[100px] items-center justify-center rounded-[8px] border border-dashed border-[#dfe5ec] bg-[#f8fafc] px-4 py-6 text-center">
+      <div className="flex h-full min-h-[100px] items-center justify-center rounded-[8px] border border-dashed border-border bg-surface-elevated px-4 py-6 text-center">
         <div className="max-w-sm">
-          <p className="text-[13.5px] font-medium text-slate-700">
+          <p className="text-[13.5px] font-medium text-text-primary">
             {emptyTitle ?? "Sin datos para este período."}
           </p>
-          <p className="mt-1 text-[12px] leading-[1.45] text-slate-500">
+          <p className="mt-1 text-[12px] leading-[1.45] text-text-secondary">
             {emptyDescription ?? "Los datos se mostrarán acá."}
           </p>
         </div>
@@ -118,12 +118,12 @@ export function AcquisitionHorizontalBarChart({
       >
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={visibleData} layout="vertical" margin={chartMargin}>
-            <CartesianGrid stroke="#eef2f7" strokeDasharray="4 4" horizontal={false} />
+            <CartesianGrid stroke="var(--border)" strokeDasharray="4 4" horizontal={false} />
             <XAxis
               type="number"
               tickLine={false}
               axisLine={false}
-              tick={{ fill: "#64748b", fontSize: 12 }}
+              tick={{ fill: "var(--admin-text-secondary)", fontSize: 12 }}
               tickFormatter={(value) => formatMetric(Number(value))}
             />
             <YAxis
@@ -132,7 +132,7 @@ export function AcquisitionHorizontalBarChart({
               tickLine={false}
               axisLine={false}
               width={yAxisWidth}
-              tick={{ fill: "#64748b", fontSize: 11 }}
+              tick={{ fill: "var(--admin-text-secondary)", fontSize: 11 }}
               tickFormatter={(value) => truncateLabel(String(value), tickLabelLength)}
             />
             <Tooltip
@@ -144,12 +144,12 @@ export function AcquisitionHorizontalBarChart({
                 }
 
                 return (
-                  <div className="rounded-[16px] border border-slate-200/80 bg-white px-3 py-2.5 shadow-[0_14px_28px_rgba(15,23,42,0.08)]">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{point.label}</p>
-                    {point.subtitle ? <p className="mt-1 text-xs text-slate-500">{point.subtitle}</p> : null}
+                  <div className="rounded-[16px] border border-border bg-surface px-3 py-2.5 shadow-[var(--admin-shadow-md)]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-text-secondary">{point.label}</p>
+                    {point.subtitle ? <p className="mt-1 text-xs text-text-secondary">{point.subtitle}</p> : null}
                     <div className="mt-2 flex items-center justify-between gap-4 text-sm">
-                      <span className="text-slate-700">{metricLabel}</span>
-                      <span className="font-semibold text-slate-950">{formatMetric(point.value)}</span>
+                      <span className="text-text-secondary">{metricLabel}</span>
+                      <span className="font-semibold text-text-primary">{formatMetric(point.value)}</span>
                     </div>
                   </div>
                 );

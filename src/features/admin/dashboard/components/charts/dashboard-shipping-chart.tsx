@@ -39,22 +39,22 @@ function ShippingDonut({ data }: { data: ShippingMethodPoint[] }) {
                 const share = totalOrders > 0 ? (point.orders / totalOrders) * 100 : 0;
 
                 return (
-                  <div className="rounded-[16px] border border-slate-200/80 bg-white px-3 py-2.5 shadow-[0_14px_28px_rgba(15,23,42,0.08)]">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{point.label}</p>
+                  <div className="rounded-[16px] border border-border bg-surface px-3 py-2.5 shadow-[var(--admin-shadow-md)]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-text-secondary">{point.label}</p>
                     <div className="mt-2 space-y-1.5 text-sm">
-                      <p className="flex items-center justify-between gap-4 text-slate-700">
+                      <p className="flex items-center justify-between gap-4 text-text-secondary">
                         <span>Órdenes</span>
-                        <span className="font-semibold text-slate-950">{formatDashboardNumber(point.orders)}</span>
+                        <span className="font-semibold text-text-primary">{formatDashboardNumber(point.orders)}</span>
                       </p>
-                      <p className="flex items-center justify-between gap-4 text-slate-700">
+                      <p className="flex items-center justify-between gap-4 text-text-secondary">
                         <span>Participación</span>
-                        <span className="font-semibold text-slate-950">
+                        <span className="font-semibold text-text-primary">
                           {new Intl.NumberFormat("es-AR", { maximumFractionDigits: 1 }).format(share)}%
                         </span>
                       </p>
-                      <p className="flex items-center justify-between gap-4 text-slate-700">
+                      <p className="flex items-center justify-between gap-4 text-text-secondary">
                         <span>Costo envío</span>
-                        <span className="font-semibold text-slate-950">{formatDashboardPrice(point.shippingCostTotal)}</span>
+                        <span className="font-semibold text-text-primary">{formatDashboardPrice(point.shippingCostTotal)}</span>
                       </p>
                     </div>
                   </div>
@@ -82,8 +82,8 @@ function ShippingDonut({ data }: { data: ShippingMethodPoint[] }) {
 
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-3xl font-semibold tracking-[-0.05em] text-slate-950">{formatDashboardNumber(totalOrders)}</p>
-          <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">envíos</p>
+          <p className="text-3xl font-semibold tracking-[-0.05em] text-text-primary">{formatDashboardNumber(totalOrders)}</p>
+          <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-text-secondary">envíos</p>
         </div>
       </div>
     </div>
@@ -100,24 +100,24 @@ function ShippingLegend({ data }: { data: ShippingMethodPoint[] }) {
         const color = shippingColors[index % shippingColors.length] ?? dashboardChartColors.navy;
 
         return (
-          <div key={item.method} className="min-w-0 rounded-[16px] border border-slate-200/70 bg-slate-50 px-3 py-2.5">
+          <div key={item.method} className="min-w-0 rounded-[16px] border border-border bg-surface-elevated px-3 py-2.5">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-slate-900" title={item.label}>
+                <p className="truncate text-sm font-medium text-text-primary" title={item.label}>
                   {item.label}
                 </p>
-                <p className="mt-0.5 truncate text-xs text-slate-500" title={`${formatDashboardNumber(item.orders)} pedidos`}>
+                <p className="mt-0.5 truncate text-xs text-text-secondary" title={`${formatDashboardNumber(item.orders)} pedidos`}>
                   {formatDashboardNumber(item.orders)} pedidos
                 </p>
               </div>
-              <p className="shrink-0 text-sm font-semibold text-slate-950">{formatDashboardNumber(item.orders)}</p>
+              <p className="shrink-0 text-sm font-semibold text-text-primary">{formatDashboardNumber(item.orders)}</p>
             </div>
             <div className="mt-2 flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
-              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white">
+              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-background">
                 <div className="h-full rounded-full" style={{ width: `${Math.max(8, share)}%`, backgroundColor: color }} />
               </div>
-              <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
+              <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-text-secondary">
                 {new Intl.NumberFormat("es-AR", { maximumFractionDigits: 1 }).format(share)}%
               </span>
             </div>

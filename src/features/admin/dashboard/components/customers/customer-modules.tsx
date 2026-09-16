@@ -80,7 +80,7 @@ export function CustomerKpi({
         }
       : {
           tile: customerColor.tileSecondary,
-          ink: "#6f9bea",
+          ink: customerColor.secondary,
           bar: customerColor.secondary,
         };
 
@@ -95,10 +95,10 @@ export function CustomerKpi({
       >
         {icon}
       </span>
-      <p className="mt-3.5 truncate text-[13px] text-slate-600">{label}</p>
+      <p className="mt-3.5 truncate text-[13px] text-text-secondary">{label}</p>
 
       <div className="mt-2 flex items-end justify-between gap-4">
-        <p className="min-w-0 text-[1.8rem] font-semibold leading-none tabular-nums tracking-[-0.035em] text-slate-900">
+        <p className="min-w-0 text-[1.8rem] font-semibold leading-none tabular-nums tracking-[-0.035em] text-text-primary">
           {value}
         </p>
         {series.length > 0 ? (
@@ -117,7 +117,7 @@ export function CustomerKpi({
         ) : null}
       </div>
 
-      <p className="mt-2.5 text-[12px] leading-[1.35] text-slate-500">{note}</p>
+      <p className="mt-2.5 text-[12px] leading-[1.35] text-text-secondary">{note}</p>
     </article>
   );
 }
@@ -150,7 +150,7 @@ export function CustomerModule({
           (action ? (
             <Link
               href={action.href}
-              className="shrink-0 text-[12px] font-medium text-[#3b7ff5] underline-offset-[3px] hover:underline"
+              className="shrink-0 text-[12px] font-medium text-primary underline-offset-[3px] hover:underline"
             >
               {action.label} →
             </Link>
@@ -177,7 +177,7 @@ export function CustomerInitials({ name }: { name: string }) {
   return (
     <span
       aria-hidden
-      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#e8effd] text-[11px] font-semibold text-[#3b7ff5]"
+      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-info-soft text-[11px] font-semibold text-info"
     >
       {initials || "—"}
     </span>

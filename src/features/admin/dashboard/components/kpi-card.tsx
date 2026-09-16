@@ -7,37 +7,27 @@ type KpiCardProps = {
   description?: string;
   icon?: React.ReactNode;
   tone?: DashboardTone;
-  variant?: "primary" | "secondary";
 };
 
 const iconBgMap: Record<DashboardTone, string> = {
-  neutral: "bg-slate-50 text-slate-400",
-  success: "bg-[#edf7f0] text-emerald-500",
-  warning: "bg-amber-50 text-amber-500",
-  accent:  "bg-sky-50 text-sky-500",
-  danger:  "bg-rose-50 text-rose-500",
+  neutral: "bg-surface-elevated text-text-secondary",
+  success: "bg-success-soft text-success",
+  warning: "bg-warning-soft text-warning",
+  accent: "bg-info-soft text-info",
+  danger: "bg-danger-soft text-danger",
 };
 
 export function KpiCard({ title, value, description, icon, tone = "neutral" }: KpiCardProps) {
   return (
-    <article className="flex flex-col rounded-[12px] border border-[#e8e5e1] bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04),0_4px_12px_rgba(15,23,42,0.04)]">
+    <article className="flex flex-col rounded-2xl border border-border bg-surface p-4">
       {icon ? (
-        <div
-          className={cn(
-            "mb-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px]",
-            iconBgMap[tone],
-          )}
-        >
+        <div className={cn("mb-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg", iconBgMap[tone])}>
           {icon}
         </div>
       ) : null}
-      <p className="text-[2rem] font-semibold leading-none tracking-[-0.04em] text-slate-950">
-        {value}
-      </p>
-      <p className="mt-2 text-[13px] font-semibold text-slate-700">{title}</p>
-      {description ? (
-        <p className="mt-0.5 text-[12px] leading-4 text-slate-400">{description}</p>
-      ) : null}
+      <p className="text-[1.375rem] font-semibold leading-none tracking-[-0.02em] text-text-primary">{value}</p>
+      <p className="mt-2 text-[12.5px] font-semibold text-text-primary">{title}</p>
+      {description ? <p className="mt-0.5 text-[11.5px] leading-4 text-text-secondary">{description}</p> : null}
     </article>
   );
 }

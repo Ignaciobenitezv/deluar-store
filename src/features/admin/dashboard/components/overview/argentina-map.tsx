@@ -131,7 +131,7 @@ export function ArgentinaMap({ rows }: { rows: ProvinceRow[] }) {
           className="h-[300px] w-auto"
         >
           {argentina?.path ? (
-            <path d={argentina.path} fill="#eef2f7" stroke="#dbe2ea" strokeWidth={1} />
+            <path d={argentina.path} fill="var(--admin-surface-elevated)" stroke="var(--border)" strokeWidth={1} />
           ) : null}
 
           {markers.map((marker) => {
@@ -164,7 +164,7 @@ export function ArgentinaMap({ rows }: { rows: ProvinceRow[] }) {
         </svg>
       </div>
 
-      <div className="mt-4 flex items-center justify-between gap-4 border-b border-[#e3e8ef] pb-2">
+      <div className="mt-4 flex items-center justify-between gap-4 border-b border-border pb-2">
         <p className={overviewUi.label}>Provincia</p>
         <div className="flex shrink-0 items-center gap-6">
           <p className={cn(overviewUi.label, "w-12 text-right")}>Órdenes</p>
@@ -176,16 +176,16 @@ export function ArgentinaMap({ rows }: { rows: ProvinceRow[] }) {
         {rows.map((row) => (
           <li
             key={row.province}
-            className="flex items-center justify-between gap-4 border-b border-[#eef2f7] py-2.5 last:border-b-0"
+            className="flex items-center justify-between gap-4 border-b border-border py-2.5 last:border-b-0"
           >
-            <span className="min-w-0 flex-1 truncate text-[13.5px] text-slate-900">
+            <span className="min-w-0 flex-1 truncate text-[13px] text-text-primary">
               {row.province}
             </span>
             <span className="flex shrink-0 items-center gap-6">
-              <span className="w-12 text-right text-[13.5px] tabular-nums text-slate-600">
+              <span className="w-12 text-right text-[13px] tabular-nums text-text-secondary">
                 {formatDashboardNumber(row.orders)}
               </span>
-              <span className="w-[84px] text-right text-[13.5px] font-semibold tabular-nums text-slate-900">
+              <span className="w-[84px] text-right text-[13px] font-semibold tabular-nums text-text-primary">
                 {formatDashboardPrice(row.revenue)}
               </span>
             </span>

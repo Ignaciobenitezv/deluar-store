@@ -11,7 +11,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { dashboardChartColors } from "./dashboard-chart-colors";
 import { DashboardChartEmpty } from "./dashboard-chart-empty";
 import { formatDashboardNumber, formatDashboardPrice } from "../../lib/dashboard-formatters";
 
@@ -48,25 +47,25 @@ export function DashboardLocationChart({ data }: DashboardLocationChartProps) {
   return (
     <div className="space-y-4">
       <div className="grid gap-2 sm:grid-cols-2">
-        <div className="rounded-[16px] border border-slate-200/70 bg-slate-50 px-3 py-2.5">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Pedidos</p>
-          <p className="mt-1 text-sm font-semibold text-slate-950">{formatDashboardNumber(totalOrders)}</p>
+        <div className="rounded-[16px] border border-border bg-surface-elevated px-3 py-2.5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-text-secondary">Pedidos</p>
+          <p className="mt-1 text-sm font-semibold text-text-primary">{formatDashboardNumber(totalOrders)}</p>
         </div>
-        <div className="rounded-[16px] border border-slate-200/70 bg-slate-50 px-3 py-2.5">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Facturación</p>
-          <p className="mt-1 text-sm font-semibold text-slate-950">{formatDashboardPrice(totalRevenue)}</p>
+        <div className="rounded-[16px] border border-border bg-surface-elevated px-3 py-2.5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-text-secondary">Facturación</p>
+          <p className="mt-1 text-sm font-semibold text-text-primary">{formatDashboardPrice(totalRevenue)}</p>
         </div>
       </div>
 
       <div className="h-[340px] w-full min-w-0">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={visibleData} layout="vertical" margin={{ top: 16, right: 28, bottom: 16, left: 16 }}>
-            <CartesianGrid stroke={dashboardChartColors.grid} strokeDasharray="4 4" horizontal={false} />
+            <CartesianGrid stroke="var(--border)" strokeDasharray="4 4" horizontal={false} />
             <XAxis
               type="number"
               tickLine={false}
               axisLine={false}
-              tick={{ fill: "#64748b", fontSize: 12 }}
+              tick={{ fill: "var(--admin-text-secondary)", fontSize: 12 }}
               tickFormatter={(value) => formatDashboardNumber(Number(value))}
             />
             <YAxis
@@ -76,7 +75,7 @@ export function DashboardLocationChart({ data }: DashboardLocationChartProps) {
               axisLine={false}
               width={140}
               tickFormatter={(value) => truncateLabel(String(value))}
-              tick={{ fill: "#64748b", fontSize: 11 }}
+              tick={{ fill: "var(--admin-text-secondary)", fontSize: 11 }}
             />
             <Tooltip
               content={({ active, payload }) => {
@@ -89,20 +88,20 @@ export function DashboardLocationChart({ data }: DashboardLocationChartProps) {
                 const share = totalRevenue > 0 ? (point.revenue / totalRevenue) * 100 : 0;
 
                 return (
-                  <div className="rounded-[16px] border border-slate-200/80 bg-white px-3 py-2.5 shadow-[0_14px_28px_rgba(15,23,42,0.08)]">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{point.province}</p>
+                  <div className="rounded-[16px] border border-border bg-surface px-3 py-2.5 shadow-[var(--admin-shadow-md)]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-text-secondary">{point.province}</p>
                     <div className="mt-2 space-y-1.5 text-sm">
-                      <p className="flex items-center justify-between gap-4 text-slate-700">
+                      <p className="flex items-center justify-between gap-4 text-text-secondary">
                         <span>Pedidos</span>
-                        <span className="font-semibold text-slate-950">{formatDashboardNumber(point.orders)}</span>
+                        <span className="font-semibold text-text-primary">{formatDashboardNumber(point.orders)}</span>
                       </p>
-                      <p className="flex items-center justify-between gap-4 text-slate-700">
+                      <p className="flex items-center justify-between gap-4 text-text-secondary">
                         <span>Facturación</span>
-                        <span className="font-semibold text-slate-950">{formatDashboardPrice(point.revenue)}</span>
+                        <span className="font-semibold text-text-primary">{formatDashboardPrice(point.revenue)}</span>
                       </p>
-                      <p className="flex items-center justify-between gap-4 text-slate-700">
+                      <p className="flex items-center justify-between gap-4 text-text-secondary">
                         <span>Participación</span>
-                        <span className="font-semibold text-slate-950">
+                        <span className="font-semibold text-text-primary">
                           {new Intl.NumberFormat("es-AR", { maximumFractionDigits: 1 }).format(share)}%
                         </span>
                       </p>
@@ -119,7 +118,7 @@ export function DashboardLocationChart({ data }: DashboardLocationChartProps) {
                 dataKey="orders"
                 position="right"
                 formatter={(value: unknown) => `${formatDashboardNumber(Number(value))} pedidos`}
-                fill="#334155"
+                fill="var(--admin-text-primary)"
                 fontSize={12}
               />
             </Bar>

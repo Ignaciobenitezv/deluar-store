@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { z } from "zod";
 import { requireAdminSession } from "@/features/admin/auth";
-import { sanityFreshFetch } from "@/integrations/sanity/client";
+import { sanityAdminEditFetch, sanityFreshFetch } from "@/integrations/sanity/client";
 import { adminProductDetailQuery } from "@/integrations/sanity/admin-queries";
 import { getSanityImageUrl } from "@/integrations/sanity/image";
 import { logger } from "@/lib/logger";
@@ -773,8 +773,12 @@ export async function commitProductImagesAction(
     });
   }
 
+  // `sanityAdminEditFetch`, not `sanityFreshFetch`: Galería is usable from
+  // the moment Crear producto opens, before the draft is finalized — see
+  // the doc comment on `sanityAdminEditFetch` in
+  // src/integrations/sanity/client.ts.
   const [currentProduct] = await Promise.all([
-    sanityFreshFetch<AdminProductImageDocument | null>(adminProductDetailQuery, { productId: parsed.data.productId }),
+    sanityAdminEditFetch<AdminProductImageDocument | null>(adminProductDetailQuery, { productId: parsed.data.productId }),
   ]);
 
   if (!currentProduct) {

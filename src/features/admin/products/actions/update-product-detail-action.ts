@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { requireAdminSession } from "@/features/admin/auth";
 import { logger } from "@/lib/logger";
-import { sanityFreshFetch } from "@/integrations/sanity/client";
+import { sanityAdminEditFetch, sanityFreshFetch } from "@/integrations/sanity/client";
 import { categoryTreeQuery } from "@/integrations/sanity/queries";
 import { adminProductDetailQuery } from "@/integrations/sanity/admin-queries";
 import { getAdminProductsWriteClient } from "../server/admin-products-write-client";
@@ -303,8 +303,16 @@ export async function updateProductDetailAction(
     return buildErrorState("No hay cambios para guardar.");
   }
 
+  // `sanityAdminEditFetch` (not `sanityFreshFetch`): this product may still
+  // be a draft mid-creation (Crear producto never blocks Guardar cambios on
+  // finalizing first) — see the doc comment on `sanityAdminEditFetch` in
+  // src/integrations/sanity/client.ts for why that requires a different
+  // client, and `adminProductDetailQuery`'s comment for why one query
+  // resolves both cases. `currentProduct._id` below is the document's *true*
+  // stored id (`drafts.<productId>` or `productId`) — that's what `.patch()`
+  // must target.
   const [currentProduct, categoryTree] = await Promise.all([
-    sanityFreshFetch<AdminProductDetailDocument | null>(adminProductDetailQuery, { productId }),
+    sanityAdminEditFetch<AdminProductDetailDocument | null>(adminProductDetailQuery, { productId }),
     sanityFreshFetch<CatalogHierarchyNode[]>(categoryTreeQuery, {}),
   ]);
 
@@ -314,7 +322,7 @@ export async function updateProductDetailAction(
     });
   }
 
-  const currentProductSnapshot = normalizeProductDetail(currentProduct as never);
+  const currentProductSnapshot = { ...normalizeProductDetail(currentProduct as never), id: productId };
 
   logger.debug("admin.products.detail.current_document", {
     productId,
@@ -350,11 +358,11 @@ export async function updateProductDetailAction(
     logisticsResult.status === "set" ? logisticsResult.value : currentProductSnapshot.logistics;
 
   if (delta.isActive === true && !hasCompleteAdminProductLogistics(nextProductLogistics)) {
-    return buildErrorState("CompletÃ¡ peso y dimensiones antes de publicar el producto.", {
-      weightGrams: ["CompletÃ¡ peso y dimensiones antes de publicar el producto."],
-      heightCm: ["CompletÃ¡ peso y dimensiones antes de publicar el producto."],
-      widthCm: ["CompletÃ¡ peso y dimensiones antes de publicar el producto."],
-      depthCm: ["CompletÃ¡ peso y dimensiones antes de publicar el producto."],
+    return buildErrorState("Completá peso y dimensiones antes de publicar el producto.", {
+      weightGrams: ["Completá peso y dimensiones antes de publicar el producto."],
+      heightCm: ["Completá peso y dimensiones antes de publicar el producto."],
+      widthCm: ["Completá peso y dimensiones antes de publicar el producto."],
+      depthCm: ["Completá peso y dimensiones antes de publicar el producto."],
     });
   }
 
@@ -664,7 +672,10 @@ export async function updateProductDetailAction(
     }
 
     const committedProduct = (await patch.commit({ returnDocuments: true })) as AdminProductDetailDocument;
-    const normalizedCommittedProduct = normalizeProductDetail(committedProduct as never);
+    // `committedProduct._id` mirrors whatever `currentProduct._id` was
+    // patched (`drafts.<productId>` while still a draft) — the app-facing
+    // product always carries the clean id, never that raw storage form.
+    const normalizedCommittedProduct = { ...normalizeProductDetail(committedProduct as never), id: productId };
 
     logger.debug("admin.products.detail.commit_success", {
       productId,

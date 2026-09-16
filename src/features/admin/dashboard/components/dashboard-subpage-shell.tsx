@@ -16,35 +16,24 @@ export function DashboardSubpageShell({
   children,
 }: DashboardSubpageShellProps) {
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-5 border-b border-slate-200/70 bg-white/95 px-6 shadow-[0_1px_0_rgba(15,23,42,0.06)] backdrop-blur-sm">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 text-[13px]">
-            <span className="font-medium text-slate-400">Estadísticas</span>
-            <span className="text-slate-300">/</span>
-            <span className="font-semibold text-slate-900">{sectionLabel}</span>
-          </div>
-        </div>
-        <div className="flex shrink-0 items-center gap-3">
-          {lastUpdated ? (
-            <span className="hidden text-[12px] text-slate-400 lg:block">{lastUpdated}</span>
-          ) : null}
-          <DateRangeFilter topBar />
-        </div>
-      </header>
-
-      <div className="flex-1 px-6 py-6 lg:px-8">
-        <div className="mx-auto max-w-[1480px] space-y-5">
-          <div>
-            <h1 className="text-[1.75rem] font-semibold leading-none tracking-[-0.04em] text-slate-950">
+    <div className="px-3 py-4 sm:px-4 lg:px-6 lg:py-6">
+      <div className="mx-auto max-w-[1480px] space-y-4">
+        <div className="flex flex-col gap-2 xl:flex-row xl:items-end xl:justify-between">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-text-secondary">
+              Estadísticas / {sectionLabel}
+            </p>
+            <h1 className="mt-1.5 text-[1.375rem] font-semibold tracking-[-0.015em] text-text-primary sm:text-[1.625rem]">
               {title}
             </h1>
-            {subtitle ? (
-              <p className="mt-1.5 max-w-2xl text-[13px] leading-5 text-slate-500">{subtitle}</p>
-            ) : null}
+            {lastUpdated ? <p className="mt-1 text-[11px] text-text-secondary">{lastUpdated}</p> : null}
+            {subtitle ? <p className="mt-1.5 max-w-2xl text-[12.5px] leading-5 text-text-secondary">{subtitle}</p> : null}
           </div>
-          {children}
+          <div className="shrink-0">
+            <DateRangeFilter />
+          </div>
         </div>
+        {children}
       </div>
     </div>
   );

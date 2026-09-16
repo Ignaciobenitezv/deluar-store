@@ -1,14 +1,11 @@
 import { cn } from "@/lib/utils";
 import { DateRangeFilter } from "./date-range-filter";
-import { dashboardUi } from "../lib/dashboard-ui";
 
 type DashboardHeaderProps = {
   viewTitle: string;
   subtitle?: string;
   lastUpdated?: string;
-  eyebrow?: string;
   showDateRangeFilter?: boolean;
-  showLogoutButton?: boolean;
   compactMobile?: boolean;
 };
 
@@ -16,40 +13,29 @@ export function DashboardHeader({
   viewTitle,
   subtitle,
   lastUpdated,
-  eyebrow = "DELUAR",
   showDateRangeFilter = true,
-  showLogoutButton = true,
   compactMobile = false,
 }: DashboardHeaderProps) {
   return (
-    <header className={cn("pb-6 sm:pb-8", compactMobile && "pb-4 sm:pb-6")}>
+    <header className={cn("pb-4 sm:pb-5", compactMobile && "pb-3 sm:pb-4")}>
       <div
         className={cn(
-          "flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between",
-          compactMobile && "gap-2",
+          "flex flex-col gap-2 xl:flex-row xl:items-end xl:justify-between",
+          compactMobile && "gap-1.5",
         )}
       >
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#9d7d62]">
-            {eyebrow}
-          </p>
           <h1
             className={cn(
-              "mt-2 font-semibold tracking-[-0.05em] text-slate-950",
-              compactMobile
-                ? "text-[1.75rem] sm:text-[2.25rem]"
-                : "text-[2.25rem] sm:text-[2.75rem]",
+              "font-semibold tracking-[-0.015em] text-text-primary",
+              compactMobile ? "text-[1.25rem] sm:text-[1.5rem]" : "text-[1.375rem] sm:text-[1.625rem]",
             )}
           >
             {viewTitle}
           </h1>
-          {lastUpdated ? (
-            <p className="mt-1.5 text-[11px] text-slate-400">{lastUpdated}</p>
-          ) : null}
+          {lastUpdated ? <p className="mt-1 text-[11px] text-text-secondary">{lastUpdated}</p> : null}
           {subtitle ? (
-            <p className="mt-2 max-w-xl text-[13px] leading-5 text-slate-500 sm:text-sm sm:leading-6">
-              {subtitle}
-            </p>
+            <p className="mt-1.5 max-w-xl text-[12.5px] leading-5 text-text-secondary">{subtitle}</p>
           ) : null}
         </div>
 

@@ -294,10 +294,10 @@ export const AdminProductVariantImagesEditor = forwardRef<AdminProductVariantIma
   const canSave = !exceedsTotalUploadLimit;
 
   return (
-    <div className="grid gap-4 rounded-[22px] border border-slate-200 bg-slate-50 p-4">
+    <div className="grid gap-4 rounded-[22px] border border-border bg-surface-elevated p-4">
       <div className="grid gap-2">
-        <p className="text-sm font-medium text-slate-700">Imágenes de la variante</p>
-        <p className="text-xs text-slate-500">
+        <p className="text-sm font-medium text-text-secondary">Imágenes de la variante</p>
+        <p className="text-xs text-text-secondary">
           Arrastrá imágenes o hacé clic para seleccionarlas. Si no cargás imágenes, la variante usará las del producto.
         </p>
       </div>
@@ -323,16 +323,16 @@ export const AdminProductVariantImagesEditor = forwardRef<AdminProductVariantIma
         className={cn(
           "grid cursor-pointer gap-3 rounded-[20px] border border-dashed p-4 transition",
           dropActive
-            ? "border-[#314158] bg-slate-50"
-            : "border-slate-300 bg-slate-50/80 hover:border-slate-400",
+            ? "border-primary bg-surface-elevated"
+            : "border-border bg-surface-elevated/60 hover:border-text-secondary/40",
         )}
       >
         <div className="grid gap-1 text-center">
-          <p className="text-sm font-semibold text-slate-900">Arrastrá imágenes o hacé clic para seleccionarlas.</p>
-          <p className="text-xs text-slate-500">
+          <p className="text-sm font-semibold text-text-primary">Arrastrá imágenes o hacé clic para seleccionarlas.</p>
+          <p className="text-xs text-text-secondary">
             JPG, PNG o WebP · Máx. {formatUploadLimit(MAX_PRODUCT_IMAGE_UPLOAD_BYTES)} c/u
           </p>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-text-secondary">
             Tamaño total máximo por guardado: {formatUploadLimit(MAX_PRODUCT_IMAGE_UPLOAD_TOTAL_BYTES)}.
           </p>
         </div>
@@ -347,12 +347,12 @@ export const AdminProductVariantImagesEditor = forwardRef<AdminProductVariantIma
         />
       </div>
 
-      {displaySelectionMessage ? <p className="text-xs text-amber-800">{displaySelectionMessage}</p> : null}
+      {displaySelectionMessage ? <p className="text-xs text-[color:var(--admin-warning)]">{displaySelectionMessage}</p> : null}
 
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-slate-900">{dirtyLabel}</p>
-          <p className="text-xs text-slate-500">La primera imagen es la principal.</p>
+          <p className="text-sm font-semibold text-text-primary">{dirtyLabel}</p>
+          <p className="text-xs text-text-secondary">La primera imagen es la principal.</p>
         </div>
         <span className={dashboardUi.labelPill}>{galleryCount} imágenes</span>
       </div>
@@ -373,7 +373,7 @@ export const AdminProductVariantImagesEditor = forwardRef<AdminProductVariantIma
                 <Reorder.Item
                   key={image.id}
                   value={image.id}
-                  className="group relative h-32 w-32 shrink-0 flex-none overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-[0_8px_18px_rgba(15,23,42,0.03)]"
+                  className="group relative h-32 w-32 shrink-0 flex-none overflow-hidden rounded-[20px] border border-border bg-surface shadow-[var(--admin-shadow-sm)]"
                   style={{ touchAction: "pan-y" }}
                   whileDrag={{ scale: 1.03, zIndex: 20 }}
                 >
@@ -390,7 +390,7 @@ export const AdminProductVariantImagesEditor = forwardRef<AdminProductVariantIma
                         className="pointer-events-none select-none object-cover"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-200 to-slate-100 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      <div className="flex h-full w-full items-center justify-center bg-surface-elevated text-[11px] font-semibold uppercase tracking-[0.18em] text-text-secondary">
                         Sin imagen
                       </div>
                     )}
@@ -410,7 +410,7 @@ export const AdminProductVariantImagesEditor = forwardRef<AdminProductVariantIma
                     </button>
 
                     {isPrimary ? (
-                      <span className="absolute left-2 top-2 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-emerald-900 shadow-[0_4px_10px_rgba(15,23,42,0.12)]">
+                      <span className="absolute left-2 top-2 rounded-full border border-[var(--admin-success)]/30 bg-[var(--admin-success)]/15 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-[color:var(--admin-success)] shadow-[0_4px_10px_rgba(15,23,42,0.12)]">
                         Principal
                       </span>
                     ) : null}
@@ -434,14 +434,14 @@ export const AdminProductVariantImagesEditor = forwardRef<AdminProductVariantIma
             })}
           </Reorder.Group>
         ) : (
-          <div className="rounded-[18px] border border-dashed border-slate-200 bg-white px-4 py-6 text-sm text-slate-600">
+          <div className="rounded-[18px] border border-dashed border-border bg-surface-elevated px-4 py-6 text-sm text-text-secondary">
             Sin imágenes propias. Se usarán las imágenes del producto.
           </div>
         )}
       </div>
 
-      <div className="flex items-center justify-between gap-3 rounded-[18px] border border-slate-200 bg-white px-4 py-3">
-        <p className="text-xs text-slate-500">Guardá los cambios para actualizar la variante.</p>
+      <div className="flex items-center justify-between gap-3 rounded-[18px] border border-border bg-surface px-4 py-3">
+        <p className="text-xs text-text-secondary">Guardá los cambios para actualizar la variante.</p>
         <span className={cn(dashboardUi.labelPill, canSave ? "" : "opacity-60")}>{galleryCount} imágenes</span>
       </div>
     </div>

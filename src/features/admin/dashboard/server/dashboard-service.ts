@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import {
@@ -516,6 +517,33 @@ export function normalizeDashboardPeriodValue(value: string | undefined) {
   return normalizeDashboardPeriod(value);
 }
 
+/**
+ * Request-scoped memoization (`react`'s `cache`, not a time-based cache): the
+ * Resumen tab's `getExecutiveSummaryPageData` fans out to this dashboard
+ * service AND `getConversionAnalyticsMetrics` in the same render, and both
+ * used to run their own independent `orders in [start,end]` query with an
+ * overlapping row set. Callers with a narrower need (conversion only reads
+ * status/paymentStatus/total) can project down from this superset instead of
+ * issuing a second round trip. Keyed on `period` alone so every caller in the
+ * same request hits the same cached promise.
+ */
+export const getOrdersInPeriod = cache(async (period: DashboardPeriod) => {
+  const now = new Date();
+  const start = getPeriodStart(period, now);
+
+  return prisma.order.findMany({
+    where: createOrderPeriodFilter(start, now),
+    select: dashboardOrderSelect,
+    orderBy: { createdAt: "asc" },
+  });
+});
+
+/** Same request-scoped dedup, for the full Sanity inventory catalog that both
+ * this service and the products analytics service fetch independently. */
+export const getInventoryCatalog = cache(async () => {
+  return sanityFreshFetch<InventoryProduct[]>(adminProductsInventoryQuery);
+});
+
 export async function getDashboardMetrics(
   period: DashboardPeriod,
 ): Promise<DashboardMetrics> {
@@ -527,11 +555,7 @@ export async function getDashboardMetrics(
 
   const [ordersInPeriod, ordersInPreviousPeriod, customersLifetime, currentProducts] =
     await Promise.all([
-      prisma.order.findMany({
-        where: createOrderPeriodFilter(start, end),
-        select: dashboardOrderSelect,
-        orderBy: { createdAt: "asc" },
-      }),
+      getOrdersInPeriod(period),
       prisma.order.findMany({
         where: createOrderPeriodFilter(previousWindow.start, previousWindow.end),
         select: dashboardOrderSelect,
@@ -541,7 +565,7 @@ export async function getDashboardMetrics(
         select: customerOrderSelect,
         orderBy: { createdAt: "asc" },
       }),
-      sanityFreshFetch<InventoryProduct[]>(adminProductsInventoryQuery),
+      getInventoryCatalog(),
     ]);
 
   const ordersCreated = ordersInPeriod.length;

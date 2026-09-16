@@ -11,7 +11,7 @@ export function LockedMetricCard({ title, description }: LockedMetricCardProps) 
       title={title}
       description={description}
       action={
-        <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+        <span className="inline-flex rounded-md border border-border bg-surface px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-text-secondary">
           Sin datos
         </span>
       }

@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AdminProductQuickEditDialog } from "./admin-product-quick-edit-dialog";
-import { dashboardUi } from "@/features/admin/dashboard/lib/dashboard-ui";
 import { formatDashboardDateTime } from "@/features/admin/dashboard/lib/dashboard-formatters";
 import { cn } from "@/lib/utils";
 import type { AdminProductListItem } from "../types";
@@ -17,15 +16,21 @@ type AdminProductRowViewProps = {
 function getStockToneClasses(tone: "neutral" | "success" | "warning" | "danger") {
   switch (tone) {
     case "success":
-      return "border-emerald-200 bg-emerald-50 text-emerald-900";
+      return "border-success/25 bg-success-soft text-success";
     case "warning":
-      return "border-amber-200 bg-amber-50 text-amber-900";
+      return "border-warning/25 bg-warning-soft text-warning";
     case "danger":
-      return "border-rose-200 bg-rose-50 text-rose-900";
+      return "border-danger/25 bg-danger-soft text-danger";
     case "neutral":
     default:
-      return "border-slate-200 bg-white text-slate-700";
+      return "border-border bg-surface text-text-secondary";
   }
+}
+
+function visibilityBadgeClasses(visible: boolean) {
+  return visible
+    ? "border-success/25 bg-success-soft text-success"
+    : "border-border bg-surface-elevated text-text-secondary";
 }
 
 function EyeIcon() {
@@ -37,6 +42,9 @@ function EyeIcon() {
   );
 }
 
+const openButtonClass =
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-border bg-surface text-text-primary transition-colors duration-150 hover:bg-surface-elevated";
+
 export function AdminProductRowView({ product, variant }: AdminProductRowViewProps) {
   const [currentProduct, setCurrentProduct] = useState(product);
 
@@ -46,13 +54,13 @@ export function AdminProductRowView({ product, variant }: AdminProductRowViewPro
 
   if (variant === "mobile") {
     return (
-      <article className="border-b border-slate-200/80 py-3 last:border-b-0">
+      <article className="border-b border-border py-3 last:border-b-0">
         <div className="grid grid-cols-[6.625rem_minmax(0,1fr)] items-start gap-3">
-          <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-[18px] border border-[#e1d7ca] bg-slate-100">
+          <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-xl border border-border bg-surface-elevated">
             {currentProduct.imageUrl ? (
               <Image src={currentProduct.imageUrl} alt={currentProduct.imageAlt} fill sizes="106px" className="object-cover" />
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-200 to-slate-100 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+              <div className="flex h-full w-full items-center justify-center bg-surface-elevated text-[9px] font-semibold uppercase tracking-[0.14em] text-text-secondary">
                 Sin imagen
               </div>
             )}
@@ -62,16 +70,14 @@ export function AdminProductRowView({ product, variant }: AdminProductRowViewPro
             <div className="flex items-start justify-between gap-2">
               <Link
                 href={`/admin/productos/${currentProduct.id}`}
-                className="min-w-0 flex-1 text-sm font-semibold leading-5 text-slate-950 transition hover:underline line-clamp-2"
+                className="min-w-0 flex-1 text-sm font-semibold leading-5 text-text-primary transition-colors hover:underline line-clamp-2"
               >
                 {currentProduct.title}
               </Link>
               <span
                 className={cn(
-                  "inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em]",
-                  currentProduct.visible
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-                    : "border-slate-200 bg-slate-100 text-slate-600",
+                  "inline-flex shrink-0 items-center rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em]",
+                  visibilityBadgeClasses(currentProduct.visible),
                 )}
               >
                 {currentProduct.visible ? "Visible" : "Oculto"}
@@ -80,13 +86,13 @@ export function AdminProductRowView({ product, variant }: AdminProductRowViewPro
 
             <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
               <div className="min-w-0">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Precio</p>
-                <p className="mt-0.5 text-sm font-semibold leading-5 text-slate-950">{currentProduct.priceLabel}</p>
-                {currentProduct.priceHint ? <p className="mt-0.5 text-xs text-slate-500">{currentProduct.priceHint}</p> : null}
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-text-secondary">Precio</p>
+                <p className="mt-0.5 text-sm font-semibold leading-5 text-text-primary">{currentProduct.priceLabel}</p>
+                {currentProduct.priceHint ? <p className="mt-0.5 text-xs text-text-secondary">{currentProduct.priceHint}</p> : null}
               </div>
 
               <div className="min-w-0">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Stock</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-text-secondary">Stock</p>
                 <div className={cn("mt-0.5 inline-flex flex-col items-start", getStockToneClasses(currentProduct.stockTone))}>
                   <span className="whitespace-nowrap text-sm font-semibold leading-5">{currentProduct.stockLabel}</span>
                   {currentProduct.stockHint ? <span className="text-[11px] font-normal leading-4 opacity-75">{currentProduct.stockHint}</span> : null}
@@ -98,24 +104,18 @@ export function AdminProductRowView({ product, variant }: AdminProductRowViewPro
 
         <div className="mt-2 grid grid-cols-2 gap-3">
           <div className="min-w-0 flex flex-col gap-0.5">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Variantes</p>
-            <p className="text-[11px] leading-4 text-slate-900">{currentProduct.variantLabel}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-text-secondary">Variantes</p>
+            <p className="text-[11px] leading-4 text-text-primary">{currentProduct.variantLabel}</p>
           </div>
 
           <div className="min-w-0 flex flex-col gap-0.5 text-right">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Actualizado</p>
-            <p className="text-[11px] leading-4 whitespace-nowrap text-slate-500">{formatDashboardDateTime(new Date(currentProduct.updatedAt))}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-text-secondary">Actualizado</p>
+            <p className="text-[11px] leading-4 whitespace-nowrap text-text-secondary">{formatDashboardDateTime(new Date(currentProduct.updatedAt))}</p>
           </div>
         </div>
 
         <div className="mt-2 flex items-center justify-between gap-3">
-          <Link
-            href={`/admin/productos/${currentProduct.id}`}
-            className={cn(
-              "inline-flex h-10 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg border px-3.5 text-[11px] font-semibold",
-              dashboardUi.softAction,
-            )}
-          >
+          <Link href={`/admin/productos/${currentProduct.id}`} className={cn("h-9 px-3.5 text-[11px] font-semibold", openButtonClass)}>
             <EyeIcon />
             Abrir
           </Link>
@@ -133,45 +133,45 @@ export function AdminProductRowView({ product, variant }: AdminProductRowViewPro
   }
 
   return (
-    <tr className="border-t border-[#ebe3d8] align-top transition hover:bg-[#fbfcfe]">
-      <td className="px-5 py-6">
-        <div className="flex items-start gap-4">
-          <div className="relative h-[4rem] w-[3.5rem] shrink-0 overflow-hidden rounded-[18px] border border-[#e1d7ca] bg-slate-100">
+    <tr className="border-t border-border align-top transition-colors duration-150 hover:bg-surface-elevated">
+      <td className="px-4 py-4">
+        <div className="flex items-start gap-3.5">
+          <div className="relative h-16 w-14 shrink-0 overflow-hidden rounded-xl border border-border bg-surface-elevated">
             {currentProduct.imageUrl ? (
               <Image src={currentProduct.imageUrl} alt={currentProduct.imageAlt} fill sizes="56px" className="object-cover" />
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-200 to-slate-100 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+              <div className="flex h-full w-full items-center justify-center bg-surface-elevated text-[10px] font-semibold uppercase tracking-[0.14em] text-text-secondary">
                 Sin imagen
               </div>
             )}
           </div>
 
           <div className="min-w-0">
-            <Link href={`/admin/productos/${currentProduct.id}`} className="block max-w-[28rem] text-[15px] font-semibold leading-6 text-slate-950 transition hover:underline">
+            <Link href={`/admin/productos/${currentProduct.id}`} className="block max-w-[28rem] text-[14px] font-semibold leading-6 text-text-primary transition-colors hover:underline">
               {currentProduct.title}
             </Link>
-            <p className="mt-1 text-xs text-slate-500">/{currentProduct.slug}</p>
+            <p className="mt-1 text-xs text-text-secondary">/{currentProduct.slug}</p>
             {currentProduct.shortDescription ? (
-              <p className="mt-2 line-clamp-2 max-w-[30rem] text-xs leading-5 text-slate-500">{currentProduct.shortDescription}</p>
+              <p className="mt-2 line-clamp-2 max-w-[30rem] text-xs leading-5 text-text-secondary">{currentProduct.shortDescription}</p>
             ) : null}
           </div>
         </div>
       </td>
 
-      <td className="px-5 py-6 align-top">
-        <p className="font-medium text-slate-900">{currentProduct.categoryLabel}</p>
-        <p className="mt-1 text-xs text-slate-500">{currentProduct.subcategoryLabel || "Sin subcategoría"}</p>
+      <td className="px-4 py-4 align-top">
+        <p className="font-medium text-text-primary">{currentProduct.categoryLabel}</p>
+        <p className="mt-1 text-xs text-text-secondary">{currentProduct.subcategoryLabel || "Sin subcategoría"}</p>
       </td>
 
-      <td className="px-5 py-6 align-top">
-        <p className="font-semibold text-slate-950">{currentProduct.priceLabel}</p>
-        {currentProduct.priceHint ? <p className="mt-1 text-xs text-slate-500">{currentProduct.priceHint}</p> : null}
+      <td className="px-4 py-4 align-top">
+        <p className="font-semibold text-text-primary">{currentProduct.priceLabel}</p>
+        {currentProduct.priceHint ? <p className="mt-1 text-xs text-text-secondary">{currentProduct.priceHint}</p> : null}
       </td>
 
-      <td className="px-5 py-6 align-top">
+      <td className="px-4 py-4 align-top">
         <div
           className={cn(
-            "inline-flex w-full min-w-[10.75rem] max-w-[12rem] flex-col items-start gap-0.5 rounded-[18px] border px-3.5 py-3 text-left text-sm font-medium",
+            "inline-flex w-full min-w-[10.75rem] max-w-[12rem] flex-col items-start gap-0.5 rounded-xl border px-3 py-2.5 text-left text-sm font-medium",
             getStockToneClasses(currentProduct.stockTone),
           )}
         >
@@ -180,36 +180,29 @@ export function AdminProductRowView({ product, variant }: AdminProductRowViewPro
         </div>
       </td>
 
-      <td className="px-5 py-6 align-middle">
-        <div className="flex flex-wrap justify-center gap-2">
-          <span
-            className={cn(
-              "inline-flex items-center justify-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]",
-              currentProduct.visible
-                ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-                : "border-slate-200 bg-slate-100 text-slate-600",
-            )}
-          >
+      <td className="px-4 py-4 align-middle">
+        <div className="flex flex-wrap justify-center gap-1.5">
+          <span className={cn("inline-flex items-center justify-center rounded-md border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]", visibilityBadgeClasses(currentProduct.visible))}>
             {currentProduct.visible ? "Visible" : "Oculto"}
           </span>
 
           {currentProduct.isOnOffer ? (
-            <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-900">
+            <span className="inline-flex items-center rounded-md border border-warning/25 bg-warning-soft px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-warning">
               En oferta
             </span>
           ) : null}
 
           {currentProduct.showInNewIn ? (
-            <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-900">
+            <span className="inline-flex items-center rounded-md border border-info/25 bg-info-soft px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-info">
               Lo nuevo
             </span>
           ) : null}
         </div>
       </td>
 
-      <td className="px-5 py-6 align-top">
-        <p className="font-medium text-slate-900">{currentProduct.variantLabel}</p>
-        <p className="mt-1 text-xs text-slate-500">
+      <td className="px-4 py-4 align-top">
+        <p className="font-medium text-text-primary">{currentProduct.variantLabel}</p>
+        <p className="mt-1 text-xs text-text-secondary">
           {currentProduct.hasVariants
             ? currentProduct.variantSource === "colorVariants"
               ? "Modelo legacy normalizado"
@@ -218,22 +211,16 @@ export function AdminProductRowView({ product, variant }: AdminProductRowViewPro
         </p>
       </td>
 
-      <td className="px-5 py-6 align-top">
-        <p className="max-w-[9rem] whitespace-normal font-medium leading-5 text-slate-900">{formatDashboardDateTime(new Date(currentProduct.updatedAt))}</p>
+      <td className="px-4 py-4 align-top">
+        <p className="max-w-[9rem] whitespace-normal font-medium leading-5 text-text-primary">{formatDashboardDateTime(new Date(currentProduct.updatedAt))}</p>
         {typeof currentProduct.newInOrder === "number" ? (
-          <p className="mt-1 text-xs text-slate-500">Prioridad Lo nuevo: {currentProduct.newInOrder}</p>
+          <p className="mt-1 text-xs text-text-secondary">Prioridad Lo nuevo: {currentProduct.newInOrder}</p>
         ) : null}
       </td>
 
-      <td className="px-5 py-6 align-middle">
-        <div className="flex min-w-[12rem] flex-col gap-2">
-          <Link
-            href={`/admin/productos/${currentProduct.id}`}
-            className={cn(
-              "inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border px-4 py-2.5 text-xs font-semibold",
-              dashboardUi.softAction,
-            )}
-          >
+      <td className="px-4 py-4 align-middle">
+        <div className="flex min-w-[11rem] flex-col gap-2">
+          <Link href={`/admin/productos/${currentProduct.id}`} className={cn("h-9 w-full px-4 text-xs font-semibold", openButtonClass)}>
             <EyeIcon />
             Abrir
           </Link>

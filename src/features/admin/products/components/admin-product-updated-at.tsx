@@ -15,15 +15,15 @@ export function AdminProductUpdatedAt({ initialUpdatedAt, variant }: AdminProduc
     return (
       <div className="flex items-center justify-between gap-4">
         <dt>Actualizado</dt>
-        <dd className="font-medium text-slate-900">{formatted}</dd>
+        <dd className="font-medium text-text-primary">{formatted}</dd>
       </div>
     );
   }
 
   return (
-    <div className="rounded-[18px] border border-slate-200/70 bg-slate-50 px-4 py-3 text-xs text-slate-500">
+    <div className="rounded-[18px] border border-border bg-surface-elevated px-4 py-3 text-xs text-text-secondary">
       <p className="uppercase tracking-[0.18em]">Última actualización</p>
-      <p className="mt-1 font-medium text-slate-900">{formatted}</p>
+      <p className="mt-1 font-medium text-text-primary">{formatted}</p>
     </div>
   );
 }
@@ -36,15 +36,15 @@ export function AdminProductDetailUpdatedAt({ initialUpdatedAt, variant }: Admin
     return (
       <div className="flex items-center justify-between gap-4">
         <dt>Actualizado</dt>
-        <dd className="font-medium text-slate-900">{formatted}</dd>
+        <dd className="font-medium text-text-primary">{formatted}</dd>
       </div>
     );
   }
 
   return (
-    <div className="rounded-[18px] border border-slate-200/70 bg-slate-50 px-4 py-3 text-xs text-slate-500">
+    <div className="rounded-[18px] border border-border bg-surface-elevated px-4 py-3 text-xs text-text-secondary">
       <p className="uppercase tracking-[0.18em]">Última actualización</p>
-      <p className="mt-1 font-medium text-slate-900">{formatted}</p>
+      <p className="mt-1 font-medium text-text-primary">{formatted}</p>
     </div>
   );
 }

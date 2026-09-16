@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 const HEAD = "px-3 py-2.5 text-left font-semibold whitespace-nowrap first:pl-5 last:pr-5";
 const CELL =
-  "px-3 py-3 align-middle whitespace-nowrap text-[13px] text-slate-600 first:pl-5 last:pr-5";
+  "px-3 py-3 align-middle whitespace-nowrap text-[13px] text-text-secondary first:pl-5 last:pr-5";
 
 const ARGENTINA_TIME_ZONE = "America/Argentina/Buenos_Aires";
 
@@ -44,7 +44,7 @@ export function PaymentMethodTable({ rows }: { rows: PaymentMethodRow[] }) {
     <div className="overflow-x-auto">
       <table className="w-full border-collapse">
         <thead>
-          <tr className="border-y border-[#e2e8f0] bg-[#f8fafc]">
+          <tr className="border-y border-border bg-surface-elevated">
             <th scope="col" className={cn(overviewUi.label, HEAD)}>
               Método
             </th>
@@ -61,19 +61,19 @@ export function PaymentMethodTable({ rows }: { rows: PaymentMethodRow[] }) {
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.method} className="border-b border-[#eef2f7] last:border-b-0">
+            <tr key={row.method} className="border-b border-border last:border-b-0">
               <td className={cn(CELL, "max-w-0")}>
-                <span className="block truncate text-[13px] text-slate-900">{row.label}</span>
+                <span className="block truncate text-[13px] text-text-primary">{row.label}</span>
               </td>
               <td className={cn(CELL, "text-right tabular-nums")}>
                 {formatDashboardNumber(row.payments)}
               </td>
-              <td className={cn(CELL, "text-right font-semibold tabular-nums text-slate-900")}>
+              <td className={cn(CELL, "text-right font-semibold tabular-nums text-text-primary")}>
                 {formatDashboardPrice(row.revenue)}
               </td>
               <td className={cn(CELL, "text-right tabular-nums")}>
                 {row.approvalRate === null ? (
-                  <span className="text-slate-400">—</span>
+                  <span className="text-text-secondary">—</span>
                 ) : (
                   <span
                     className="font-medium"
@@ -124,7 +124,7 @@ export function RecentPaymentsTable({ rows }: { rows: PaymentRecordRow[] }) {
     <div className="overflow-x-auto">
       <table className="w-full min-w-[840px] border-collapse">
         <thead>
-          <tr className="border-y border-[#e2e8f0] bg-[#f8fafc]">
+          <tr className="border-y border-border bg-surface-elevated">
             <th scope="col" className={cn(overviewUi.label, HEAD, "w-9")}>
               #
             </th>
@@ -152,23 +152,23 @@ export function RecentPaymentsTable({ rows }: { rows: PaymentRecordRow[] }) {
           {rows.map((row, index) => (
             <tr
               key={row.id}
-              className="border-b border-[#eef2f7] transition-colors last:border-b-0 hover:bg-[#f8fafc]"
+              className="border-b border-border transition-colors last:border-b-0 hover:bg-surface-elevated"
             >
-              <td className={cn(CELL, "tabular-nums text-slate-400")}>{index + 1}</td>
+              <td className={cn(CELL, "tabular-nums text-text-secondary")}>{index + 1}</td>
               <td className={cn(CELL, "tabular-nums")}>{formatPaymentDate(row.createdAt)}</td>
               <td className={CELL}>
                 <Link
                   href={`/admin/orders?q=${encodeURIComponent(row.orderNumber)}`}
-                  className="text-[13px] font-medium text-[#3b7ff5] underline-offset-[3px] hover:underline"
+                  className="text-[13px] font-medium text-primary underline-offset-[3px] hover:underline"
                 >
                   {row.orderNumber}
                 </Link>
               </td>
               <td className={cn(CELL, "max-w-0")}>
-                <span className="block truncate text-[13px] text-slate-900">{row.customerName}</span>
+                <span className="block truncate text-[13px] text-text-primary">{row.customerName}</span>
               </td>
               <td className={CELL}>{row.methodLabel}</td>
-              <td className={cn(CELL, "text-right font-semibold tabular-nums text-slate-900")}>
+              <td className={cn(CELL, "text-right font-semibold tabular-nums text-text-primary")}>
                 {formatDashboardPrice(row.amount)}
               </td>
               <td className={CELL}>

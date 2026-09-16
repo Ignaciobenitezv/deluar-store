@@ -37,31 +37,28 @@ export function ConversionFunnel({ stages }: { stages: ConversionFunnelStage[] }
         return (
         <div
           key={stage.key}
-          className="flex items-center gap-3.5 rounded-[10px] border border-[#e3e8ef] bg-white px-3.5 py-3"
+          className="flex items-center gap-3.5 rounded-xl border border-border bg-surface px-3.5 py-3"
         >
           <span
             aria-hidden
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[9px]"
-            style={{ backgroundColor: `${tone}14`, color: tone }}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+            style={{ backgroundColor: `color-mix(in srgb, ${tone} 14%, transparent)`, color: tone }}
           >
             {STAGE_ICON[stage.key]}
           </span>
 
           <span className="min-w-0 flex-1">
             <span className="flex items-baseline justify-between gap-3">
-              <span className="min-w-0 truncate text-[13.5px] font-medium text-slate-900">
+              <span className="min-w-0 truncate text-[13px] font-medium text-text-primary">
                 {stage.label}
               </span>
-              <span className="shrink-0 text-[15px] font-semibold tabular-nums tracking-[-0.025em] text-slate-900">
+              <span className="shrink-0 text-[15px] font-semibold tabular-nums tracking-[-0.02em] text-text-primary">
                 {formatDashboardNumber(stage.count)}
               </span>
             </span>
 
             <span className="mt-2 flex items-center gap-3">
-              <span
-                aria-hidden
-                className="block h-[7px] min-w-0 flex-1 overflow-hidden rounded-[3px] bg-[#eef2f7]"
-              >
+              <span aria-hidden className="block h-[7px] min-w-0 flex-1 overflow-hidden rounded-[3px] bg-surface-elevated">
                 <span
                   className="block h-full rounded-[3px]"
                   style={{
@@ -70,7 +67,7 @@ export function ConversionFunnel({ stages }: { stages: ConversionFunnelStage[] }
                   }}
                 />
               </span>
-              <span className="shrink-0 text-[11.5px] tabular-nums text-slate-500">
+              <span className="shrink-0 text-[11.5px] tabular-nums text-text-secondary">
                 {formatDashboardPercent(stage.shareOfSessions)} del total
               </span>
             </span>

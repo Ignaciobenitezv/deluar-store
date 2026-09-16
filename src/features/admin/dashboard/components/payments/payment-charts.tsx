@@ -34,7 +34,7 @@ function compactMoney(value: number) {
 
 export function PaymentEvolutionLegend() {
   return (
-    <div className="flex shrink-0 items-center gap-4 text-[12px] text-slate-600">
+    <div className="flex shrink-0 items-center gap-4 text-[12px] text-text-secondary">
       <span className="flex items-center gap-2">
         <span
           aria-hidden
@@ -74,11 +74,11 @@ export function PaymentEvolution({
       <div style={{ height }} className="relative w-full min-w-0">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={data} margin={{ top: 6, right: 6, bottom: 0, left: 0 }}>
-            <CartesianGrid stroke="#eef2f7" vertical={false} />
+            <CartesianGrid stroke="var(--border)" vertical={false} />
             <XAxis
               dataKey="label"
               tickLine={false}
-              axisLine={{ stroke: "#e2e8f0" }}
+              axisLine={{ stroke: "var(--border)" }}
               interval="preserveStartEnd"
               minTickGap={36}
               tickMargin={12}
@@ -116,10 +116,10 @@ export function PaymentEvolution({
                   }
 
                   return (
-                    <div className="rounded-[6px] border border-[#e2e8f0] bg-white px-3.5 py-2.5 shadow-[0_6px_20px_rgba(15,23,42,0.10)]">
-                      <p className="text-[12px] text-slate-500">{point.label}</p>
+                    <div className="rounded-[6px] border border-border bg-surface px-3.5 py-2.5 shadow-[var(--admin-shadow-md)]">
+                      <p className="text-[12px] text-text-secondary">{point.label}</p>
                       <p className="mt-2 flex items-center justify-between gap-6 text-[13px]">
-                        <span className="flex items-center gap-2 text-slate-600">
+                        <span className="flex items-center gap-2 text-text-secondary">
                           <span
                             aria-hidden
                             className="h-[7px] w-[7px] rounded-full"
@@ -127,12 +127,12 @@ export function PaymentEvolution({
                           />
                           Cobrado
                         </span>
-                        <span className="font-semibold tabular-nums text-slate-900">
+                        <span className="font-semibold tabular-nums text-text-primary">
                           {formatDashboardPrice(point.amount)}
                         </span>
                       </p>
                       <p className="mt-1 flex items-center justify-between gap-6 text-[13px]">
-                        <span className="flex items-center gap-2 text-slate-600">
+                        <span className="flex items-center gap-2 text-text-secondary">
                           <span
                             aria-hidden
                             className="h-[7px] w-[7px] rounded-full"
@@ -140,7 +140,7 @@ export function PaymentEvolution({
                           />
                           Pagos
                         </span>
-                        <span className="font-semibold tabular-nums text-slate-900">
+                        <span className="font-semibold tabular-nums text-text-primary">
                           {formatDashboardNumber(point.payments)}
                         </span>
                       </p>
@@ -171,7 +171,7 @@ export function PaymentEvolution({
         </ResponsiveContainer>
 
         {!hasValues ? (
-          <p className="pointer-events-none absolute inset-0 flex items-center justify-center pb-6 text-[12.5px] text-slate-500">
+          <p className="pointer-events-none absolute inset-0 flex items-center justify-center pb-6 text-[12.5px] text-text-secondary">
             Sin pagos registrados en el período.
           </p>
         ) : null}
@@ -199,11 +199,11 @@ export function PaymentWeekdayChart({
       <div style={{ height }} className="relative w-full min-w-0">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 24, right: 6, bottom: 0, left: 0 }}>
-            <CartesianGrid stroke="#eef2f7" vertical={false} />
+            <CartesianGrid stroke="var(--border)" vertical={false} />
             <XAxis
               dataKey="label"
               tickLine={false}
-              axisLine={{ stroke: "#e2e8f0" }}
+              axisLine={{ stroke: "var(--border)" }}
               tickMargin={12}
               tick={{ fill: overviewColor.muted, fontSize: 12 }}
             />
@@ -227,11 +227,11 @@ export function PaymentWeekdayChart({
                   }
 
                   return (
-                    <div className="rounded-[6px] border border-[#e2e8f0] bg-white px-3.5 py-2.5 shadow-[0_6px_20px_rgba(15,23,42,0.10)]">
-                      <p className="text-[12px] text-slate-500">{row.label}</p>
-                      <p className="mt-1.5 text-[14px] font-semibold tabular-nums text-slate-900">
+                    <div className="rounded-[6px] border border-border bg-surface px-3.5 py-2.5 shadow-[var(--admin-shadow-md)]">
+                      <p className="text-[12px] text-text-secondary">{row.label}</p>
+                      <p className="mt-1.5 text-[14px] font-semibold tabular-nums text-text-primary">
                         {formatDashboardNumber(row.payments)}{" "}
-                        <span className="text-[12px] font-normal text-slate-500">
+                        <span className="text-[12px] font-normal text-text-secondary">
                           {row.payments === 1 ? "pago" : "pagos"}
                         </span>
                       </p>
@@ -258,7 +258,7 @@ export function PaymentWeekdayChart({
         </ResponsiveContainer>
 
         {max === 0 ? (
-          <p className="pointer-events-none absolute inset-0 flex items-center justify-center pb-6 text-[12.5px] text-slate-500">
+          <p className="pointer-events-none absolute inset-0 flex items-center justify-center pb-6 text-[12.5px] text-text-secondary">
             Sin pagos registrados en el período.
           </p>
         ) : null}

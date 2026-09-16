@@ -335,9 +335,16 @@ function reorderDraftImages(images: AdminProductImageDraftItem[], orderedIds: st
 
 type AdminProductImagesSectionProps = {
   product: AdminProductDetailData;
+  /** Crear producto only: the editor's own `product` state isn't backed by
+   * a Server Component fetch on that route (there's nothing to
+   * `router.refresh()` into), so Vista previa would otherwise show stale
+   * images until finalize. Lets the parent merge a save's result straight
+   * into its local state instead. Edit mode leaves this unset — that route
+   * already re-renders from the server after a mutation. */
+  onSaved?: (images: AdminProductImageData[]) => void;
 };
 
-export function AdminProductImagesSection({ product }: AdminProductImagesSectionProps) {
+export function AdminProductImagesSection({ product, onSaved }: AdminProductImagesSectionProps) {
   const { currentRev, applyCommit } = useAdminProductRevision();
   const [submitState, setSubmitState] = useState<AdminProductImageActionState>(INITIAL_STATE);
   const [isSaving, setIsSaving] = useState(false);
@@ -465,7 +472,7 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
       }
 
       if (isHeicLikeFile(file)) {
-        rejected.push(`${file.name || `Archivo ${position}`} no es compatible. UsÃ¡ JPG, PNG o WebP.`);
+        rejected.push(`${file.name || `Archivo ${position}`} no es compatible. Usá JPG, PNG o WebP.`);
         continue;
       }
 
@@ -783,7 +790,7 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
         JSON.stringify(currentDraftImages.map((image) => buildSubmitItem(image, uploadedAssets))),
       );
 
-      setSaveProgressMessage("Guardando galerÃ­a...");
+      setSaveProgressMessage("Guardando galería...");
       const nextState = await commitProductImagesAction(INITIAL_STATE, formData);
       setSubmitState(nextState);
 
@@ -810,6 +817,7 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
           rev: nextState.rev,
           updatedAt: nextState.updatedAt,
         });
+        onSaved?.(nextState.images);
         setSavedDraftImages(committedImages);
         setDraftImages(committedImages);
         setSelectedImageId(nextSelectedId);
@@ -836,23 +844,18 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
   const dirtyLabel = hasUnsavedChanges ? "Cambios sin guardar" : "Sin cambios";
   const statusBoxClass =
     submitState.status === "success"
-      ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+      ? "border-[var(--admin-success)]/25 bg-[var(--admin-success)]/10 text-[color:var(--admin-success)]"
       : submitState.status === "partial"
-        ? "border-amber-200 bg-amber-50 text-amber-900"
+        ? "border-[var(--admin-warning)]/25 bg-[var(--admin-warning)]/10 text-[color:var(--admin-warning)]"
         : submitState.status === "conflict"
-          ? "border-amber-200 bg-amber-50 text-amber-900"
-          : "border-rose-200 bg-rose-50 text-rose-900";
+          ? "border-[var(--admin-warning)]/25 bg-[var(--admin-warning)]/10 text-[color:var(--admin-warning)]"
+          : "border-[var(--admin-danger)]/25 bg-[var(--admin-danger)]/10 text-[color:var(--admin-danger)]";
 
+  // No outer card here — this renders as the "Multimedia" sub-section inside
+  // the Información tab's single card (see admin-product-detail-form.tsx),
+  // which owns the heading and the surrounding padding.
   return (
-    <section className={`${dashboardUi.card} overflow-hidden`}>
-      <div className={`${dashboardUi.cardHeader} border-b border-slate-200/60`}>
-        <div className="min-w-0">
-          <h2 className={dashboardUi.sectionTitle}>Imágenes</h2>
-          <p className={dashboardUi.sectionDescription}>Arrastrá imágenes o hacé clic para seleccionarlas.</p>
-        </div>
-      </div>
-
-      <div className={dashboardUi.cardBody}>
+    <>
         {submitState.status !== "idle" ? (
           <div aria-live="polite" className={cn("mb-4 rounded-[18px] border px-4 py-3 text-sm", statusBoxClass)}>
             {submitState.message}
@@ -862,7 +865,7 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
         {saveProgressMessage ? (
           <div
             aria-live="polite"
-            className="mb-4 rounded-[18px] border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-medium text-sky-950"
+            className="mb-4 rounded-[18px] border border-[var(--admin-info)]/25 bg-[var(--admin-info)]/10 px-4 py-3 text-sm font-medium text-[color:var(--admin-info)]"
           >
             {saveProgressMessage}
           </div>
@@ -887,16 +890,16 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
           className={cn(
             "grid cursor-pointer gap-4 rounded-[24px] border border-dashed p-4 transition",
             dropActive
-              ? "border-[#314158] bg-slate-50"
-              : "border-slate-300 bg-slate-50/80 hover:border-slate-400",
+              ? "border-primary bg-surface-elevated"
+              : "border-border bg-surface-elevated/60 hover:border-text-secondary/40",
           )}
         >
           <div className="grid gap-2 text-center">
-            <p className="text-sm font-semibold text-slate-900">Arrastrá imágenes o hacé clic para seleccionarlas.</p>
-            <p className="text-xs text-slate-500">
+            <p className="text-sm font-semibold text-text-primary">Arrastrá imágenes o hacé clic para seleccionarlas.</p>
+            <p className="text-xs text-text-secondary">
               JPG, PNG o WebP · Máx. {formatUploadLimit(MAX_PRODUCT_IMAGE_UPLOAD_BYTES)} c/u
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-text-secondary">
               Tamaño total máximo por guardado: {formatUploadLimit(MAX_PRODUCT_IMAGE_UPLOAD_TOTAL_BYTES)}.
             </p>
           </div>
@@ -911,12 +914,12 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
           />
         </div>
 
-        {selectionMessage ? <p className="mt-3 text-xs text-amber-800">{selectionMessage}</p> : null}
+        {selectionMessage ? <p className="mt-3 text-xs text-[color:var(--admin-warning)]">{selectionMessage}</p> : null}
 
         <div className="mt-5 flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold text-slate-900">Galería</p>
-            <p className="text-xs text-slate-500">La primera imagen sigue siendo la principal.</p>
+            <p className="text-sm font-semibold text-text-primary">Galería</p>
+            <p className="text-xs text-text-secondary">La primera imagen sigue siendo la principal.</p>
           </div>
           <span className={dashboardUi.labelPill}>{galleryCount} imágenes</span>
         </div>
@@ -937,7 +940,7 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
                   <Reorder.Item
                     key={image.id}
                     value={image.id}
-                    className="group relative h-36 w-36 shrink-0 flex-none overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_8px_18px_rgba(15,23,42,0.03)] transition-shadow"
+                    className="group relative h-36 w-36 shrink-0 flex-none overflow-hidden rounded-[24px] border border-border bg-surface shadow-[var(--admin-shadow-sm)] transition-shadow"
                     style={{ touchAction: "pan-y" }}
                     whileDrag={{ scale: 1.03, zIndex: 20 }}
                   >
@@ -965,7 +968,7 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
                           className="pointer-events-none select-none object-cover"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-200 to-slate-100 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        <div className="flex h-full w-full items-center justify-center bg-surface-elevated text-[11px] font-semibold uppercase tracking-[0.18em] text-text-secondary">
                           Sin imagen
                         </div>
                       )}
@@ -987,7 +990,7 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
                       </button>
 
                       {isPrimary ? (
-                        <span className="absolute left-2 top-2 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-emerald-900 shadow-[0_4px_10px_rgba(15,23,42,0.12)]">
+                        <span className="absolute left-2 top-2 rounded-full border border-[var(--admin-success)]/30 bg-[var(--admin-success)]/15 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-[color:var(--admin-success)] shadow-[0_4px_10px_rgba(15,23,42,0.12)]">
                           Principal
                         </span>
                       ) : null}
@@ -1016,16 +1019,16 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
               })}
             </Reorder.Group>
           ) : (
-            <div className="rounded-[22px] border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-600">
+            <div className="rounded-[22px] border border-dashed border-border bg-surface-elevated px-4 py-6 text-sm text-text-secondary">
               Este producto todavía no tiene imágenes.
             </div>
           )}
         </div>
 
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-[22px] border border-slate-200 bg-slate-50 px-4 py-4">
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-[22px] border border-border bg-surface-elevated px-4 py-4">
           <div className="grid gap-1">
-            <p className="text-sm font-semibold text-slate-900">{dirtyLabel}</p>
-            <p className="text-xs text-slate-500">Guardá los cambios para actualizar la galería.</p>
+            <p className="text-sm font-semibold text-text-primary">{dirtyLabel}</p>
+            <p className="text-xs text-text-secondary">Guardá los cambios para actualizar la galería.</p>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -1033,7 +1036,7 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
               type="button"
               onClick={handleCancelChanges}
               disabled={!hasUnsavedChanges || isSaving}
-              className="rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-text-secondary transition hover:bg-surface-elevated disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancelar cambios
             </button>
@@ -1042,7 +1045,7 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
               onClick={handleSaveChanges}
               disabled={!canSave}
               className={cn(
-                "rounded-full border px-4 py-2.5 text-sm font-semibold disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-300",
+                "rounded-full border px-4 py-2.5 text-sm font-semibold disabled:cursor-not-allowed disabled:border-border disabled:bg-surface-elevated",
                 dashboardUi.primaryAction,
               )}
             >
@@ -1053,9 +1056,9 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
 
         {editorOpen && selectedImage ? (
           <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#243247]/55 p-3 sm:items-center sm:p-6">
-            <div className="w-full max-w-4xl overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.22)]">
+            <div className="w-full max-w-4xl overflow-hidden rounded-[28px] border border-border bg-surface shadow-[0_24px_80px_rgba(15,23,42,0.22)]">
               <div className="grid gap-0 md:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-                <div className="relative min-h-[18rem] bg-slate-100">
+                <div className="relative min-h-[18rem] bg-surface-elevated">
                   {(() => {
                     const selectedImageSource =
                       "imageUrl" in selectedImage ? selectedImage.imageUrl : null;
@@ -1070,7 +1073,7 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
                       className="object-cover"
                     />
                     ) : selectedImage.existing ? (
-                    <div className="flex h-full items-center justify-center bg-gradient-to-br from-slate-200 to-slate-100 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    <div className="flex h-full items-center justify-center bg-surface-elevated text-sm font-semibold uppercase tracking-[0.18em] text-text-secondary">
                       Sin vista previa
                     </div>
                     ) : (
@@ -1090,10 +1093,10 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
                       <p className={dashboardUi.mutedLabel}>Editar imagen</p>
-                      <h3 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-slate-950">
+                      <h3 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-text-primary">
                         Imagen {draftImages.findIndex((image) => image.id === selectedImage.id) + 1}
                       </h3>
-                      <p className="mt-1 text-sm text-slate-500">
+                      <p className="mt-1 text-sm text-text-secondary">
                         {draftImages.findIndex((image) => image.id === selectedImage.id) === 0
                           ? "Principal"
                           : "No principal"}
@@ -1103,25 +1106,25 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
                     <button
                       type="button"
                       onClick={closeEditor}
-                      className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+                      className="rounded-full border border-border bg-surface px-3 py-2 text-xs font-semibold text-text-secondary transition hover:bg-surface-elevated"
                     >
                       Cerrar
                     </button>
                   </div>
 
-                  <div className="rounded-[20px] border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                    <p className="font-medium text-slate-900">Alt actual</p>
+                  <div className="rounded-[20px] border border-border bg-surface-elevated px-4 py-3 text-sm text-text-secondary">
+                    <p className="font-medium text-text-primary">Alt actual</p>
                     <p className="mt-1 break-words">{selectedImage.alt || "Sin texto alternativo"}</p>
                   </div>
 
-                  <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  <label className="grid gap-2 text-sm font-medium text-text-secondary">
                     <span>Texto alternativo</span>
                     <input
                       type="text"
                       value={editorAlt}
                       onChange={(event) => setEditorAlt(event.target.value)}
                       maxLength={200}
-                      className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
+                      className="rounded-[18px] border border-border bg-surface px-4 py-3 text-sm text-text-primary outline-none transition placeholder:text-text-secondary focus:border-primary/50"
                       placeholder="Ej: Vista frontal del producto"
                     />
                   </label>
@@ -1141,7 +1144,7 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
                       <button
                         type="button"
                         onClick={handleMakePrimary}
-                        className="rounded-full border border-sky-200 bg-sky-50 px-4 py-2.5 text-sm font-semibold text-sky-900 transition hover:bg-sky-100"
+                        className="rounded-full border border-[var(--admin-info)]/25 bg-[var(--admin-info)]/10 px-4 py-2.5 text-sm font-semibold text-[color:var(--admin-info)] transition hover:bg-[var(--admin-info)]/15"
                       >
                         Hacer principal
                       </button>
@@ -1150,21 +1153,20 @@ export function AdminProductImagesSection({ product }: AdminProductImagesSection
                       type="button"
                       onClick={() => handleRemoveImage(selectedImage.id)}
                       disabled={draftImages.length <= 1}
-                      className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-900 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-full border border-[var(--admin-danger)]/25 bg-[var(--admin-danger)]/10 px-4 py-2.5 text-sm font-semibold text-[color:var(--admin-danger)] transition hover:bg-[var(--admin-danger)]/15 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Eliminar imagen
                     </button>
                   </div>
 
                   {draftImages.length <= 1 ? (
-                    <p className="text-xs text-slate-500">No se puede eliminar la última imagen del producto.</p>
+                    <p className="text-xs text-text-secondary">No se puede eliminar la última imagen del producto.</p>
                   ) : null}
                 </div>
               </div>
             </div>
           </div>
         ) : null}
-      </div>
-    </section>
+    </>
   );
 }

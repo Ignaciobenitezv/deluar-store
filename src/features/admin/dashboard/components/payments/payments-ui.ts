@@ -6,24 +6,24 @@
 export const paymentColor = {
   primary: "#3b7ff5",
   primaryHover: "#2f6de0",
-  primarySoft: "#bcd4fb",
-  track: "#e8effd",
-  tile: "#e8effd",
-  tileSoft: "#f1f6fe",
+  primarySoft: "var(--admin-info-soft)",
+  track: "var(--admin-surface-elevated)",
+  tile: "var(--admin-info-soft)",
+  tileSoft: "var(--admin-surface-elevated)",
   teal: "#0d8b9b",
-  positive: "#14804b",
-  negative: "#c0392f",
+  positive: "var(--admin-success)",
+  negative: "var(--admin-danger)",
 } as const;
 
 /** One tone per PaymentStatus, used identically in arc, legend and badge. */
 export const paymentStatusTone: Record<string, { color: string; soft: string; ink: string }> = {
-  APPROVED: { color: "#14804b", soft: "#e8f5ee", ink: "#0f6b3d" },
-  PENDING: { color: "#d08700", soft: "#fdf3e3", ink: "#8a5a06" },
-  REJECTED: { color: "#e2564d", soft: "#fbeceb", ink: "#a8352c" },
-  CHARGED_BACK: { color: "#b3352b", soft: "#fbeceb", ink: "#8f2a22" },
-  REFUNDED: { color: "#7b4bc4", soft: "#f1ebfa", ink: "#5f37a0" },
-  CANCELLED: { color: "#94a3b8", soft: "#f1f5f9", ink: "#475569" },
-  NOT_STARTED: { color: "#cbd5e1", soft: "#f1f5f9", ink: "#64748b" },
+  APPROVED: { color: "var(--admin-success)", soft: "var(--admin-success-soft)", ink: "var(--admin-success)" },
+  PENDING: { color: "var(--admin-warning)", soft: "var(--admin-warning-soft)", ink: "var(--admin-warning)" },
+  REJECTED: { color: "var(--admin-danger)", soft: "var(--admin-danger-soft)", ink: "var(--admin-danger)" },
+  CHARGED_BACK: { color: "var(--admin-danger)", soft: "var(--admin-danger-soft)", ink: "var(--admin-danger)" },
+  REFUNDED: { color: "var(--admin-violet)", soft: "var(--admin-violet-soft)", ink: "var(--admin-violet)" },
+  CANCELLED: { color: "var(--admin-text-secondary)", soft: "var(--admin-surface-elevated)", ink: "var(--admin-text-secondary)" },
+  NOT_STARTED: { color: "var(--admin-text-secondary)", soft: "var(--admin-surface-elevated)", ink: "var(--admin-text-secondary)" },
 };
 
 export function toneForStatus(status: string) {

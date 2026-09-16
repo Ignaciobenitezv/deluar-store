@@ -12,15 +12,15 @@ export type StatusPalette = Record<string, { label: string; color: string }>;
 /** One neutral scale for both analytics routes. */
 const TONE = {
   cool: {
-    track: "#eef2f7",
-    rule: "#eef2f7",
-    total: "#0f172a",
-    caption: "#64748b",
-    label: "#334155",
-    labelEmpty: "#94a3b8",
-    value: "#0f172a",
-    valueEmpty: "#94a3b8",
-    share: "#64748b",
+    track: "var(--admin-surface-elevated)",
+    rule: "var(--border)",
+    total: "var(--admin-text-primary)",
+    caption: "var(--admin-text-secondary)",
+    label: "var(--admin-text-primary)",
+    labelEmpty: "var(--admin-text-secondary)",
+    value: "var(--admin-text-primary)",
+    valueEmpty: "var(--admin-text-secondary)",
+    share: "var(--admin-text-secondary)",
   },
 } as const;
 

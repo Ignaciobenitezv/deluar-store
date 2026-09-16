@@ -70,9 +70,9 @@ export function ProductKpi({
   note?: string;
 }) {
   const palette = {
-    info: { tile: "#eef0fc", ink: overviewColor.action, bar: overviewColor.action },
-    positive: { tile: "#e8f5ee", ink: overviewColor.positive, bar: overviewColor.positive },
-    warning: { tile: "#fbeceb", ink: overviewColor.negative, bar: overviewColor.negative },
+    info: { tile: "var(--admin-info-soft)", ink: overviewColor.action, bar: overviewColor.action },
+    positive: { tile: "var(--admin-success-soft)", ink: overviewColor.positive, bar: overviewColor.positive },
+    warning: { tile: "var(--admin-danger-soft)", ink: overviewColor.negative, bar: overviewColor.negative },
   }[tone];
 
   const max = Math.max(...series, 0);
@@ -86,10 +86,10 @@ export function ProductKpi({
       >
         {icon}
       </span>
-      <p className="mt-3.5 truncate text-[13px] text-slate-600">{label}</p>
+      <p className="mt-3.5 truncate text-[13px] text-text-secondary">{label}</p>
 
       <div className="mt-2 flex items-end justify-between gap-4">
-        <p className="min-w-0 text-[1.75rem] font-semibold leading-none tabular-nums tracking-[-0.035em] text-slate-900">
+        <p className="min-w-0 text-[1.75rem] font-semibold leading-none tabular-nums tracking-[-0.035em] text-text-primary">
           {value}
         </p>
         {series.length > 0 ? (
@@ -109,7 +109,7 @@ export function ProductKpi({
         ) : null}
       </div>
 
-      <p className="mt-2.5 flex flex-wrap items-center gap-x-1.5 text-[12px] leading-[1.35] text-slate-500">
+      <p className="mt-2.5 flex flex-wrap items-center gap-x-1.5 text-[12px] leading-[1.35] text-text-secondary">
         {delta ? (
           <>
             <span
@@ -160,7 +160,7 @@ export function ProductModule({
           (action ? (
             <Link
               href={action.href}
-              className="shrink-0 text-[12px] font-medium text-[#4f52c9] underline-offset-[3px] hover:underline"
+              className="shrink-0 text-[12px] font-medium text-primary underline-offset-[3px] hover:underline"
             >
               {action.label} →
             </Link>

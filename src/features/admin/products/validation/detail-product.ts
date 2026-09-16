@@ -127,7 +127,46 @@ export const adminProductDetailDeltaSchema = z.object({
   seo: adminProductDetailSeoDeltaSchema.optional(),
 });
 
-export const adminProductDetailFormSchema = z.object({
+/**
+ * The all-or-nothing logistics rule, factored out so it can be applied to
+ * more than one object shape — Zod's `.omit()` only exists on a plain
+ * `ZodObject`; once `.superRefine()` wraps it in a `ZodEffects`, `.omit()`
+ * throws at *module evaluation* time (".omit() cannot be used on object
+ * schemas containing refinements"), not at some later call site. That bit
+ * `adminProductFinalizeFormSchema` below when it tried to omit fields from
+ * the already-refined `adminProductDetailFormSchema` — every route that
+ * imports this module (directly or transitively, e.g. through the finalize
+ * action) failed before any client code ran. Applying this refinement to
+ * the *unrefined* base object separately, once per schema, avoids the
+ * `ZodEffects` entirely.
+ */
+function refineProductLogistics<Shape extends Partial<Record<(typeof PRODUCT_LOGISTICS_FIELD_NAMES)[number], unknown>>>(
+  value: Shape,
+  context: z.RefinementCtx,
+) {
+  const filledFields = PRODUCT_LOGISTICS_FIELD_NAMES.filter((field) => {
+    const numericValue = value[field];
+    return typeof numericValue === "number" && Number.isFinite(numericValue);
+  });
+
+  if (filledFields.length === 0) {
+    return;
+  }
+
+  if (filledFields.length !== PRODUCT_LOGISTICS_FIELD_NAMES.length) {
+    for (const field of PRODUCT_LOGISTICS_FIELD_NAMES) {
+      if (typeof value[field] !== "number") {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [field],
+          message: "Completá peso y dimensiones o dejalos vacíos.",
+        });
+      }
+    }
+  }
+}
+
+const adminProductDetailBaseObjectSchema = z.object({
   productId: requiredTrimmedString,
   rev: requiredTrimmedString,
   title: z.string().trim().min(2, "El nombre debe tener al menos 2 caracteres.").max(160),
@@ -162,31 +201,26 @@ export const adminProductDetailFormSchema = z.object({
   depthCm: logisticsValueSchema,
   seoTitle: optionalTrimmedString,
   seoDescription: optionalTrimmedString,
-}).superRefine((value, context) => {
-  const filledFields = PRODUCT_LOGISTICS_FIELD_NAMES.filter((field) => {
-    const numericValue = value[field];
-    return typeof numericValue === "number" && Number.isFinite(numericValue);
-  });
-
-  if (filledFields.length === 0) {
-    return;
-  }
-
-  if (filledFields.length !== PRODUCT_LOGISTICS_FIELD_NAMES.length) {
-    for (const field of PRODUCT_LOGISTICS_FIELD_NAMES) {
-      if (typeof value[field] !== "number") {
-        context.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: [field],
-          message: "Completá peso y dimensiones o dejalos vacíos.",
-        });
-      }
-    }
-  }
 });
+
+export const adminProductDetailFormSchema = adminProductDetailBaseObjectSchema.superRefine(refineProductLogistics);
 
 export type AdminProductDetailFormValues = z.infer<typeof adminProductDetailFormSchema>;
 export type AdminProductDetailDeltaValues = z.infer<typeof adminProductDetailDeltaSchema>;
+
+/**
+ * Finalizing a draft ("Crear producto") validates the exact same field set
+ * as a normal edit — the draft-backed create flow shares one editor with
+ * Editar producto, so it shares this schema too, just without
+ * `productId`/`rev` inline (the finalize action takes those as separate
+ * arguments, since it already knows the draft's id/rev from context rather
+ * than trusting them from form fields).
+ */
+export const adminProductFinalizeFormSchema = adminProductDetailBaseObjectSchema
+  .omit({ productId: true, rev: true })
+  .superRefine(refineProductLogistics);
+
+export type AdminProductFinalizeFormValues = z.infer<typeof adminProductFinalizeFormSchema>;
 
 export function parseAdminProductDetailDescription(rawValue: string) {
   const parsed = JSON.parse(rawValue) as unknown;

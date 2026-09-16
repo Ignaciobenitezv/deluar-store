@@ -77,8 +77,8 @@ function MoneyReading({ value }: { value: number }) {
 
   return (
     <span className="inline-flex items-start gap-[0.16em] leading-none">
-      <span className="mt-[0.22em] text-[11px] font-medium text-[#64748b]">{symbol}</span>
-      <span className="text-[15px] font-semibold tabular-nums tracking-[-0.025em] text-[#0f172a]">
+      <span className="mt-[0.22em] text-[11px] font-medium text-text-secondary">{symbol}</span>
+      <span className="text-[15px] font-semibold tabular-nums tracking-[-0.025em] text-text-primary">
         {amount}
       </span>
     </span>
@@ -90,8 +90,8 @@ function SeriesTooltip({ point, seriesKey }: { point: SeriesPoint; seriesKey: Se
   const value = point[seriesKey];
 
   return (
-    <div className="rounded-[6px] border border-[#dfe5ec] bg-white px-4 py-3 shadow-[0_6px_20px_rgba(15,23,42,0.10)]">
-      <p className="text-[12px] text-[#64748b]">{point.longLabel}</p>
+    <div className="rounded-[6px] border border-border bg-surface px-4 py-3 shadow-[var(--admin-shadow-md)]">
+      <p className="text-[12px] text-text-secondary">{point.longLabel}</p>
       <p className="mt-2 flex items-center gap-2.5">
         <span
           aria-hidden
@@ -101,9 +101,9 @@ function SeriesTooltip({ point, seriesKey }: { point: SeriesPoint; seriesKey: Se
         {config.money ? (
           <MoneyReading value={value} />
         ) : (
-          <span className="text-[15px] font-semibold tabular-nums tracking-[-0.025em] text-[#0f172a]">
+          <span className="text-[15px] font-semibold tabular-nums tracking-[-0.025em] text-text-primary">
             {formatDashboardNumber(value)}{" "}
-            <span className="text-[12px] font-normal text-[#64748b]">{config.unit}</span>
+            <span className="text-[12px] font-normal text-text-secondary">{config.unit}</span>
           </span>
         )}
       </p>
@@ -125,9 +125,9 @@ function SeriesSelect({
         value={value}
         onChange={(event) => onChange(event.target.value as SeriesKey)}
         className={cn(
-          "cursor-pointer appearance-none border border-[#dfe5ec] bg-white py-[7px] pl-3.5 pr-8 text-[13px] font-medium text-[#0f172a]",
+          "cursor-pointer appearance-none border border-border bg-surface py-[7px] pl-3.5 pr-8 text-[13px] font-medium text-text-primary",
           ledgerRadius.control,
-          "transition-colors hover:border-[#cbd5e1]",
+          "transition-colors hover:border-border",
         )}
       >
         {(Object.keys(SERIES) as SeriesKey[]).map((key) => (
@@ -139,7 +139,7 @@ function SeriesSelect({
       <svg
         viewBox="0 0 12 12"
         aria-hidden
-        className="pointer-events-none absolute right-3 h-3 w-3 text-[#64748b]"
+        className="pointer-events-none absolute right-3 h-3 w-3 text-text-secondary"
         fill="none"
         stroke="currentColor"
         strokeWidth="1.6"
@@ -213,7 +213,7 @@ export function SeriesChartModule({
                 setActiveDate(index === null ? null : (data[index]?.date ?? null), "band");
               }}
             >
-              <CartesianGrid stroke="#eef2f7" vertical={false} />
+              <CartesianGrid stroke="var(--border)" vertical={false} />
               <XAxis
                 dataKey="label"
                 tickLine={false}

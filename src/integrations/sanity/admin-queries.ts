@@ -153,8 +153,19 @@ export const adminProductQuickEditQuery = groq`
   }
 `;
 
+/**
+ * \`_id in [$productId, "drafts." + $productId]\` — not \`_id == $productId\` —
+ * so the same query resolves a product whether it's still a draft
+ * mid-creation or already published, without the caller having to know
+ * which. Safe for every existing anonymous caller too: an anonymous
+ * (\`perspective: "published"\`, no token) client still can't see the
+ * \`drafts.*\` half of that filter, so nothing changes for them — only
+ * \`sanityAdminEditFetch\` (write token + \`perspective: "raw"\`) can ever
+ * actually match the draft branch. See its doc comment in
+ * src/integrations/sanity/client.ts for why that split exists.
+ */
 export const adminProductDetailQuery = groq`
-  *[_type == "product" && _id == $productId][0]{
+  *[_type == "product" && _id in [$productId, "drafts." + $productId]][0]{
     _id,
     _rev,
     _updatedAt,

@@ -1,8 +1,6 @@
 import { Prisma } from "@/generated/prisma/client";
 import { getSanityImageUrl } from "@/integrations/sanity/image";
-import { adminProductsInventoryQuery } from "@/integrations/sanity/admin-queries";
-import { sanityFreshFetch } from "@/integrations/sanity/client";
-import { DASHBOARD_PERIODS, type DashboardPeriod } from "@/features/admin/dashboard/server/dashboard-service";
+import { DASHBOARD_PERIODS, getInventoryCatalog, type DashboardPeriod } from "@/features/admin/dashboard/server/dashboard-service";
 import { isPaidOrder } from "@/features/orders/server/order-state-helpers";
 import type { ProductDocument } from "@/types/cms";
 import { prisma } from "@/lib/prisma";
@@ -689,8 +687,12 @@ function isInPeriod(date: Date, start: Date, end: Date) {
 
 async function loadInventoryFallback() {
   try {
-    const inventory = await sanityFreshFetch<ProductInventoryItem[]>(adminProductsInventoryQuery);
-    return normalizeProductInventory(inventory);
+    // Same Sanity catalog query the dashboard service fetches for this
+    // request — request-scoped `cache()` collapses this into the same
+    // in-flight/cached promise instead of a second CDN round trip when both
+    // run together (e.g. the Productos tab).
+    const inventory = await getInventoryCatalog();
+    return normalizeProductInventory(inventory as unknown as ProductInventoryItem[]);
   } catch {
     return new Map<string, { productName: string; productSlug: string; imageUrl: string | null }>();
   }

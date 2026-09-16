@@ -51,6 +51,12 @@ const HISTORICAL_VARIANT_DELETE_MESSAGE =
 
 type AdminProductVariantsSectionProps = {
   product: AdminProductDetailData;
+  /** Crear producto only — see the matching prop on AdminProductImagesSection. */
+  onSaved?: (result: {
+    variants: AdminProductVariantData[];
+    variantSource: "variants" | "colorVariants" | null;
+    legacyColorVariantCount: number;
+  }) => void;
 };
 
 function formatCurrency(value: number) {
@@ -179,7 +185,7 @@ function buildVariantImageDrafts(images: AdminProductVariantData["images"]): Adm
   });
 }
 
-export function AdminProductVariantsSection({ product }: AdminProductVariantsSectionProps) {
+export function AdminProductVariantsSection({ product, onSaved }: AdminProductVariantsSectionProps) {
   const { currentRev, applyCommit } = useAdminProductRevision();
   const [state, formAction, pending] = useActionState(updateProductVariantsAction, INITIAL_STATE);
   const formRef = useRef<HTMLFormElement>(null);
@@ -214,13 +220,18 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
     setDisplayedVariants(state.variants);
     setVariantSource(state.variantSource);
     setLegacyColorVariantCount(state.legacyColorVariantCount);
+    onSaved?.({
+      variants: state.variants,
+      variantSource: state.variantSource,
+      legacyColorVariantCount: state.legacyColorVariantCount,
+    });
     applyCommit({
       source: "variants",
       rev: state.rev,
       updatedAt: state.updatedAt,
     });
     setOpen(false);
-  }, [applyCommit, currentRev, state]);
+  }, [applyCommit, currentRev, onSaved, state]);
 
   const legacyMode = variantSource === "colorVariants" && legacyColorVariantCount > 0;
 
@@ -344,11 +355,16 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
     : null;
   const selectedVariantImages = selectedVariant ? buildVariantImageDrafts(selectedVariant.images) : [];
 
+  // No outer card here — this renders as the "Variantes" sub-section inside
+  // the "Variantes y stock" tab's single card (see admin-product-detail-form.tsx).
+  // It keeps its own title/description/action row (unlike the other moved
+  // sections) since "Agregar variante" belongs paired with the heading it
+  // has always sat beside.
   return (
-    <section className={`${dashboardUi.card} overflow-hidden`}>
-      <div className={`${dashboardUi.cardHeader} border-b border-slate-200/60`}>
+    <>
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h2 className={dashboardUi.sectionTitle}>Variantes</h2>
+          <h3 className={dashboardUi.sectionTitle}>Variantes</h3>
           <p className={dashboardUi.sectionDescription}>Creá y editá variantes del producto.</p>
         </div>
 
@@ -361,24 +377,24 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
         </button>
       </div>
 
-      <div className={dashboardUi.cardBody}>
+      <div className="mt-4">
         {state.status !== "idle" ? (
             <div
               aria-live="polite"
               className={cn(
                 "mb-4 rounded-[18px] border px-4 py-3 text-sm",
                 state.status === "success"
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+                  ? "border-[var(--admin-success)]/25 bg-[var(--admin-success)]/10 text-[color:var(--admin-success)]"
                   : state.status === "conflict"
-                    ? "border-amber-200 bg-amber-50 text-amber-900"
-                    : "border-rose-200 bg-rose-50 text-rose-900",
+                    ? "border-[var(--admin-warning)]/25 bg-[var(--admin-warning)]/10 text-[color:var(--admin-warning)]"
+                    : "border-[var(--admin-danger)]/25 bg-[var(--admin-danger)]/10 text-[color:var(--admin-danger)]",
               )}
           >
             {state.message}
           </div>
         ) : null}
 
-        {legacyMode ? <div className="mb-4 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">Este producto tiene variantes cargadas.</div> : null}
+        {legacyMode ? <div className="mb-4 rounded-[18px] border border-[var(--admin-warning)]/25 bg-[var(--admin-warning)]/10 px-4 py-3 text-sm text-[color:var(--admin-warning)]">Este producto tiene variantes cargadas.</div> : null}
 
         {displayedVariants.length > 0 ? (
           <div className="grid gap-3">
@@ -388,47 +404,47 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                 className={cn(
                   "rounded-[20px] border px-4 py-4",
                   variant.isActive
-                    ? "border-slate-200 bg-white"
-                    : "border-slate-200 bg-slate-50 opacity-80",
+                    ? "border-border bg-surface"
+                    : "border-border bg-surface-elevated opacity-80",
                 )}
               >
                 <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start lg:gap-6">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-base font-semibold tracking-[-0.03em] text-slate-950">{variant.title}</h3>
-                      <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-600">
+                      <h3 className="text-base font-semibold tracking-[-0.03em] text-text-primary">{variant.title}</h3>
+                      <span className="rounded-full border border-border bg-surface-elevated px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-text-secondary">
                         {variant.source === "variants" ? "Actual" : "Anterior"}
                       </span>
                       <span
                         className={cn(
                           "rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]",
                           variant.isActive
-                            ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-                            : "border-slate-200 bg-slate-100 text-slate-600",
+                            ? "border-[var(--admin-success)]/25 bg-[var(--admin-success)]/10 text-[color:var(--admin-success)]"
+                            : "border-border bg-surface-elevated text-text-secondary",
                         )}
                       >
                         {variant.isActive ? "Activa" : "Inactiva"}
                       </span>
                     </div>
 
-                    <p className="mt-1 text-sm text-slate-500">
-                      Valor estable: <span className="font-medium text-slate-700">{variant.value}</span>
+                    <p className="mt-1 text-sm text-text-secondary">
+                      Valor estable: <span className="font-medium text-text-secondary">{variant.value}</span>
                     </p>
-                    <p className="mt-2 text-sm text-slate-600">
+                    <p className="mt-2 text-sm text-text-secondary">
                       {getVariantAttributesSummary(variant.attributes)}
                     </p>
 
                     <div className="mt-3 flex flex-wrap gap-2">
-                      <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700">
+                      <span className="rounded-full border border-border bg-surface-elevated px-3 py-1 text-xs font-medium text-text-secondary">
                         Stock: {variant.stock}
                       </span>
-                      <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700">
+                      <span className="rounded-full border border-border bg-surface-elevated px-3 py-1 text-xs font-medium text-text-secondary">
                         SKU: {variant.sku || "Sin SKU"}
                       </span>
-                      <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700">
+                      <span className="rounded-full border border-border bg-surface-elevated px-3 py-1 text-xs font-medium text-text-secondary">
                         Precio: {typeof variant.basePrice === "number" ? formatCurrency(variant.basePrice) : "Heredado"}
                       </span>
-                      <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700">
+                      <span className="rounded-full border border-border bg-surface-elevated px-3 py-1 text-xs font-medium text-text-secondary">
                         Logística:{" "}
                         {variant.logistics
                           ? formatProductLogisticsSummary(variant.logistics)
@@ -444,7 +460,7 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                       type="button"
                       onClick={() => openEditModal(variant)}
                       disabled={pending}
-                      className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="rounded-full border border-border bg-surface px-4 py-2 text-sm font-semibold text-text-secondary transition hover:bg-surface-elevated disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       Editar
                     </button>
@@ -470,7 +486,7 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                       <button
                         type="submit"
                         disabled={pending}
-                        className="rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-900 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="rounded-full border border-[var(--admin-warning)]/25 bg-[var(--admin-warning)]/10 px-4 py-2 text-sm font-semibold text-[color:var(--admin-warning)] transition hover:bg-[var(--admin-warning)]/15 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         Desactivar
                       </button>
@@ -512,8 +528,8 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                         className={cn(
                           "rounded-full border px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
                           variant.canDelete
-                            ? "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100"
-                            : "border-rose-200 bg-rose-50 text-rose-700 opacity-80 hover:bg-rose-100",
+                            ? "border-[var(--admin-danger)]/25 bg-[var(--admin-danger)]/10 text-[color:var(--admin-danger)] hover:bg-[var(--admin-danger)]/15"
+                            : "border-[var(--admin-danger)]/25 bg-[var(--admin-danger)]/10 text-[color:var(--admin-danger)] opacity-80 hover:bg-[var(--admin-danger)]/15",
                         )}
                       >
                         Eliminar
@@ -525,7 +541,7 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
             ))}
           </div>
         ) : (
-          <div className="rounded-[20px] border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-600">
+          <div className="rounded-[20px] border border-dashed border-border bg-surface-elevated px-4 py-6 text-sm text-text-secondary">
             Este producto todavía no tiene variantes.
           </div>
         )}
@@ -533,13 +549,13 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
 
       {firstVariantChoiceOpen ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#243247]/45 p-3 sm:items-center sm:p-6">
-          <div className="w-full max-w-xl overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.22)]">
+          <div className="w-full max-w-xl overflow-hidden rounded-[28px] border border-border bg-surface shadow-[0_24px_80px_rgba(15,23,42,0.22)]">
             <div className="px-5 py-5">
               <p className={dashboardUi.mutedLabel}>Primera variante</p>
-              <h3 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-slate-950">
+              <h3 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-text-primary">
                 Este producto actualmente tiene precio y stock propios. ¿Querés conservarlo como una opción?
               </h3>
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-text-secondary">
                 Si lo conservás, se creará una variante original con el precio y stock actuales. Si no, solo quedarán las nuevas variantes.
               </p>
 
@@ -547,14 +563,14 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                 <button
                   type="button"
                   onClick={() => setFirstVariantChoiceOpen(false)}
-                  className="rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  className="rounded-full border border-border bg-surface px-4 py-3 text-sm font-semibold text-text-secondary transition hover:bg-surface-elevated"
                 >
                   Cancelar
                 </button>
                 <button
                   type="button"
                   onClick={() => startCreateVariant("variants-only")}
-                  className="rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  className="rounded-full border border-border bg-surface px-4 py-3 text-sm font-semibold text-text-secondary transition hover:bg-surface-elevated"
                 >
                   No, usar solo las nuevas variantes
                 </button>
@@ -576,16 +592,16 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
 
       {open ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#243247]/45 p-3 sm:items-center sm:p-6">
-          <div className="w-full max-w-3xl overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.22)]">
-            <div className="flex items-start justify-between gap-4 border-b border-slate-200/60 px-5 py-5">
+          <div className="w-full max-w-3xl overflow-hidden rounded-[28px] border border-border bg-surface shadow-[0_24px_80px_rgba(15,23,42,0.22)]">
+            <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-5">
               <div className="min-w-0">
                 <p className={dashboardUi.mutedLabel}>
                   {operation === "deactivate" ? "Desactivar variante" : draft.variantKey ? "Editar variante" : "Nueva variante"}
                 </p>
-                <h3 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-slate-950">
+                <h3 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-text-primary">
                   {draft.title || "Sin nombre"}
                 </h3>
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-text-secondary">
                   Identidad estable: <span className="font-medium">{draft.variantKey || "se generará automáticamente"}</span>
                 </p>
               </div>
@@ -593,7 +609,7 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+                className="rounded-full border border-border bg-surface px-3 py-2 text-xs font-semibold text-text-secondary transition hover:bg-surface-elevated"
               >
                 Cerrar
               </button>
@@ -611,52 +627,52 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
               />
               <input type="hidden" name="attributesJson" value={JSON.stringify(normalizeAttributes(draft.attributes))} />
 
-              <label className="grid gap-2 text-sm font-medium text-slate-700 sm:col-span-2">
+              <label className="grid gap-2 text-sm font-medium text-text-secondary sm:col-span-2">
                 <span>Nombre de variante</span>
                 <input
                   name="title"
                   required
                   value={draft.title}
                   onChange={(event) => setDraftField("title", event.target.value)}
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                  className="rounded-[18px] border border-border bg-surface px-4 py-3 text-sm text-text-primary outline-none transition focus:border-primary/50"
                   placeholder="King Size"
                 />
                 {getFieldError(state, "title") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "title")}</span>
+                  <span className="text-xs font-normal text-[color:var(--admin-danger)]">{getFieldError(state, "title")}</span>
                 ) : null}
               </label>
 
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
+              <label className="grid gap-2 text-sm font-medium text-text-secondary">
                 <span>Valor estable</span>
                 <input
                   name="value"
                   required
                   value={draft.value}
                   onChange={(event) => setDraftField("value", event.target.value)}
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                  className="rounded-[18px] border border-border bg-surface px-4 py-3 text-sm text-text-primary outline-none transition focus:border-primary/50"
                   placeholder="king-size"
                 />
-                <p className="text-xs text-slate-500">No cambia aunque edites el nombre visible.</p>
+                <p className="text-xs text-text-secondary">No cambia aunque edites el nombre visible.</p>
                 {getFieldError(state, "value") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "value")}</span>
+                  <span className="text-xs font-normal text-[color:var(--admin-danger)]">{getFieldError(state, "value")}</span>
                 ) : null}
               </label>
 
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
+              <label className="grid gap-2 text-sm font-medium text-text-secondary">
                 <span>SKU</span>
                 <input
                   name="sku"
                   value={draft.sku}
                   onChange={(event) => setDraftField("sku", event.target.value)}
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                  className="rounded-[18px] border border-border bg-surface px-4 py-3 text-sm text-text-primary outline-none transition focus:border-primary/50"
                   placeholder="ABC123"
                 />
                 {getFieldError(state, "sku") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "sku")}</span>
+                  <span className="text-xs font-normal text-[color:var(--admin-danger)]">{getFieldError(state, "sku")}</span>
                 ) : null}
               </label>
 
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
+              <label className="grid gap-2 text-sm font-medium text-text-secondary">
                 <span>Precio propio</span>
                 <input
                   type="number"
@@ -665,16 +681,16 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                   step={1}
                   value={draft.basePrice}
                   onChange={(event) => setDraftField("basePrice", event.target.value)}
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                  className="rounded-[18px] border border-border bg-surface px-4 py-3 text-sm text-text-primary outline-none transition focus:border-primary/50"
                   placeholder="Opcional"
                 />
-                <p className="text-xs text-slate-500">Si lo dejás vacío, hereda el precio del producto.</p>
+                <p className="text-xs text-text-secondary">Si lo dejás vacío, hereda el precio del producto.</p>
                 {getFieldError(state, "basePrice") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "basePrice")}</span>
+                  <span className="text-xs font-normal text-[color:var(--admin-danger)]">{getFieldError(state, "basePrice")}</span>
                 ) : null}
               </label>
 
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
+              <label className="grid gap-2 text-sm font-medium text-text-secondary">
                 <span>Stock</span>
                 <input
                   type="number"
@@ -683,56 +699,56 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                   step={1}
                   value={draft.stock}
                   onChange={(event) => setDraftField("stock", event.target.value)}
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                  className="rounded-[18px] border border-border bg-surface px-4 py-3 text-sm text-text-primary outline-none transition focus:border-primary/50"
                 />
                 {getFieldError(state, "stock") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "stock")}</span>
+                  <span className="text-xs font-normal text-[color:var(--admin-danger)]">{getFieldError(state, "stock")}</span>
                 ) : null}
               </label>
 
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
+              <label className="grid gap-2 text-sm font-medium text-text-secondary">
                 <span>Estado</span>
                 <select
                   name="isActive"
                   value={draft.isActive ? "true" : "false"}
                   onChange={(event: ChangeEvent<HTMLSelectElement>) => setDraftField("isActive", event.target.value === "true")}
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                  className="rounded-[18px] border border-border bg-surface px-4 py-3 text-sm text-text-primary outline-none transition focus:border-primary/50"
                 >
                   <option value="true">Activa</option>
                   <option value="false">Inactiva</option>
                 </select>
                 {getFieldError(state, "isActive") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "isActive")}</span>
+                  <span className="text-xs font-normal text-[color:var(--admin-danger)]">{getFieldError(state, "isActive")}</span>
                 ) : null}
               </label>
 
-              <div className="sm:col-span-2 grid gap-4 rounded-[22px] border border-slate-200 bg-slate-50 p-4">
+              <div className="sm:col-span-2 grid gap-4 rounded-[22px] border border-border bg-surface-elevated p-4">
                 <div>
-                  <p className="text-sm font-medium text-slate-700">Logística y envío</p>
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="text-sm font-medium text-text-secondary">Logística y envío</p>
+                  <p className="mt-1 text-xs text-text-secondary">
                     Podés usar las medidas del producto o cargar un override completo para esta variante.
                   </p>
                 </div>
 
-                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                <label className="grid gap-2 text-sm font-medium text-text-secondary">
                   <span>Medidas</span>
                   <select
                     name="logisticsMode"
                     value={draft.logisticsMode}
                     onChange={(event) => setDraftField("logisticsMode", event.target.value)}
-                    className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                    className="rounded-[18px] border border-border bg-surface px-4 py-3 text-sm text-text-primary outline-none transition focus:border-primary/50"
                   >
                     <option value="inherit">Usar medidas del producto</option>
                     <option value="custom">Cargar medidas propias</option>
                   </select>
                   {getFieldError(state, "logisticsMode") ? (
-                    <span className="text-xs font-normal text-rose-600">{getFieldError(state, "logisticsMode")}</span>
+                    <span className="text-xs font-normal text-[color:var(--admin-danger)]">{getFieldError(state, "logisticsMode")}</span>
                   ) : null}
                 </label>
 
                 {draft.logisticsMode === "custom" ? (
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <label className="grid gap-2 text-sm font-medium text-slate-700">
+                    <label className="grid gap-2 text-sm font-medium text-text-secondary">
                       <span>Peso (g)</span>
                       <input
                         type="number"
@@ -741,15 +757,15 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                         step={1}
                         value={draft.weightGrams}
                         onChange={(event) => setDraftField("weightGrams", event.target.value)}
-                        className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                        className="rounded-[18px] border border-border bg-surface px-4 py-3 text-sm text-text-primary outline-none transition focus:border-primary/50"
                         placeholder="Ej: 1200"
                       />
                       {getFieldError(state, "weightGrams") ? (
-                        <span className="text-xs font-normal text-rose-600">{getFieldError(state, "weightGrams")}</span>
+                        <span className="text-xs font-normal text-[color:var(--admin-danger)]">{getFieldError(state, "weightGrams")}</span>
                       ) : null}
                     </label>
 
-                    <label className="grid gap-2 text-sm font-medium text-slate-700">
+                    <label className="grid gap-2 text-sm font-medium text-text-secondary">
                       <span>Alto (cm)</span>
                       <input
                         type="number"
@@ -758,15 +774,15 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                         step={0.1}
                         value={draft.heightCm}
                         onChange={(event) => setDraftField("heightCm", event.target.value)}
-                        className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                        className="rounded-[18px] border border-border bg-surface px-4 py-3 text-sm text-text-primary outline-none transition focus:border-primary/50"
                         placeholder="Ej: 20"
                       />
                       {getFieldError(state, "heightCm") ? (
-                        <span className="text-xs font-normal text-rose-600">{getFieldError(state, "heightCm")}</span>
+                        <span className="text-xs font-normal text-[color:var(--admin-danger)]">{getFieldError(state, "heightCm")}</span>
                       ) : null}
                     </label>
 
-                    <label className="grid gap-2 text-sm font-medium text-slate-700">
+                    <label className="grid gap-2 text-sm font-medium text-text-secondary">
                       <span>Ancho (cm)</span>
                       <input
                         type="number"
@@ -775,15 +791,15 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                         step={0.1}
                         value={draft.widthCm}
                         onChange={(event) => setDraftField("widthCm", event.target.value)}
-                        className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                        className="rounded-[18px] border border-border bg-surface px-4 py-3 text-sm text-text-primary outline-none transition focus:border-primary/50"
                         placeholder="Ej: 30"
                       />
                       {getFieldError(state, "widthCm") ? (
-                        <span className="text-xs font-normal text-rose-600">{getFieldError(state, "widthCm")}</span>
+                        <span className="text-xs font-normal text-[color:var(--admin-danger)]">{getFieldError(state, "widthCm")}</span>
                       ) : null}
                     </label>
 
-                    <label className="grid gap-2 text-sm font-medium text-slate-700">
+                    <label className="grid gap-2 text-sm font-medium text-text-secondary">
                       <span>Profundidad (cm)</span>
                       <input
                         type="number"
@@ -792,16 +808,16 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                         step={0.1}
                         value={draft.depthCm}
                         onChange={(event) => setDraftField("depthCm", event.target.value)}
-                        className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                        className="rounded-[18px] border border-border bg-surface px-4 py-3 text-sm text-text-primary outline-none transition focus:border-primary/50"
                         placeholder="Ej: 15"
                       />
                       {getFieldError(state, "depthCm") ? (
-                        <span className="text-xs font-normal text-rose-600">{getFieldError(state, "depthCm")}</span>
+                        <span className="text-xs font-normal text-[color:var(--admin-danger)]">{getFieldError(state, "depthCm")}</span>
                       ) : null}
                     </label>
                   </div>
                 ) : (
-                  <div className="rounded-[18px] border border-dashed border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+                  <div className="rounded-[18px] border border-dashed border-border bg-surface px-4 py-3 text-sm text-text-secondary">
                     La variante heredará el peso y las dimensiones del producto si están definidos.
                   </div>
                 )}
@@ -816,22 +832,22 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                   onCanSaveChange={setVariantImagesCanSave}
                 />
                 {getFieldError(state, "variantImagesJson") ? (
-                  <p className="mt-2 text-xs font-medium text-rose-600">{getFieldError(state, "variantImagesJson")}</p>
+                  <p className="mt-2 text-xs font-medium text-[color:var(--admin-danger)]">{getFieldError(state, "variantImagesJson")}</p>
                 ) : null}
               </div>
 
               <div className="sm:col-span-2">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-sm font-medium text-slate-700">Atributos</p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="text-sm font-medium text-text-secondary">Atributos</p>
+                    <p className="mt-1 text-xs text-text-secondary">
                       Usá solo estos nombres: Color, Tamaño, Modelo o Talle.
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={addAttribute}
-                    className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                    className="rounded-full border border-border bg-surface px-3 py-2 text-xs font-semibold text-text-secondary transition hover:bg-surface-elevated"
                   >
                     Agregar atributo
                   </button>
@@ -839,13 +855,13 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
 
                 <div className="mt-3 grid gap-3">
                   {draft.attributes.map((attribute, index) => (
-                    <div key={`${index}-${attribute.name}`} className="grid gap-3 rounded-[18px] border border-slate-200 bg-slate-50 p-4 sm:grid-cols-[minmax(10rem,0.8fr)_minmax(0,1fr)_auto] sm:items-end">
-                      <label className="grid gap-2 text-sm font-medium text-slate-700">
+                    <div key={`${index}-${attribute.name}`} className="grid gap-3 rounded-[18px] border border-border bg-surface-elevated p-4 sm:grid-cols-[minmax(10rem,0.8fr)_minmax(0,1fr)_auto] sm:items-end">
+                      <label className="grid gap-2 text-sm font-medium text-text-secondary">
                         <span>Nombre</span>
                         <select
                           value={attribute.name}
                           onChange={(event) => updateAttribute(index, "name", event.target.value)}
-                          className="rounded-[16px] border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                          className="rounded-[16px] border border-border bg-surface px-3 py-2.5 text-sm text-text-primary outline-none transition focus:border-primary/50"
                         >
                           {ADMIN_PRODUCT_VARIANT_ATTRIBUTE_NAMES.map((name) => (
                             <option key={name} value={name}>
@@ -854,19 +870,19 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                           ))}
                         </select>
                       </label>
-                      <label className="grid gap-2 text-sm font-medium text-slate-700">
+                      <label className="grid gap-2 text-sm font-medium text-text-secondary">
                         <span>Valor</span>
                         <input
                           value={attribute.value}
                           onChange={(event) => updateAttribute(index, "value", event.target.value)}
-                          className="rounded-[16px] border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                          className="rounded-[16px] border border-border bg-surface px-3 py-2.5 text-sm text-text-primary outline-none transition focus:border-primary/50"
                           placeholder="Beige"
                         />
                       </label>
                       <button
                         type="button"
                         onClick={() => removeAttribute(index)}
-                        className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-100"
+                        className="rounded-full border border-border bg-surface px-3 py-2 text-xs font-semibold text-text-secondary transition hover:bg-surface-elevated"
                       >
                         Quitar
                       </button>
@@ -874,15 +890,15 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                   ))}
                 </div>
                 {getFieldError(state, "attributesJson") ? (
-                  <p className="mt-2 text-xs font-medium text-rose-600">{getFieldError(state, "attributesJson")}</p>
+                  <p className="mt-2 text-xs font-medium text-[color:var(--admin-danger)]">{getFieldError(state, "attributesJson")}</p>
                 ) : null}
               </div>
 
-              <div className="sm:col-span-2 flex flex-col-reverse gap-3 border-t border-slate-200/60 pt-4 sm:flex-row sm:items-center sm:justify-end">
+              <div className="sm:col-span-2 flex flex-col-reverse gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-end">
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  className="rounded-full border border-border bg-surface px-5 py-3 text-sm font-semibold text-text-secondary transition hover:bg-surface-elevated"
                 >
                   Cancelar
                 </button>
@@ -890,7 +906,7 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
                   type="submit"
                   disabled={pending || !variantImagesCanSave}
                   className={cn(
-                    "rounded-full border px-5 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-300",
+                    "rounded-full border px-5 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:border-border disabled:bg-surface-elevated",
                     dashboardUi.primaryAction,
                   )}
                 >
@@ -907,6 +923,6 @@ export function AdminProductVariantsSection({ product }: AdminProductVariantsSec
           </div>
         </div>
       ) : null}
-    </section>
+    </>
   );
 }

@@ -21,32 +21,24 @@ export function ChartCard({
   compactMobile = false,
 }: ChartCardProps) {
   return (
-    <section
-      className={cn(
-        "min-w-0 overflow-hidden rounded-[12px] border border-[#e8e5e1] bg-white shadow-[0_1px_3px_rgba(15,23,42,0.04),0_4px_12px_rgba(15,23,42,0.04)]",
-        className,
-      )}
-    >
-      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
+    <section className={cn("min-w-0 overflow-hidden rounded-2xl border border-border bg-surface", className)}>
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-3">
         <div className="min-w-0">
-          <h2 className="text-[15px] font-semibold tracking-[-0.02em] text-slate-900">{title}</h2>
+          <h2 className="text-[13px] font-semibold tracking-[-0.01em] text-text-primary">{title}</h2>
           {description ? (
-            <p className={cn("mt-0.5 text-[12px] text-slate-400", compactMobile && "hidden sm:block")}>
+            <p className={cn("mt-0.5 text-[11.5px] text-text-secondary", compactMobile && "hidden sm:block")}>
               {description}
             </p>
           ) : null}
         </div>
         {action ? (
-          <Link
-            href={action.href}
-            className="shrink-0 text-[12px] font-medium text-[#9d7d62] transition-colors hover:text-[#7a6249]"
-          >
+          <Link href={action.href} className="shrink-0 text-[12px] font-medium text-primary transition-colors hover:underline underline-offset-[3px]">
             {action.label} →
           </Link>
         ) : null}
       </div>
 
-      <div className={cn("px-5 py-4", compactMobile && "px-4 py-4 sm:px-5")}>
+      <div className={cn("px-4 py-4", compactMobile && "px-3.5 py-3.5 sm:px-4")}>
         {children}
         {emptyState ? emptyState : null}
       </div>

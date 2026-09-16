@@ -98,16 +98,16 @@ export function AcqKpi({
       <div className="flex items-center gap-3">
         <span
           aria-hidden
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] bg-[#f1f5f9] text-slate-500"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] bg-surface-elevated text-text-secondary"
         >
           {icon}
         </span>
-        <p className="min-w-0 truncate text-[13.5px] text-slate-600">{label}</p>
+        <p className="min-w-0 truncate text-[13.5px] text-text-secondary">{label}</p>
       </div>
-      <p className="mt-4 text-[2rem] font-semibold leading-none tabular-nums tracking-[-0.035em] text-slate-900">
+      <p className="mt-4 text-[2rem] font-semibold leading-none tabular-nums tracking-[-0.035em] text-text-primary">
         {value}
       </p>
-      <p className="mt-3 text-[12px] leading-[1.4] text-slate-500">{description}</p>
+      <p className="mt-3 text-[12px] leading-[1.4] text-text-secondary">{description}</p>
     </article>
   );
 }
@@ -117,7 +117,7 @@ function Chevron() {
     <svg
       viewBox="0 0 12 12"
       aria-hidden
-      className="h-3.5 w-3.5 shrink-0 text-slate-300 transition-colors group-hover:text-slate-500"
+      className="h-3.5 w-3.5 shrink-0 text-text-secondary/60 transition-colors group-hover:text-text-secondary"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.6"
@@ -132,13 +132,16 @@ function Chevron() {
 /**
  * The reference's second row. Each card carries a tint, reading left to right as
  * neutral, paid, conversion and revenue — the same semantic scale the rest of
- * Analytics uses, in its coolest values.
+ * Analytics uses, in its coolest values. `ink` is the one color each tone
+ * owns; surface and tile are derived from it with `color-mix`, so both stay
+ * correct in light and dark automatically instead of needing a second,
+ * hand-picked hex per theme.
  */
 export const highlightTones = {
-  neutral: { surface: "#ffffff", tile: "#f1f5f9", ink: "#64748b" },
-  positive: { surface: "#f4fbf7", tile: "#dcf1e6", ink: "#14804b" },
-  info: { surface: "#f5f7fe", tile: "#e2e8fb", ink: "#4f52c9" },
-  warning: { surface: "#fdfaf3", tile: "#fbeed3", ink: "#b45309" },
+  neutral: { ink: "var(--admin-text-secondary)" },
+  positive: { ink: "var(--admin-success)" },
+  info: { ink: "#4f52c9" },
+  warning: { ink: "var(--admin-warning)" },
 } as const;
 
 export type HighlightTone = keyof typeof highlightTones;
@@ -159,23 +162,25 @@ export function AcqHighlight({
   tone?: HighlightTone;
 }) {
   const palette = highlightTones[tone];
+  const surfaceColor = `color-mix(in srgb, ${palette.ink} 8%, var(--surface))`;
+  const tileColor = `color-mix(in srgb, ${palette.ink} 20%, var(--surface))`;
 
   const body = (
     <>
       <span
         aria-hidden
         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px]"
-        style={{ backgroundColor: palette.tile, color: palette.ink }}
+        style={{ backgroundColor: tileColor, color: palette.ink }}
       >
         {icon}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[12px] text-slate-500">{label}</span>
-        <span className="mt-1 block truncate text-[15px] font-semibold tracking-[-0.02em] text-slate-900">
+        <span className="block truncate text-[12px] text-text-secondary">{label}</span>
+        <span className="mt-1 block truncate text-[15px] font-semibold tracking-[-0.02em] text-text-primary">
           {value}
         </span>
         {subtitle ? (
-          <span className="mt-1 block truncate text-[12px] tabular-nums text-slate-500">
+          <span className="mt-1 block truncate text-[12px] tabular-nums text-text-secondary">
             {subtitle}
           </span>
         ) : null}
@@ -185,20 +190,20 @@ export function AcqHighlight({
   );
 
   const className = cn(
-    "group flex items-center gap-3 rounded-[12px] border border-[#e3e8ef] px-4 py-4",
-    href && "transition-colors hover:border-[#cbd5e1]",
+    "group flex items-center gap-3 rounded-[12px] border border-border px-4 py-4",
+    href && "transition-colors hover:border-text-secondary/40",
   );
 
   if (href) {
     return (
-      <Link href={href} className={className} style={{ backgroundColor: palette.surface }}>
+      <Link href={href} className={className} style={{ backgroundColor: surfaceColor }}>
         {body}
       </Link>
     );
   }
 
   return (
-    <article className={className} style={{ backgroundColor: palette.surface }}>
+    <article className={className} style={{ backgroundColor: surfaceColor }}>
       {body}
     </article>
   );
@@ -242,7 +247,7 @@ export function AcqModule({
             {action.label} →
           </Link>
         ) : periodLabel ? (
-          <span className="shrink-0 rounded-[6px] border border-[#e3e8ef] bg-[#f8fafc] px-3 py-[6px] text-[12px] font-medium text-slate-600">
+          <span className="shrink-0 rounded-[6px] border border-border bg-surface-elevated px-3 py-[6px] text-[12px] font-medium text-text-secondary">
             {periodLabel}
           </span>
         ) : null}

@@ -8,9 +8,9 @@ export const customerColor = {
   /** New customers, bar fills, active marks. */
   primary: "#3b7ff5",
   /** Returning customers: the same hue, far lighter. */
-  secondary: "#bcd4fb",
-  /** The rail a bar sits in — a blue tint, not grey. */
-  track: "#e8effd",
-  tilePrimary: "#e8effd",
-  tileSecondary: "#f1f6fe",
+  secondary: "#7dabf9",
+  /** The rail a bar sits in. */
+  track: "var(--admin-surface-elevated)",
+  tilePrimary: "var(--admin-info-soft)",
+  tileSecondary: "var(--admin-surface-elevated)",
 } as const;

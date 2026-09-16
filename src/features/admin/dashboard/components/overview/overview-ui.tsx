@@ -8,19 +8,19 @@ import { cn } from "@/lib/utils";
  */
 export const overviewColor = {
   // ── Surfaces · three planes, so a module reads as an object ──────────
-  canvas: "#f1f5f9",
-  surface: "#ffffff",
-  surfaceSunken: "#f8fafc",
+  canvas: "var(--background)",
+  surface: "var(--surface)",
+  surfaceSunken: "var(--admin-surface-elevated)",
 
   // ── Text ─────────────────────────────────────────────────────────────
-  ink: "#0f172a",
-  inkSecondary: "#475569",
-  muted: "#64748b",
+  ink: "var(--admin-text-primary)",
+  inkSecondary: "var(--admin-text-secondary)",
+  muted: "var(--admin-text-secondary)",
 
   // ── Borders ──────────────────────────────────────────────────────────
-  borderSubtle: "#eef2f7",
-  border: "#e2e8f0",
-  borderStrong: "#cbd5e1",
+  borderSubtle: "var(--border)",
+  border: "var(--border)",
+  borderStrong: "var(--admin-text-secondary)",
 
   // ── Action · one hue owns every interactive role ─────────────────────
   action: "#4f52c9",
@@ -84,11 +84,10 @@ export const overviewCategorical = [
 ] as const;
 
 export const overviewUi = {
-  module:
-    "rounded-[12px] border border-[#e2e8f0] bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_28px_-18px_rgba(15,23,42,0.18)]",
-  title: "text-[15px] font-semibold tracking-[-0.015em] text-slate-900",
-  note: "text-[12px] leading-[1.45] text-slate-500",
-  label: "text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500",
+  module: "rounded-2xl border border-border bg-surface",
+  title: "text-[13px] font-semibold tracking-[-0.01em] text-text-primary",
+  note: "text-[11.5px] leading-[1.45] text-text-secondary",
+  label: "text-[10px] font-semibold uppercase tracking-[0.14em] text-text-secondary",
 } as const;
 
 /**
@@ -244,18 +243,15 @@ export function OverviewKpi({
   note?: string;
 }) {
   return (
-    <article className={cn(overviewUi.module, "flex items-center gap-5 px-6 py-6")}>
+    <article className={cn(overviewUi.module, "flex items-center gap-5 px-5 py-5")}>
       <div className="min-w-0 flex-1">
-        <p className="text-[2rem] font-semibold leading-none tracking-[-0.035em] tabular-nums text-slate-900">
+        <p className="text-[1.625rem] font-semibold leading-none tracking-[-0.02em] tabular-nums text-text-primary">
           {value}
         </p>
-        <p className="mt-2.5 text-[14px] text-slate-500">{label}</p>
+        <p className="mt-2 text-[12.5px] text-text-secondary">{label}</p>
         {delta ? (
-          <p className="mt-3.5 flex flex-wrap items-center gap-x-1.5 text-[12.5px] text-slate-500">
-            <span
-              className="inline-flex items-center gap-1 font-semibold tabular-nums"
-              style={{ color: delta.rising ? overviewColor.positive : overviewColor.negative }}
-            >
+          <p className="mt-3 flex flex-wrap items-center gap-x-1.5 text-[12px] text-text-secondary">
+            <span className={cn("inline-flex items-center gap-1 font-semibold tabular-nums", delta.rising ? "text-success" : "text-danger")}>
               <DeltaArrow direction={delta.rising ? "up" : "down"} />
               {new Intl.NumberFormat("es-AR", { maximumFractionDigits: 1 }).format(
                 Math.abs(delta.changePercent),
@@ -267,7 +263,7 @@ export function OverviewKpi({
             </span>
           </p>
         ) : (
-          <p className="mt-3.5 text-[12.5px] leading-[1.35] text-slate-500">{note}</p>
+          <p className="mt-3 text-[12px] leading-[1.35] text-text-secondary">{note}</p>
         )}
       </div>
 
@@ -299,16 +295,13 @@ export function OverviewModule({
 }) {
   return (
     <section className={cn(overviewUi.module, "flex min-w-0 flex-col overflow-hidden", className)}>
-      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 px-5 pb-4 pt-5">
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1.5 border-b border-border px-4 py-3">
         <div className="min-w-0">
           <h2 className={overviewUi.title}>{title}</h2>
-          {note ? <p className={cn(overviewUi.note, "mt-1")}>{note}</p> : null}
+          {note ? <p className={cn(overviewUi.note, "mt-0.5")}>{note}</p> : null}
         </div>
         {action ? (
-          <Link
-            href={action.href}
-            className="shrink-0 text-[12px] font-medium text-[#2f5fd0] underline-offset-[3px] hover:underline"
-          >
+          <Link href={action.href} className="shrink-0 text-[12px] font-medium text-primary underline-offset-[3px] hover:underline">
             {action.label} →
           </Link>
         ) : null}

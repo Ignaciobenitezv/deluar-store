@@ -57,7 +57,7 @@ export function DeltaReading({
 }) {
   if (delta.direction === "unmeasurable") {
     return (
-      <p className="text-[12.5px] leading-[1.35] text-[#64748b]">
+      <p className="text-[12.5px] leading-[1.35] text-text-secondary">
         {comparisonAvailable ? "Sin base en el período anterior" : "Sin período comparable"}
       </p>
     );
@@ -65,7 +65,7 @@ export function DeltaReading({
 
   if (delta.direction === "flat" || delta.changePercent === null) {
     return (
-      <p className="text-[12.5px] leading-[1.35] text-[#64748b]">
+      <p className="text-[12.5px] leading-[1.35] text-text-secondary">
         Sin cambios · antes <span className="tabular-nums">{previousFormatted}</span>
       </p>
     );
@@ -74,7 +74,7 @@ export function DeltaReading({
   const rising = delta.direction === "up";
 
   return (
-    <p className="flex flex-wrap items-center gap-x-1.5 text-[12.5px] leading-[1.35] text-[#64748b]">
+    <p className="flex flex-wrap items-center gap-x-1.5 text-[12.5px] leading-[1.35] text-text-secondary">
       <span
         className="inline-flex items-center gap-1 font-semibold tabular-nums"
         style={{ color: rising ? ledgerColor.positive : ledgerColor.negative }}
@@ -82,7 +82,7 @@ export function DeltaReading({
         <DeltaArrow direction={rising ? "up" : "down"} />
         {formatChange(delta.changePercent)}
       </span>
-      <span aria-hidden className="text-[#cbd5e1]">
+      <span aria-hidden className="text-text-secondary">
         ·
       </span>
       <span>
@@ -179,14 +179,14 @@ export function MetricBand({
   return (
     // The container's own colour shows through the 1px gaps, so every cell is
     // divided by a hairline at any breakpoint without boxing any of them.
-    <div className="grid grid-cols-2 gap-px bg-[#eef2f7] md:grid-cols-3 xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-px bg-surface-elevated md:grid-cols-3 xl:grid-cols-5">
       {items.map((item) => (
         <div
           key={item.label}
-          className="flex min-w-0 flex-col justify-between gap-5 bg-white px-6 pb-5 pt-5"
+          className="flex min-w-0 flex-col justify-between gap-5 bg-surface px-6 pb-5 pt-5"
         >
           <div className="min-w-0">
-            <p className="text-[14.5px] font-medium leading-none text-[#334155]">
+            <p className="text-[14.5px] font-medium leading-none text-text-primary">
               {item.label}
             </p>
             <p className={cn("mt-3 text-[1.9rem] font-semibold leading-none", ledgerUi.figure)}>
@@ -200,7 +200,7 @@ export function MetricBand({
                   comparisonAvailable={comparisonAvailable}
                 />
               ) : (
-                <p className="text-[12.5px] leading-[1.35] text-[#64748b]">
+                <p className="text-[12.5px] leading-[1.35] text-text-secondary">
                   {item.description}
                 </p>
               )}
@@ -216,7 +216,7 @@ export function MetricBand({
       ))}
       {/* Keeps the grid's gap colour from showing as a block in the empty
           trailing slot below xl, where five cells do not fill the row. */}
-      <div className="bg-white xl:hidden" aria-hidden />
+      <div className="bg-surface xl:hidden" aria-hidden />
     </div>
   );
 }

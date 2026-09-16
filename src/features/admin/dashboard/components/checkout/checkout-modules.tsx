@@ -84,8 +84,8 @@ export function DeltaChip({
 }) {
   if (delta.direction === "unmeasurable") {
     return (
-      <span className="inline-flex items-center gap-1 text-[12px] text-slate-400">
-        <span aria-hidden className="text-slate-300">
+      <span className="inline-flex items-center gap-1 text-[12px] text-text-secondary">
+        <span aria-hidden className="text-text-secondary">
           —
         </span>
         sin base previa
@@ -94,7 +94,7 @@ export function DeltaChip({
   }
 
   if (delta.direction === "flat") {
-    return <span className="text-[12px] text-slate-500">Sin cambios</span>;
+    return <span className="text-[12px] text-text-secondary">Sin cambios</span>;
   }
 
   const rising = delta.direction === "up";
@@ -133,7 +133,7 @@ export function CheckoutKpi({
 }) {
   const bar = tone === "primary" ? checkoutColor.primary : "#7dabf9";
   const tile = tone === "primary" ? checkoutColor.tile : checkoutColor.tileSoft;
-  const ink = tone === "primary" ? checkoutColor.primary : "#6f9bea";
+  const ink = tone === "primary" ? checkoutColor.primary : "#7dabf9";
   const max = Math.max(...series, 0);
 
   return (
@@ -145,10 +145,10 @@ export function CheckoutKpi({
       >
         {icon}
       </span>
-      <p className="mt-3.5 truncate text-[13px] text-slate-600">{label}</p>
+      <p className="mt-3.5 truncate text-[13px] text-text-secondary">{label}</p>
 
       <div className="mt-2 flex items-end justify-between gap-4">
-        <p className="min-w-0 text-[1.8rem] font-semibold leading-none tabular-nums tracking-[-0.035em] text-slate-900">
+        <p className="min-w-0 text-[1.8rem] font-semibold leading-none tabular-nums tracking-[-0.035em] text-text-primary">
           {value}
         </p>
         {series.length > 0 ? (
@@ -167,7 +167,7 @@ export function CheckoutKpi({
         ) : null}
       </div>
 
-      <p className="mt-2.5 flex flex-wrap items-center gap-x-1.5 text-[12px] text-slate-500">
+      <p className="mt-2.5 flex flex-wrap items-center gap-x-1.5 text-[12px] text-text-secondary">
         <DeltaChip delta={delta} />
         {delta.direction === "unmeasurable" ? null : <span>vs. período anterior</span>}
       </p>
@@ -225,7 +225,7 @@ export function CheckoutNote({
   return (
     <div
       className="mx-5 mb-5 flex items-start gap-3 rounded-[8px] px-4 py-3.5"
-      style={{ backgroundColor: warning ? "#fdf3e3" : checkoutColor.tileSoft }}
+      style={{ backgroundColor: warning ? "var(--admin-warning-soft)" : checkoutColor.tileSoft }}
     >
       <span
         aria-hidden
@@ -245,8 +245,8 @@ export function CheckoutNote({
         </svg>
       </span>
       <span className="min-w-0">
-        <span className="block text-[12.5px] font-medium text-slate-800">{title}</span>
-        <span className="mt-0.5 block text-[12px] leading-[1.45] text-slate-500">{body}</span>
+        <span className="block text-[12.5px] font-medium text-text-primary">{title}</span>
+        <span className="mt-0.5 block text-[12px] leading-[1.45] text-text-secondary">{body}</span>
       </span>
     </div>
   );

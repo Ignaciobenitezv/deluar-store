@@ -38,11 +38,11 @@ export function ProductEvolution({
       <div style={{ height }} className="relative w-full min-w-0">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={data} margin={{ top: 6, right: 6, bottom: 0, left: 0 }}>
-            <CartesianGrid stroke="#eef2f7" vertical={false} />
+            <CartesianGrid stroke="var(--border)" vertical={false} />
             <XAxis
               dataKey="label"
               tickLine={false}
-              axisLine={{ stroke: "#e2e8f0" }}
+              axisLine={{ stroke: "var(--border)" }}
               interval="preserveStartEnd"
               minTickGap={36}
               tickMargin={12}
@@ -84,10 +84,10 @@ export function ProductEvolution({
                   }
 
                   return (
-                    <div className="rounded-[6px] border border-[#e2e8f0] bg-white px-3.5 py-2.5 shadow-[0_6px_20px_rgba(15,23,42,0.10)]">
-                      <p className="text-[12px] text-slate-500">{point.label}</p>
+                    <div className="rounded-[6px] border border-border bg-surface px-3.5 py-2.5 shadow-[var(--admin-shadow-md)]">
+                      <p className="text-[12px] text-text-secondary">{point.label}</p>
                       <p className="mt-2 flex items-center justify-between gap-6 text-[13px]">
-                        <span className="flex items-center gap-2 text-slate-600">
+                        <span className="flex items-center gap-2 text-text-secondary">
                           <span
                             aria-hidden
                             className="h-[7px] w-[7px] rounded-full"
@@ -95,12 +95,12 @@ export function ProductEvolution({
                           />
                           Unidades
                         </span>
-                        <span className="font-semibold tabular-nums text-slate-900">
+                        <span className="font-semibold tabular-nums text-text-primary">
                           {formatDashboardNumber(point.unitsSold)}
                         </span>
                       </p>
                       <p className="mt-1 flex items-center justify-between gap-6 text-[13px]">
-                        <span className="flex items-center gap-2 text-slate-600">
+                        <span className="flex items-center gap-2 text-text-secondary">
                           <span
                             aria-hidden
                             className="h-[7px] w-[7px] rounded-full"
@@ -108,7 +108,7 @@ export function ProductEvolution({
                           />
                           Facturación
                         </span>
-                        <span className="font-semibold tabular-nums text-slate-900">
+                        <span className="font-semibold tabular-nums text-text-primary">
                           {formatDashboardPrice(point.revenue)}
                         </span>
                       </p>
@@ -133,14 +133,14 @@ export function ProductEvolution({
               stroke={overviewColor.action}
               strokeWidth={2}
               dot={{ r: 2.5, fill: overviewColor.action, strokeWidth: 0 }}
-              activeDot={{ r: 4, fill: overviewColor.action, stroke: "#ffffff", strokeWidth: 2 }}
+              activeDot={{ r: 4, fill: overviewColor.action, stroke: "var(--surface)", strokeWidth: 2 }}
               animationDuration={700}
             />
           </ComposedChart>
         </ResponsiveContainer>
 
         {!hasValues ? (
-          <p className="pointer-events-none absolute inset-0 flex items-center justify-center pb-6 text-[12.5px] text-slate-500">
+          <p className="pointer-events-none absolute inset-0 flex items-center justify-center pb-6 text-[12.5px] text-text-secondary">
             Sin ventas registradas en el período.
           </p>
         ) : null}
@@ -151,7 +151,7 @@ export function ProductEvolution({
 
 export function ProductEvolutionLegend() {
   return (
-    <div className="flex shrink-0 items-center gap-4 text-[12px] text-slate-600">
+    <div className="flex shrink-0 items-center gap-4 text-[12px] text-text-secondary">
       <span className="flex items-center gap-2">
         <span
           aria-hidden
@@ -197,7 +197,7 @@ export function CategoryDonut({
     <div className="flex flex-col items-center gap-6 px-5 pb-5 lg:flex-row lg:gap-7">
       <div className="relative shrink-0">
         <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="-rotate-90" style={{ width: SIZE, height: SIZE }}>
-          <circle cx={SIZE / 2} cy={SIZE / 2} r={RADIUS} fill="none" stroke="#eef2f7" strokeWidth={STROKE} />
+          <circle cx={SIZE / 2} cy={SIZE / 2} r={RADIUS} fill="none" stroke="var(--border)" strokeWidth={STROKE} />
           {total > 0
             ? slices.map((slice, index) => {
                 if (slice.revenue <= 0) {
@@ -226,10 +226,10 @@ export function CategoryDonut({
             : null}
         </svg>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-[1.4rem] font-semibold leading-none tabular-nums tracking-[-0.035em] text-slate-900">
+          <span className="text-[1.4rem] font-semibold leading-none tabular-nums tracking-[-0.035em] text-text-primary">
             {totalLabel}
           </span>
-          <span className="mt-1.5 text-[12px] text-slate-500">Total</span>
+          <span className="mt-1.5 text-[12px] text-text-secondary">Total</span>
         </div>
       </div>
 
@@ -244,10 +244,10 @@ export function CategoryDonut({
                 className="h-[9px] w-[9px] shrink-0 rounded-full"
                 style={{ backgroundColor: CATEGORY_SCALE[index % CATEGORY_SCALE.length] }}
               />
-              <span className="min-w-0 flex-1 truncate text-[13px] text-slate-700">
+              <span className="min-w-0 flex-1 truncate text-[13px] text-text-primary">
                 {slice.category}
               </span>
-              <span className="w-12 shrink-0 text-right text-[13px] font-semibold tabular-nums text-slate-900">
+              <span className="w-12 shrink-0 text-right text-[13px] font-semibold tabular-nums text-text-primary">
                 {slice.share.toFixed(0)}%
               </span>
             </li>

@@ -8,7 +8,7 @@ const HEAD = "px-3 py-3 text-left font-semibold first:pl-6 last:pr-6";
 /** A rate reads as a chip so the column scans as state, not as more numbers. */
 function RateChip({ value }: { value: number | null }) {
   if (value === null) {
-    return <span className="text-[13px] text-slate-400">—</span>;
+    return <span className="text-[13px] text-text-secondary">—</span>;
   }
 
   const active = value > 0;
@@ -17,7 +17,7 @@ function RateChip({ value }: { value: number | null }) {
     <span
       className="inline-flex items-center rounded-full px-2 py-[3px] text-[12.5px] font-semibold tabular-nums"
       style={{
-        backgroundColor: active ? overviewColor.positiveSoft : "#f1f5f9",
+        backgroundColor: active ? overviewColor.positiveSoft : "var(--admin-surface-elevated)",
         color: active ? overviewColor.positive : overviewColor.muted,
       }}
     >
@@ -48,7 +48,7 @@ export function SourceConversionTable({ rows }: { rows: SourceRow[] }) {
   return (
     <table className="w-full border-collapse">
       <thead>
-        <tr className="border-y border-[#e3e8ef] bg-[#f8fafc]">
+        <tr className="border-y border-border bg-surface-elevated">
           <th scope="col" className={cn(overviewUi.label, HEAD, "w-9")}>
             #
           </th>
@@ -74,21 +74,21 @@ export function SourceConversionTable({ rows }: { rows: SourceRow[] }) {
       </thead>
       <tbody>
         {rows.map((row, index) => (
-          <tr key={row.source} className="border-b border-[#eef2f7] last:border-b-0">
-            <td className={cn(CELL, "text-[12.5px] tabular-nums text-slate-400")}>{index + 1}</td>
+          <tr key={row.source} className="border-b border-border last:border-b-0">
+            <td className={cn(CELL, "text-[12.5px] tabular-nums text-text-secondary")}>{index + 1}</td>
             <td className={cn(CELL, "max-w-0")}>
-              <span className="block truncate text-[13.5px] text-slate-900">{row.source}</span>
+              <span className="block truncate text-[13px] text-text-primary">{row.source}</span>
             </td>
-            <td className={cn(CELL, "text-right text-[13.5px] tabular-nums text-slate-600")}>
+            <td className={cn(CELL, "text-right text-[13px] tabular-nums text-text-secondary")}>
               {formatDashboardNumber(row.sessions)}
             </td>
-            <td className={cn(CELL, "text-right text-[13.5px] tabular-nums text-slate-600")}>
+            <td className={cn(CELL, "text-right text-[13px] tabular-nums text-text-secondary")}>
               {formatDashboardNumber(row.addToCart)}
             </td>
-            <td className={cn(CELL, "text-right text-[13.5px] tabular-nums text-slate-600")}>
+            <td className={cn(CELL, "text-right text-[13px] tabular-nums text-text-secondary")}>
               {formatDashboardNumber(row.checkoutStarted)}
             </td>
-            <td className={cn(CELL, "text-right text-[13.5px] tabular-nums text-slate-600")}>
+            <td className={cn(CELL, "text-right text-[13px] tabular-nums text-text-secondary")}>
               {formatDashboardNumber(row.purchases)}
             </td>
             <td className={cn(CELL, "text-right")}>
@@ -122,7 +122,7 @@ export function ViewedProductsTable({ rows }: { rows: ViewedProductRow[] }) {
   return (
     <table className="w-full border-collapse">
       <thead>
-        <tr className="border-y border-[#e3e8ef] bg-[#f8fafc]">
+        <tr className="border-y border-border bg-surface-elevated">
           <th scope="col" className={cn(overviewUi.label, HEAD, "w-9")}>
             #
           </th>
@@ -142,33 +142,22 @@ export function ViewedProductsTable({ rows }: { rows: ViewedProductRow[] }) {
       </thead>
       <tbody>
         {rows.map((row, index) => (
-          <tr key={row.productId} className="border-b border-[#eef2f7] last:border-b-0">
-            <td className={cn(CELL, "text-[12.5px] tabular-nums text-slate-400")}>{index + 1}</td>
+          <tr key={row.productId} className="border-b border-border last:border-b-0">
+            <td className={cn(CELL, "text-[12.5px] tabular-nums text-text-secondary")}>{index + 1}</td>
             <td className={cn(CELL, "max-w-0")}>
               <span className="flex min-w-0 items-center gap-3">
-                <span
-                  aria-hidden
-                  className="relative h-8 w-8 shrink-0 overflow-hidden rounded-[5px] border border-[#e3e8ef] bg-[#f8fafc]"
-                >
+                <span aria-hidden className="relative h-8 w-8 shrink-0 overflow-hidden rounded-md border border-border bg-surface-elevated">
                   {row.imageUrl ? (
-                    <Image
-                      src={row.imageUrl}
-                      alt=""
-                      fill
-                      sizes="32px"
-                      className="object-cover"
-                    />
+                    <Image src={row.imageUrl} alt="" fill sizes="32px" className="object-cover" />
                   ) : null}
                 </span>
-                <span className="min-w-0 truncate text-[13.5px] text-slate-900">
-                  {row.productName}
-                </span>
+                <span className="min-w-0 truncate text-[13px] text-text-primary">{row.productName}</span>
               </span>
             </td>
-            <td className={cn(CELL, "text-right text-[13.5px] tabular-nums text-slate-600")}>
+            <td className={cn(CELL, "text-right text-[13px] tabular-nums text-text-secondary")}>
               {formatDashboardNumber(row.views)}
             </td>
-            <td className={cn(CELL, "text-right text-[13.5px] tabular-nums text-slate-600")}>
+            <td className={cn(CELL, "text-right text-[13px] tabular-nums text-text-secondary")}>
               {formatDashboardNumber(row.addToCart)}
             </td>
             <td className={cn(CELL, "text-right")}>

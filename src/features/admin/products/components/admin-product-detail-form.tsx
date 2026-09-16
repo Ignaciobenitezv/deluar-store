@@ -1,46 +1,76 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   startTransition,
   useActionState,
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
   useState,
-  type ChangeEvent,
   type FormEvent,
 } from "react";
 import { updateProductDetailAction } from "../actions/update-product-detail-action";
-import { AdminProductRichTextEditor } from "./admin-product-rich-text-editor";
-import { AdminProductDetailUpdatedAt } from "./admin-product-updated-at";
-import { dashboardUi } from "@/features/admin/dashboard/lib/dashboard-ui";
-import { formatDashboardPrice } from "@/features/admin/dashboard/lib/dashboard-formatters";
+import { finalizeProductDraftAction } from "../actions/finalize-product-draft-action";
+import { initializeProductDraftAction } from "../actions/initialize-product-draft-action";
+import { cancelProductDraftAction } from "../actions/cancel-product-draft-action";
+import { AdminProductImagesSection } from "./admin-product-images-section";
+import { AdminProductVariantsSection } from "./admin-product-variants-section";
+import { AdminProductDeleteDialog } from "./admin-product-delete-dialog";
 import {
-  createProductLogisticsDraft,
-  formatProductLogisticsSummary,
-} from "@/features/catalog/logistics";
+  ProductEditTabBar,
+  ProductInfoTabContent,
+  ProductPricingTabContent,
+  ProductShippingTabContent,
+  ProductSeoTabContent,
+  ProductPreviewTabContent,
+  createEmptyDetailDraft,
+  inputClass,
+  labelClass,
+  sectionHeadingClass,
+  sectionNoteClass,
+  type DetailDraft,
+  type ProductEditTabId,
+} from "./admin-product-tab-content";
+import { dashboardUi } from "@/features/admin/dashboard/lib/dashboard-ui";
+import { createProductLogisticsDraft } from "@/features/catalog/logistics";
 import { cn } from "@/lib/utils";
-import { buildAdminProductSlugFromTitle, normalizeAdminProductSlug } from "../lib/product-slug";
+import { normalizeAdminProductSlug } from "../lib/product-slug";
 import { logger } from "@/lib/logger";
 import { useAdminProductRevision } from "../context/admin-product-revision-context";
-import type { AdminProductCategoryNode, AdminProductDetailActionState, AdminProductDetailData } from "../types";
+import type {
+  AdminProductCategoryNode,
+  AdminProductDetailActionState,
+  AdminProductDetailData,
+  AdminProductImageData,
+} from "../types";
+import type { AdminProductVariantData } from "../lib/variant-editor";
 
-const INITIAL_STATE: AdminProductDetailActionState = {
-  status: "idle",
-};
+const UPDATE_INITIAL_STATE: AdminProductDetailActionState = { status: "idle" };
+const FINALIZE_INITIAL_STATE: AdminProductDetailActionState = { status: "idle" };
 
-type CategoryOption = {
-  id: string;
-  label: string;
-  slug: string;
-};
+/** Every visible field in the tabs below is submitted through this one form,
+ * even though several of them (Multimedia, Organización, Visibilidad y
+ * merchandising, Stock base) don't sit inside its DOM subtree — Multimedia's
+ * own alt-text input would otherwise inherit this form as its nearest
+ * ancestor and hijack Enter-to-submit, and Variantes renders its own real
+ * `<form>` elements per row, which HTML forbids nesting. The `form="..."`
+ * attribute (set on every field below) associates them with this id instead
+ * of relying on DOM position — standard HTML, and it's what lets Multimedia
+ * sit visually between "Información básica" and "Organización" without
+ * being part of this form's submission at all. */
+const FORM_ID = "product-detail-form";
 
 type AdminProductDetailFormProps = {
-  product: AdminProductDetailData;
+  /** Non-null and immutable for Editar producto. Always `null` for Crear
+   * producto — that screen seeds its own draft client-side moments after
+   * mounting; see the `mode === "create"` branch below. */
+  product: AdminProductDetailData | null;
   categoryTree: AdminProductCategoryNode[];
+  mode: "create" | "edit";
 };
 
 type AdminProductDetailFormFieldsProps = {
@@ -50,28 +80,17 @@ type AdminProductDetailFormFieldsProps = {
   state: AdminProductDetailActionState;
   formAction: (formData: FormData) => void;
   pending: boolean;
-};
-
-type DetailDraft = {
-  title: string;
-  slug: string;
-  shortDescription: string;
-  categoryId: string;
-  subcategoryId: string;
-  basePrice: string;
-  transferPrice: string;
-  stock: string;
-  isActive: boolean;
-  isFeatured: boolean;
-  isOnOffer: boolean;
-  showInNewIn: boolean;
-  newInOrder: string;
-  weightGrams: string;
-  heightCm: string;
-  widthCm: string;
-  depthCm: string;
-  seoTitle: string;
-  seoDescription: string;
+  /** True from the moment a draft is seeded until "Crear producto" finalizes
+   * it — never derived from the route, never cached, just this flag. */
+  isDraftPhase: boolean;
+  onCancelDraft?: () => void;
+  cancellingDraft?: boolean;
+  onImagesSaved?: (images: AdminProductImageData[]) => void;
+  onVariantsSaved?: (result: {
+    variants: AdminProductVariantData[];
+    variantSource: "variants" | "colorVariants" | null;
+    legacyColorVariantCount: number;
+  }) => void;
 };
 
 type DetailDelta = {
@@ -93,69 +112,22 @@ type DetailDelta = {
   seo?: { operation: "set"; title?: string; description?: string } | { operation: "unset" };
 };
 
-function findCategoryNodeById(nodes: AdminProductCategoryNode[], targetId: string): AdminProductCategoryNode | null {
-  for (const node of nodes) {
-    if (node._id === targetId) {
-      return node;
-    }
-
-    const nested = findCategoryNodeById(node.subcategories ?? [], targetId);
-    if (nested) {
-      return nested;
-    }
-  }
-
-  return null;
-}
-
-function flattenSubcategories(nodes: AdminProductCategoryNode[], depth = 0): CategoryOption[] {
-  return nodes.flatMap((node) => [
-    {
-      id: node._id,
-      label: `${"- ".repeat(depth)}${node.title}`,
-      slug: node.slug.current,
-    },
-    ...flattenSubcategories(node.subcategories ?? [], depth + 1),
-  ]);
-}
-
-function getFieldError(
-  state: AdminProductDetailActionState,
-  field:
-    | "title"
-    | "slug"
-    | "shortDescription"
-    | "description"
-    | "categoryId"
-    | "subcategoryId"
-    | "basePrice"
-    | "transferPrice"
-    | "stock"
-    | "isActive"
-    | "isFeatured"
-    | "isOnOffer"
-    | "showInNewIn"
-    | "newInOrder"
-    | "weightGrams"
-    | "heightCm"
-    | "widthCm"
-    | "depthCm"
-    | "seoTitle"
-    | "seoDescription",
-) {
-  if (!("fieldErrors" in state) || !state.fieldErrors) {
-    return null;
-  }
-
-  return state.fieldErrors[field]?.[0] ?? null;
-}
-
 function createDetailDraft(product: AdminProductDetailData): DetailDraft {
   const logisticsDraft = createProductLogisticsDraft(product.logistics);
+  const empty = createEmptyDetailDraft();
+
+  // A fresh Crear producto draft is seeded (initializeProductDraft) with
+  // `slug.current` set to the draft's own internal id — a collision-proof
+  // placeholder, never meant to be shown. `product.slug === product.id`
+  // only ever happens for that untouched placeholder (a real, human-typed
+  // slug never coincides with the document's own UUID), so that's the
+  // signal to start the visible field empty instead.
+  const isPlaceholderSlug = product.slug === product.id;
 
   return {
+    ...empty,
     title: product.title,
-    slug: product.slug,
+    slug: isPlaceholderSlug ? "" : product.slug,
     shortDescription: product.shortDescription,
     categoryId: product.categoryId,
     subcategoryId: product.subcategoryId ?? "",
@@ -315,46 +287,330 @@ function buildDetailDelta(
   return delta;
 }
 
-export function AdminProductDetailForm({ product, categoryTree }: AdminProductDetailFormProps) {
+/**
+ * Shown once, right after `finalizeProductDraftAction` succeeds, instead of
+ * silently turning this same screen into the edit view. `product` is exactly
+ * `finalizeState.product` — the server's own response — never a second,
+ * separately-tracked copy of the id/slug/title.
+ *
+ * "Crear otro producto" is a plain `<a>`, not `<Link>`/`router.push`: this
+ * screen's address bar never leaves `/admin/productos/nuevo` (see the effect
+ * above — it deliberately no longer rewrites the URL), so a client-side
+ * navigation back to that exact same path risks being treated as a no-op
+ * and reusing this exact component instance — the one thing a fresh draft
+ * can't do. A real anchor forces a full navigation, guaranteeing a brand
+ * new `crypto.randomUUID()` draft id every time.
+ */
+function ProductCreateSuccessScreen({ product }: { product: AdminProductDetailData }) {
+  return (
+    <div className={cn(dashboardUi.card, "flex flex-col items-center gap-6 px-6 py-12 text-center sm:px-10 sm:py-16")}>
+      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[var(--admin-success)]/25 bg-[var(--admin-success)]/10 text-[color:var(--admin-success)]">
+        <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+
+      <div className="grid gap-2">
+        <h2 className="text-xl font-semibold tracking-[-0.02em] text-text-primary sm:text-2xl">Producto creado correctamente</h2>
+        <p className="text-base font-medium text-text-primary">{product.title}</p>
+        <p className="text-sm text-text-secondary">Ya fue agregado al catálogo.</p>
+      </div>
+
+      <div className="grid w-full max-w-sm gap-3">
+        {/* Deliberately a raw anchor, not <Link> — see the doc comment above
+            this component for why a client-side push here risks reusing
+            this same draft instead of starting a new one. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+        <a
+          href="/admin/productos/nuevo"
+          className={cn("inline-flex h-12 w-full items-center justify-center rounded-full border px-6 text-sm font-semibold", dashboardUi.primaryAction)}
+        >
+          Crear otro producto
+        </a>
+
+        <Link
+          href={`/admin/productos/${product.id}`}
+          className="inline-flex h-12 w-full items-center justify-center rounded-full border border-border bg-surface px-6 text-sm font-semibold text-text-primary transition hover:bg-surface-elevated"
+        >
+          Editar producto
+        </Link>
+
+        <div className="mt-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
+          {product.visible ? (
+            <Link
+              href={`/productos/detalle/${product.slug}`}
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-text-secondary underline-offset-4 hover:text-text-primary hover:underline"
+            >
+              Ver producto
+            </Link>
+          ) : null}
+          <Link
+            href="/admin/productos"
+            className="font-medium text-text-secondary underline-offset-4 hover:text-text-primary hover:underline"
+          >
+            Volver a productos
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function AdminProductDetailForm({ product: initialProduct, categoryTree, mode }: AdminProductDetailFormProps) {
   const { applyCommit, currentRev } = useAdminProductRevision();
-  const [state, formAction, pending] = useActionState(updateProductDetailAction, INITIAL_STATE);
-  const committedRev = state.status === "success" ? state.rev : null;
-  const committedUpdatedAt = state.status === "success" ? state.updatedAt : null;
+  const router = useRouter();
 
-  const currentProduct = state.status === "success" ? state.product : product;
+  const [updateState, updateFormAction, updatePending] = useActionState(updateProductDetailAction, UPDATE_INITIAL_STATE);
+  const [finalizeState, finalizeFormAction, finalizePending] = useActionState(
+    finalizeProductDraftAction,
+    FINALIZE_INITIAL_STATE,
+  );
 
-  useLayoutEffect(() => {
-    if (state.status !== "success") {
+  // Stable across Strict Mode's double-render, Fast Refresh, and any
+  // accidental retry — this is the identity the seed effect below hands to
+  // `initializeProductDraftAction`, which itself is idempotent
+  // (`createIfNotExists`) against it. One mount of this screen = one draft,
+  // guaranteed at both layers.
+  const [generatedId] = useState(() => crypto.randomUUID());
+  const [draftProduct, setDraftProduct] = useState<AdminProductDetailData | null>(null);
+  const [draftInitError, setDraftInitError] = useState<string | null>(null);
+  const [draftInitAttempt, setDraftInitAttempt] = useState(0);
+  const [cancellingDraft, setCancellingDraft] = useState(false);
+  const seedStartedForAttemptRef = useRef(-1);
+
+  useEffect(() => {
+    if (mode !== "create" || seedStartedForAttemptRef.current === draftInitAttempt) {
       return;
     }
 
-    logger.debug("admin.products.revision.action_result", {
-      source: "detail",
-      returnedRev: committedRev ?? currentRev,
-      updatedAt: committedUpdatedAt ?? product.updatedAt,
-    });
-    logger.debug("admin.products.revision.apply_commit", {
-      source: "detail",
-      providerRevBefore: currentRev,
-      incomingRev: committedRev ?? currentRev,
-    });
+    // BUG THIS FIXES: the previous version paired this ref guard with a
+    // per-invocation `cancelled` closure set in the cleanup function. React
+    // Strict Mode (dev only) runs every effect mount → cleanup → mount once
+    // to catch exactly this kind of bug. That cleanup flipped `cancelled`
+    // to true on the *first* (real) invocation before its fetch resolved;
+    // when the fetch then finished, `if (cancelled) return` threw the
+    // result away. The *second* invocation's effect body saw the ref
+    // already pointed at this same attempt number and exited immediately
+    // without starting a replacement call. Net result: no invocation ever
+    // reached `setDraftProduct` — permanently stuck on "Preparando
+    // borrador…", with no error either, since the result wasn't dropped
+    // because it failed, it was dropped because it *succeeded* after being
+    // told not to bother.
+    //
+    // Fix: don't tie "should this result still apply" to which effect
+    // *instance* is unmounting — tie it to which *attempt number* is still
+    // current, read from the same ref the guard above already uses. Strict
+    // Mode's extra mount/cleanup cycle never changes `draftInitAttempt`, so
+    // the one real network call's result is still applied when it resolves.
+    // An actual "Reintentar" click *does* bump `draftInitAttempt`, which
+    // correctly makes any older in-flight call's result a no-op instead.
+    const attemptAtStart = draftInitAttempt;
+    seedStartedForAttemptRef.current = attemptAtStart;
+
+    (async () => {
+      const result = await initializeProductDraftAction(generatedId);
+
+      if (seedStartedForAttemptRef.current !== attemptAtStart) {
+        // A newer "Reintentar" attempt superseded this one — let its own
+        // result win instead.
+        return;
+      }
+
+      if (result.status === "success") {
+        setDraftInitError(null);
+        setDraftProduct(result.product);
+        applyCommit({ source: "detail", rev: result.product.rev, updatedAt: result.product.updatedAt });
+      } else {
+        setDraftInitError(result.message);
+      }
+    })();
+  }, [mode, generatedId, draftInitAttempt, applyCommit]);
+
+  const [finalizedProduct, setFinalizedProduct] = useState<AdminProductDetailData | null>(null);
+
+  // "Crear producto" succeeding shows ProductCreateSuccessScreen in this
+  // same tree (see the render branch below) — it never silently turns this
+  // screen into the edit view, so the URL is deliberately left alone here.
+  //
+  // BUG THIS FIXES: this effect used to also call
+  // `window.history.replaceState(null, "", "/admin/productos/<id>")`.
+  // `finalizeProductDraft` calls `revalidatePath(...)` inside the server
+  // action, and Next's own action-response handling
+  // (node_modules/next/dist/client/components/router-reducer/reducers/server-action-reducer.js)
+  // reacts to that by automatically re-navigating to whatever URL *it*
+  // currently believes is canonical (its own router state, tracked
+  // independently of the address bar) to apply fresh Flight data — normally
+  // still `/admin/productos/nuevo`, which is harmless. But firing a manual
+  // `history.replaceState` to `/admin/productos/<id>` in the same instant
+  // left the browser's address bar and Next's internal router state
+  // disagreeing about the current route. Next's post-action navigation can
+  // reconcile against the address bar and fall through to fetching
+  // `/admin/productos/<id>` for real — which hits `[productId]/page.tsx`'s
+  // `notFound()` if that fetch loses any race with the just-committed
+  // write, surfacing the storefront's root not-found page while the address
+  // bar (rewritten by our own call) still read `/admin/productos/<id>`.
+  // Never mutating the URL here removes that race entirely.
+  useLayoutEffect(() => {
+    if (finalizeState.status !== "success") {
+      return;
+    }
+
+    setFinalizedProduct(finalizeState.product);
+    applyCommit({ source: "detail", rev: finalizeState.product.rev, updatedAt: finalizeState.product.updatedAt });
+    document.title = `Producto creado | ${finalizeState.product.title}`;
+    // Fires exactly once per successful finalize.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [finalizeState]);
+
+  const isDraftPhase = mode === "create" && finalizedProduct === null;
+  const baseProduct = mode === "edit" ? initialProduct : (finalizedProduct ?? draftProduct);
+
+  const committedRev = updateState.status === "success" ? updateState.rev : null;
+  const committedUpdatedAt = updateState.status === "success" ? updateState.updatedAt : null;
+
+  // Once there's a real, finalized document (edit mode from the start, or a
+  // draft that just got published), a Guardar cambios save can race Galería
+  // or Variantes' own independent saves — same merge Editar producto has
+  // always used: prefer whichever side has the more recently persisted
+  // `updatedAt`. During the draft phase this never applies (nothing submits
+  // through `updateProductDetailAction` yet), so it's a no-op until then.
+  const currentProduct = useMemo(() => {
+    if (!baseProduct) {
+      return null;
+    }
+
+    if (isDraftPhase || updateState.status !== "success") {
+      return baseProduct;
+    }
+
+    const basePersistedAt = Date.parse(baseProduct.updatedAt);
+    const statePersistedAt = Date.parse(updateState.product.updatedAt);
+
+    if (Number.isFinite(basePersistedAt) && basePersistedAt > statePersistedAt) {
+      return baseProduct;
+    }
+
+    return updateState.product;
+  }, [baseProduct, isDraftPhase, updateState]);
+
+  useLayoutEffect(() => {
+    if (isDraftPhase || updateState.status !== "success" || !baseProduct) {
+      return;
+    }
 
     applyCommit({
       source: "detail",
       rev: committedRev ?? currentRev,
-      updatedAt: committedUpdatedAt ?? product.updatedAt,
+      updatedAt: committedUpdatedAt ?? baseProduct.updatedAt,
     });
-  }, [applyCommit, committedRev, committedUpdatedAt, currentRev, product.updatedAt, state.status]);
+  }, [applyCommit, baseProduct, committedRev, committedUpdatedAt, currentRev, isDraftPhase, updateState.status]);
+
+  const handleImagesSaved = useCallback((images: AdminProductImageData[]) => {
+    setDraftProduct((current) => {
+      if (!current) {
+        return current;
+      }
+
+      return {
+        ...current,
+        images,
+        imageUrl: images[0]?.url ?? null,
+        imageAlt: images[0]?.alt || current.title,
+      };
+    });
+  }, []);
+
+  const handleVariantsSaved = useCallback(
+    (result: {
+      variants: AdminProductVariantData[];
+      variantSource: "variants" | "colorVariants" | null;
+      legacyColorVariantCount: number;
+    }) => {
+      setDraftProduct((current) => {
+        if (!current) {
+          return current;
+        }
+
+        const variantCount = result.variants.length;
+
+        return {
+          ...current,
+          variants: result.variants,
+          variantSource: result.variantSource,
+          legacyColorVariantCount: result.legacyColorVariantCount,
+          variantCount,
+          hasVariants: variantCount > 0,
+          variantLabel: variantCount > 0 ? `${variantCount} variantes` : "Sin variantes",
+        };
+      });
+    },
+    [],
+  );
+
+  const handleCancelDraft = useCallback(async () => {
+    if (!currentProduct || cancellingDraft) {
+      return;
+    }
+
+    setCancellingDraft(true);
+    await cancelProductDraftAction(currentProduct.id);
+    router.push("/admin/productos");
+  }, [currentProduct, cancellingDraft, router]);
+
+  const handleRetryDraftInit = () => {
+    setDraftInitError(null);
+    setDraftInitAttempt((attempt) => attempt + 1);
+  };
+
+  if (mode === "create" && !currentProduct) {
+    return (
+      <div className="grid place-items-center gap-3 rounded-[22px] border border-border bg-surface px-6 py-16 text-center">
+        {draftInitError ? (
+          <>
+            <p className="text-sm font-semibold text-[color:var(--admin-danger)]">{draftInitError}</p>
+            <button
+              type="button"
+              onClick={handleRetryDraftInit}
+              className="rounded-full border border-border bg-surface px-4 py-2 text-sm font-semibold text-text-primary transition hover:bg-surface-elevated"
+            >
+              Reintentar
+            </button>
+          </>
+        ) : (
+          <p className="text-sm text-text-secondary">Preparando borrador…</p>
+        )}
+      </div>
+    );
+  }
+
+  if (!currentProduct) {
+    return null;
+  }
+
+  // Finalize succeeded — show the confirmation screen instead of silently
+  // flipping this same tab editor into "edit mode". `finalizeState.product`
+  // is the real, server-returned document (`finalizeProductDraftAction`'s
+  // success payload) — the only source of truth for the id/slug/title
+  // shown here; nothing about this is separately tracked state.
+  if (mode === "create" && finalizeState.status === "success") {
+    return <ProductCreateSuccessScreen product={finalizeState.product} />;
+  }
 
   return (
     <AdminProductDetailFormFields
-      key={currentProduct.rev}
       product={currentProduct}
       categoryTree={categoryTree}
       currentRev={currentRev}
-      state={state}
-      formAction={formAction}
-      pending={pending}
+      state={isDraftPhase ? finalizeState : updateState}
+      formAction={isDraftPhase ? finalizeFormAction : updateFormAction}
+      pending={isDraftPhase ? finalizePending : updatePending}
+      isDraftPhase={isDraftPhase}
+      onCancelDraft={isDraftPhase ? handleCancelDraft : undefined}
+      cancellingDraft={cancellingDraft}
+      onImagesSaved={isDraftPhase ? handleImagesSaved : undefined}
+      onVariantsSaved={isDraftPhase ? handleVariantsSaved : undefined}
     />
   );
 }
@@ -366,11 +622,33 @@ function AdminProductDetailFormFields({
   state,
   formAction,
   pending,
+  isDraftPhase,
+  onCancelDraft,
+  cancellingDraft,
+  onImagesSaved,
+  onVariantsSaved,
 }: AdminProductDetailFormFieldsProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const baselineRef = useRef(product);
   const [draft, setDraft] = useState<DetailDraft>(() => createDetailDraft(product));
+  const [activeTab, setActiveTab] = useState<ProductEditTabId>("info");
   const hasVariants = product.hasVariants;
+
+  // This component used to remount on every successful save (`key={rev}` on
+  // the caller), which reset `draft` to match the confirmed server state.
+  // It no longer remounts — Multimedia and Variantes now render inside it
+  // and each owns independent, possibly-unsaved state (a pending upload, an
+  // open variant modal) that a save must never wipe. This effect reproduces
+  // the same "resync after a confirmed save" behavior instead, without
+  // tearing the subtree down — including the moment a draft finalizes,
+  // which is, from here, just another revision change.
+  useLayoutEffect(() => {
+    baselineRef.current = product;
+    setDraft(createDetailDraft(product));
+    // Only when the confirmed revision actually changes — not on every
+    // render, and not on the other fields the effect doesn't need to track.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product.rev]);
 
   useEffect(() => {
     logger.debug("admin.products.detail.commercial_loaded", {
@@ -381,40 +659,7 @@ function AdminProductDetailFormFields({
       newInOrder: product.newInOrder,
       stock: product.stock,
     });
-  }, [
-    product.id,
-    product.visible,
-    product.isFeatured,
-    product.isOnOffer,
-    product.showInNewIn,
-    product.newInOrder,
-    product.stock,
-  ]);
-
-  const selectedCategoryNode = useMemo(
-    () => findCategoryNodeById(categoryTree, draft.categoryId),
-    [categoryTree, draft.categoryId],
-  );
-
-  const subcategoryOptions = useMemo(
-    () => flattenSubcategories(selectedCategoryNode?.subcategories ?? []),
-    [selectedCategoryNode],
-  );
-
-  const handleCategoryChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const nextCategoryId = event.target.value;
-    const nextSubcategoryOptions = flattenSubcategories(
-      findCategoryNodeById(categoryTree, nextCategoryId)?.subcategories ?? [],
-    );
-
-    setDraft((current) => ({
-      ...current,
-      categoryId: nextCategoryId,
-      subcategoryId: nextSubcategoryOptions.some((option) => option.id === current.subcategoryId)
-        ? current.subcategoryId
-        : "",
-    }));
-  };
+  }, [product]);
 
   const currentSlug = normalizeAdminProductSlug(draft.slug);
 
@@ -423,6 +668,16 @@ function AdminProductDetailFormFields({
 
     const formElement = formRef.current ?? event.currentTarget;
     const formData = new FormData(formElement);
+
+    if (isDraftPhase) {
+      // Finalizing: every field submits as-is, no baseline to diff against —
+      // the draft has never been "saved" from this form's point of view.
+      startTransition(() => {
+        formAction(formData);
+      });
+      return;
+    }
+
     const hiddenRev = formElement.querySelector<HTMLInputElement>('input[name="rev"]')?.value ?? null;
     const providerRev = currentRev;
     const descriptionJson = String(formData.get("descriptionJson") ?? "");
@@ -484,530 +739,83 @@ function AdminProductDetailFormFields({
   };
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="grid gap-4 xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.95fr)]">
-      <input type="hidden" name="productId" value={product.id} />
-      <input type="hidden" name="rev" value={currentRev} readOnly />
+    <div className="grid min-w-0 gap-4">
+      {state.status !== "idle" ? (
+        <div
+          aria-live="polite"
+          className={cn(
+            "rounded-[22px] border px-4 py-3 text-sm",
+            state.status === "success"
+              ? "border-[var(--admin-success)]/25 bg-[var(--admin-success)]/10 text-[color:var(--admin-success)]"
+              : state.status === "conflict"
+                ? "border-[var(--admin-warning)]/25 bg-[var(--admin-warning)]/10 text-[color:var(--admin-warning)]"
+                : "border-[var(--admin-danger)]/25 bg-[var(--admin-danger)]/10 text-[color:var(--admin-danger)]",
+          )}
+        >
+          {state.message}
+        </div>
+      ) : null}
 
-      <div className="grid gap-4">
-        {state.status !== "idle" ? (
-          <div
-            aria-live="polite"
-            className={cn(
-              "rounded-[22px] border px-4 py-3 text-sm",
-              state.status === "success"
-                      ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-                      : state.status === "conflict"
-                        ? "border-amber-200 bg-amber-50 text-amber-900"
-                  : "border-rose-200 bg-rose-50 text-rose-900",
-            )}
-          >
-            {state.message}
-          </div>
-        ) : null}
-
-        <section className={`${dashboardUi.card} overflow-hidden`}>
-          <div className={`${dashboardUi.cardHeader} border-b border-slate-200/60`}>
-            <div>
-              <h2 className={dashboardUi.sectionTitle}>Información</h2>
-              <p className={dashboardUi.sectionDescription}>Nombre, URL, descripción corta y contenido principal.</p>
-            </div>
-          </div>
-
-          <div className={dashboardUi.cardBody}>
-            <div className="grid gap-4">
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Nombre</span>
-                <input
-                  name="title"
-                  required
-                  value={draft.title}
-                  onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
-                  placeholder="Ej: Manta tejida natural"
-                />
-                {getFieldError(state, "title") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "title")}</span>
-                ) : null}
-              </label>
-
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>URL / slug</span>
-                <input
-                  name="slug"
-                  required
-                  value={draft.slug}
-                  onChange={(event) => setDraft((current) => ({ ...current, slug: event.target.value }))}
-                  onBlur={() =>
-                    setDraft((current) => ({
-                      ...current,
-                      slug: buildAdminProductSlugFromTitle(current.slug),
-                    }))
-                  }
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
-                  placeholder="manta-tejida-natural"
-                />
-                <p className="text-xs text-slate-500">Normalizado automáticamente. Vista actual: /productos/detalle/{currentSlug}</p>
-                {getFieldError(state, "slug") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "slug")}</span>
-                ) : null}
-              </label>
-
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Descripción corta</span>
-                <textarea
-                  name="shortDescription"
-                  required
-                  value={draft.shortDescription}
-                  onChange={(event) => setDraft((current) => ({ ...current, shortDescription: event.target.value }))}
-                  rows={3}
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
-                  placeholder="Ej: Textil decorativo para living en tono natural."
-                />
-                {getFieldError(state, "shortDescription") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "shortDescription")}</span>
-                ) : null}
-              </label>
-
-              <AdminProductRichTextEditor
-                name="descriptionJson"
-                label="Descripción completa"
-                helpText="Podés escribir párrafos, negrita, cursiva, listas y enlaces."
-                initialBlocks={product.description}
-                error={getFieldError(state, "description")}
-              />
-            </div>
-          </div>
-        </section>
-
-        <section className={`${dashboardUi.card} overflow-hidden`}>
-          <div className={`${dashboardUi.cardHeader} border-b border-slate-200/60`}>
-            <div>
-              <h2 className={dashboardUi.sectionTitle}>Clasificación</h2>
-              <p className={dashboardUi.sectionDescription}>Elegí una categoría y una subcategoría coherentes con el árbol.</p>
-            </div>
-          </div>
-
-          <div className={dashboardUi.cardBody}>
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Categoría</span>
-                <select
-                  name="categoryId"
-                  required
-                  value={draft.categoryId}
-                  onChange={handleCategoryChange}
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                >
-                  <option value="">Seleccioná una categoría</option>
-                  {categoryTree.map((category) => (
-                    <option key={category._id} value={category._id}>
-                      {category.title}
-                    </option>
-                  ))}
-                </select>
-                {getFieldError(state, "categoryId") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "categoryId")}</span>
-                ) : null}
-              </label>
-
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Subcategoría</span>
-                <select
-                  name="subcategoryId"
-                  value={draft.subcategoryId}
-                  onChange={(event) => {
-                    setDraft((current) => ({ ...current, subcategoryId: event.target.value }));
-                  }}
-                  disabled={!selectedCategoryNode}
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 disabled:bg-slate-50 disabled:text-slate-400"
-                >
-                  <option value="">Sin subcategoría</option>
-                  {subcategoryOptions.map((option) => (
-                    <option key={option.id} value={option.id}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                {getFieldError(state, "subcategoryId") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "subcategoryId")}</span>
-                ) : null}
-              </label>
-            </div>
-          </div>
-        </section>
-
-        <section className={`${dashboardUi.card} overflow-hidden`}>
-          <div className={`${dashboardUi.cardHeader} border-b border-slate-200/60`}>
-            <div>
-              <h2 className={dashboardUi.sectionTitle}>Precios</h2>
-              <p className={dashboardUi.sectionDescription}>Precio principal y precio por transferencia.</p>
-            </div>
-          </div>
-
-          <div className={dashboardUi.cardBody}>
-              <div className="grid gap-4 md:grid-cols-2">
-                <label className="grid gap-2 text-sm font-medium text-slate-700">
-                  <span>Precio</span>
-                <input
-                  type="number"
-                  name="basePrice"
-                  required
-                  value={draft.basePrice}
-                  onChange={(event) => setDraft((current) => ({ ...current, basePrice: event.target.value }))}
-                  min={0}
-                  step={1}
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
-                />
-                {getFieldError(state, "basePrice") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "basePrice")}</span>
-                ) : null}
-              </label>
-
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Precio por transferencia</span>
-                <input
-                  type="number"
-                  name="transferPrice"
-                  value={draft.transferPrice}
-                  onChange={(event) => setDraft((current) => ({ ...current, transferPrice: event.target.value }))}
-                  min={0}
-                  step={1}
-                  placeholder="Opcional"
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
-                />
-                <p className="text-xs text-slate-500">Si lo dejás vacío, se elimina ese valor.</p>
-                {getFieldError(state, "transferPrice") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "transferPrice")}</span>
-                ) : null}
-              </label>
-            </div>
-          </div>
-        </section>
-
-        <section className={`${dashboardUi.card} overflow-hidden`}>
-          <div className={`${dashboardUi.cardHeader} border-b border-slate-200/60`}>
-            <div>
-              <h2 className={dashboardUi.sectionTitle}>Logística / envíos</h2>
-              <p className={dashboardUi.sectionDescription}>
-                Peso y dimensiones del producto base. Si completás una medida, completá las cuatro.
-              </p>
-            </div>
-          </div>
-
-          <div className={dashboardUi.cardBody}>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Peso (g)</span>
-                <input
-                  type="number"
-                  name="weightGrams"
-                  min={1}
-                  step={1}
-                  value={draft.weightGrams}
-                  onChange={(event) => setDraft((current) => ({ ...current, weightGrams: event.target.value }))}
-                  placeholder="Opcional"
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
-                />
-                {getFieldError(state, "weightGrams") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "weightGrams")}</span>
-                ) : null}
-              </label>
-
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Alto (cm)</span>
-                <input
-                  type="number"
-                  name="heightCm"
-                  min={1}
-                  step={0.1}
-                  value={draft.heightCm}
-                  onChange={(event) => setDraft((current) => ({ ...current, heightCm: event.target.value }))}
-                  placeholder="Opcional"
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
-                />
-                {getFieldError(state, "heightCm") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "heightCm")}</span>
-                ) : null}
-              </label>
-
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Ancho (cm)</span>
-                <input
-                  type="number"
-                  name="widthCm"
-                  min={1}
-                  step={0.1}
-                  value={draft.widthCm}
-                  onChange={(event) => setDraft((current) => ({ ...current, widthCm: event.target.value }))}
-                  placeholder="Opcional"
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
-                />
-                {getFieldError(state, "widthCm") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "widthCm")}</span>
-                ) : null}
-              </label>
-
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Profundidad (cm)</span>
-                <input
-                  type="number"
-                  name="depthCm"
-                  min={1}
-                  step={0.1}
-                  value={draft.depthCm}
-                  onChange={(event) => setDraft((current) => ({ ...current, depthCm: event.target.value }))}
-                  placeholder="Opcional"
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
-                />
-                {getFieldError(state, "depthCm") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "depthCm")}</span>
-                ) : null}
-              </label>
-            </div>
-          </div>
-        </section>
-
-        <section className={`${dashboardUi.card} overflow-hidden`}>
-          <div className={`${dashboardUi.cardHeader} border-b border-slate-200/60`}>
-            <div>
-              <h2 className={dashboardUi.sectionTitle}>SEO</h2>
-              <p className={dashboardUi.sectionDescription}>Título y descripción para buscadores y vistas previas.</p>
-            </div>
-          </div>
-
-          <div className={dashboardUi.cardBody}>
-            <div className="grid gap-4">
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Título SEO</span>
-                <input
-                  name="seoTitle"
-                  value={draft.seoTitle}
-                  onChange={(event) => setDraft((current) => ({ ...current, seoTitle: event.target.value }))}
-                  placeholder="Ej: Manta tejida natural | DELUAR"
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
-                />
-                {getFieldError(state, "seoTitle") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "seoTitle")}</span>
-                ) : null}
-              </label>
-
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Descripción SEO</span>
-                <textarea
-                  name="seoDescription"
-                  value={draft.seoDescription}
-                  onChange={(event) => setDraft((current) => ({ ...current, seoDescription: event.target.value }))}
-                  rows={3}
-                  placeholder="Ej: Manta tejida natural para living, suave y decorativa."
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
-                />
-                {getFieldError(state, "seoDescription") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "seoDescription")}</span>
-                ) : null}
-              </label>
-            </div>
-          </div>
-        </section>
+      {/* min-w-0: a CSS Grid item's automatic minimum size otherwise
+          reflects its content's full intrinsic width unless the item
+          itself has non-`visible` overflow — the tab bar's own
+          `overflow-x-auto` lives two levels deeper (inside <nav>), so
+          without this the 7-tab row's ~900-1100px width was bubbling up
+          and stretching this entire grid (every card in the form) to
+          match, regardless of viewport size. */}
+      <div className={cn(dashboardUi.card, "min-w-0 px-1")}>
+        <ProductEditTabBar activeTab={activeTab} onChange={setActiveTab} />
       </div>
 
-      <aside className="grid gap-4 self-start">
-        <section className={`${dashboardUi.card} overflow-hidden`}>
-          <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
-            {product.imageUrl ? (
-              <Image src={product.imageUrl} alt={product.imageAlt} fill sizes="(max-width: 1280px) 100vw, 360px" className="object-cover" />
-            ) : (
-              <div className="flex h-full items-center justify-center bg-gradient-to-br from-slate-200 to-slate-100 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                Sin imagen principal
-              </div>
-            )}
+      {/* The real form: invisible, holds only the two identity fields. Every
+          other field below associates itself via form={FORM_ID}.
+          noValidate: some of those fields (e.g. Alto/Ancho/Profundidad) now
+          live in a tab that's hidden — and thus unfocusable — whenever a
+          different tab is active. The browser's native constraint
+          validation tries to focus the first invalid field before allowing
+          submit; if that field is unfocusable it cancels the submit with no
+          visible error at all. Validation itself is unchanged — every field
+          still goes through the same server action and the same
+          getFieldError()-driven inline messages already wired below. */}
+      <form id={FORM_ID} ref={formRef} onSubmit={handleSubmit} noValidate className="hidden" aria-hidden>
+        <input type="hidden" name="productId" value={product.id} />
+        <input type="hidden" name="rev" value={currentRev} readOnly />
+      </form>
+
+      <div className="grid min-w-0 gap-4">
+        <div className={cn(activeTab !== "info" && "hidden")}>
+          <ProductInfoTabContent
+            formId={FORM_ID}
+            draft={draft}
+            setDraft={setDraft}
+            state={state}
+            categoryTree={categoryTree}
+            initialDescriptionBlocks={product.description}
+            currentSlug={currentSlug}
+          />
+        </div>
+
+        {/* ── Galería ─────────────────────────────────────────────── */}
+        <div className={cn(dashboardUi.card, "overflow-hidden", activeTab !== "galeria" && "hidden")}>
+          <div className="px-5 py-5 sm:px-6">
+            <AdminProductImagesSection product={product} onSaved={onImagesSaved} />
           </div>
+        </div>
 
-          <div className={dashboardUi.cardBody}>
-            <p className={dashboardUi.mutedLabel}>Contexto</p>
-            <h3 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-slate-950">{product.title}</h3>
-            <p className="mt-1 text-sm text-slate-500">/{product.slug}</p>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              <span
-                className={cn(
-                  "inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]",
-                  product.visible ? "border-emerald-200 bg-emerald-50 text-emerald-900" : "border-slate-200 bg-slate-100 text-slate-600",
-                )}
-              >
-                {product.visible ? "Visible" : "Oculto"}
-              </span>
-              {product.isOnOffer ? (
-                <span className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-900">
-                  En oferta
-                </span>
-              ) : null}
-              {product.showInNewIn ? (
-                <span className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-900">
-                  Lo nuevo
-                </span>
-              ) : null}
-            </div>
-
-            <dl className="mt-4 grid gap-3 text-sm text-slate-600">
-              <div className="flex items-center justify-between gap-4">
-                <dt>Stock</dt>
-                <dd className="font-medium text-slate-900">{product.stockLabel}</dd>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <dt>Variantes</dt>
-                <dd className="font-medium text-slate-900">{product.variantLabel}</dd>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <dt>Categoría</dt>
-                <dd className="font-medium text-slate-900 text-right">{product.categoryLabel}</dd>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <dt>Precio</dt>
-                <dd className="font-medium text-slate-900">
-                  {product.hasVariants ? "Administrado por variantes" : formatDashboardPrice(product.basePrice)}
-                </dd>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <dt>Transferencia</dt>
-                <dd className="font-medium text-slate-900">
-                  {product.hasVariants
-                    ? "Se edita dentro de cada variante"
-                    : typeof product.transferPrice === "number"
-                      ? formatDashboardPrice(product.transferPrice)
-                      : "Sin definir"}
-                </dd>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <dt>Logística</dt>
-                <dd className="font-medium text-slate-900 text-right">
-                  {formatProductLogisticsSummary(product.logistics)}
-                </dd>
-              </div>
-              <AdminProductDetailUpdatedAt initialUpdatedAt={product.updatedAt} variant="field" />
-            </dl>
-
-            <div className="mt-5 flex flex-wrap gap-2">
-              <Link
-                href="/admin/productos"
-                className="inline-flex items-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-              >
-                Volver al listado
-              </Link>
-              <Link
-                href={`/productos/detalle/${currentSlug}`}
-                className={cn("inline-flex items-center rounded-full border px-4 py-2 text-sm text-white! font-semibold", dashboardUi.primaryAction)}
-              >
-                Ver en tienda
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        <section className={`${dashboardUi.card} overflow-hidden`}>
-          <div className={`${dashboardUi.cardHeader} border-b border-slate-200/60`}>
-            <div>
-              <h2 className={dashboardUi.sectionTitle}>Comercial</h2>
-              <p className={dashboardUi.sectionDescription}>Estado operativo, destacado, oferta y stock del producto base.</p>
-            </div>
-          </div>
-
-          <div className={dashboardUi.cardBody}>
-            <div className="grid gap-4">
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Estado</span>
-                <select
-                  name="isActive"
-                  value={draft.isActive ? "true" : "false"}
-                  onChange={(event) => setDraft((current) => ({ ...current, isActive: event.target.value === "true" }))}
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                >
-                  <option value="true">Visible</option>
-                  <option value="false">Oculto</option>
-                </select>
-                {getFieldError(state, "isActive") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "isActive")}</span>
-                ) : null}
-              </label>
-
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Prioridad destacada</span>
-                <select
-                  name="isFeatured"
-                  value={draft.isFeatured ? "true" : "false"}
-                  onChange={(event) => setDraft((current) => ({ ...current, isFeatured: event.target.value === "true" }))}
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                >
-                  <option value="true">Prioridad alta</option>
-                  <option value="false">Normal</option>
-                </select>
-                {getFieldError(state, "isFeatured") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "isFeatured")}</span>
-                ) : null}
-              </label>
-
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Oferta</span>
-                <select
-                  name="isOnOffer"
-                  value={draft.isOnOffer ? "true" : "false"}
-                  onChange={(event) => setDraft((current) => ({ ...current, isOnOffer: event.target.value === "true" }))}
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                >
-                  <option value="true">En oferta</option>
-                  <option value="false">Sin oferta</option>
-                </select>
-                {getFieldError(state, "isOnOffer") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "isOnOffer")}</span>
-                ) : null}
-              </label>
-
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Lo nuevo</span>
-                <select
-                  name="showInNewIn"
-                  value={draft.showInNewIn ? "true" : "false"}
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      showInNewIn: event.target.value === "true",
-                    }))
-                  }
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                >
-                  <option value="true">En Lo nuevo</option>
-                  <option value="false">Fuera de Lo nuevo</option>
-                </select>
-                {getFieldError(state, "showInNewIn") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "showInNewIn")}</span>
-                ) : null}
-              </label>
-
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Prioridad en Lo nuevo</span>
-                <input
-                  type="number"
-                  name="newInOrder"
-                  min={0}
-                  step={1}
-                  value={draft.newInOrder}
-                  onChange={(event) => setDraft((current) => ({ ...current, newInOrder: event.target.value }))}
-                  disabled={!draft.showInNewIn}
-                  placeholder="Ej. 1"
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
-                />
-                {draft.showInNewIn ? (
-                  <span className="text-xs text-slate-500">Usá un número menor para aparecer antes.</span>
-                ) : (
-                  <span className="text-xs text-slate-500">Solo se usa cuando el producto está en Lo nuevo.</span>
-                )}
-                {getFieldError(state, "newInOrder") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "newInOrder")}</span>
-                ) : null}
-              </label>
-
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
+        {/* ── Variantes y stock ───────────────────────────────────── */}
+        <div className={cn(dashboardUi.card, "overflow-hidden", activeTab !== "variantes" && "hidden")}>
+          <div className="px-5 py-5 sm:px-6">
+            <h3 className={sectionHeadingClass}>Inventario</h3>
+            <p className={sectionNoteClass}>
+              {hasVariants
+                ? "Stock del producto base — las variantes llevan su propio stock, independiente de este valor."
+                : "Stock del producto. Si más adelante agregás variantes, cada una tendrá su propio stock."}
+            </p>
+            <div className="mt-4 max-w-xs">
+              <label className={labelClass}>
                 <span>{hasVariants ? "Stock del producto base" : "Stock"}</span>
                 <input
+                  form={FORM_ID}
                   type="number"
                   name="stock"
                   min={0}
@@ -1015,43 +823,90 @@ function AdminProductDetailFormFields({
                   value={draft.stock}
                   onChange={(event) => setDraft((current) => ({ ...current, stock: event.target.value }))}
                   placeholder="Ej. 24"
-                  className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
+                  className={inputClass}
                 />
-                {hasVariants ? (
-                  <span className="text-xs text-slate-500">Las variantes tienen stock independiente.</span>
-                ) : null}
-                {getFieldError(state, "stock") ? (
-                  <span className="text-xs font-normal text-rose-600">{getFieldError(state, "stock")}</span>
-                ) : null}
               </label>
             </div>
           </div>
-        </section>
 
-        <div className="flex flex-col gap-3 rounded-[22px] border border-slate-200/70 bg-white px-4 py-4 text-sm text-slate-600 shadow-[0_8px_18px_rgba(15,23,42,0.028)]">
-          <p className="font-medium text-slate-900">Validación</p>
-          <p>La subcategoría debe pertenecer a la categoría seleccionada.</p>
+          <div className="border-t border-border" />
+
+          <div className="px-5 py-5 sm:px-6">
+            <AdminProductVariantsSection product={product} onSaved={onVariantsSaved} />
+          </div>
         </div>
-      </aside>
 
-      <div className="xl:col-span-2 flex flex-col-reverse gap-3 border-t border-slate-200/70 pt-4 sm:flex-row sm:items-center sm:justify-end">
-        <Link
-          href="/admin/productos"
-          className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-        >
-          Cancelar / volver
-        </Link>
+        <div className={cn(activeTab !== "precios" && "hidden")}>
+          <ProductPricingTabContent formId={FORM_ID} draft={draft} setDraft={setDraft} state={state} hasVariants={hasVariants} />
+        </div>
+
+        <div className={cn(activeTab !== "envio" && "hidden")}>
+          <ProductShippingTabContent formId={FORM_ID} draft={draft} setDraft={setDraft} state={state} hasVariants={hasVariants} />
+        </div>
+
+        <div className={cn(activeTab !== "seo" && "hidden")}>
+          <ProductSeoTabContent formId={FORM_ID} draft={draft} setDraft={setDraft} state={state} />
+        </div>
+
+        <div className={cn(activeTab !== "preview" && "hidden")}>
+          <ProductPreviewTabContent product={product} isDraft={isDraftPhase} />
+        </div>
+      </div>
+
+      <div className="flex flex-col-reverse gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-end">
+        {isDraftPhase ? (
+          <button
+            type="button"
+            onClick={onCancelDraft}
+            disabled={cancellingDraft}
+            className="rounded-full border border-border bg-surface px-5 py-3 text-sm font-semibold text-text-secondary transition hover:bg-surface-elevated disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {cancellingDraft ? "Cancelando..." : "Cancelar"}
+          </button>
+        ) : (
+          <Link
+            href="/admin/productos"
+            className="rounded-full border border-border bg-surface px-5 py-3 text-sm font-semibold text-text-secondary transition hover:bg-surface-elevated"
+          >
+            Cancelar / volver
+          </Link>
+        )}
         <button
+          form={FORM_ID}
           type="submit"
           disabled={pending}
           className={cn(
-            "rounded-full border px-5 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-300",
+            "rounded-full border px-5 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:border-border disabled:bg-surface-elevated disabled:text-text-secondary",
             dashboardUi.primaryAction,
           )}
         >
-          {pending ? "Guardando..." : "Guardar cambios"}
+          {isDraftPhase ? (pending ? "Creando..." : "Crear producto") : pending ? "Guardando..." : "Guardar cambios"}
         </button>
       </div>
-    </form>
+
+      {/* "Eliminar producto" only exists once there's a real, published
+          document to delete — never during Crear producto's draft phase.
+          Subtle destructive border only (not a saturated red card) to read
+          as its own zone without competing with Guardar cambios above. */}
+      {!isDraftPhase ? (
+        <div className="rounded-2xl border border-[var(--admin-danger)]/20 bg-surface px-5 py-5 sm:px-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <h3 className="text-sm font-semibold text-text-primary">Eliminar producto</h3>
+              <p className="mt-1 text-sm text-text-secondary">
+                Elimina definitivamente este producto y lo quita de la tienda.
+              </p>
+            </div>
+
+            <AdminProductDeleteDialog
+              productId={product.id}
+              productTitle={product.title}
+              rev={currentRev}
+              triggerClassName="w-full shrink-0 sm:w-auto"
+            />
+          </div>
+        </div>
+      ) : null}
+    </div>
   );
 }

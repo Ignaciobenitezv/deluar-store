@@ -86,34 +86,30 @@ export function BusinessChart({
   const hasValues = data.some((point) => point[seriesKey] > 0 || point[previousKey] > 0);
 
   return (
-    <div className="flex h-full flex-col px-6 pb-6">
+    <div className="flex h-full flex-col px-4 pb-4">
       <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-4">
         <div className="flex flex-wrap items-start gap-x-10 gap-y-3">
           <div>
-            <p className="text-[1.75rem] font-semibold leading-none tracking-[-0.035em] tabular-nums text-slate-900">
+            <p className="text-[1.5rem] font-semibold leading-none tracking-[-0.02em] tabular-nums text-text-primary">
               {currentTotal}
             </p>
-            <p className="mt-2 flex items-center gap-2 text-[12.5px] text-slate-500">
-              <span
-                aria-hidden
-                className="h-[7px] w-[7px] rounded-full"
-                style={{ backgroundColor: config.color }}
-              />
+            <p className="mt-2 flex items-center gap-2 text-[12px] text-text-secondary">
+              <span aria-hidden className="h-[7px] w-[7px] rounded-full" style={{ backgroundColor: config.color }} />
               Período actual
             </p>
           </div>
           <div>
-            <p className="text-[1.75rem] font-semibold leading-none tracking-[-0.035em] tabular-nums text-slate-400">
+            <p className="text-[1.5rem] font-semibold leading-none tracking-[-0.02em] tabular-nums text-text-secondary">
               {comparisonAvailable ? previousTotal : "—"}
             </p>
-            <p className="mt-2 flex items-center gap-2 text-[12.5px] text-slate-500">
-              <span aria-hidden className="h-[7px] w-[7px] rounded-full bg-slate-300" />
+            <p className="mt-2 flex items-center gap-2 text-[12px] text-text-secondary">
+              <span aria-hidden className="h-[7px] w-[7px] rounded-full bg-text-secondary/50" />
               Período anterior
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-1 rounded-[7px] border border-[#e3e8ef] bg-white p-[3px]">
+        <div className="flex items-center gap-1 rounded-lg border border-border bg-surface-elevated p-[3px]">
           {(Object.keys(SERIES) as SeriesKey[]).map((key) => (
             <button
               key={key}
@@ -122,10 +118,8 @@ export function BusinessChart({
               aria-pressed={seriesKey === key}
               style={seriesKey === key ? { backgroundColor: SERIES[key].color } : undefined}
               className={cn(
-                "rounded-[5px] px-3 py-[6px] text-[12px] font-medium transition-colors",
-                seriesKey === key
-                  ? "text-white"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
+                "rounded-md px-3 py-[6px] text-[12px] font-medium transition-colors duration-150",
+                seriesKey === key ? "text-white" : "text-text-secondary hover:bg-surface hover:text-text-primary",
               )}
             >
               {SERIES[key].label}
@@ -150,15 +144,15 @@ export function BusinessChart({
                   <stop offset="100%" stopColor={config.color} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid stroke="#eef2f7" vertical={false} />
+              <CartesianGrid stroke="var(--border)" vertical={false} />
               <XAxis
                 dataKey="label"
                 tickLine={false}
-                axisLine={{ stroke: "#e3e8ef" }}
+                axisLine={{ stroke: "var(--border)" }}
                 interval="preserveStartEnd"
                 minTickGap={40}
                 tickMargin={12}
-                tick={{ fill: "#64748b", fontSize: 12 }}
+                tick={{ fill: "var(--admin-text-secondary)", fontSize: 12 }}
               />
               <YAxis
                 tickLine={false}
@@ -166,10 +160,10 @@ export function BusinessChart({
                 width={config.money ? 66 : 42}
                 tickCount={5}
                 tickFormatter={(value) => formatAxis(Number(value), config.money)}
-                tick={{ fill: "#64748b", fontSize: 12 }}
+                tick={{ fill: "var(--admin-text-secondary)", fontSize: 12 }}
               />
               <Tooltip
-                cursor={{ stroke: "#cbd5e1", strokeWidth: 1 }}
+                cursor={{ stroke: "var(--border)", strokeWidth: 1 }}
                 content={({ active, payload }) => {
                   const point = payload?.[0]?.payload as BusinessPoint | undefined;
 
@@ -178,30 +172,23 @@ export function BusinessChart({
                   }
 
                   return (
-                    <div className="rounded-[6px] border border-[#e3e8ef] bg-white px-3.5 py-2.5 shadow-[0_6px_20px_rgba(15,23,42,0.10)]">
-                      <p className="text-[12px] text-slate-500">{point.label}</p>
+                    <div className="rounded-lg border border-border bg-surface px-3.5 py-2.5 shadow-[var(--admin-shadow-md)]">
+                      <p className="text-[12px] text-text-secondary">{point.label}</p>
                       <p className="mt-2 flex items-center justify-between gap-6 text-[13px]">
-                        <span className="flex items-center gap-2 text-slate-600">
-                          <span
-                            aria-hidden
-                            className="h-[7px] w-[7px] rounded-full"
-                            style={{ backgroundColor: config.color }}
-                          />
+                        <span className="flex items-center gap-2 text-text-secondary">
+                          <span aria-hidden className="h-[7px] w-[7px] rounded-full" style={{ backgroundColor: config.color }} />
                           Actual
                         </span>
-                        <span className="font-semibold tabular-nums text-slate-900">
+                        <span className="font-semibold tabular-nums text-text-primary">
                           {formatValue(point[seriesKey], config.money, config.unit)}
                         </span>
                       </p>
                       <p className="mt-1 flex items-center justify-between gap-6 text-[13px]">
-                        <span className="flex items-center gap-2 text-slate-600">
-                          <span
-                            aria-hidden
-                            className="h-[7px] w-[7px] rounded-full bg-slate-300"
-                          />
+                        <span className="flex items-center gap-2 text-text-secondary">
+                          <span aria-hidden className="h-[7px] w-[7px] rounded-full bg-text-secondary/50" />
                           {point.previousLabel ?? "Anterior"}
                         </span>
-                        <span className="font-semibold tabular-nums text-slate-500">
+                        <span className="font-semibold tabular-nums text-text-secondary">
                           {formatValue(point[previousKey], config.money, config.unit)}
                         </span>
                       </p>
@@ -213,7 +200,7 @@ export function BusinessChart({
               <Line
                 type="monotone"
                 dataKey={previousKey}
-                stroke="#cbd5e1"
+                stroke="var(--admin-text-secondary)"
                 strokeWidth={1.75}
                 strokeDasharray="4 4"
                 dot={false}
@@ -230,7 +217,7 @@ export function BusinessChart({
                 activeDot={{
                   r: 4,
                   fill: config.color,
-                  stroke: "#ffffff",
+                  stroke: "var(--surface)",
                   strokeWidth: 2,
                 }}
                 animationDuration={700}

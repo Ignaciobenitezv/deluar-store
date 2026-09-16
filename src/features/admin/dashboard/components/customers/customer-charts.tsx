@@ -40,11 +40,11 @@ export function CustomerEvolution({
       <div style={{ height }} className="relative w-full min-w-0">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 6, right: 6, bottom: 0, left: 0 }}>
-            <CartesianGrid stroke="#eef2f7" vertical={false} />
+            <CartesianGrid stroke="var(--border)" vertical={false} />
             <XAxis
               dataKey="label"
               tickLine={false}
-              axisLine={{ stroke: "#e2e8f0" }}
+              axisLine={{ stroke: "var(--border)" }}
               interval="preserveStartEnd"
               minTickGap={36}
               tickMargin={12}
@@ -70,10 +70,10 @@ export function CustomerEvolution({
                   }
 
                   return (
-                    <div className="rounded-[6px] border border-[#e2e8f0] bg-white px-3.5 py-2.5 shadow-[0_6px_20px_rgba(15,23,42,0.10)]">
-                      <p className="text-[12px] text-slate-500">{point.label}</p>
+                    <div className="rounded-[6px] border border-border bg-surface px-3.5 py-2.5 shadow-[var(--admin-shadow-md)]">
+                      <p className="text-[12px] text-text-secondary">{point.label}</p>
                       <p className="mt-2 flex items-center justify-between gap-6 text-[13px]">
-                        <span className="flex items-center gap-2 text-slate-600">
+                        <span className="flex items-center gap-2 text-text-secondary">
                           <span
                             aria-hidden
                             className="h-[7px] w-[7px] rounded-full"
@@ -81,12 +81,12 @@ export function CustomerEvolution({
                           />
                           Nuevos
                         </span>
-                        <span className="font-semibold tabular-nums text-slate-900">
+                        <span className="font-semibold tabular-nums text-text-primary">
                           {formatDashboardNumber(point.newCustomers)}
                         </span>
                       </p>
                       <p className="mt-1 flex items-center justify-between gap-6 text-[13px]">
-                        <span className="flex items-center gap-2 text-slate-600">
+                        <span className="flex items-center gap-2 text-text-secondary">
                           <span
                             aria-hidden
                             className="h-[7px] w-[7px] rounded-full"
@@ -94,7 +94,7 @@ export function CustomerEvolution({
                           />
                           Recurrentes
                         </span>
-                        <span className="font-semibold tabular-nums text-slate-900">
+                        <span className="font-semibold tabular-nums text-text-primary">
                           {formatDashboardNumber(point.recurrentCustomers)}
                         </span>
                       </p>
@@ -122,7 +122,7 @@ export function CustomerEvolution({
         </ResponsiveContainer>
 
         {!hasValues ? (
-          <p className="pointer-events-none absolute inset-0 flex items-center justify-center pb-6 text-[12.5px] text-slate-500">
+          <p className="pointer-events-none absolute inset-0 flex items-center justify-center pb-6 text-[12.5px] text-text-secondary">
             Sin compradores registrados en el período.
           </p>
         ) : null}
@@ -133,7 +133,7 @@ export function CustomerEvolution({
 
 export function SegmentLegend() {
   return (
-    <div className="flex shrink-0 items-center gap-4 text-[12px] text-slate-600">
+    <div className="flex shrink-0 items-center gap-4 text-[12px] text-text-secondary">
       <span className="flex items-center gap-2">
         <span
           aria-hidden

@@ -6,21 +6,21 @@
  */
 export const ledgerColor = {
   // ── Surfaces ─────────────────────────────────────────────────────────
-  ground: "#f6f8fb",
-  module: "#ffffff",
-  inset: "#f8fafc",
-  headRow: "#f8fafc",
-  rowHover: "#f8fafc",
-  rowMarked: "#eef1fb",
+  ground: "var(--background)",
+  module: "var(--surface)",
+  inset: "var(--admin-surface-elevated)",
+  headRow: "var(--admin-surface-elevated)",
+  rowHover: "var(--admin-surface-elevated)",
+  rowMarked: "var(--admin-primary-soft)",
 
-  ink: "#0f172a",
-  inkSoft: "#334155",
-  muted: "#64748b",
+  ink: "var(--admin-text-primary)",
+  inkSoft: "var(--admin-text-primary)",
+  muted: "var(--admin-text-secondary)",
 
   // Cool hairlines: outlines carry no temperature, colour belongs to the data.
-  rule: "#eef2f7",
-  ruleStrong: "#dfe5ec",
-  border: "#e3e8ef",
+  rule: "var(--border)",
+  ruleStrong: "var(--admin-text-secondary)",
+  border: "var(--border)",
 
   accent: "#4f52c9",
   /** The one control that carries a filled brand surface. */
@@ -76,18 +76,17 @@ export const ledgerRadius = {
 } as const;
 
 export const ledgerUi = {
-  module: "border border-[#e3e8ef] bg-white shadow-[0_1px_2px_rgba(15,23,42,0.03)]",
+  module: "border border-border bg-surface",
 
-  label: "text-[11px] font-semibold uppercase tracking-[0.12em] text-[#64748b]",
-  moduleTitle: "text-[17px] font-semibold tracking-[-0.02em] text-[#0f172a]",
-  note: "text-[12.5px] leading-[1.45] text-[#64748b]",
-  figure: "tabular-nums tracking-[-0.025em] text-[#0f172a]",
+  label: "text-[10px] font-semibold uppercase tracking-[0.14em] text-text-secondary",
+  moduleTitle: "text-[13px] font-semibold tracking-[-0.01em] text-text-primary",
+  note: "text-[12px] leading-[1.45] text-text-secondary",
+  figure: "tabular-nums tracking-[-0.02em] text-text-primary",
 
   /** The module header row, shared by the server modules and the chart module. */
-  moduleHead:
-    "flex flex-wrap items-start justify-between gap-x-4 gap-y-2 px-6 pb-4 pt-5",
+  moduleHead: "flex flex-wrap items-start justify-between gap-x-4 gap-y-1.5 border-b border-border px-4 py-3",
 
-  link: "text-[#4f52c9] underline-offset-[3px] hover:underline focus-visible:underline",
+  link: "text-primary underline-offset-[3px] hover:underline focus-visible:underline",
 } as const;
 
 /**

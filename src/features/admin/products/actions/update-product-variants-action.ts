@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { requireAdminSession } from "@/features/admin/auth";
 import { logger } from "@/lib/logger";
-import { sanityFreshFetch } from "@/integrations/sanity/client";
+import { sanityAdminEditFetch } from "@/integrations/sanity/client";
 import { adminProductDetailQuery } from "@/integrations/sanity/admin-queries";
 import { getAdminProductsWriteClient } from "../server/admin-products-write-client";
 import { normalizeProductDetail } from "../server/admin-product-detail-service";
@@ -406,8 +406,12 @@ export async function updateProductVariantsAction(
     });
   }
 
+  // `sanityAdminEditFetch`, not `sanityFreshFetch`: Variantes is usable from
+  // the moment Crear producto opens, before the draft is finalized — see
+  // the doc comment on `sanityAdminEditFetch` in
+  // src/integrations/sanity/client.ts.
   const [currentProduct] = await Promise.all([
-    sanityFreshFetch<AdminProductVariantDocument | null>(adminProductDetailQuery, { productId: parsed.data.productId }),
+    sanityAdminEditFetch<AdminProductVariantDocument | null>(adminProductDetailQuery, { productId: parsed.data.productId }),
   ]);
 
   if (!currentProduct) {

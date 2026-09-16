@@ -5,7 +5,7 @@ import { formatDashboardNumber, formatDashboardPrice } from "../../lib/dashboard
 import { cn } from "@/lib/utils";
 
 const HEAD = "px-3 py-2.5 text-left font-semibold whitespace-nowrap first:pl-5 last:pr-5";
-const CELL = "px-3 py-3 align-middle whitespace-nowrap text-[13px] text-slate-600 first:pl-5 last:pr-5";
+const CELL = "px-3 py-3 align-middle whitespace-nowrap text-[13px] text-text-secondary first:pl-5 last:pr-5";
 
 type TopCustomer = {
   key: string;
@@ -27,7 +27,7 @@ export function TopCustomersTable({ rows }: { rows: TopCustomer[] }) {
   return (
     <table className="w-full border-collapse">
       <thead>
-        <tr className="border-y border-[#e2e8f0] bg-[#f8fafc]">
+        <tr className="border-y border-border bg-surface-elevated">
           <th scope="col" className={cn(overviewUi.label, HEAD, "w-9")}>
             #
           </th>
@@ -47,12 +47,12 @@ export function TopCustomersTable({ rows }: { rows: TopCustomer[] }) {
       </thead>
       <tbody>
         {rows.map((row, index) => (
-          <tr key={row.key} className="border-b border-[#eef2f7] last:border-b-0">
-            <td className={cn(CELL, "tabular-nums text-slate-400")}>{index + 1}</td>
+          <tr key={row.key} className="border-b border-border last:border-b-0">
+            <td className={cn(CELL, "tabular-nums text-text-secondary")}>{index + 1}</td>
             <td className={cn(CELL, "max-w-0")}>
               <span className="flex min-w-0 items-center gap-2.5">
                 <CustomerInitials name={row.displayName} />
-                <span className="min-w-0 truncate text-[13px] text-slate-900">
+                <span className="min-w-0 truncate text-[13px] text-text-primary">
                   {row.displayName}
                 </span>
               </span>
@@ -60,7 +60,7 @@ export function TopCustomersTable({ rows }: { rows: TopCustomer[] }) {
             <td className={cn(CELL, "text-right tabular-nums")}>
               {formatDashboardNumber(row.periodOrders)}
             </td>
-            <td className={cn(CELL, "text-right font-semibold tabular-nums text-slate-900")}>
+            <td className={cn(CELL, "text-right font-semibold tabular-nums text-text-primary")}>
               {formatDashboardPrice(row.periodRevenue)}
             </td>
             <td className={cn(CELL, "text-right tabular-nums")}>
@@ -99,7 +99,7 @@ export function ShareBars({
       {rows.map((row) => (
         <li key={row.key} className="flex items-center gap-3 py-[6px]">
           <span
-            className="shrink-0 truncate text-[13px] text-slate-700"
+            className="shrink-0 truncate text-[13px] text-text-primary"
             style={{ width: labelWidth }}
           >
             {row.label}
@@ -119,7 +119,7 @@ export function ShareBars({
               }}
             />
           </span>
-          <span className="w-9 shrink-0 text-right text-[12.5px] tabular-nums text-slate-500">
+          <span className="w-9 shrink-0 text-right text-[12.5px] tabular-nums text-text-secondary">
             {row.share.toFixed(0)}%
           </span>
         </li>
@@ -149,7 +149,7 @@ export function CustomerListTable({ rows }: { rows: CustomerRow[] }) {
     <div className="overflow-x-auto">
       <table className="w-full min-w-[860px] border-collapse">
         <thead>
-          <tr className="border-y border-[#e2e8f0] bg-[#f8fafc]">
+          <tr className="border-y border-border bg-surface-elevated">
             <th scope="col" className={cn(overviewUi.label, HEAD, "w-9")}>
               #
             </th>
@@ -179,7 +179,7 @@ export function CustomerListTable({ rows }: { rows: CustomerRow[] }) {
         <tbody>
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={8} className="px-5 py-6 text-center text-[12.5px] text-slate-500">
+              <td colSpan={8} className="px-5 py-6 text-center text-[12.5px] text-text-secondary">
                 Ningún cliente coincide con estos filtros en el período.
               </td>
             </tr>
@@ -190,19 +190,19 @@ export function CustomerListTable({ rows }: { rows: CustomerRow[] }) {
               return (
                 <tr
                   key={row.key}
-                  className="border-b border-[#eef2f7] transition-colors last:border-b-0 hover:bg-[#f8fafc]"
+                  className="border-b border-border transition-colors last:border-b-0 hover:bg-surface-elevated"
                 >
-                  <td className={cn(CELL, "tabular-nums text-slate-400")}>{index + 1}</td>
+                  <td className={cn(CELL, "tabular-nums text-text-secondary")}>{index + 1}</td>
                   <td className={cn(CELL, "max-w-0")}>
                     <span className="flex min-w-0 items-center gap-2.5">
                       <CustomerInitials name={row.displayName} />
-                      <span className="min-w-0 truncate text-[13px] text-slate-900">
+                      <span className="min-w-0 truncate text-[13px] text-text-primary">
                         {row.displayName}
                       </span>
                     </span>
                   </td>
                   <td className={cn(CELL, "max-w-0")}>
-                    <span className="block truncate text-[13px] text-[#3b7ff5]">{row.email}</span>
+                    <span className="block truncate text-[13px] text-info">{row.email}</span>
                   </td>
                   <td className={cn(CELL, "text-right tabular-nums")}>
                     {formatDashboardNumber(row.periodOrders)}
@@ -210,7 +210,7 @@ export function CustomerListTable({ rows }: { rows: CustomerRow[] }) {
                   <td className={cn(CELL, "text-right tabular-nums")}>
                     {formatDashboardNumber(row.periodUnits)}
                   </td>
-                  <td className={cn(CELL, "text-right font-semibold tabular-nums text-slate-900")}>
+                  <td className={cn(CELL, "text-right font-semibold tabular-nums text-text-primary")}>
                     {formatDashboardPrice(row.periodRevenue)}
                   </td>
                   <td className={cn(CELL, "tabular-nums")}>{row.lastPurchaseLabel}</td>
@@ -219,7 +219,7 @@ export function CustomerListTable({ rows }: { rows: CustomerRow[] }) {
                       className="inline-flex items-center rounded-full px-2.5 py-[3px] text-[12px] font-medium"
                       style={{
                         backgroundColor: recurrent ? customerColor.tileSecondary : customerColor.tilePrimary,
-                        color: recurrent ? "#2563c9" : customerColor.primary,
+                        color: recurrent ? "var(--admin-info)" : customerColor.primary,
                       }}
                     >
                       {row.status}

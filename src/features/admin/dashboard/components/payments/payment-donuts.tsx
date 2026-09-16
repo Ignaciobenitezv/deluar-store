@@ -36,7 +36,7 @@ function Ring({
           cy={SIZE / 2}
           r={RADIUS}
           fill="none"
-          stroke="#eef2f7"
+          stroke="var(--border)"
           strokeWidth={STROKE}
         />
         {slices.map((slice) => {
@@ -66,7 +66,7 @@ function Ring({
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-7 text-center">
         <span
           className={cn(
-            "font-semibold leading-none tabular-nums tracking-[-0.035em] text-slate-900",
+            "font-semibold leading-none tabular-nums tracking-[-0.035em] text-text-primary",
             centerValue.length > 9
               ? "text-[1rem]"
               : centerValue.length > 6
@@ -76,7 +76,7 @@ function Ring({
         >
           {centerValue}
         </span>
-        <span className="mt-1 text-[11.5px] text-slate-500">{centerLabel}</span>
+        <span className="mt-1 text-[11.5px] text-text-secondary">{centerLabel}</span>
       </div>
     </div>
   );
@@ -120,11 +120,11 @@ export function PaymentStatusDonut({
               className="h-[9px] w-[9px] shrink-0 rounded-full"
               style={{ backgroundColor: toneForStatus(row.status).color }}
             />
-            <span className="min-w-0 flex-1 truncate text-[13px] text-slate-700">{row.label}</span>
-            <span className="shrink-0 text-right text-[13.5px] font-semibold tabular-nums text-slate-900">
+            <span className="min-w-0 flex-1 truncate text-[13px] text-text-primary">{row.label}</span>
+            <span className="shrink-0 text-right text-[13.5px] font-semibold tabular-nums text-text-primary">
               {formatDashboardNumber(row.count)}
             </span>
-            <span className="w-11 shrink-0 text-right text-[12px] tabular-nums text-slate-500">
+            <span className="w-11 shrink-0 text-right text-[12px] tabular-nums text-text-secondary">
               {row.share.toFixed(0)}%
             </span>
           </li>
@@ -173,8 +173,8 @@ export function PaymentMethodDonut({
               className="h-[9px] w-[9px] shrink-0 rounded-full"
               style={{ backgroundColor: overviewCategorical[index % overviewCategorical.length] }}
             />
-            <span className="min-w-0 flex-1 truncate text-[13px] text-slate-700">{row.label}</span>
-            <span className="w-11 shrink-0 text-right text-[12.5px] font-medium tabular-nums text-slate-900">
+            <span className="min-w-0 flex-1 truncate text-[13px] text-text-primary">{row.label}</span>
+            <span className="w-11 shrink-0 text-right text-[12.5px] font-medium tabular-nums text-text-primary">
               {row.share.toFixed(0)}%
             </span>
           </li>

@@ -2,6 +2,7 @@ import { AnalyticsEventType, Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import {
   DASHBOARD_PERIODS,
+  getOrdersInPeriod,
   type DashboardPeriod,
 } from "@/features/admin/dashboard/server/dashboard-service";
 import {
@@ -222,19 +223,11 @@ export async function getConversionAnalyticsMetrics(
           createdAt: true,
         },
       }),
-      prisma.order.findMany({
-        where: {
-          createdAt: {
-            gte: start,
-            lte: end,
-          },
-        },
-        select: {
-          status: true,
-          paymentStatus: true,
-          total: true,
-        },
-      }),
+      // Same [start,end] order window the dashboard service already fetches
+      // for this period — request-scoped `cache()` means this resolves the
+      // in-flight/cached promise instead of a second round trip when both
+      // run in the same request (e.g. the Resumen tab).
+      getOrdersInPeriod(period),
       prisma.analyticsCart.findMany({
         where: {
           abandonedAt: {

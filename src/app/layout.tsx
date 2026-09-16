@@ -4,6 +4,7 @@ import { buildMetadata } from "@/lib/seo";
 import { sanityFetch } from "@/integrations/sanity/client";
 import { siteSettingsQuery } from "@/integrations/sanity/queries";
 import type { SiteSettingsDocument } from "@/types/cms";
+import { AdminThemeScript } from "@/features/admin/shell/admin-theme-script";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -47,6 +48,7 @@ export default function RootLayout({
   return (
     <html lang="es" className="h-full" suppressHydrationWarning>
       <body className="min-h-full bg-background text-foreground">
+        <AdminThemeScript />
         {children}
       </body>
     </html>

@@ -16,8 +16,8 @@ function Amount({ value }: { value: number }) {
 
   return (
     <span className="inline-flex items-start gap-[0.18em] leading-none">
-      <span className="mt-[0.2em] text-[11px] font-medium text-[#64748b]">{symbol}</span>
-      <span className="text-[14px] font-medium tabular-nums tracking-[-0.025em] text-[#0f172a]">
+      <span className="mt-[0.2em] text-[11px] font-medium text-text-secondary">{symbol}</span>
+      <span className="text-[14px] font-medium tabular-nums tracking-[-0.025em] text-text-primary">
         {amount}
       </span>
     </span>
@@ -54,7 +54,7 @@ export function LedgerModule({
             href={action.href}
             className={
               action.solid
-                ? "shrink-0 rounded-[6px] bg-[#4f52c9] px-3.5 py-[8px] text-[12.5px] font-medium text-white transition-colors hover:bg-[#4348b4]"
+                ? "shrink-0 rounded-[6px] bg-primary px-3.5 py-[8px] text-[12.5px] font-medium text-white transition-colors hover:brightness-105"
                 : cn("shrink-0 text-[12.5px] font-medium", ledgerUi.link)
             }
           >
@@ -81,7 +81,7 @@ export function SoldProductsTable({ products }: { products: SoldProduct[] }) {
   return (
     <table className="w-full border-collapse text-left">
       <thead>
-        <tr className="border-y border-[#e3e8ef] bg-[#f8fafc]">
+        <tr className="border-y border-border bg-surface-elevated">
           <th scope="col" className={cn(ledgerUi.label, "w-9 py-3 pl-6 pr-2 font-semibold")}>
             #
           </th>
@@ -104,12 +104,12 @@ export function SoldProductsTable({ products }: { products: SoldProduct[] }) {
       </thead>
       <tbody>
         {products.map((product, index) => (
-          <tr key={product.productId} className="border-b border-[#eef2f7] last:border-b-0">
-            <td className="py-3 pl-6 pr-2 text-[12.5px] tabular-nums text-[#64748b]">
+          <tr key={product.productId} className="border-b border-border last:border-b-0">
+            <td className="py-3 pl-6 pr-2 text-[12.5px] tabular-nums text-text-secondary">
               {index + 1}
             </td>
             <td className="max-w-0 px-2 py-3">
-              <span className="block truncate text-[13.5px] text-[#0f172a]">
+              <span className="block truncate text-[13.5px] text-text-primary">
                 {product.productName}
               </span>
             </td>
@@ -118,7 +118,7 @@ export function SoldProductsTable({ products }: { products: SoldProduct[] }) {
                   small share still reads as a share rather than as nothing. */}
               <span
                 aria-hidden
-                className="block h-[9px] w-full overflow-hidden rounded-[2px] bg-[#eef2f7]"
+                className="block h-[9px] w-full overflow-hidden rounded-[2px] bg-surface-elevated"
               >
                 <span
                   className="block h-full rounded-[2px]"
@@ -129,7 +129,7 @@ export function SoldProductsTable({ products }: { products: SoldProduct[] }) {
                 />
               </span>
             </td>
-            <td className="px-2 py-3 text-right text-[14px] tabular-nums text-[#334155]">
+            <td className="px-2 py-3 text-right text-[14px] tabular-nums text-text-primary">
               {formatDashboardNumber(product.unitsSold)}
             </td>
             <td className="py-3 pl-2 pr-6 text-right">

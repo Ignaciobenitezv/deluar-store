@@ -51,19 +51,19 @@ export function LedgerControls({ compareEnabled }: LedgerControlsProps) {
         }
         className={cn(
           "flex items-center gap-2 text-[13px] font-medium transition-colors",
-          compareEnabled ? "text-[#0f172a]" : "text-[#64748b] hover:text-[#0f172a]",
+          compareEnabled ? "text-text-primary" : "text-text-secondary hover:text-text-primary",
         )}
       >
         <span
           aria-hidden
           className={cn(
             "flex h-[18px] w-[30px] items-center rounded-full px-[2px] transition-colors duration-200",
-            compareEnabled ? "bg-[#4f52c9]" : "bg-[#cbd5e1]",
+            compareEnabled ? "bg-primary" : "bg-text-secondary/40",
           )}
         >
           <span
             className={cn(
-              "h-[14px] w-[14px] rounded-full bg-white transition-transform duration-200 ease-out",
+              "h-[14px] w-[14px] rounded-full bg-surface transition-transform duration-200 ease-out",
               compareEnabled && "translate-x-[12px]",
             )}
           />
@@ -72,7 +72,7 @@ export function LedgerControls({ compareEnabled }: LedgerControlsProps) {
       </button>
 
       <div
-        className="flex items-center gap-1 rounded-[7px] border border-[#dfe5ec] bg-white p-[3px]"
+        className="flex items-center gap-1 rounded-[7px] border border-border bg-surface p-[3px]"
         role="group"
         aria-label="Período"
       >
@@ -88,8 +88,8 @@ export function LedgerControls({ compareEnabled }: LedgerControlsProps) {
               className={cn(
                 "rounded-[5px] px-3.5 py-[7px] text-[13px] font-medium transition-colors",
                 active
-                  ? "bg-[#4f52c9] text-white"
-                  : "text-[#334155] hover:bg-[#f1f5f9] hover:text-[#0f172a]",
+                  ? "bg-primary text-white"
+                  : "text-text-primary hover:bg-background hover:text-text-primary",
               )}
             >
               {period.label}

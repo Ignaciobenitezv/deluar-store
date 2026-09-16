@@ -88,7 +88,7 @@ export function SegmentDonut({
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
           <span
             className={cn(
-              "font-semibold leading-none tabular-nums tracking-[-0.035em] text-slate-900",
+              "font-semibold leading-none tabular-nums tracking-[-0.035em] text-text-primary",
               centerValue.length > 9
                 ? "text-[0.95rem]"
                 : centerValue.length > 6
@@ -98,7 +98,7 @@ export function SegmentDonut({
           >
             {centerValue}
           </span>
-          <span className="mt-1 text-[11.5px] text-slate-500">{centerLabel}</span>
+          <span className="mt-1 text-[11.5px] text-text-secondary">{centerLabel}</span>
         </div>
       </div>
 
@@ -117,7 +117,7 @@ export function SegmentDonut({
               <span
                 className={cn(
                   "min-w-0 flex-1 truncate text-[13px]",
-                  empty ? "text-slate-400" : "text-slate-700",
+                  empty ? "text-text-secondary" : "text-text-primary",
                 )}
               >
                 {slice.label}
@@ -125,12 +125,12 @@ export function SegmentDonut({
               <span
                 className={cn(
                   "shrink-0 text-right text-[13.5px] font-semibold tabular-nums",
-                  empty ? "text-slate-400" : "text-slate-900",
+                  empty ? "text-text-secondary" : "text-text-primary",
                 )}
               >
                 {formatValue(slice.value)}
               </span>
-              <span className="w-11 shrink-0 text-right text-[12px] tabular-nums text-slate-500">
+              <span className="w-11 shrink-0 text-right text-[12px] tabular-nums text-text-secondary">
                 {total > 0 ? `${share.toFixed(0)}%` : "—"}
               </span>
             </li>

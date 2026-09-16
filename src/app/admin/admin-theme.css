@@ -1,0 +1,128 @@
+/**
+ * Admin design tokens — literal match to the Warefy reference
+ * (references/iniciowarefy.png): flat dark SaaS surfaces, no glass, no
+ * atmosphere, solid red active state. Scoped under `.admin-root` so the
+ * storefront's own palette (globals.css) is never touched — this file is
+ * only imported by `src/app/admin/(shell)/layout.tsx`.
+ *
+ * Two-tier surface hierarchy, matching the reference: sidebar and header
+ * sit at `background` (same tone as the canvas, separated only by a
+ * hairline border); cards and panels sit one step up at `surface`.
+ * `surface-elevated` is for anything above that — popovers, dropdowns,
+ * hover states on an already-elevated surface.
+ *
+ * Theme and sidebar-collapse state live as data attributes on <html>
+ * (`data-admin-theme`, `data-admin-sidebar`), set synchronously by the
+ * blocking script in the shell layout before first paint, and toggled later
+ * by plain DOM writes (no React state) so neither can ever cause a flash or
+ * a hydration mismatch — see admin-sidebar.tsx / theme-toggle.tsx.
+ *
+ * The `@theme inline` registration for the tokens set here lives in
+ * globals.css, not this file — see the comment there.
+ */
+
+.admin-root {
+  --background: #f6f6f7;
+  --surface: #ffffff;
+  --border: #e4e4e7;
+
+  --admin-surface-elevated: #f4f4f5;
+  --admin-text-primary: #18181b;
+  --admin-text-secondary: #71717a;
+
+  --admin-primary: #e5473f;
+  --admin-primary-foreground: #ffffff;
+  --admin-primary-soft: rgba(229, 71, 63, 0.1);
+
+  --admin-success: #16a34a;
+  --admin-success-soft: rgba(22, 163, 74, 0.1);
+  --admin-warning: #d97706;
+  --admin-warning-soft: rgba(217, 119, 6, 0.1);
+  --admin-danger: #dc2626;
+  --admin-danger-soft: rgba(220, 38, 38, 0.1);
+  --admin-info: #2563eb;
+  --admin-info-soft: rgba(37, 99, 235, 0.1);
+  --admin-violet: #7c3aed;
+  --admin-violet-soft: rgba(124, 58, 237, 0.1);
+
+  --admin-shadow-sm: 0 1px 2px rgba(24, 24, 27, 0.04);
+  --admin-shadow-md: 0 4px 16px rgba(24, 24, 27, 0.08);
+
+  --admin-sidebar-w: 15rem;
+
+  color-scheme: light;
+  scrollbar-color: var(--border) transparent;
+}
+
+:root[data-admin-theme="dark"] .admin-root {
+  --background: #0c0c0e;
+  --surface: #17171a;
+  --border: rgba(255, 255, 255, 0.07);
+
+  --admin-surface-elevated: #1e1e22;
+  --admin-text-primary: #f5f5f6;
+  --admin-text-secondary: #8b8b93;
+
+  --admin-primary: #e5473f;
+  --admin-primary-foreground: #ffffff;
+  --admin-primary-soft: rgba(229, 71, 63, 0.16);
+
+  --admin-success: #22c55e;
+  --admin-success-soft: rgba(34, 197, 94, 0.16);
+  --admin-warning: #f5a524;
+  --admin-warning-soft: rgba(245, 165, 36, 0.16);
+  --admin-danger: #f0453a;
+  --admin-danger-soft: rgba(240, 69, 58, 0.16);
+  --admin-info: #3b82f6;
+  --admin-info-soft: rgba(59, 130, 246, 0.16);
+  --admin-violet: #a78bfa;
+  --admin-violet-soft: rgba(167, 139, 250, 0.16);
+
+  --admin-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --admin-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+
+  color-scheme: dark;
+}
+
+:root[data-admin-sidebar="collapsed"] .admin-root {
+  --admin-sidebar-w: 5rem;
+}
+
+/* Pure-CSS collapse behavior: no client state needed to hide labels or
+   re-center icons, so toggling never re-renders React. */
+:root[data-admin-sidebar="collapsed"] .admin-sidebar-label,
+:root[data-admin-sidebar="collapsed"] .admin-sidebar-section-label,
+:root[data-admin-sidebar="collapsed"] .admin-sidebar-footer-text,
+:root[data-admin-sidebar="collapsed"] .admin-sidebar-wordmark,
+:root[data-admin-sidebar="collapsed"] .admin-sidebar-search {
+  display: none;
+}
+
+:root[data-admin-sidebar="collapsed"] .admin-sidebar-item,
+:root[data-admin-sidebar="collapsed"] .admin-sidebar-brand-row {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* ChevronLeft ("collapse") shows while expanded — offering the collapse
+   action; ChevronRight ("expand") shows once collapsed. (These two rules
+   were previously swapped, showing ChevronRight while expanded.) */
+:root:not([data-admin-sidebar="collapsed"]) .admin-sidebar-expand-icon {
+  display: none;
+}
+
+:root[data-admin-sidebar="collapsed"] .admin-sidebar-collapse-icon {
+  display: none;
+}
+
+/* The footer action row (collapse / settings / logout) is 3 fixed 40px
+   squares — they fit side by side at the expanded width but not at the
+   collapsed 5rem width, so it stacks vertically instead. */
+:root[data-admin-sidebar="collapsed"] .admin-sidebar-actions {
+  flex-direction: column;
+}
+
+.admin-root ::selection {
+  background: var(--admin-primary-soft);
+}

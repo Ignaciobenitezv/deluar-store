@@ -21,6 +21,33 @@
   --font-mono: "Cascadia Code", "Consolas", monospace;
 }
 
+/**
+ * Admin-only semantic tokens. Registered here because Tailwind's @theme
+ * scan only follows the graph rooted at this file's `@import "tailwindcss"`
+ * — a plain JS-level `import` of a separate CSS module (as the admin shell
+ * does for admin-theme.css) does not reach it. The actual VALUES stay
+ * scoped to `.admin-root` in src/app/admin/admin-theme.css, so these
+ * utilities render unset (invisible) anywhere outside the admin shell.
+ */
+@theme inline {
+  --color-surface-elevated: var(--admin-surface-elevated);
+  --color-text-primary: var(--admin-text-primary);
+  --color-text-secondary: var(--admin-text-secondary);
+  --color-primary: var(--admin-primary);
+  --color-primary-foreground: var(--admin-primary-foreground);
+  --color-primary-soft: var(--admin-primary-soft);
+  --color-success: var(--admin-success);
+  --color-success-soft: var(--admin-success-soft);
+  --color-warning: var(--admin-warning);
+  --color-warning-soft: var(--admin-warning-soft);
+  --color-danger: var(--admin-danger);
+  --color-danger-soft: var(--admin-danger-soft);
+  --color-info: var(--admin-info);
+  --color-info-soft: var(--admin-info-soft);
+  --color-violet: var(--admin-violet);
+  --color-violet-soft: var(--admin-violet-soft);
+}
+
 *,
 *::before,
 *::after {

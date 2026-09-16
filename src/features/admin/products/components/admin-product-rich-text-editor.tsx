@@ -29,9 +29,16 @@ type PortableTextBlock = {
 type AdminProductRichTextEditorProps = {
   name: string;
   label: string;
+  /** Purely visual — the field's actual requiredness lives in the server schema. */
+  required?: boolean;
   helpText?: string;
   initialBlocks: unknown[];
   error?: string | null;
+  /** Associates the hidden field with a `<form>` elsewhere in the tree via
+   * the HTML `form` attribute, for when this editor is rendered outside
+   * that form's own DOM subtree (e.g. as a visual sub-section positioned
+   * between other fields that belong to it). */
+  formId?: string;
 };
 
 function createKey(prefix = "pt") {
@@ -282,9 +289,11 @@ function htmlToPortableTextBlocks(html: string): PortableTextBlock[] {
 export function AdminProductRichTextEditor({
   name,
   label,
+  required,
   helpText,
   initialBlocks,
   error,
+  formId,
 }: AdminProductRichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement | null>(null);
   const [html, setHtml] = useState(() => blocksToHtml(initialBlocks as PortableTextBlock[]));
@@ -332,50 +341,58 @@ export function AdminProductRichTextEditor({
     <div className="grid gap-2">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <span className="block text-sm font-medium text-slate-700">{label}</span>
-          {helpText ? <p className="mt-1 text-xs leading-5 text-slate-500">{helpText}</p> : null}
+          <span className="block text-sm font-medium text-text-secondary">
+            {label}
+            {required ? (
+              <span aria-hidden className="text-[color:var(--admin-danger)]">
+                {" "}
+                *
+              </span>
+            ) : null}
+          </span>
+          {helpText ? <p className="mt-1 text-xs leading-5 text-text-secondary">{helpText}</p> : null}
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => applyCommand("bold")} className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+          <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => applyCommand("bold")} className="rounded-full border border-border bg-surface px-3 py-2 text-xs font-semibold text-text-secondary hover:bg-surface-elevated">
             Negrita
           </button>
-          <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => applyCommand("italic")} className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+          <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => applyCommand("italic")} className="rounded-full border border-border bg-surface px-3 py-2 text-xs font-semibold text-text-secondary hover:bg-surface-elevated">
             Cursiva
           </button>
-          <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => applyCommand("insertUnorderedList")} className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+          <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => applyCommand("insertUnorderedList")} className="rounded-full border border-border bg-surface px-3 py-2 text-xs font-semibold text-text-secondary hover:bg-surface-elevated">
             Lista
           </button>
-          <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => applyCommand("insertOrderedList")} className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+          <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => applyCommand("insertOrderedList")} className="rounded-full border border-border bg-surface px-3 py-2 text-xs font-semibold text-text-secondary hover:bg-surface-elevated">
             Lista numerada
           </button>
-          <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={insertLink} className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+          <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={insertLink} className="rounded-full border border-border bg-surface px-3 py-2 text-xs font-semibold text-text-secondary hover:bg-surface-elevated">
             Enlace
           </button>
         </div>
       </div>
 
-      <div className="relative overflow-hidden rounded-[22px] border border-slate-200 bg-white">
+      <div className="relative overflow-hidden rounded-[22px] border border-border bg-surface">
         <div
           ref={editorRef}
           contentEditable
           suppressContentEditableWarning
           onInput={syncEditorState}
           className={cn(
-            "min-h-[240px] px-4 py-4 text-sm leading-7 text-slate-900 outline-none",
+            "min-h-[240px] px-4 py-4 text-sm leading-7 text-text-primary outline-none",
             "prose prose-slate max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-1",
           )}
         />
 
         {!html.trim() ? (
-          <div className="pointer-events-none absolute inset-0 px-4 py-4 text-sm text-slate-400">
+          <div className="pointer-events-none absolute inset-0 px-4 py-4 text-sm text-text-secondary">
             Escribí la descripción acá. Podés usar párrafos, negrita, cursiva, listas y enlaces.
           </div>
         ) : null}
       </div>
 
-      <input type="hidden" name={name} value={serializedValue} />
-      {error ? <p className="text-xs font-medium text-rose-600">{error}</p> : null}
+      <input type="hidden" name={name} value={serializedValue} form={formId} />
+      {error ? <p className="text-xs font-medium text-[color:var(--admin-danger)]">{error}</p> : null}
     </div>
   );
 }

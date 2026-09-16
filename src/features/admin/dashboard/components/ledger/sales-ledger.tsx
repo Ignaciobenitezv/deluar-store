@@ -21,7 +21,7 @@ function StateMark({ state }: { state: string }) {
         className="h-[9px] w-[9px] shrink-0 rounded-full"
         style={{ backgroundColor: style.color }}
       />
-      <span className="text-[13.5px] text-[#334155]">
+      <span className="text-[13.5px] text-text-primary">
         {ledgerStateRowLabel[state] ?? style.label}
       </span>
     </span>
@@ -34,8 +34,8 @@ function Amount({ value }: { value: number }) {
 
   return (
     <span className="inline-flex items-start gap-[0.18em] leading-none">
-      <span className="mt-[0.2em] text-[11px] font-medium text-[#64748b]">{symbol}</span>
-      <span className="text-[14.5px] font-semibold tabular-nums tracking-[-0.025em] text-[#0f172a]">
+      <span className="mt-[0.2em] text-[11px] font-medium text-text-secondary">{symbol}</span>
+      <span className="text-[14.5px] font-semibold tabular-nums tracking-[-0.025em] text-text-primary">
         {amount}
       </span>
     </span>
@@ -47,7 +47,7 @@ function OpenMark() {
     <svg
       viewBox="0 0 12 12"
       aria-hidden
-      className="h-3.5 w-3.5 text-[#94a3b8] transition-colors duration-150 group-hover:text-[#4f52c9] group-focus-within:text-[#4f52c9]"
+      className="h-3.5 w-3.5 text-text-secondary transition-colors duration-150 group-hover:text-primary group-focus-within:text-primary"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.6"
@@ -90,7 +90,7 @@ export function SalesLedger({ entries }: { entries: DashboardLedgerEntry[] }) {
           Órdenes registradas en el período, de la más reciente a la más antigua
         </caption>
         <thead>
-          <tr className="border-y border-[#e3e8ef] bg-[#f8fafc]">
+          <tr className="border-y border-border bg-surface-elevated">
             <th scope="col" className={cn(ledgerUi.label, HEAD_CELL)}>
               Orden
             </th>
@@ -132,8 +132,8 @@ export function SalesLedger({ entries }: { entries: DashboardLedgerEntry[] }) {
                 onFocus={() => setActiveDate(entry.dateKey, "ledger")}
                 onBlur={() => setActiveDate(null)}
                 className={cn(
-                  "group cursor-pointer border-b border-[#eef2f7] transition-colors duration-150 last:border-b-0",
-                  marked ? "bg-[#eef1fb]" : "hover:bg-[#f8fafc]",
+                  "group cursor-pointer border-b border-border transition-colors duration-150 last:border-b-0",
+                  marked ? "bg-primary-soft" : "hover:bg-surface-elevated",
                 )}
               >
                 <td className={BODY_CELL}>
@@ -148,25 +148,25 @@ export function SalesLedger({ entries }: { entries: DashboardLedgerEntry[] }) {
                   </Link>
                 </td>
                 <td className={cn(BODY_CELL, "whitespace-nowrap")}>
-                  <span className="block text-[13.5px] tabular-nums text-[#0f172a]">
+                  <span className="block text-[13.5px] tabular-nums text-text-primary">
                     {entry.dateLabel}
                   </span>
-                  <span className="mt-[3px] block text-[12px] tabular-nums text-[#64748b]">
+                  <span className="mt-[3px] block text-[12px] tabular-nums text-text-secondary">
                     {entry.timeLabel}
                   </span>
                 </td>
                 <td className={cn(BODY_CELL, "max-w-[260px]")}>
-                  <span className="block truncate text-[14px] font-medium tracking-[-0.012em] text-[#0f172a]">
+                  <span className="block truncate text-[14px] font-medium tracking-[-0.012em] text-text-primary">
                     {entry.customerName}
                   </span>
-                  <span className="mt-[3px] block truncate text-[12px] text-[#64748b]">
+                  <span className="mt-[3px] block truncate text-[12px] text-text-secondary">
                     {entry.customerEmail}
                   </span>
                 </td>
                 <td
                   className={cn(
                     BODY_CELL,
-                    "text-right text-[14px] tabular-nums text-[#334155]",
+                    "text-right text-[14px] tabular-nums text-text-primary",
                   )}
                 >
                   {formatDashboardNumber(entry.units)}
@@ -175,10 +175,10 @@ export function SalesLedger({ entries }: { entries: DashboardLedgerEntry[] }) {
                   <Amount value={entry.total} />
                 </td>
                 <td className={cn(BODY_CELL, "whitespace-nowrap")}>
-                  <span className="block text-[13.5px] text-[#0f172a]">
+                  <span className="block text-[13.5px] text-text-primary">
                     {entry.paymentMethodLabel}
                   </span>
-                  <span className="mt-[3px] block text-[12px] tabular-nums text-[#64748b]">
+                  <span className="mt-[3px] block text-[12px] tabular-nums text-text-secondary">
                     {installments ? `${installments} cuotas` : "1 pago"}
                   </span>
                 </td>

@@ -21,22 +21,22 @@ export function StatGroup({ stats, className }: { stats: Stat[]; className?: str
           key={stat.label}
           className={cn(
             "min-w-0",
-            index > 0 && "border-l border-[#eef2f7] pl-4",
+            index > 0 && "border-l border-border pl-4",
             index < stats.length - 1 && "pr-4",
           )}
         >
           <div className="flex items-center gap-2.5">
             <span
               aria-hidden
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] border border-[#e3e8ef] text-slate-400"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border text-text-secondary"
             >
               {stat.icon}
             </span>
-            <span className="text-[19px] font-semibold leading-none tabular-nums tracking-[-0.03em] text-slate-900">
+            <span className="text-[19px] font-semibold leading-none tabular-nums tracking-[-0.02em] text-text-primary">
               {stat.value}
             </span>
           </div>
-          <p className="mt-2 truncate text-[11.5px] text-slate-500">{stat.label}</p>
+          <p className="mt-2 truncate text-[11.5px] text-text-secondary">{stat.label}</p>
         </div>
       ))}
     </div>
@@ -50,8 +50,8 @@ export function StatHighlights({
   items: { label: string; value: string; icon: React.ReactNode; tone: "positive" | "info" }[];
 }) {
   const palette = {
-    positive: { surface: "#f4fbf7", border: "#d7eee2", ink: "#14804b" },
-    info: { surface: "#f5f7fe", border: "#dde3f9", ink: "#4f52c9" },
+    positive: { surface: "var(--admin-success-soft)", border: "var(--admin-success)", ink: "var(--admin-success)" },
+    info: { surface: "var(--admin-info-soft)", border: "var(--admin-info)", ink: "var(--admin-info)" },
   } as const;
 
   return (
@@ -62,19 +62,19 @@ export function StatHighlights({
         return (
           <div
             key={item.label}
-            className="flex min-w-0 items-center gap-3 rounded-[10px] border px-3.5 py-3"
-            style={{ backgroundColor: tone.surface, borderColor: tone.border }}
+            className="flex min-w-0 items-center gap-3 rounded-xl border px-3.5 py-3"
+            style={{ backgroundColor: tone.surface, borderColor: `color-mix(in srgb, ${tone.border} 25%, transparent)` }}
           >
             <span
               aria-hidden
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-white"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface"
               style={{ color: tone.ink }}
             >
               {item.icon}
             </span>
             <span className="min-w-0">
-              <span className="block truncate text-[11.5px] text-slate-500">{item.label}</span>
-              <span className="mt-0.5 block text-[17px] font-semibold leading-none tabular-nums tracking-[-0.03em] text-slate-900">
+              <span className="block truncate text-[11.5px] text-text-secondary">{item.label}</span>
+              <span className="mt-0.5 block text-[17px] font-semibold leading-none tabular-nums tracking-[-0.02em] text-text-primary">
                 {item.value}
               </span>
             </span>
@@ -87,8 +87,8 @@ export function StatHighlights({
 
 export function ConversionEmpty({ title, description }: { title: string; description: string }) {
   return (
-    <div className="mx-5 mb-5 flex min-h-[110px] flex-col items-center justify-center rounded-[10px] border border-dashed border-[#dfe5ec] bg-[#f8fafc] px-5 py-6 text-center">
-      <p className="text-[13.5px] font-medium text-slate-700">{title}</p>
+    <div className="mx-5 mb-5 flex min-h-[110px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-background px-5 py-6 text-center">
+      <p className="text-[13px] font-medium text-text-primary">{title}</p>
       <p className={cn(overviewUi.note, "mt-1")}>{description}</p>
     </div>
   );

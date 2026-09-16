@@ -4,13 +4,13 @@ import { formatDashboardNumber, formatDashboardPrice } from "../../lib/dashboard
 import { cn } from "@/lib/utils";
 
 const HEAD = "px-3 py-2.5 text-left font-semibold whitespace-nowrap first:pl-5 last:pr-5";
-const CELL = "px-3 py-3 align-middle whitespace-nowrap text-[13px] text-slate-600 first:pl-5 last:pr-5";
+const CELL = "px-3 py-3 align-middle whitespace-nowrap text-[13px] text-text-secondary first:pl-5 last:pr-5";
 
 function Thumb({ url }: { url: string | null }) {
   return (
     <span
       aria-hidden
-      className="relative h-9 w-9 shrink-0 overflow-hidden rounded-[6px] border border-[#e2e8f0] bg-[#f8fafc]"
+      className="relative h-9 w-9 shrink-0 overflow-hidden rounded-[6px] border border-border bg-surface-elevated"
     >
       {url ? <Image src={url} alt="" fill sizes="36px" className="object-cover" /> : null}
     </span>
@@ -44,7 +44,7 @@ export function ProductRanking({
   return (
     <table className="w-full border-collapse">
       <thead>
-        <tr className="border-y border-[#e2e8f0] bg-[#f8fafc]">
+        <tr className="border-y border-border bg-surface-elevated">
           <th scope="col" className={cn(overviewUi.label, HEAD, "w-9")}>
             #
           </th>
@@ -61,20 +61,20 @@ export function ProductRanking({
       </thead>
       <tbody>
         {rows.map((row, index) => (
-          <tr key={row.productId} className="border-b border-[#eef2f7] last:border-b-0">
-            <td className={cn(CELL, "tabular-nums text-slate-400")}>{index + 1}</td>
+          <tr key={row.productId} className="border-b border-border last:border-b-0">
+            <td className={cn(CELL, "tabular-nums text-text-secondary")}>{index + 1}</td>
             <td className={cn(CELL, "max-w-0")}>
               <span className="flex min-w-0 items-center gap-3">
                 <Thumb url={row.imageUrl} />
-                <span className="min-w-0 truncate text-[13px] text-slate-900">
+                <span className="min-w-0 truncate text-[13px] text-text-primary">
                   {row.productName}
                 </span>
               </span>
             </td>
-            <td className={cn(CELL, "text-right font-semibold tabular-nums text-slate-900")}>
+            <td className={cn(CELL, "text-right font-semibold tabular-nums text-text-primary")}>
               {money ? formatDashboardPrice(row.value) : formatDashboardNumber(row.value)}
             </td>
-            <td className={cn(CELL, "text-right tabular-nums text-slate-500")}>
+            <td className={cn(CELL, "text-right tabular-nums text-text-secondary")}>
               {row.share.toFixed(0)}%
             </td>
           </tr>
@@ -103,7 +103,7 @@ export function StockTable({ rows }: { rows: StockRow[] }) {
   return (
     <table className="w-full border-collapse">
       <thead>
-        <tr className="border-y border-[#e2e8f0] bg-[#f8fafc]">
+        <tr className="border-y border-border bg-surface-elevated">
           <th scope="col" className={cn(overviewUi.label, HEAD, "w-9")}>
             #
           </th>
@@ -123,10 +123,10 @@ export function StockTable({ rows }: { rows: StockRow[] }) {
           const out = row.status === "out_of_stock";
 
           return (
-            <tr key={row.productId} className="border-b border-[#eef2f7] last:border-b-0">
-              <td className={cn(CELL, "tabular-nums text-slate-400")}>{index + 1}</td>
+            <tr key={row.productId} className="border-b border-border last:border-b-0">
+              <td className={cn(CELL, "tabular-nums text-text-secondary")}>{index + 1}</td>
               <td className={cn(CELL, "max-w-0")}>
-                <span className="block truncate text-[13px] text-slate-900">
+                <span className="block truncate text-[13px] text-text-primary">
                   {row.productName}
                 </span>
               </td>
@@ -140,7 +140,7 @@ export function StockTable({ rows }: { rows: StockRow[] }) {
                 <span
                   className="inline-flex items-center rounded-full px-2.5 py-[3px] text-[12px] font-medium"
                   style={{
-                    backgroundColor: out ? "#fbeceb" : "#fdf3e3",
+                    backgroundColor: out ? "var(--admin-danger-soft)" : "var(--admin-warning-soft)",
                     color: out ? overviewColor.negative : overviewColor.warning,
                   }}
                 >
@@ -188,12 +188,12 @@ export function ProductFunnelBars({ rows }: { rows: FunnelRow[] }) {
 
         return (
           <div key={row.productId} className="flex items-center gap-4 py-[9px]">
-            <span className="w-[132px] shrink-0 truncate text-[13px] text-slate-700">
+            <span className="w-[132px] shrink-0 truncate text-[13px] text-text-primary">
               {row.productName}
             </span>
             <span
               aria-hidden
-              className="relative block h-[12px] min-w-0 flex-1 overflow-hidden rounded-[3px] bg-[#f1f5f9]"
+              className="relative block h-[12px] min-w-0 flex-1 overflow-hidden rounded-[3px] bg-background"
             >
               <span
                 className="absolute inset-y-0 left-0 rounded-[3px]"
@@ -208,13 +208,13 @@ export function ProductFunnelBars({ rows }: { rows: FunnelRow[] }) {
                 style={{ width: `${buyWidth}%`, backgroundColor: overviewColor.action }}
               />
             </span>
-            <span className="w-10 shrink-0 text-right text-[12.5px] tabular-nums text-slate-500">
+            <span className="w-10 shrink-0 text-right text-[12.5px] tabular-nums text-text-secondary">
               {formatDashboardNumber(row.views)}
             </span>
-            <span className="w-10 shrink-0 text-right text-[12.5px] tabular-nums text-slate-500">
+            <span className="w-10 shrink-0 text-right text-[12.5px] tabular-nums text-text-secondary">
               {formatDashboardNumber(row.addToCart)}
             </span>
-            <span className="w-10 shrink-0 text-right text-[13px] font-semibold tabular-nums text-slate-900">
+            <span className="w-10 shrink-0 text-right text-[13px] font-semibold tabular-nums text-text-primary">
               {formatDashboardNumber(row.purchases)}
             </span>
           </div>
@@ -226,7 +226,7 @@ export function ProductFunnelBars({ rows }: { rows: FunnelRow[] }) {
 
 export function ProductFunnelLegend() {
   return (
-    <div className="flex shrink-0 items-center gap-4 text-[12px] text-slate-600">
+    <div className="flex shrink-0 items-center gap-4 text-[12px] text-text-secondary">
       <span className="flex items-center gap-2">
         <span aria-hidden className="h-[8px] w-[8px] rounded-full bg-[#c3d0f1]" />
         Vistas

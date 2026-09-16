@@ -26,8 +26,8 @@ function PagerLink({
   const className = cn(
     "rounded-[6px] border px-3.5 py-[7px] text-[12.5px] font-medium transition-colors",
     disabled
-      ? "cursor-not-allowed border-[#eef2f7] bg-transparent text-[#cbd5e1]"
-      : "border-[#dfe5ec] bg-white text-[#334155] hover:border-[#cbd5e1] hover:text-[#0f172a]",
+      ? "cursor-not-allowed border-border bg-transparent text-text-secondary"
+      : "border-border bg-surface text-text-primary hover:border-border hover:text-text-primary",
   );
 
   if (disabled) {
@@ -54,14 +54,14 @@ export function LedgerPagination({
   buildHref,
 }: LedgerPaginationProps) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#e3e8ef] px-6 py-3.5">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-6 py-3.5">
       <p className={ledgerUi.note}>
         Mostrando{" "}
-        <span className="tabular-nums text-[#0f172a]">
+        <span className="tabular-nums text-text-primary">
           {formatDashboardNumber(rangeStart)}–{formatDashboardNumber(rangeEnd)}
         </span>{" "}
         de{" "}
-        <span className="tabular-nums text-[#0f172a]">
+        <span className="tabular-nums text-text-primary">
           {formatDashboardNumber(totalEntries)}
         </span>{" "}
         {totalEntries === 1 ? "orden" : "órdenes"}
@@ -70,8 +70,8 @@ export function LedgerPagination({
       {totalPages > 1 ? (
         <div className="flex items-center gap-3">
           <p className={ledgerUi.note}>
-            Página <span className="tabular-nums text-[#0f172a]">{page}</span> de{" "}
-            <span className="tabular-nums text-[#0f172a]">{totalPages}</span>
+            Página <span className="tabular-nums text-text-primary">{page}</span> de{" "}
+            <span className="tabular-nums text-text-primary">{totalPages}</span>
           </p>
           <div className="flex items-center gap-1.5">
             <PagerLink href={buildHref(page - 1)} disabled={page <= 1} label="Página anterior">
