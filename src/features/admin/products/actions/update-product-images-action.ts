@@ -205,6 +205,7 @@ function normalizeCommittedImages(images: AdminProductImageQueryItem[] | undefin
           alt: image.alt?.trim() || "",
           url: getSanityImageUrl(image, 640, 640),
           assetRef,
+          hotspot: image.image.hotspot,
         },
       ];
     });

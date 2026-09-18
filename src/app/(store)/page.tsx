@@ -14,7 +14,7 @@ import type {
   HomeHeroSlide,
 } from "@/features/home/types";
 import { buildMetadata } from "@/lib/seo";
-import { getSanityImageUrl } from "@/integrations/sanity/image";
+import { getSanityImageUrl, TIENDANUBE_PLACEHOLDER_IMAGE_ASSET_REF } from "@/integrations/sanity/image";
 import { sanityFetch, sanityFreshFetch } from "@/integrations/sanity/client";
 import { getHomePageData } from "@/integrations/sanity/home";
 import {
@@ -29,9 +29,6 @@ import type {
   SiteSettingsDocument,
   SanityImageWithAlt,
 } from "@/types/cms";
-
-const TIENDANUBE_PLACEHOLDER_IMAGE_ASSET_REF =
-  "image-6b2cf67d136ed1727e2c54e0988ed6a3e75cc8cd-1200x1500-png";
 
 export async function generateMetadata(): Promise<Metadata> {
   try {

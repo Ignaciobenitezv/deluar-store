@@ -1,4 +1,4 @@
-import { getSanityImageUrl } from "@/integrations/sanity/image";
+import { getSanityImageUrl, getSanityImageObjectPosition } from "@/integrations/sanity/image";
 import { normalizeProductLogistics, type ProductLogistics } from "@/features/catalog/logistics";
 import type {
   ProductDetailImage,
@@ -29,17 +29,22 @@ function buildImage(
   return {
     url: getSanityImageUrl(source, width, height),
     alt: source.alt || fallbackAlt,
+    objectPosition: getSanityImageObjectPosition(source),
   };
 }
 
+// fit: "max" — same reasoning as productImages in product-commercial-display.ts:
+// these feed both card contexts (mismatched ratios) and the PDP gallery, so
+// the crop must happen client-side via objectPosition, not baked in server-side.
 function buildVariantImages(
   images: SanityImageWithAlt[] | undefined,
   productTitle: string,
   variantTitle: string,
 ) {
   return (images ?? []).map((image) => ({
-    url: getSanityImageUrl(image, 1200, 1500),
+    url: getSanityImageUrl(image, 1200, 1500, "max"),
     alt: image.alt || `${productTitle} ${variantTitle}`,
+    objectPosition: getSanityImageObjectPosition(image),
   }));
 }
 

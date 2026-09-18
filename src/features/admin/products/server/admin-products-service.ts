@@ -1,5 +1,6 @@
 import { unstable_noStore as noStore } from "next/cache";
 import { sanityFreshFetch } from "@/integrations/sanity/client";
+import { TIENDANUBE_PLACEHOLDER_IMAGE_ASSET_REF } from "@/integrations/sanity/image";
 import { categoryTreeQuery } from "@/integrations/sanity/queries";
 import { buildAdminProductsPageQuery } from "@/integrations/sanity/admin-queries";
 import type { CatalogHierarchyNode } from "@/features/catalog/hierarchy";
@@ -59,11 +60,16 @@ function buildAdminProductsFilterClause(filters: AdminProductsFilters) {
         ? "(count(variants) == 0 && count(colorVariants) == 0)"
         : "true";
 
+  // Mirrors the exact clause already used by
+  // homeCategoryRepresentativeProductQuery (src/integrations/sanity/queries.ts)
+  // for the same problem: a real photo is any image whose asset ref is
+  // defined AND isn't the Tiendanube placeholder asset.
+  const realImageExistsClause = `count(images[defined(image.asset._ref) && image.asset._ref != $placeholderAssetRef]) > 0`;
   const imageClause =
     filters.image === "with"
-      ? "count(images) > 0"
+      ? realImageExistsClause
       : filters.image === "without"
-        ? "count(images) == 0"
+        ? `!(${realImageExistsClause})`
         : "true";
 
   const categoryClause = filters.category ? `category->slug.current == \"${filters.category}\"` : "true";
@@ -109,7 +115,7 @@ export async function getAdminProductsPageData(filters: AdminProductsFilters): P
   const [response, categories] = await Promise.all([
     sanityFreshFetch<AdminProductsPageQueryResponse>(
       buildAdminProductsPageQuery(filterClause, outOfStockClause),
-      { offset, limit: pageSize },
+      { offset, limit: pageSize, placeholderAssetRef: TIENDANUBE_PLACEHOLDER_IMAGE_ASSET_REF },
     ),
     sanityFreshFetch<CatalogHierarchyNode[]>(categoryTreeQuery, {}),
   ]);

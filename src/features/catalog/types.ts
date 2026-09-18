@@ -85,6 +85,10 @@ export type CatalogPageData = {
 export type ProductDetailImage = {
   url: string | null;
   alt: string;
+  /** CSS object-position, derived from the image's Sanity hotspot when it
+   * was manually adjusted ("Ajustar encuadre" in the admin) — "50% 50%" for
+   * every image that never was. See getSanityImageObjectPosition. */
+  objectPosition?: string;
 };
 
 export type ProductVariantAttribute = {

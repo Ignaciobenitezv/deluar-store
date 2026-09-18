@@ -172,6 +172,7 @@ function ProductGalleryContent({ images, title }: ProductGalleryProps) {
               fill
               sizes="100vw"
               className="object-cover"
+              style={{ objectPosition: activeImage.objectPosition ?? "50% 50%" }}
               priority
             />
           ) : (
@@ -199,7 +200,14 @@ function ProductGalleryContent({ images, title }: ProductGalleryProps) {
                 }`}
               >
                 {image.url ? (
-                  <Image src={image.url} alt={image.alt} fill sizes="27vw" className="object-cover" />
+                  <Image
+                    src={image.url}
+                    alt={image.alt}
+                    fill
+                    sizes="27vw"
+                    className="object-cover"
+                    style={{ objectPosition: image.objectPosition ?? "50% 50%" }}
+                  />
                 ) : (
                   <div className="flex h-full items-center justify-center text-[0.6rem] uppercase tracking-widest text-muted">
                     Foto
@@ -244,7 +252,14 @@ function ProductGalleryContent({ images, title }: ProductGalleryProps) {
                   }`}
                 >
                   {image.url ? (
-                    <Image src={image.url} alt={image.alt} fill sizes="120px" className="object-cover" />
+                    <Image
+                      src={image.url}
+                      alt={image.alt}
+                      fill
+                      sizes="120px"
+                      className="object-cover"
+                      style={{ objectPosition: image.objectPosition ?? "50% 50%" }}
+                    />
                   ) : (
                     <div className="flex h-full items-center justify-center text-[0.68rem] uppercase tracking-[0.18em] text-muted">
                       Foto
@@ -283,6 +298,7 @@ function ProductGalleryContent({ images, title }: ProductGalleryProps) {
               fill
               sizes="50vw"
               className="object-cover"
+              style={{ objectPosition: activeImage.objectPosition ?? "50% 50%" }}
               priority
             />
           ) : (

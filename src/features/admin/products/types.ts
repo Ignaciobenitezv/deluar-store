@@ -1,4 +1,5 @@
 import type { ProductLogistics } from "@/features/catalog/logistics";
+import type { AdminImageHotspot } from "./validation/product-images";
 
 export type AdminProductSource = "variants" | "colorVariants";
 
@@ -224,6 +225,7 @@ export type AdminProductImageData = {
   alt: string;
   url: string | null;
   assetRef: string;
+  hotspot?: AdminImageHotspot;
 };
 
 export type AdminProductImageDraftExistingItem = {
@@ -234,6 +236,7 @@ export type AdminProductImageDraftExistingItem = {
   imageUrl: string | null;
   alt: string;
   previewUrl?: string | null;
+  hotspot?: AdminImageHotspot;
 };
 
 export type AdminProductImageDraftNewItem = {

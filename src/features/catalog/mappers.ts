@@ -1,4 +1,4 @@
-import { getSanityImageUrl } from "@/integrations/sanity/image";
+import { getSanityImageUrl, getSanityImageObjectPosition } from "@/integrations/sanity/image";
 import { buildCatalogHref } from "@/features/catalog/hierarchy";
 import { normalizeProductLogistics } from "@/features/catalog/logistics";
 import { normalizeProductVariants } from "@/features/catalog/variant-normalizer";
@@ -115,9 +115,16 @@ export function mapProductToDetail(
       label: attribute.label,
       value: attribute.value,
     })),
+    // Left on the default fit: "crop" — this 4:5 request already matches the
+    // PDP gallery's own aspect-[4/5], so Sanity's own hotspot-aware crop
+    // (automatic once image.hotspot is set) already does the right thing
+    // here without further changes. objectPosition is added as a harmless
+    // extra safety net, not because this context needs it the way the
+    // mismatched card ratios do.
     images: (product.images ?? []).map((image) => ({
       url: getSanityImageUrl(image, 1200, 1500),
       alt: image.alt || product.title,
+      objectPosition: getSanityImageObjectPosition(image),
     })),
     primaryImageUrl: getSanityImageUrl(primaryImage, 1200, 1500),
     primaryImageAlt: primaryImage?.alt || product.title,

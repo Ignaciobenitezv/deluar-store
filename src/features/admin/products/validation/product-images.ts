@@ -24,6 +24,17 @@ const productImageAssetSchema = z.object({
   _ref: requiredTrimmedString,
 });
 
+// Sanity's native hotspot shape (options: { hotspot: true } on the `image`
+// field) — the only source of truth for manual encuadre. Optional: absent
+// for every image that was never adjusted.
+export const adminImageHotspotSchema = z.object({
+  _type: z.literal("sanity.imageHotspot"),
+  x: z.number().min(0).max(1),
+  y: z.number().min(0).max(1),
+  height: z.number().min(0).max(1),
+  width: z.number().min(0).max(1),
+});
+
 export const adminProductImageItemSchema = z.object({
   _key: requiredTrimmedString,
   _type: z.literal("imageWithAlt"),
@@ -31,6 +42,7 @@ export const adminProductImageItemSchema = z.object({
   image: z.object({
     _type: z.literal("image"),
     asset: productImageAssetSchema,
+    hotspot: adminImageHotspotSchema.optional(),
   }),
 });
 
@@ -39,6 +51,7 @@ export const adminProductImageDraftExistingSchema = z.object({
   key: requiredTrimmedString,
   assetRef: requiredTrimmedString,
   alt: optionalTrimmedString,
+  hotspot: adminImageHotspotSchema.optional(),
 });
 
 export const adminProductImageDraftNewSchema = z.object({
@@ -61,6 +74,7 @@ export const adminProductImageCommitFormSchema = z.object({
   draftImagesJson: requiredTrimmedString,
 });
 
+export type AdminImageHotspot = z.infer<typeof adminImageHotspotSchema>;
 export type AdminProductImageItem = z.infer<typeof adminProductImageItemSchema>;
 export type AdminProductImageDraftExistingInput = z.infer<typeof adminProductImageDraftExistingSchema>;
 export type AdminProductImageDraftNewInput = z.infer<typeof adminProductImageDraftNewSchema>;

@@ -93,6 +93,7 @@ function normalizeProductImages(images: AdminProductImageQueryItem[] | undefined
           alt: image.alt?.trim() || "",
           url: getSanityImageUrl(image, 640, 640),
           assetRef,
+          hotspot: image.image.hotspot,
         },
       ];
     });

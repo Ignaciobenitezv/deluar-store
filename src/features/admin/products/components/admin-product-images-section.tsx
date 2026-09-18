@@ -31,6 +31,8 @@ import {
   uploadProductImageAssetAction,
 } from "../actions/update-product-images-action";
 import { useAdminProductRevision } from "../context/admin-product-revision-context";
+import { AdminProductImageCropEditor } from "./admin-product-image-crop-editor";
+import { TIENDANUBE_PLACEHOLDER_IMAGE_ASSET_REF } from "@/integrations/sanity/image";
 import type {
   AdminProductDetailData,
   AdminProductImageActionState,
@@ -231,6 +233,7 @@ function buildInitialDraftImages(images: AdminProductDetailData["images"]): Admi
     assetRef: image.assetRef,
     imageUrl: image.url,
     alt: image.alt,
+    hotspot: image.hotspot,
   }));
 }
 
@@ -264,6 +267,7 @@ function buildCommittedDraftImages(
         imageUrl: savedImage.url ?? (draftImage.existing ? draftImage.imageUrl : null),
         previewUrl: draftImage.previewUrl,
         alt: savedImage.alt,
+        hotspot: savedImage.hotspot,
       },
     ];
   });
@@ -360,6 +364,7 @@ export function AdminProductImagesSection({ product, onSaved }: AdminProductImag
   const [selectedImageId, setSelectedImageId] = useState<string | null>(() => initialDraftImages[0]?.id ?? null);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editorAlt, setEditorAlt] = useState("");
+  const [cropEditorOpen, setCropEditorOpen] = useState(false);
   const [selectionMessage, setSelectionMessage] = useState<string | null>(null);
   const [saveProgressMessage, setSaveProgressMessage] = useState<string | null>(null);
   const [dropActive, setDropActive] = useState(false);
@@ -439,6 +444,14 @@ export function AdminProductImagesSection({ product, onSaved }: AdminProductImag
 
   const closeEditor = () => {
     setEditorOpen(false);
+  };
+
+  const handleHotspotSaved = (imageId: string, hotspot: AdminProductImageDraftExistingItem["hotspot"]) => {
+    const applyHotspot = (images: AdminProductImageDraftItem[]) =>
+      images.map((image) => (image.id === imageId && image.existing ? { ...image, hotspot } : image));
+
+    setDraftImages(applyHotspot);
+    setSavedDraftImages(applyHotspot);
   };
 
   const addFiles = (selection: PendingUploadSelection) => {
@@ -1129,7 +1142,10 @@ export function AdminProductImagesSection({ product, onSaved }: AdminProductImag
                     />
                   </label>
 
-                  <div className="flex flex-wrap gap-2">
+                  {/* 1. Acciones principales de edición — Guardar (alt) es la
+                      acción principal; Hacer principal viaja con ella porque
+                      es organizativa, no destructiva ni de encuadre. */}
+                  <div className="flex flex-wrap items-center gap-2">
                     <button
                       type="button"
                       onClick={handleSaveAlt}
@@ -1138,7 +1154,7 @@ export function AdminProductImagesSection({ product, onSaved }: AdminProductImag
                         dashboardUi.primaryAction,
                       )}
                     >
-                      Guardar
+                      Guardar cambios
                     </button>
                     {!selectedImageId || draftImages[0]?.id === selectedImageId ? null : (
                       <button
@@ -1149,23 +1165,62 @@ export function AdminProductImagesSection({ product, onSaved }: AdminProductImag
                         Hacer principal
                       </button>
                     )}
+                  </div>
+
+                  {/* 2. Encuadre — su propia zona, separada por un divider,
+                      para que "Ajustar encuadre" no lea como un botón más
+                      pegado a Guardar. Oculta por completo (no solo el
+                      botón) cuando la imagen no admite encuadre. */}
+                  {selectedImage.existing && selectedImage.assetRef !== TIENDANUBE_PLACEHOLDER_IMAGE_ASSET_REF ? (
+                    <div className="border-t border-border pt-5">
+                      <p className="text-sm font-semibold text-text-primary">Encuadre</p>
+                      <p className="mt-1 text-xs text-text-secondary">
+                        Ajustá qué parte de la imagen se prioriza en las cards del catálogo.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setCropEditorOpen(true)}
+                        className="mt-3 rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-text-primary transition hover:bg-surface-elevated"
+                      >
+                        Ajustar encuadre
+                      </button>
+                    </div>
+                  ) : null}
+
+                  {/* 3. Eliminar imagen — separada al final por su propio
+                      divider, para que se lea como una acción excepcional y
+                      no como una más del grupo de edición. */}
+                  <div className="border-t border-border pt-5">
                     <button
                       type="button"
                       onClick={() => handleRemoveImage(selectedImage.id)}
                       disabled={draftImages.length <= 1}
-                      className="rounded-full border border-[var(--admin-danger)]/25 bg-[var(--admin-danger)]/10 px-4 py-2.5 text-sm font-semibold text-[color:var(--admin-danger)] transition hover:bg-[var(--admin-danger)]/15 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="w-full rounded-full border border-[var(--admin-danger)]/25 bg-[var(--admin-danger)]/10 px-4 py-2.5 text-sm font-semibold text-[color:var(--admin-danger)] transition hover:bg-[var(--admin-danger)]/15 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Eliminar imagen
                     </button>
-                  </div>
 
-                  {draftImages.length <= 1 ? (
-                    <p className="text-xs text-text-secondary">No se puede eliminar la última imagen del producto.</p>
-                  ) : null}
+                    {draftImages.length <= 1 ? (
+                      <p className="mt-2 text-xs text-text-secondary">No se puede eliminar la última imagen del producto.</p>
+                    ) : null}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+        ) : null}
+
+        {selectedImage?.existing && selectedImage.imageUrl ? (
+          <AdminProductImageCropEditor
+            open={cropEditorOpen}
+            onClose={() => setCropEditorOpen(false)}
+            productId={product.id}
+            imageKey={selectedImage.key}
+            imageUrl={selectedImage.imageUrl}
+            imageAlt={selectedImage.alt || product.title}
+            hotspot={selectedImage.hotspot}
+            onSaved={(hotspot) => handleHotspotSaved(selectedImage.id, hotspot)}
+          />
         ) : null}
     </>
   );

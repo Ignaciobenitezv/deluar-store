@@ -1,8 +1,9 @@
-import { getSanityImageUrl } from "@/integrations/sanity/image";
+import { getSanityImageUrl, TIENDANUBE_PLACEHOLDER_IMAGE_ASSET_REF } from "@/integrations/sanity/image";
 import { resolveProductCommercialDisplay } from "@/features/catalog/product-commercial-display";
 import { formatDashboardPrice } from "@/features/admin/dashboard/lib/dashboard-formatters";
 import { ADMIN_LOW_STOCK_THRESHOLD } from "./product-filters";
 import type { AdminProductListItem, AdminProductStockEditItem } from "../types";
+import type { SanityImageWithAlt } from "@/types/cms";
 
 export type AdminProductItemSource = {
   _id: string;
@@ -18,10 +19,10 @@ export type AdminProductItemSource = {
   isOnOffer?: boolean;
   showInNewIn?: boolean;
   newInOrder?: number | null;
-  images?: Array<{
-    asset?: { _ref?: string };
-    alt?: string;
-  }>;
+  // Raw, unprojected `images` field (see `adminProductProjection`) — the
+  // real nested shape is `{ alt?, image: { asset: { _ref } } }`, matching
+  // `SanityImageWithAlt` exactly.
+  images?: SanityImageWithAlt[];
   category?: {
     _id: string;
     title?: string;
@@ -99,6 +100,28 @@ function buildStockItems(product: AdminProductItemSource): AdminProductStockEdit
   return stockItems;
 }
 
+/**
+ * Same "real photo" criterion as the Con foto / Sin foto catalog filter
+ * (buildAdminProductsFilterClause in admin-products-service.ts) — an image
+ * counts as real when its asset ref is defined and isn't the Tiendanube
+ * placeholder. Prefers the first real photo for the row thumbnail; falls
+ * back to the placeholder itself only when that's genuinely the only entry,
+ * and to `null` (→ the "Sin imagen" placeholder box) when there are none at
+ * all. Never reorders or mutates `images` — this only decides which single
+ * entry the thumbnail reads from.
+ */
+function pickAdminProductThumbnail(images: SanityImageWithAlt[] | undefined): SanityImageWithAlt | null {
+  if (!images || images.length === 0) {
+    return null;
+  }
+
+  const realImage = images.find(
+    (image) => image.image?.asset?._ref && image.image.asset._ref !== TIENDANUBE_PLACEHOLDER_IMAGE_ASSET_REF,
+  );
+
+  return realImage ?? images[0];
+}
+
 function buildCommercialSummary(product: AdminProductItemSource) {
   const commercialDisplay = resolveProductCommercialDisplay({
     basePrice: product.basePrice,
@@ -141,6 +164,7 @@ function buildCommercialSummary(product: AdminProductItemSource) {
 
 export function mapAdminProductListItem(product: AdminProductItemSource): AdminProductListItem {
   const commercialSummary = buildCommercialSummary(product);
+  const thumbnail = pickAdminProductThumbnail(product.images);
   const variantSource =
     product.variants && product.variants.length > 0
       ? "variants"
@@ -155,7 +179,7 @@ export function mapAdminProductListItem(product: AdminProductItemSource): AdminP
     title: product.title,
     slug: product.slug ?? "",
     shortDescription: product.shortDescription,
-    imageUrl: product.images?.[0] ? getSanityImageUrl(product.images[0] as never, 640, 640) : null,
+    imageUrl: thumbnail ? getSanityImageUrl(thumbnail, 640, 640) : null,
     imageAlt: product.title,
     categoryLabel: product.category?.title ?? "Sin categoría",
     categorySlug: product.category?.slug ?? null,

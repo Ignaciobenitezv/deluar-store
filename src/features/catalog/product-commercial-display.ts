@@ -1,4 +1,4 @@
-import { getSanityImageUrl } from "@/integrations/sanity/image";
+import { getSanityImageUrl, getSanityImageObjectPosition } from "@/integrations/sanity/image";
 import type { ProductDocument } from "@/types/cms";
 import { normalizeProductVariants } from "@/features/catalog/variant-normalizer";
 import type { ProductDetailImage, ProductVariantViewModel } from "@/features/catalog/types";
@@ -43,10 +43,18 @@ export function resolveProductCommercialDisplay(product: ProductCommercialSource
   const hasSelectableOptions = variants.length > 0;
   const representativeVariant =
     variants.find((variant) => variant.stock > 0) ?? variants[0] ?? null;
+  // fit: "max" (not the default "crop") — card contexts render this same
+  // image at several different aspect ratios (1.28:1, square, ...), none of
+  // which match the 1200x1500 request itself. Forcing a crop here first
+  // would distort the coordinate space a hotspot's x/y is defined in;
+  // requesting an uncropped, proportionally-scaled image instead lets the
+  // browser's object-fit:cover + objectPosition do the (correct, ratio-
+  // agnostic) crop everywhere this is rendered.
   const productImages = (product.images ?? [])
     .map((image) => ({
-      url: getSanityImageUrl(image, 1200, 1500),
+      url: getSanityImageUrl(image, 1200, 1500, "max"),
       alt: image.alt || product.title,
+      objectPosition: getSanityImageObjectPosition(image),
     }))
     .filter((image) => Boolean(image.url));
 

@@ -109,7 +109,15 @@ export function AdminBottomNav() {
           <Link
             href={CREATE_PRODUCT_HREF}
             aria-label="Crear producto"
-            className="absolute left-1/2 top-0 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-4 border-surface bg-primary text-primary-foreground shadow-[var(--admin-shadow-md)] transition-transform duration-150 active:scale-95"
+            // Single vertical rule for this button: `top-[22px]` anchors it
+            // 22px below this wrapper's top edge (= the bar's top edge — the
+            // bar is this wrapper's only in-flow child, so the absolutely
+            // positioned button doesn't affect the wrapper's height).
+            // `-translate-y-1/2` (unchanged, not stacked with anything new)
+            // then shifts it up by half its own 56px height (28px), landing
+            // its center 22px below that edge — ~40% of the circle above the
+            // bar, ~60% sunk into it.
+            className="absolute left-1/2 top-[22px] flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-4 border-surface bg-primary text-primary-foreground shadow-[var(--admin-shadow-md)] transition-transform duration-150 active:scale-95"
           >
             <IconPlus className="h-6 w-6" />
           </Link>

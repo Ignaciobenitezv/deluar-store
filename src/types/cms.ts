@@ -2,12 +2,25 @@ export type Slug = {
   current: string;
 };
 
+export type SanityImageHotspot = {
+  _type: "sanity.imageHotspot";
+  x: number;
+  y: number;
+  height: number;
+  width: number;
+};
+
 export type SanityImageReference = {
   _type: "image";
   asset?: {
     _ref: string;
     _type: "reference";
   };
+  /** Manual encuadre — Sanity's native hotspot, never a custom
+   * positionX/positionY. Absent for every image that was never adjusted;
+   * see getSanityImageObjectPosition in integrations/sanity/image.ts for how
+   * this becomes a CSS object-position. */
+  hotspot?: SanityImageHotspot;
   alt?: string;
 };
 

@@ -16,6 +16,7 @@ import type { ProductDetailImage } from "@/features/catalog/types";
 type ProductCardImage = {
   url: string;
   alt: string;
+  objectPosition?: string;
 };
 
 type ProductCardImageStackProps = {
@@ -51,7 +52,7 @@ function normalizeImages(
   const nextImages: ProductCardImage[] =
     images && images.length > 0
       ? images.flatMap((image) =>
-          image.url ? [{ url: image.url, alt: image.alt }] : [],
+          image.url ? [{ url: image.url, alt: image.alt, objectPosition: image.objectPosition }] : [],
         )
       : [
           imageUrl ? { url: imageUrl, alt: imageAlt } : null,
@@ -284,7 +285,7 @@ function ProductCardImageStackInner({
             imageClassName,
           )}
           style={{
-            objectPosition: "50% 50%",
+            objectPosition: activeImage.objectPosition ?? "50% 50%",
             transformOrigin: "center center",
           }}
           draggable={false}
