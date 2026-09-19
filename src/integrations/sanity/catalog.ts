@@ -9,6 +9,7 @@ import {
 import {
   normalizeProductVariants,
 } from "@/features/catalog/variant-normalizer";
+import { isProductStockAvailable } from "@/features/catalog/product-availability";
 import type {
   CatalogCategorySummary,
   CatalogPageData,
@@ -197,7 +198,7 @@ function mergeRelatedProductFallbacks(groups: RelatedProductFallbackGroups) {
 
     if (
       !slug ||
-      product.stock <= 0 ||
+      !isProductStockAvailable(product) ||
       product.isActive === false ||
       seenIds.has(product._id) ||
       seenSlugs.has(slug)

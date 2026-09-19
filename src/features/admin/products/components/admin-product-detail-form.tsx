@@ -102,7 +102,6 @@ type DetailDelta = {
   categoryId?: string;
   subcategory?: { operation: "set"; value: string } | { operation: "unset" };
   basePrice?: number;
-  transferPrice?: { operation: "set"; value: number } | { operation: "unset" };
   stock?: number;
   isActive?: boolean;
   isFeatured?: boolean;
@@ -132,7 +131,6 @@ function createDetailDraft(product: AdminProductDetailData): DetailDraft {
     categoryId: product.categoryId,
     subcategoryId: product.subcategoryId ?? "",
     basePrice: String(product.basePrice),
-    transferPrice: typeof product.transferPrice === "number" ? String(product.transferPrice) : "",
     stock: String(product.stock),
     isActive: product.visible,
     isFeatured: product.isFeatured,
@@ -196,20 +194,6 @@ function buildDetailDelta(
   if (Number.isFinite(basePrice) && basePrice !== baseline.basePrice) {
     delta.basePrice = basePrice;
     changedFields.add("basePrice");
-  }
-
-  const transferPriceRaw = draft.transferPrice.trim();
-  if (transferPriceRaw.length === 0) {
-    if (baseline.transferPrice !== null) {
-      delta.transferPrice = { operation: "unset" };
-      changedFields.add("transferPrice");
-    }
-  } else {
-    const transferPrice = Number(transferPriceRaw);
-    if (Number.isFinite(transferPrice) && transferPrice !== baseline.transferPrice) {
-      delta.transferPrice = { operation: "set", value: transferPrice };
-      changedFields.add("transferPrice");
-    }
   }
 
   const stock = Number(draft.stock);

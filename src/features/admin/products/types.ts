@@ -38,6 +38,11 @@ export type AdminProductListItem = {
   hasVariants: boolean;
   variantSource: AdminProductSource | null;
   visible: boolean;
+  /** True when the product has no sellable stock right now (see
+   * isProductStockAvailable in features/catalog/product-availability.ts) —
+   * doesn't change what `visible` means; only used to show "Oculto por
+   * falta de stock" when `visible` is true but this is also true. */
+  hiddenByStock: boolean;
   isOnOffer: boolean;
   showInNewIn: boolean;
   newInOrder: number | null;
@@ -299,6 +304,11 @@ export type AdminProductDetailData = {
   legacyColorVariantCount: number;
   variants: import("./lib/variant-editor").AdminProductVariantData[];
   visible: boolean;
+  /** True when the product has no sellable stock right now — see
+   * isProductStockAvailable in features/catalog/product-availability.ts.
+   * Doesn't change what `visible` means; only drives the "Oculto por falta
+   * de stock" notice when `visible` is true but this is also true. */
+  hiddenByStock: boolean;
   isFeatured: boolean;
   isOnOffer: boolean;
   showInNewIn: boolean;

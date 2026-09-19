@@ -68,7 +68,6 @@ export async function finalizeProductDraftAction(
     categoryId: String(formData.get("categoryId") ?? ""),
     subcategoryId: String(formData.get("subcategoryId") ?? ""),
     basePrice: String(formData.get("basePrice") ?? ""),
-    transferPrice: String(formData.get("transferPrice") ?? ""),
     stock: String(formData.get("stock") ?? ""),
     isActive: String(formData.get("isActive") ?? "false"),
     isFeatured: String(formData.get("isFeatured") ?? "false"),

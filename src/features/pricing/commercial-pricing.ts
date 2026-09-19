@@ -15,6 +15,19 @@ export function isValidCommercialPrice(value: unknown): value is number {
   return normalizePrice(value) !== null;
 }
 
+/**
+ * Deluar's single, fixed transfer-payment discount rule: always exactly 20%
+ * off, rounded to whole pesos (the only unit every price in this project is
+ * formatted/persisted in — see formatProductPrice/formatDashboardPrice,
+ * always 0 fraction digits). Every write path that persists `transferPrice`
+ * (product creation, product edit, variant edit) must derive it through this
+ * function instead of trusting a client-submitted value or hardcoding the
+ * 20% anywhere else.
+ */
+export function calculateTransferPrice(basePrice: number) {
+  return Math.round(basePrice * 0.8);
+}
+
 export function resolveCommercialBasePrice(source: CommercialPriceSource) {
   return normalizePrice(source.basePrice) ?? 0;
 }

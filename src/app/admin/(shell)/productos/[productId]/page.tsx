@@ -96,13 +96,21 @@ export default async function AdminProductDetailPage({ params }: AdminProductDet
   return (
     <AdminProductRevisionProvider initialRev={product.rev} initialUpdatedAt={product.updatedAt}>
       <AdminProductsShell updatedAt={product.updatedAt}>
-        <div className="grid gap-1">
-          <h1 className="text-[1.125rem] font-semibold tracking-[-0.015em] text-text-primary sm:text-[1.375rem]">
-            Editar producto
-          </h1>
-          <p className="text-[12.5px] leading-5 text-text-secondary">
-            Administrá los datos principales del producto sin entrar a Sanity Studio.
-          </p>
+        <div className="grid gap-2">
+          <div className="grid gap-1">
+            <h1 className="text-[1.125rem] font-semibold tracking-[-0.015em] text-text-primary sm:text-[1.375rem]">
+              Editar producto
+            </h1>
+            <p className="text-[12.5px] leading-5 text-text-secondary">
+              Administrá los datos principales del producto sin entrar a Sanity Studio.
+            </p>
+          </div>
+
+          {product.visible && product.hiddenByStock ? (
+            <span className="inline-flex w-fit items-center rounded-md border border-warning/25 bg-warning-soft px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-warning">
+              Oculto por falta de stock
+            </span>
+          ) : null}
         </div>
 
         <AdminProductDetailForm product={product} categoryTree={categoryTree} mode="edit" />

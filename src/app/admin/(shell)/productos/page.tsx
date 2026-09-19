@@ -5,6 +5,7 @@ import { EmptyState } from "@/features/admin/dashboard/components/empty-state";
 import { KpiCard } from "@/features/admin/dashboard/components/kpi-card";
 import { formatDashboardDateTime, formatDashboardNumber } from "@/features/admin/dashboard/lib/dashboard-formatters";
 import { dashboardUi } from "@/features/admin/dashboard/lib/dashboard-ui";
+import { AdminPagination } from "@/features/admin/components/admin-pagination";
 import { AdminProductRowView } from "@/features/admin/products/components/admin-product-row-view";
 import { AdminProductsShell } from "@/features/admin/products/components/admin-products-shell";
 import { AdminProductsToolbar } from "@/features/admin/products/components/admin-products-toolbar";
@@ -33,9 +34,6 @@ type AdminProductsPageProps = {
   }>;
 };
 
-const pageLinkClass =
-  "inline-flex h-9 items-center justify-center rounded-xl border px-3 text-xs font-semibold transition-colors duration-150";
-
 export default async function AdminProductsPage({ searchParams }: AdminProductsPageProps) {
   await requireAdminSession();
 
@@ -55,8 +53,6 @@ export default async function AdminProductsPage({ searchParams }: AdminProductsP
   const data = await getAdminProductsPageData(filters);
   const lastUpdated = formatDashboardDateTime(new Date());
   const activeFilters = hasActiveAdminProductsFilters(data.filters);
-  const isFirstPage = data.page <= 1;
-  const isLastPage = data.page >= data.totalPages;
 
   // One conceptual action (→ /admin/productos/nuevo), rendered once per
   // breakpoint: full-width beside the "Productos" heading on mobile (below),
@@ -90,7 +86,7 @@ export default async function AdminProductsPage({ searchParams }: AdminProductsP
 
       <section className="grid grid-cols-2 gap-1.5 sm:gap-3 xl:grid-cols-4">
         <KpiCard title="Total productos" value={formatDashboardNumber(data.summary.total)} tone="accent" />
-        <KpiCard title="Visibles" value={formatDashboardNumber(data.summary.visible)} tone="success" />
+        <KpiCard title="Visibles en tienda" value={formatDashboardNumber(data.summary.visible)} tone="success" />
         <KpiCard title="Sin stock" value={formatDashboardNumber(data.summary.outOfStock)} tone="warning" />
         <KpiCard title="En oferta" value={formatDashboardNumber(data.summary.onOffer)} tone="danger" />
       </section>
@@ -166,42 +162,21 @@ export default async function AdminProductsPage({ searchParams }: AdminProductsP
           </div>
         )}
 
-        <div className="mt-3 border-t border-border px-1.5 pt-3 pb-3 sm:mt-0 sm:border-t-0 sm:px-2 lg:px-4">
-          <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 sm:flex sm:items-center sm:justify-between sm:gap-3">
-            <Link
-              href={buildAdminProductsHref(data.filters, { page: Math.max(1, data.page - 1) })}
-              aria-disabled={isFirstPage}
-              className={cn(
-                pageLinkClass,
-                isFirstPage
-                  ? "pointer-events-none border-border bg-surface-elevated text-text-secondary"
-                  : "border-border bg-surface text-text-primary hover:bg-surface-elevated",
-              )}
-            >
-              Anterior
-            </Link>
+        <div className="mt-3 flex flex-col gap-2 border-t border-border px-1.5 pt-3 pb-3 sm:mt-0 sm:flex-row sm:items-center sm:justify-between sm:border-t-0 sm:px-2 lg:px-4">
+          <p className="min-w-0 whitespace-nowrap text-center text-[11px] leading-4 text-text-secondary sm:text-left">
+            {data.filteredTotal > 0
+              ? `${formatDashboardNumber((data.page - 1) * data.pageSize + 1)}-${formatDashboardNumber(
+                  Math.min(data.page * data.pageSize, data.filteredTotal),
+                )} de ${formatDashboardNumber(data.filteredTotal)} | Página ${data.page} de ${data.totalPages}`
+              : "Sin resultados para esta combinación de filtros."}
+          </p>
 
-            <p className="min-w-0 whitespace-nowrap text-center text-[11px] leading-4 text-text-secondary sm:flex-1 sm:px-3">
-              {data.filteredTotal > 0
-                ? `${formatDashboardNumber((data.page - 1) * data.pageSize + 1)}-${formatDashboardNumber(
-                    Math.min(data.page * data.pageSize, data.filteredTotal),
-                  )} de ${formatDashboardNumber(data.filteredTotal)} | Página ${data.page} de ${data.totalPages}`
-                : "Sin resultados para esta combinación de filtros."}
-            </p>
-
-            <Link
-              href={buildAdminProductsHref(data.filters, { page: Math.min(data.totalPages, data.page + 1) })}
-              aria-disabled={isLastPage}
-              className={cn(
-                pageLinkClass,
-                isLastPage
-                  ? "pointer-events-none border-border bg-surface-elevated text-text-secondary"
-                  : "border-border bg-surface text-text-primary hover:bg-surface-elevated",
-              )}
-            >
-              Siguiente
-            </Link>
-          </div>
+          <AdminPagination
+            page={data.page}
+            totalPages={data.totalPages}
+            buildHref={(page) => buildAdminProductsHref(data.filters, { page })}
+            className="justify-center sm:justify-end"
+          />
         </div>
       </section>
     </AdminProductsShell>

@@ -1,5 +1,6 @@
 import { getSanityImageUrl, TIENDANUBE_PLACEHOLDER_IMAGE_ASSET_REF } from "@/integrations/sanity/image";
 import { resolveProductCommercialDisplay } from "@/features/catalog/product-commercial-display";
+import { isProductStockAvailable } from "@/features/catalog/product-availability";
 import { formatDashboardPrice } from "@/features/admin/dashboard/lib/dashboard-formatters";
 import { ADMIN_LOW_STOCK_THRESHOLD } from "./product-filters";
 import type { AdminProductListItem, AdminProductStockEditItem } from "../types";
@@ -199,6 +200,7 @@ export function mapAdminProductListItem(product: AdminProductItemSource): AdminP
     hasVariants: commercialSummary.variantCount > 0,
     variantSource,
     visible: product.isActive !== false,
+    hiddenByStock: !isProductStockAvailable(product),
     isOnOffer: product.isOnOffer === true,
     showInNewIn: product.showInNewIn === true,
     newInOrder: typeof product.newInOrder === "number" ? product.newInOrder : null,

@@ -20,6 +20,7 @@ import {
   serializeAdminProductDetailSnapshot,
 } from "../lib/admin-product-detail-snapshot";
 import { hasProductVariants } from "../lib/product-commercial";
+import { calculateTransferPrice } from "@/features/pricing/commercial-pricing";
 import type { CatalogHierarchyNode } from "@/features/catalog/hierarchy";
 import type { AdminProductDetailActionState, AdminProductDetailField } from "../types";
 import {
@@ -477,6 +478,10 @@ export async function updateProductDetailAction(
 
   if (delta.basePrice !== undefined) {
     patchPlan.setFields.push("basePrice");
+    // transferPrice is never a separate, client-controlled delta — it's
+    // always re-derived from basePrice server-side (calculateTransferPrice),
+    // so it rides along with every basePrice change.
+    patchPlan.setFields.push("transferPrice");
   }
 
   if (delta.stock !== undefined) {
@@ -501,14 +506,6 @@ export async function updateProductDetailAction(
 
   if (delta.changedFields.includes("logistics")) {
     patchPlan.setFields.push("logistics");
-  }
-
-  if (delta.transferPrice?.operation === "set") {
-    patchPlan.setFields.push("transferPrice");
-  }
-
-  if (delta.transferPrice?.operation === "unset") {
-    patchPlan.unsetFields.push("transferPrice");
   }
 
   if (delta.subcategory?.operation === "set") {
@@ -601,6 +598,9 @@ export async function updateProductDetailAction(
 
     if (delta.basePrice !== undefined) {
       patchSet.basePrice = delta.basePrice;
+      // Server-side authority: transferPrice always tracks basePrice via
+      // calculateTransferPrice, never a value coming from the request.
+      patchSet.transferPrice = calculateTransferPrice(delta.basePrice);
     }
 
     if (delta.isActive !== undefined) {
@@ -638,12 +638,6 @@ export async function updateProductDetailAction(
 
     if (typeof delta.stock === "number") {
       patch = patch.set({ stock: delta.stock });
-    }
-
-    if (delta.transferPrice?.operation === "unset") {
-      patch = patch.unset(["transferPrice"]);
-    } else if (delta.transferPrice?.operation === "set") {
-      patch = patch.set({ transferPrice: delta.transferPrice.value });
     }
 
     if (delta.subcategory?.operation === "set") {

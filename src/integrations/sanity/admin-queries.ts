@@ -1,4 +1,5 @@
 import groq from "groq";
+import { productAvailabilityClause } from "@/features/catalog/product-availability";
 
 const logisticsProjection = groq`
   logistics{
@@ -228,13 +229,69 @@ export const adminProductDetailQuery = groq`
   }
 `;
 
-export function buildAdminProductsPageQuery(filterClause: string, outOfStockClause: string) {
+/**
+ * Deliberately lighter than adminProductProjection above — Inventario never
+ * needs images/description/logistics/seo, only what a stock row actually
+ * shows. `sku` is real data on variants/colorVariants (schema field), never
+ * fabricated for the simple-product base row, which has no sku field at all
+ * in this schema — that row falls back to the product's slug in the UI.
+ */
+const adminInventoryProjection = groq`
+  _id,
+  _rev,
+  title,
+  "slug": slug.current,
+  basePrice,
+  category->{ title },
+  subcategory->{ title },
+  stock,
+  images,
+  variants[]{ _key, title, value, sku, stock, isActive },
+  colorVariants[]{ _key, title, value, sku, stock }
+`;
+
+/**
+ * Read immediately before writing a stock change — never the page-listing
+ * projection above, never a stale value from when Inventario first loaded.
+ * Only the fields the delta math and the _key-existence check actually need.
+ */
+export const adminInventoryFreshProductQuery = groq`
+  *[_type == "product" && _id == $productId][0]{
+    _id,
+    _rev,
+    title,
+    stock,
+    variants[]{ _key, stock },
+    colorVariants[]{ _key, stock }
+  }
+`;
+
+export function buildAdminInventoryPageQuery(filterClause: string) {
+  return groq`
+  {
+    "filteredTotal": count(*[
+      _type == "product" &&
+      ${filterClause}
+    ]),
+    "items": *[
+      _type == "product" &&
+      ${filterClause}
+    ]
+      | order(_updatedAt desc, title asc)
+      [$offset...$offset + $limit]{
+        ${adminInventoryProjection}
+      }
+  }
+  `;
+}
+
+export function buildAdminProductsPageQuery(filterClause: string) {
   return groq`
   {
     "global": {
       "total": count(*[_type == "product"]),
-      "visible": count(*[_type == "product" && isActive != false]),
-      "outOfStock": count(*[_type == "product" && ${outOfStockClause}]),
+      "visible": count(*[_type == "product" && isActive != false && ${productAvailabilityClause}]),
+      "outOfStock": count(*[_type == "product" && isActive != false && !(${productAvailabilityClause})]),
       "onOffer": count(*[_type == "product" && isOnOffer == true])
     },
     "filteredTotal": count(*[

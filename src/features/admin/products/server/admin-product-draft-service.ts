@@ -7,6 +7,7 @@ import { sanityAdminEditFetch, sanityFreshFetch } from "@/integrations/sanity/cl
 import { adminProductDetailQuery } from "@/integrations/sanity/admin-queries";
 import { getAdminProductsWriteClient } from "./admin-products-write-client";
 import { normalizeProductDetail } from "./admin-product-detail-service";
+import { calculateTransferPrice } from "@/features/pricing/commercial-pricing";
 import { adminProductDetailBlocksSchema, parseAdminProductDetailDescription } from "../validation/detail-product";
 import { normalizeAdminProductLogistics } from "../validation/product-logistics";
 import { toDraftId } from "../lib/product-draft-id";
@@ -200,7 +201,10 @@ export async function finalizeProductDraft(input: FinalizeProductDraftInput): Pr
     shortDescription: values.shortDescription,
     description: buildPortableTextPayload(values.descriptionJson),
     basePrice: values.basePrice,
-    ...(typeof values.transferPrice === "number" ? { transferPrice: values.transferPrice } : {}),
+    // Never trusts a client-submitted transferPrice — Deluar's transfer
+    // discount is always exactly 20% off, derived server-side from the
+    // basePrice that was just validated above.
+    transferPrice: calculateTransferPrice(values.basePrice),
     stock: values.stock,
     isActive: values.isActive,
     isFeatured: values.isFeatured,

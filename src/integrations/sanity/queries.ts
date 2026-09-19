@@ -1,4 +1,5 @@
 import groq from "groq";
+import { productAvailabilityClause } from "@/features/catalog/product-availability";
 
 const logisticsProjection = groq`
   logistics{
@@ -9,11 +10,18 @@ const logisticsProjection = groq`
   }
 `;
 
+// NOTE: `stock` is required here — isProductStockAvailable / the JS-side
+// `isVisibleProduct` filter in features/home/mappers.ts (used for the
+// curated featuredProducts/campaignFeaturedProducts/spotlightProduct picks)
+// reads variant/colorVariant stock straight off these projected objects.
+// Without it every variant looked stock-less, which would have made any
+// product with variants appear unavailable regardless of its real stock.
 const variantCardProjection = groq`
   variants[]{
     _key,
     title,
     value,
+    stock,
     isActive,
     ${logisticsProjection},
     attributes[]{
@@ -24,7 +32,8 @@ const variantCardProjection = groq`
   colorVariants[]{
     _key,
     title,
-    value
+    value,
+    stock
   }
 `;
 
@@ -150,7 +159,7 @@ export const productCardQuery = groq`
 `;
 
 export const allProductsQuery = groq`
-  *[_type == "product" && isActive != false] | order(isFeatured desc, _createdAt desc)
+  *[_type == "product" && isActive != false && ${productAvailabilityClause}] | order(isFeatured desc, _createdAt desc)
   ${productCardQuery}
 `;
 
@@ -158,6 +167,7 @@ export const searchProductsQuery = groq`
   *[
     _type == "product" &&
     isActive != false &&
+    ${productAvailabilityClause} &&
     (
       $q == "" ||
     title match $pattern ||
@@ -201,6 +211,7 @@ export const productsByCategoryQuery = groq`
   *[
     _type == "product" &&
     isActive != false &&
+    ${productAvailabilityClause} &&
     category->slug.current == $categorySlug &&
     ($subcategorySlug == "" || subcategory->slug.current == $subcategorySlug)
   ] | order(isFeatured desc, _createdAt desc) [0...48]
@@ -211,6 +222,7 @@ export const homeCategoryRepresentativeProductQuery = groq`
   *[
     _type == "product" &&
     isActive != false &&
+    ${productAvailabilityClause} &&
     category->slug.current == $categorySlug &&
     count(images[defined(image.asset._ref) && image.asset._ref != $placeholderAssetRef]) > 0
   ] | order(isFeatured desc, _createdAt desc)[0]{
@@ -222,6 +234,7 @@ export const catalogProductsByHierarchyQuery = groq`
   *[
     _type == "product" &&
     isActive != false &&
+    ${productAvailabilityClause} &&
     category->slug.current == $categorySlug &&
     (
       ($includeRootProducts == true && !defined(subcategory)) ||
@@ -232,17 +245,17 @@ export const catalogProductsByHierarchyQuery = groq`
 `;
 
 export const featuredProductsQuery = groq`
-  *[_type == "product" && isActive != false && isFeatured == true] | order(_createdAt desc) [0...8]
+  *[_type == "product" && isActive != false && ${productAvailabilityClause} && isFeatured == true] | order(_createdAt desc) [0...8]
   ${productCardQuery}
 `;
 
 export const offerProductsQuery = groq`
-  *[_type == "product" && isActive != false && isOnOffer == true] | order(isFeatured desc, _updatedAt desc) [0...10]
+  *[_type == "product" && isActive != false && ${productAvailabilityClause} && isOnOffer == true] | order(isFeatured desc, _updatedAt desc) [0...10]
   ${productCardQuery}
 `;
 
 export const newInProductsQuery = groq`
-  *[_type == "product" && isActive != false && showInNewIn == true]
+  *[_type == "product" && isActive != false && ${productAvailabilityClause} && showInNewIn == true]
     | order(coalesce(newInOrder, 9999) asc, _createdAt desc) [0...8]
   {
     _id,
@@ -277,7 +290,7 @@ export const newInProductsQuery = groq`
 `;
 
 export const productBySlugQuery = groq`
-  *[_type == "product" && slug.current == $slug && isActive != false][0] {
+  *[_type == "product" && slug.current == $slug && isActive != false && ${productAvailabilityClause}][0] {
     _id,
     _type,
     title,
@@ -318,8 +331,8 @@ export const relatedProductFallbackGroupsQuery = groq`
       _type == "product" &&
       defined(slug.current) &&
       slug.current != $slug &&
-      stock > 0 &&
       isActive != false &&
+      ${productAvailabilityClause} &&
       $categorySlug != "" &&
       category->slug.current == $categorySlug
     ] | order(isFeatured desc, _createdAt desc) [0...4]
@@ -328,8 +341,8 @@ export const relatedProductFallbackGroupsQuery = groq`
       _type == "product" &&
       defined(slug.current) &&
       slug.current != $slug &&
-      stock > 0 &&
       isActive != false &&
+      ${productAvailabilityClause} &&
       isFeatured == true
     ] | order(_createdAt desc) [0...12]
     ${productCardQuery},
@@ -337,8 +350,8 @@ export const relatedProductFallbackGroupsQuery = groq`
       _type == "product" &&
       defined(slug.current) &&
       slug.current != $slug &&
-      stock > 0 &&
-      isActive != false
+      isActive != false &&
+      ${productAvailabilityClause}
     ] | order(_createdAt desc) [0...24]
     ${productCardQuery}
   }

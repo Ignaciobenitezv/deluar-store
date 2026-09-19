@@ -56,7 +56,6 @@ const adminProductDetailDeltaFieldSchema = z.enum([
   "category",
   "subcategory",
   "basePrice",
-  "transferPrice",
   "stock",
   "isActive",
   "isFeatured",
@@ -71,16 +70,6 @@ const adminProductDetailSubcategoryDeltaSchema = z.discriminatedUnion("operation
   z.object({
     operation: z.literal("set"),
     value: requiredTrimmedString,
-  }),
-  z.object({
-    operation: z.literal("unset"),
-  }),
-]);
-
-const adminProductDetailTransferPriceDeltaSchema = z.discriminatedUnion("operation", [
-  z.object({
-    operation: z.literal("set"),
-    value: z.coerce.number().finite().min(0),
   }),
   z.object({
     operation: z.literal("unset"),
@@ -117,7 +106,6 @@ export const adminProductDetailDeltaSchema = z.object({
   categoryId: optionalTrimmedString,
   subcategory: adminProductDetailSubcategoryDeltaSchema.optional(),
   basePrice: z.coerce.number().finite().positive().optional(),
-  transferPrice: adminProductDetailTransferPriceDeltaSchema.optional(),
   stock: optionalIntegerSchema.optional(),
   isActive: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
@@ -185,10 +173,6 @@ const adminProductDetailBaseObjectSchema = z.object({
   categoryId: requiredTrimmedString,
   subcategoryId: z.string().trim().optional(),
   basePrice: z.preprocess(emptyToUndefined, z.coerce.number().finite().positive("El precio debe ser mayor a cero.")),
-  transferPrice: z.preprocess(
-    (value) => (value === "" || value === null || value === undefined ? undefined : value),
-    z.coerce.number().finite().min(0).optional(),
-  ),
   stock: optionalIntegerSchema,
   isActive: booleanSelectSchema,
   isFeatured: booleanSelectSchema,

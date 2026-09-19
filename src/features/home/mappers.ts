@@ -3,6 +3,7 @@ import {
   mapCategoryToSummary,
   mapProductToCatalogCard,
 } from "@/features/catalog/mappers";
+import { isProductStockAvailable } from "@/features/catalog/product-availability";
 import type { HomeNewInProduct, HomePageData } from "@/features/home/types";
 import { getSanityImageUrl } from "@/integrations/sanity/image";
 import type {
@@ -24,8 +25,12 @@ type MapHomePageDataInput = {
   siteSettings: SiteSettingsDocument | null;
 };
 
+// Guards homePage's own curated picks (featuredProducts, spotlightProduct)
+// — the separately-queried featuredProducts/newInProducts/offerProducts
+// params are already gated at the GROQ level (see queries.ts) and pass this
+// unconditionally the same way.
 function isVisibleProduct(product: ProductDocument) {
-  return product.isActive !== false;
+  return product.isActive !== false && isProductStockAvailable(product);
 }
 
 function mapProductToHomeNewIn(product: ProductDocument): HomeNewInProduct {

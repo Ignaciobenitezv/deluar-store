@@ -11,6 +11,7 @@ import {
   hasActiveAdminProductsFilters,
   type AdminProductsCategoryNode,
 } from "../lib/product-filters";
+import { ADMIN_PRODUCTS_NO_CATEGORY_VALUE } from "../lib/product-filters";
 import { cn } from "@/lib/utils";
 
 type AdminProductsToolbarProps = {
@@ -217,6 +218,7 @@ export function AdminProductsToolbar({ filters, categoryTree }: AdminProductsToo
                   className={selectClass}
                 >
                   <option value="">Todas</option>
+                  <option value={ADMIN_PRODUCTS_NO_CATEGORY_VALUE}>Sin categoría</option>
                   {categoryOptions.map((option) => (
                     <option key={option.id} value={option.slug}>
                       {option.label}

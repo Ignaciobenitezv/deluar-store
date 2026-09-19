@@ -419,7 +419,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
 
           <div id="catalog-grid" className="w-full space-y-6 px-1.5 lg:px-0 scroll-mt-24">
             {catalog.products.length > 0 ? (
-              <ProductGrid products={catalog.products} />
+              <ProductGrid products={catalog.products} variant="catalogMobile" />
             ) : (
               <CatalogEmptyState
                 title="No hay productos publicados en esta seccion"

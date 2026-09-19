@@ -29,6 +29,13 @@ export const adminNavIcons: Record<string, React.ReactNode> = {
       <path d="M2 2.8h4.8L8.4 4.6H14v8.6H2V2.8Z" />
     </svg>
   ),
+  inventory: (
+    <svg {...svgProps}>
+      <path d="M2 4.5h12v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-8Z" />
+      <path d="M2 4.5 3.6 2h8.8L14 4.5" />
+      <path d="M6.2 7.3h3.6" />
+    </svg>
+  ),
   overview: (
     <svg {...svgProps}>
       <rect x="1.5" y="1.5" width="5" height="5" rx="1" />

@@ -33,6 +33,11 @@ function visibilityBadgeClasses(visible: boolean) {
     : "border-border bg-surface-elevated text-text-secondary";
 }
 
+const hiddenByStockBadgeClassMobile =
+  "inline-flex shrink-0 items-center rounded-md border border-warning/25 bg-warning-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-warning";
+const hiddenByStockBadgeClassDesktop =
+  "inline-flex items-center justify-center rounded-md border border-warning/25 bg-warning-soft px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-warning";
+
 function EyeIcon() {
   return (
     <svg aria-hidden="true" viewBox="0 0 20 20" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.75">
@@ -74,14 +79,19 @@ export function AdminProductRowView({ product, variant }: AdminProductRowViewPro
               >
                 {currentProduct.title}
               </Link>
-              <span
-                className={cn(
-                  "inline-flex shrink-0 items-center rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em]",
-                  visibilityBadgeClasses(currentProduct.visible),
-                )}
-              >
-                {currentProduct.visible ? "Visible" : "Oculto"}
-              </span>
+              <div className="flex shrink-0 flex-wrap justify-end gap-1">
+                <span
+                  className={cn(
+                    "inline-flex shrink-0 items-center rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em]",
+                    visibilityBadgeClasses(currentProduct.visible),
+                  )}
+                >
+                  {currentProduct.visible ? "Visible" : "Oculto"}
+                </span>
+                {currentProduct.visible && currentProduct.hiddenByStock ? (
+                  <span className={hiddenByStockBadgeClassMobile}>Oculto por falta de stock</span>
+                ) : null}
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
@@ -185,6 +195,10 @@ export function AdminProductRowView({ product, variant }: AdminProductRowViewPro
           <span className={cn("inline-flex items-center justify-center rounded-md border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]", visibilityBadgeClasses(currentProduct.visible))}>
             {currentProduct.visible ? "Visible" : "Oculto"}
           </span>
+
+          {currentProduct.visible && currentProduct.hiddenByStock ? (
+            <span className={hiddenByStockBadgeClassDesktop}>Oculto por falta de stock</span>
+          ) : null}
 
           {currentProduct.isOnOffer ? (
             <span className="inline-flex items-center rounded-md border border-warning/25 bg-warning-soft px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-warning">

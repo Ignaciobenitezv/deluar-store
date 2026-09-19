@@ -1,6 +1,16 @@
 import type { CatalogHierarchyNode } from "@/features/catalog/hierarchy";
+import { productAvailabilityClause } from "@/features/catalog/product-availability";
 
 export const ADMIN_LOW_STOCK_THRESHOLD = 5;
+
+/**
+ * Sentinel `category` filter value meaning "no valid category assigned" —
+ * lives in the same free-text `category` slug field (no separate filter) so
+ * it rides along with the existing URL param, href builder and pagination
+ * for free. Never a real slug: Studio's default slugify never produces a
+ * double-underscore-wrapped token from a category title.
+ */
+export const ADMIN_PRODUCTS_NO_CATEGORY_VALUE = "__none__";
 
 export type AdminProductsStatusFilter = "all" | "visible" | "hidden";
 export type AdminProductsStockFilter = "all" | "with" | "without" | "low";
@@ -157,16 +167,21 @@ export function extractSubcategories(categoryTree: AdminProductsCategoryNode[], 
   return category?.subcategories ?? [];
 }
 
-function buildEffectiveStockBranches() {
-  return {
-    variantStock: "math::sum(variants[isActive != false].stock)",
-    colorVariantStock: "math::sum(colorVariants[defined(stock)].stock)",
-    simpleStock: "stock",
-    hasVariants: "count(variants[isActive != false]) > 0",
-    hasColorVariants: "count(colorVariants) > 0",
-  };
-}
-
+/**
+ * Stock filter clause. "with"/"without"/"all" delegate entirely to
+ * `productAvailabilityClause` — the single, canonical definition of
+ * availability — so this never becomes a second, competing definition.
+ *
+ * "low" is a genuinely different, quantitative concept ("has stock, but not
+ * much") that isProductStockAvailable doesn't (and shouldn't) express, so it
+ * keeps its own sum-based computation — but fixed to respect the same
+ * precedence rule (ignore base stock once variants exist) and to guard
+ * every count()/math::sum() with `coalesce(..., 0)`: GROQ's count() on a
+ * field that doesn't exist at all returns null, not 0, which silently broke
+ * every `== 0` / `> 0` comparison below for the many products that have no
+ * `variants` or `colorVariants` field at all (the same pitfall already
+ * fixed once in productAvailabilityClause).
+ */
 export function buildAdminProductsStockClause(
   stock: AdminProductsStockFilter,
 ) {
@@ -174,22 +189,24 @@ export function buildAdminProductsStockClause(
     return "true";
   }
 
-  const branches = buildEffectiveStockBranches();
-  const branchComparison = (expression: string) => {
-    if (stock === "with") {
-      return `${expression} > 0`;
-    }
+  if (stock === "with") {
+    return productAvailabilityClause;
+  }
 
-    if (stock === "without") {
-      return `${expression} <= 0`;
-    }
+  if (stock === "without") {
+    return `!(${productAvailabilityClause})`;
+  }
 
-    return `${expression} > 0 && ${expression} <= $lowStockThreshold`;
-  };
+  const hasActiveVariants = "coalesce(count(variants[isActive != false]), 0) > 0";
+  const hasColorVariants = "coalesce(count(colorVariants), 0) > 0";
+  const variantStock = "coalesce(math::sum(variants[isActive != false].stock), 0)";
+  const colorVariantStock = "coalesce(math::sum(colorVariants[defined(stock)].stock), 0)";
+  const simpleStock = "coalesce(stock, 0)";
+  const isLow = (expression: string) => `(${expression} > 0 && ${expression} <= $lowStockThreshold)`;
 
   return `(
-    (${branches.hasVariants} && ${branchComparison(branches.variantStock)}) ||
-    (count(variants[isActive != false]) == 0 && ${branches.hasColorVariants} && ${branchComparison(branches.colorVariantStock)}) ||
-    (count(variants[isActive != false]) == 0 && count(colorVariants) == 0 && ${branchComparison(branches.simpleStock)})
+    (${hasActiveVariants} && ${isLow(variantStock)}) ||
+    (!(${hasActiveVariants}) && ${hasColorVariants} && ${isLow(colorVariantStock)}) ||
+    (!(${hasActiveVariants}) && !(${hasColorVariants}) && ${isLow(simpleStock)})
   )`;
 }

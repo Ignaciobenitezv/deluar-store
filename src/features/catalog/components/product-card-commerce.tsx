@@ -22,12 +22,34 @@ export type ProductCardCommerceData = {
 type ProductCardCommerceVariant = "default" | "catalog";
 
 const catalogCtaBase =
-  "inline-flex h-10 w-full appearance-none items-center justify-center rounded-[6px] bg-[#5f4033] px-5 font-sans text-center text-[11px] font-medium normal-case tracking-normal whitespace-nowrap leading-none text-[#f6efe7] shadow-[0_8px_18px_rgba(91,64,51,0.1)] transition duration-200 hover:bg-[#67493b] hover:shadow-[0_10px_22px_rgba(91,64,51,0.14)]";
+  "inline-flex h-12 w-full appearance-none items-center justify-center gap-2 rounded-[10px] bg-[#5f4033] px-5 font-sans text-center text-[12.5px] font-medium normal-case tracking-normal whitespace-nowrap leading-none text-[#f6efe7] shadow-[0_8px_18px_rgba(91,64,51,0.1)] transition duration-200 hover:bg-[#67493b] hover:shadow-[0_10px_22px_rgba(91,64,51,0.14)] sm:text-sm";
 
-const catalogCtaLabelBase = "text-[11px] font-medium leading-none tracking-normal";
+const catalogCtaLabelBase = "text-[12.5px] font-medium leading-none tracking-normal sm:text-sm";
 
 function renderCatalogCtaLabel(label: string) {
   return <span className={catalogCtaLabelBase}>{label}</span>;
+}
+
+// Purely decorative — matches references/card's add-to-cart button. Only
+// rendered on the real "Agregar al carrito" action for variant="catalog",
+// never in the out-of-stock / "Ver producto" states.
+function CartIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className="h-4 w-4 shrink-0"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="9" cy="20" r="1" />
+      <circle cx="18" cy="20" r="1" />
+      <path d="M2.5 3h2l2.4 12.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L20.5 7H6" />
+    </svg>
+  );
 }
 
 function toCartProduct(product: ProductCardCommerceData): CartProductInput {
@@ -105,6 +127,7 @@ export function ProductCardCta({
         className,
       )}
     >
+      {variant === "catalog" ? <CartIcon /> : null}
       {renderCatalogCtaLabel(label)}
     </button>
   );

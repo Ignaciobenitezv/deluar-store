@@ -8,6 +8,7 @@ import { logger } from "@/lib/logger";
 import type { SanityImageWithAlt } from "@/types/cms";
 import type { ProductColorVariantDocument, ProductVariantDocument } from "@/types/cms";
 import { normalizeProductLogistics } from "@/features/catalog/logistics";
+import { isProductStockAvailable } from "@/features/catalog/product-availability";
 import { resolveAdminProductSlugValue } from "../lib/product-slug";
 import { normalizeAdminProductVariants } from "../lib/variant-editor";
 import { resolveAdminProductStockSummary } from "../lib/product-stock";
@@ -154,6 +155,7 @@ export function normalizeProductDetail(product: AdminProductDetailQueryItem): Ad
     legacyColorVariantCount: normalizedVariants.legacyColorVariantCount,
     variants: normalizedVariants.variants,
     visible: product.isActive !== false,
+    hiddenByStock: !isProductStockAvailable(product),
     isFeatured: product.isFeatured === true,
     isOnOffer: product.isOnOffer === true,
     showInNewIn: product.showInNewIn === true,

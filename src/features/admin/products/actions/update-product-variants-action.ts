@@ -41,6 +41,7 @@ import {
 import type { ProductLogistics } from "@/features/catalog/logistics";
 import type { ProductColorVariantDocument, ProductVariantDocument } from "@/types/cms";
 import { applyAdminProductVariantDeletionUsage, loadAdminProductVariantDeletionUsage } from "../server/admin-product-variant-deletion";
+import { calculateTransferPrice } from "@/features/pricing/commercial-pricing";
 
 type AdminProductVariantDocument = {
   _id: string;
@@ -473,7 +474,11 @@ export async function updateProductVariantsAction(
         attributes: [],
         sku: "",
         basePrice: currentProduct.basePrice,
-        transferPrice: typeof currentProduct.transferPrice === "number" ? currentProduct.transferPrice : null,
+        // This variant is being given its own basePrice (a copy of the
+        // product's, at this instant) — so, same rule as any other variant
+        // with an own basePrice, its transferPrice is derived from it, never
+        // inherited from the product's (possibly stale) transferPrice field.
+        transferPrice: calculateTransferPrice(currentProduct.basePrice),
         stock: Number.isFinite(currentProduct.stock) ? currentProduct.stock : 0,
         isActive: true,
         images: [],
@@ -622,14 +627,23 @@ export async function updateProductVariantsAction(
 
     nextVariants.splice(deleteIndex, 1);
   } else {
+    // Same rule as the product itself, applied per variant: an explicit own
+    // basePrice always derives its own transferPrice (calculateTransferPrice)
+    // — never a value carried over from a previous save. When the variant
+    // has no own basePrice (inherits the product's), transferPrice stays
+    // null too, so read time correctly falls through to the product's own
+    // (also-derived) transferPrice instead of persisting a frozen,
+    // potentially inconsistent number here.
+    const resolvedVariantBasePrice = parsed.data.basePrice ?? null;
     const nextVariant: AdminProductVariantData = {
       key: targetVariant?.key ?? crypto.randomUUID(),
       title: parsed.data.title.trim(),
       value: parsed.data.value.trim(),
       attributes: parsedAttributes.attributes,
       sku: typeof parsed.data.sku === "string" ? parsed.data.sku.trim() : "",
-      basePrice: parsed.data.basePrice ?? null,
-      transferPrice: targetVariant?.transferPrice ?? null,
+      basePrice: resolvedVariantBasePrice,
+      transferPrice:
+        resolvedVariantBasePrice !== null ? calculateTransferPrice(resolvedVariantBasePrice) : null,
       stock: parsed.data.stock,
       isActive: parsed.data.isActive,
       images: [],

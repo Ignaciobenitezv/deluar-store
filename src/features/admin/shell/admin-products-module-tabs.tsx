@@ -17,6 +17,7 @@ type ProductsModuleTab = { id: string; label: string; href: string };
  */
 const productsModuleTabs: ProductsModuleTab[] = [
   { id: "products", label: "Productos", href: "/admin/productos" },
+  { id: "inventory", label: "Inventario", href: "/admin/productos/inventario" },
   { id: "categories", label: "Categorías", href: "/admin/productos/categorias" },
 ];
 

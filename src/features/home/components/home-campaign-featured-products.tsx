@@ -32,7 +32,11 @@ export function HomeCampaignFeaturedProducts({
             key={product.id}
             className="group w-full min-w-0 overflow-hidden rounded-[0.28rem] border border-[#ece7e1] bg-white shadow-[0_2px_6px_rgba(0,0,0,0.04)] transition-all duration-200 ease-out hover:border-[#ddd6cc] hover:shadow-[0_6px_14px_rgba(0,0,0,0.08)]"
           >
-            <div className="relative aspect-square overflow-hidden bg-neutral-100 p-3 sm:h-[22.5rem] sm:bg-[#f1e9de] sm:p-0 lg:h-[23.7rem]">
+            {/* Same container recipe as ProductCard's catalog-variant image
+                (product-card.tsx): aspect-[4/5] + bg-[#f4eadf], no fixed
+                px heights and no mobile inset padding — so the same product
+                gets the same crop/hotspot treatment here as in /productos. */}
+            <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#f4eadf]">
               <ProductCardImageStack
                 href={product.productHref}
                 images={product.images}

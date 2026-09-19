@@ -8,6 +8,7 @@ import { AdminProductRichTextEditor } from "./admin-product-rich-text-editor";
 import { AdminProductDetailUpdatedAt } from "./admin-product-updated-at";
 import { dashboardUi } from "@/features/admin/dashboard/lib/dashboard-ui";
 import { formatDashboardPrice } from "@/features/admin/dashboard/lib/dashboard-formatters";
+import { calculateTransferPrice, isValidCommercialPrice } from "@/features/pricing/commercial-pricing";
 import { formatProductLogisticsSummary } from "@/features/catalog/logistics";
 import { cn } from "@/lib/utils";
 import { buildAdminProductSlugFromTitle } from "../lib/product-slug";
@@ -188,7 +189,6 @@ export type DetailDraft = {
   categoryId: string;
   subcategoryId: string;
   basePrice: string;
-  transferPrice: string;
   stock: string;
   isActive: boolean;
   isFeatured: boolean;
@@ -211,7 +211,6 @@ export function createEmptyDetailDraft(): DetailDraft {
     categoryId: "",
     subcategoryId: "",
     basePrice: "",
-    transferPrice: "",
     stock: "0",
     isActive: false,
     isFeatured: false,
@@ -606,7 +605,7 @@ export function ProductInfoTabContent({
   );
 }
 
-type PricingTabFieldError = "basePrice" | "transferPrice";
+type PricingTabFieldError = "basePrice";
 
 export function ProductPricingTabContent({
   formId,
@@ -615,6 +614,11 @@ export function ProductPricingTabContent({
   state,
   hasVariants,
 }: TabContentCommonProps<PricingTabFieldError> & { hasVariants: boolean }) {
+  const parsedBasePrice = Number(draft.basePrice);
+  const transferPricePreview = isValidCommercialPrice(parsedBasePrice)
+    ? calculateTransferPrice(parsedBasePrice)
+    : null;
+
   return (
     <div className={cn(dashboardUi.card, "overflow-hidden")}>
       <div className="px-5 py-5 sm:px-6">
@@ -622,7 +626,7 @@ export function ProductPricingTabContent({
         <p className={sectionNoteClass}>
           {hasVariants
             ? "Precio base del producto. Cada variante puede definir su propio precio; si no lo hace, hereda este valor."
-            : "Precio principal y precio por transferencia."}
+            : "Precio principal. El precio por transferencia se calcula solo."}
         </p>
         <RequiredFieldsLegend />
 
@@ -646,24 +650,30 @@ export function ProductPricingTabContent({
             {getTabFieldError(state, "basePrice") ? <span className={errorClass}>{getTabFieldError(state, "basePrice")}</span> : null}
           </label>
 
-          <label className={labelClass}>
-            <span>Precio por transferencia</span>
-            <input
-              form={formId}
-              type="number"
-              name="transferPrice"
-              value={draft.transferPrice}
-              onChange={(event) => setDraft((current) => ({ ...current, transferPrice: event.target.value }))}
-              min={0}
-              step={1}
-              placeholder="Opcional"
-              className={inputClass}
-            />
-            <p className="text-xs text-text-secondary">Si lo dejás vacío, se elimina ese valor.</p>
-            {getTabFieldError(state, "transferPrice") ? (
-              <span className={errorClass}>{getTabFieldError(state, "transferPrice")}</span>
-            ) : null}
-          </label>
+          {/* Read-only preview, never a form field: there is no "transferPrice"
+              input to submit, so there's nothing here a crafted request could
+              override. The server always derives this value from basePrice
+              (calculateTransferPrice) at save time — this just shows Lucila
+              that result ahead of time, live, without needing to save first. */}
+          <div className={labelClass}>
+            <span>Precio por transferencia · 20% OFF</span>
+            <div
+              className={cn(
+                inputClass,
+                "flex cursor-default items-center justify-between gap-2 bg-surface-elevated text-text-primary",
+              )}
+            >
+              <span className="text-sm font-semibold">
+                {transferPricePreview !== null ? formatDashboardPrice(transferPricePreview) : "—"}
+              </span>
+              <span className="shrink-0 text-[10px] font-semibold uppercase tracking-[0.14em] text-text-secondary">
+                Automático
+              </span>
+            </div>
+            <p className="text-xs text-text-secondary">
+              Se calcula solo: siempre 20% menos que el precio. No se puede editar.
+            </p>
+          </div>
         </div>
       </div>
     </div>

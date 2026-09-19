@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireAdminSession } from "@/features/admin/auth";
 import { MarkOrderPaidButton } from "@/app/admin/(shell)/orders/mark-paid-button";
+import { AdminPagination } from "@/features/admin/components/admin-pagination";
 import { KpiCard } from "@/features/admin/dashboard/components/kpi-card";
 import { dashboardUi } from "@/features/admin/dashboard/lib/dashboard-ui";
 import {
@@ -110,44 +111,6 @@ function buildOrdersHref(
   return query ? `/admin/orders?${query}` : "/admin/orders";
 }
 
-function getVisiblePages(page: number, pageCount: number) {
-  if (pageCount <= 7) {
-    return Array.from({ length: pageCount }, (_, index) => index + 1);
-  }
-
-  const pages = new Set<number>([1, pageCount, page - 1, page, page + 1]);
-
-  return [...pages].filter((value) => value >= 1 && value <= pageCount).sort((left, right) => left - right);
-}
-
-function PaginationLink({
-  href,
-  children,
-  active = false,
-  disabled = false,
-}: {
-  href: string;
-  children: React.ReactNode;
-  active?: boolean;
-  disabled?: boolean;
-}) {
-  const className = cn(
-    "inline-flex h-9 min-w-9 items-center justify-center rounded-xl border px-3 text-sm font-semibold transition-colors duration-150",
-    active ? dashboardUi.primaryAction : "border-border bg-surface text-text-primary hover:bg-surface-elevated",
-    disabled ? "pointer-events-none opacity-40" : undefined,
-  );
-
-  if (disabled) {
-    return <span className={className}>{children}</span>;
-  }
-
-  return (
-    <Link href={href} className={className} aria-current={active ? "page" : undefined}>
-      {children}
-    </Link>
-  );
-}
-
 function FilterLabel({ children }: { children: React.ReactNode }) {
   return <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-text-secondary">{children}</span>;
 }
@@ -218,35 +181,6 @@ function ordersDetailActionClassName() {
 
 function ordersMobileDetailActionClassName() {
   return "inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-border bg-surface px-3 text-[12px] font-semibold whitespace-nowrap text-text-primary transition-colors duration-150 hover:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20";
-}
-
-function ordersMobilePaginationLinkClassName(disabled = false) {
-  return cn(
-    "inline-flex h-9 min-w-[5.25rem] items-center justify-center rounded-xl border px-3 text-xs font-semibold transition-colors duration-150",
-    disabled ? "pointer-events-none border-border bg-surface-elevated text-text-secondary" : "border-border bg-surface text-text-primary hover:bg-surface-elevated",
-  );
-}
-
-function MobilePaginationLink({
-  href,
-  children,
-  disabled = false,
-}: {
-  href: string;
-  children: React.ReactNode;
-  disabled?: boolean;
-}) {
-  const className = ordersMobilePaginationLinkClassName(disabled);
-
-  if (disabled) {
-    return <span className={className}>{children}</span>;
-  }
-
-  return (
-    <Link href={href} className={className}>
-      {children}
-    </Link>
-  );
 }
 
 function MobileOrderRow({ order }: { order: Order }) {
@@ -327,7 +261,6 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
   });
   const startItem = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
   const endItem = totalCount === 0 ? 0 : Math.min(page * pageSize, totalCount);
-  const visiblePages = getVisiblePages(page, pageCount);
   const activeFilterCount = [
     Boolean(filters.q),
     filters.status !== "all",
@@ -517,20 +450,17 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
         )}
 
         {totalCount > 0 ? (
-          <div className="mt-3 border-t border-border pt-3">
-            <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
-              <MobilePaginationLink href={buildOrdersHref(filters, { page: Math.max(1, page - 1) })} disabled={page <= 1}>
-                Anterior
-              </MobilePaginationLink>
+          <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
+            <p className="min-w-0 whitespace-nowrap text-center text-[11px] leading-4 text-text-secondary">
+              {formatDashboardNumber(startItem)}-{formatDashboardNumber(endItem)} de {formatDashboardNumber(totalCount)} | Página {formatDashboardNumber(page)} de {formatDashboardNumber(pageCount)}
+            </p>
 
-              <p className="min-w-0 whitespace-nowrap text-center text-[11px] leading-4 text-text-secondary">
-                {formatDashboardNumber(startItem)}-{formatDashboardNumber(endItem)} de {formatDashboardNumber(totalCount)} | Página {formatDashboardNumber(page)} de {formatDashboardNumber(pageCount)}
-              </p>
-
-              <MobilePaginationLink href={buildOrdersHref(filters, { page: Math.min(pageCount, page + 1) })} disabled={page >= pageCount}>
-                Siguiente
-              </MobilePaginationLink>
-            </div>
+            <AdminPagination
+              page={page}
+              totalPages={pageCount}
+              buildHref={(nextPage) => buildOrdersHref(filters, { page: nextPage })}
+              className="justify-center"
+            />
           </div>
         ) : null}
       </section>
@@ -882,29 +812,11 @@ export default async function AdminOrdersPage({ searchParams }: AdminOrdersPageP
                   {formatDashboardNumber(totalCount)} órdenes.
                 </p>
 
-                <div className="flex flex-wrap items-center gap-2">
-                  <PaginationLink href={buildOrdersHref(filters, { page: Math.max(1, page - 1) })} disabled={page <= 1}>
-                    Anterior
-                  </PaginationLink>
-
-                  {visiblePages.map((pageNumber, index) => {
-                    const previousPage = visiblePages[index - 1];
-                    const showEllipsis = typeof previousPage === "number" && pageNumber - previousPage > 1;
-
-                    return (
-                      <span key={pageNumber} className="flex items-center gap-2">
-                        {showEllipsis ? <span className="px-1 text-sm text-text-secondary">&hellip;</span> : null}
-                        <PaginationLink href={buildOrdersHref(filters, { page: pageNumber })} active={pageNumber === page}>
-                          {formatDashboardNumber(pageNumber)}
-                        </PaginationLink>
-                      </span>
-                    );
-                  })}
-
-                  <PaginationLink href={buildOrdersHref(filters, { page: Math.min(pageCount, page + 1) })} disabled={page >= pageCount}>
-                    Siguiente
-                  </PaginationLink>
-                </div>
+                <AdminPagination
+                  page={page}
+                  totalPages={pageCount}
+                  buildHref={(nextPage) => buildOrdersHref(filters, { page: nextPage })}
+                />
               </div>
             </div>
           </section>
