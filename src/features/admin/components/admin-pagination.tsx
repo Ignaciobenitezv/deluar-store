@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { buildCatalogPageWindow } from "@/features/catalog/pagination";
+import { buildCatalogPageWindow, type CatalogPageWindowItem } from "@/features/catalog/pagination";
 import { dashboardUi } from "@/features/admin/dashboard/lib/dashboard-ui";
+import { AdminPaginationJumpMenu } from "./admin-pagination-jump-menu";
 import { cn } from "@/lib/utils";
 
 type AdminPaginationProps = {
@@ -35,16 +36,29 @@ function PageNumberLink({ href, page, active }: { href: string; page: number; ac
   );
 }
 
-function Ellipsis({ itemKey }: { itemKey: string }) {
-  return (
-    <span
-      key={itemKey}
-      aria-hidden
-      className="inline-flex h-8 min-w-8 items-center justify-center text-xs text-text-secondary sm:h-9 sm:min-w-9 sm:text-sm"
-    >
-      …
-    </span>
-  );
+/**
+ * Describes the *hidden* range a given ellipsis stands in for, from its
+ * numeric neighbors in the same window array — e.g. "entre 2 y 9" for the
+ * `1, "ellipsis", 10...` case. Falls back to a generic label on either edge
+ * (shouldn't normally happen: an ellipsis always sits between two numbers).
+ */
+function describeEllipsisRange(items: CatalogPageWindowItem[], index: number) {
+  const previous = items[index - 1];
+  const next = items[index + 1];
+
+  if (typeof previous === "number" && typeof next === "number" && next - previous > 1) {
+    return `Elegir página, entre ${previous + 1} y ${next - 1}`;
+  }
+
+  return "Elegir página";
+}
+
+function parseHrefForClient(href: string) {
+  const url = new URL(href, "http://admin-pagination.internal");
+  return {
+    pathname: url.pathname,
+    searchEntries: [...url.searchParams.entries()] as [string, string][],
+  };
 }
 
 function ChevronIcon({ direction }: { direction: "left" | "right" }) {
@@ -129,6 +143,14 @@ export function AdminPagination({ page, totalPages, buildHref, className }: Admi
   const desktopWindow = buildCatalogPageWindow(page, totalPages, 5);
   const mobileWindow = buildCatalogPageWindow(page, totalPages, 1);
 
+  // AdminPaginationJumpMenu is a Client Component, so it can never receive
+  // `buildHref` itself (a plain function can't cross the Server → Client
+  // boundary) — this runs `buildHref` here, server-side, exactly once for
+  // the current page, and hands the menu only the resulting plain
+  // pathname/params. The menu reconstructs every other page's href from
+  // that locally; every other filter/search param it carries is untouched.
+  const { pathname: jumpMenuPathname, searchEntries: jumpMenuSearchEntries } = parseHrefForClient(buildHref(page));
+
   return (
     <nav aria-label="Paginación" className={cn("flex flex-wrap items-center gap-1.5 sm:gap-2", className)}>
       <StepLink
@@ -141,7 +163,14 @@ export function AdminPagination({ page, totalPages, buildHref, className }: Admi
       <div className="flex flex-wrap items-center gap-1.5 sm:hidden">
         {mobileWindow.map((item, index) =>
           item === "ellipsis" ? (
-            <Ellipsis key={`ellipsis-${index}`} itemKey={`ellipsis-${index}`} />
+            <AdminPaginationJumpMenu
+              key={`ellipsis-${index}`}
+              currentPage={page}
+              totalPages={totalPages}
+              pathname={jumpMenuPathname}
+              searchEntries={jumpMenuSearchEntries}
+              label={describeEllipsisRange(mobileWindow, index)}
+            />
           ) : (
             <PageNumberLink key={item} href={buildHref(item)} page={item} active={item === page} />
           ),
@@ -151,7 +180,14 @@ export function AdminPagination({ page, totalPages, buildHref, className }: Admi
       <div className="hidden flex-wrap items-center gap-1.5 sm:flex sm:gap-2">
         {desktopWindow.map((item, index) =>
           item === "ellipsis" ? (
-            <Ellipsis key={`ellipsis-${index}`} itemKey={`ellipsis-${index}`} />
+            <AdminPaginationJumpMenu
+              key={`ellipsis-${index}`}
+              currentPage={page}
+              totalPages={totalPages}
+              pathname={jumpMenuPathname}
+              searchEntries={jumpMenuSearchEntries}
+              label={describeEllipsisRange(desktopWindow, index)}
+            />
           ) : (
             <PageNumberLink key={item} href={buildHref(item)} page={item} active={item === page} />
           ),

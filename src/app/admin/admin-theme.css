@@ -30,9 +30,18 @@
   --admin-text-primary: #18181b;
   --admin-text-secondary: #71717a;
 
-  --admin-primary: #e5473f;
+  /* Light mode only: the general (non-destructive) accent — "Guardar
+     cambios", "Crear producto", focus rings, active borders, etc. — uses
+     Hedyla blue instead of red here. No "Hedyla" token existed anywhere in
+     the project (checked code, CSS and PRODUCT.md/DESIGN.md); this is the
+     one blue that already did (--admin-info below), reused verbatim rather
+     than inventing a new value, per explicit confirmation. Dark mode keeps
+     the original red (`--admin-primary` further down stays #e5473f) —
+     `--admin-danger` (real destructive actions, e.g. "Eliminar producto")
+     is a separate token, untouched in both modes. */
+  --admin-primary: #2563eb;
   --admin-primary-foreground: #ffffff;
-  --admin-primary-soft: rgba(229, 71, 63, 0.1);
+  --admin-primary-soft: rgba(37, 99, 235, 0.1);
 
   --admin-success: #16a34a;
   --admin-success-soft: rgba(22, 163, 74, 0.1);
