@@ -42,15 +42,6 @@ export function HomeNewInStrip({
   return (
     <section className="grid gap-6 lg:grid-cols-[16rem_minmax(0,1fr)] lg:items-start lg:gap-8">
       <div className="space-y-4 lg:sticky lg:top-24">
-        <div className="space-y-1.5">
-          <p className="text-[0.62rem] uppercase tracking-[0.18em] text-muted/78">
-            Seleccion
-          </p>
-          <h2 className="text-[1.6rem] font-semibold leading-tight tracking-tight text-foreground">
-            Lo nuevo en Deluar
-          </h2>
-        </div>
-
         <div className="flex items-center gap-3">
           <Link
             href="/productos"
