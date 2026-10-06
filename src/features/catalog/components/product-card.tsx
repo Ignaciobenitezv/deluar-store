@@ -142,7 +142,7 @@ export function ProductCard({
             <p
               className={cn(
                 "text-[11px] leading-tight sm:hidden",
-                showCommerceEnhancements ? "text-[#b51429]" : "text-neutral-500",
+                showCommerceEnhancements ? "text-promo" : "text-neutral-500",
               )}
             >
               <span
@@ -160,7 +160,7 @@ export function ProductCard({
             <p
               className={cn(
                 "mt-1 hidden text-xs sm:block sm:text-sm",
-                showCommerceEnhancements ? "text-[#b51429]" : "text-neutral-600",
+                showCommerceEnhancements ? "text-promo" : "text-neutral-600",
                 isDesktopCatalog && "block",
               )}
             >

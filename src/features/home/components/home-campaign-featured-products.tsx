@@ -70,7 +70,7 @@ export function HomeCampaignFeaturedProducts({
                   6 cuotas sin interés de {formatInstallmentPrice(product.basePrice)}
                 </p>
                 {product.transferPrice ? (
-                  <p className="text-sm font-medium text-[#b51429] sm:text-base">
+                  <p className="text-sm font-medium text-promo sm:text-base">
                     Transferencia: {formatPrice(product.transferPrice)}
                   </p>
                 ) : null}

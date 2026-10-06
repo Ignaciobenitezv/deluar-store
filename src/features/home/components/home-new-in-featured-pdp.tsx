@@ -220,7 +220,7 @@ function HomeNewInFeaturedPdpContent({
                 {formatPrice(product.basePrice)}
               </p>
               {product.transferPrice ? (
-                <p className="text-[0.84rem] leading-5 text-[#c47a2c]">
+                <p className="text-[0.84rem] leading-5 text-promo">
                   <span className="font-medium opacity-80">Transferencia:</span>{" "}
                   <span className="font-semibold">{formatPrice(product.transferPrice)}</span>
                 </p>

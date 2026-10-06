@@ -192,7 +192,7 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                         6 cuotas sin interés de {formatInstallmentPrice(activeProduct.basePrice)}
                       </p>
                       {activeProduct.transferPrice ? (
-                        <p className="text-[0.92rem] font-medium text-[#b51429] xl:text-[0.96rem]">
+                        <p className="text-[0.92rem] font-medium text-promo xl:text-[0.96rem]">
                           Transferencia: {formatPrice(activeProduct.transferPrice)}
                         </p>
                       ) : null}
@@ -285,7 +285,7 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                       6 cuotas sin interés de {formatInstallmentPrice(activeProduct.basePrice)}
                     </p>
                     {activeProduct.transferPrice ? (
-                      <p className="text-[0.88rem] font-medium text-[#b51429]">
+                      <p className="text-[0.88rem] font-medium text-promo">
                         Transferencia: {formatPrice(activeProduct.transferPrice)}
                       </p>
                     ) : null}

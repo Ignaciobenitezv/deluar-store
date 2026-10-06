@@ -143,7 +143,7 @@ function ProductMiniCard({
           {product.transferPrice ? (
             <p
               className={cn(
-                "font-medium text-[#b51429]",
+                "font-medium text-promo",
                 compact ? "text-[0.72rem]" : "text-[0.78rem]",
               )}
             >

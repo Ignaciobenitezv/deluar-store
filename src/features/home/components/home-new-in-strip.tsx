@@ -156,7 +156,7 @@ export function HomeNewInStrip({
                     6 cuotas sin interés de {formatInstallmentPrice(product.basePrice)}
                   </p>
                   {product.transferPrice ? (
-                    <p className="mt-1 text-[0.85rem] leading-[1.2] text-[#b51429]">
+                    <p className="mt-1 text-[0.85rem] leading-[1.2] text-promo">
                       <span className="font-medium">Transferencia:</span>{" "}
                       <span className="font-semibold">{formatPrice(product.transferPrice)}</span>
                     </p>

@@ -8,6 +8,18 @@
   --border: #ddd0c2;
   --accent: #b69272;
   --color-accent-strong: #604738;
+
+  /*
+   * Promotional red: commercial attention only (transfer price and its
+   * discount tag). Never for CTAs, headings, navigation, errors or large
+   * surfaces — errors get their own token. Not named danger/primary: those
+   * utilities belong to the admin and render unset on the storefront.
+   * #b51429 is 6.8:1 on white and 5.8:1 on --background.
+   */
+  --promo: #b51429;
+  --promo-strong: #8f0f21;
+  --promo-soft: #fbeaea;
+  --promo-foreground: #fff8f6;
 }
 
 @theme inline {
@@ -17,6 +29,10 @@
   --color-surface: var(--surface);
   --color-border: var(--border);
   --color-accent: var(--accent);
+  --color-promo: var(--promo);
+  --color-promo-strong: var(--promo-strong);
+  --color-promo-soft: var(--promo-soft);
+  --color-promo-foreground: var(--promo-foreground);
   --font-sans: "Aptos", "Segoe UI", sans-serif;
   --font-mono: "Cascadia Code", "Consolas", monospace;
 }
