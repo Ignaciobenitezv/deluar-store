@@ -15,24 +15,6 @@ function formatPrice(value: number) {
   return formatProductPrice(value);
 }
 
-function TransferTagIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      className="h-3.5 w-3.5 shrink-0"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M20 12.5 12.5 20a1.5 1.5 0 0 1-2.12 0l-6.38-6.38a1.5 1.5 0 0 1 0-2.12L11.5 4H19a1 1 0 0 1 1 1v7.5Z" />
-      <circle cx="15" cy="9" r="1.1" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-
 type ProductCardProps = {
   product: CatalogProductCard;
   variant?: "default" | "desktopCatalog" | "catalogMobile";
@@ -102,10 +84,10 @@ export function ProductCard({
       <h2
         title={product.title}
         className={cn(
-          "font-semibold text-neutral-900",
+          "text-neutral-900",
           isCatalogVariant
-            ? "min-h-[2.75rem] line-clamp-2 text-[1rem] leading-[1.2]"
-            : "truncate text-sm",
+            ? "min-h-[2.75rem] line-clamp-2 text-[1rem] font-medium leading-[1.2]"
+            : "truncate text-sm font-semibold",
         )}
             >
               {product.title}
@@ -113,12 +95,12 @@ export function ProductCard({
           </Link>
         </div>
 
-        <div className={cn(isCatalogVariant ? "space-y-1.5" : "space-y-0.5")}>
+        <div className={cn(isCatalogVariant ? "space-y-2" : "space-y-0.5")}>
           <p
             className={cn(
               "leading-none",
               isCatalogVariant
-                ? "text-xl font-bold text-[#3a2a22] sm:text-2xl"
+                ? "text-[1.625rem] font-extrabold tracking-[-0.02em] tabular-nums text-[#2f241b] sm:text-[2rem]"
                 : "text-[0.96rem] font-semibold text-neutral-900",
             )}
           >
@@ -126,15 +108,30 @@ export function ProductCard({
             {formatPrice(product.basePrice)}
           </p>
           {isCatalogVariant && transferDiscountedPrice !== null ? (
-            <div className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-[#f1e2d2] px-2.5 py-1 text-[11px] font-medium text-[#5b4033] sm:text-xs">
-              <TransferTagIcon />
-              <span className="truncate">
-                Transferencia {formatPrice(transferDiscountedPrice)} · 20% OFF
-              </span>
+            <div className="pb-0.5 pt-1 text-promo">
+              {/* Mobile cards are ~150px wide: stack tag above price so every
+                  band in a row has the same height regardless of price length. */}
+              <p className="flex flex-col items-start gap-1.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-2.5">
+                <span className="text-[1.25rem] font-extrabold leading-none tracking-[-0.015em] tabular-nums sm:text-[1.5rem]">
+                  {formatPrice(transferDiscountedPrice)}
+                </span>
+                <span className="order-first rounded-full bg-promo px-2.5 py-1 text-xs font-bold leading-none tracking-[0.04em] text-promo-foreground sm:order-none sm:text-[13px]">
+                  20% OFF
+                </span>
+              </p>
+              <p className="mt-1.5 text-[13px] font-semibold leading-tight">con transferencia</p>
             </div>
           ) : null}
-          {showCommerceEnhancements ? (
-            <p className={cn("leading-tight text-neutral-500", isCatalogVariant ? "text-xs sm:text-[13px]" : "text-[11px]")}>
+          {showCommerceEnhancements && isCatalogVariant ? (
+            <p className="text-[13px] leading-snug text-muted sm:text-sm">
+              <span className="font-medium text-foreground">6 cuotas sin interés</span>{" "}
+              <span className="whitespace-nowrap tabular-nums">
+                de {formatInstallmentPrice(product.basePrice)}
+              </span>
+            </p>
+          ) : null}
+          {showCommerceEnhancements && !isCatalogVariant ? (
+            <p className="text-[11px] leading-tight text-neutral-500">
               6 cuotas sin interés de {formatInstallmentPrice(product.basePrice)}
             </p>
           ) : null}
