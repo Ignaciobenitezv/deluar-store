@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { requireAdminSession } from "@/features/admin/auth";
+import { AppearanceSection } from "@/features/admin/settings/components/appearance-section";
 import { AdminSettingsShell } from "@/features/admin/settings/components/admin-settings-shell";
 import { resolveSettingsTab } from "@/features/admin/settings/components/admin-settings-tabs";
 import { ArcaSection } from "@/features/admin/settings/components/arca-section";
@@ -27,6 +28,9 @@ export default async function AdminConfiguracionPage({ searchParams }: AdminConf
 
   let content: ReactNode;
   switch (activeTab) {
+    case "apariencia":
+      content = <AppearanceSection />;
+      break;
     case "preferencias":
       content = <PreferencesSection />;
       break;

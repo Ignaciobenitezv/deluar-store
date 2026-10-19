@@ -1,0 +1,34 @@
+AUDITORÍA DE TRANSFER PRICE (dry-run, solo lectura) — 2026-09-18T22:06:01.534Z
+
+PRODUCTOS
+  total analizados: 467
+  correcto:         467
+  faltante:         0
+  incorrecto:       0
+  invalido:         0
+
+VARIANTES (variants[])
+  total analizadas:                        198
+  correcto (con basePrice propio):         198
+  faltante (con basePrice propio):         0
+  incorrecto (con basePrice propio):       0
+  invalido:                                0
+  heredadas ok (sin transferPrice propio):  0
+  heredadas con transferPrice a eliminar:   0
+
+COLORVARIANTS LEGACY (reportadas, no tocadas)
+  productos que aún las tienen: 2
+  total colorVariants:          8
+  con basePrice propio:         0
+  con transferPrice:            0
+  inconsistentes con la regla:  0
+
+DOCUMENTOS QUE UN BACKFILL REALMENTE MODIFICARÍA: 0
+
+EJEMPLOS — productos incorrectos (Producto | basePrice | transferPrice actual | esperado | diferencia)
+
+EJEMPLOS — variantes incorrectas (Producto > Variante | basePrice | transferPrice actual | esperado | diferencia)
+
+EJEMPLOS — variantes heredadas con transferPrice propio a eliminar (Producto > Variante | transferPrice propio actual)
+
+EJEMPLOS — productos inválidos (Producto | basePrice | motivo)

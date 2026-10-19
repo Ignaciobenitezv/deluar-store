@@ -55,7 +55,7 @@ export function HomeNewInStrip({
               type="button"
               aria-label="Productos anteriores"
               onClick={() => scrollRail("left")}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#e0d6c8] bg-[#efe5d8] text-foreground/72 transition-colors duration-200 hover:border-[#c6bbae] hover:bg-[#e5d8c7] hover:text-foreground"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-line/90 bg-accent-soft/70 text-foreground/72 transition-colors duration-200 hover:border-brand/40 hover:bg-line/90 hover:text-foreground"
             >
               <svg
                 aria-hidden="true"
@@ -74,7 +74,7 @@ export function HomeNewInStrip({
               type="button"
               aria-label="Productos siguientes"
               onClick={() => scrollRail("right")}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#e0d6c8] bg-[#efe5d8] text-foreground/72 transition-colors duration-200 hover:border-[#c6bbae] hover:bg-[#e5d8c7] hover:text-foreground"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-line/90 bg-accent-soft/70 text-foreground/72 transition-colors duration-200 hover:border-brand/40 hover:bg-line/90 hover:text-foreground"
             >
               <svg
                 aria-hidden="true"
@@ -98,29 +98,10 @@ export function HomeNewInStrip({
         className="overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         <div className="flex min-w-max gap-5">
-          {products.map((product) => (
-            <article
-              key={product.id}
-              className={`w-[26rem] shrink-0 overflow-hidden rounded-[0.45rem] border bg-[#f6efe6] transition-colors duration-200 ${
-                product.id === activeProductId
-                  ? "border-[#d7bea4]"
-                  : "border-[#ece3d8] hover:border-[#ddd1c3]"
-              }`}
-            >
-              <div
-                role="button"
-                tabIndex={0}
-                aria-pressed={product.id === activeProductId}
-                onClick={() => onSelectProduct?.(product.id)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    onSelectProduct?.(product.id);
-                  }
-                }}
-                className="group flex h-[9.75rem] cursor-pointer"
-              >
-                <div className="relative h-[9.75rem] w-[9.25rem] shrink-0 bg-[#efe6da]">
+          {products.map((product) => {
+            const cardContent = (
+              <>
+                <div className="relative h-[9.75rem] w-[9.25rem] shrink-0 bg-line/60">
                   <ProductCardImageStack
                     images={product.images}
                     imageUrl={product.imageUrl}
@@ -136,14 +117,14 @@ export function HomeNewInStrip({
                   <p className="text-[0.65rem] uppercase tracking-[0.16em] text-muted/72">
                     {product.categoryTitle}
                   </p>
-                  <h3 className="truncate text-sm font-medium text-neutral-900">
+                  <h3 className="truncate text-sm font-medium text-ink">
                     {product.title}
                   </h3>
                   <p className="pt-0.5 text-[1.1rem] font-semibold leading-none text-foreground">
                     {product.pricePrefix ? `${product.pricePrefix} ` : null}
                     {formatPrice(product.basePrice)}
                   </p>
-                  <p className="text-[11px] leading-tight text-neutral-500 sm:text-xs">
+                  <p className="text-[11px] leading-tight text-ink-muted sm:text-xs">
                     6 cuotas sin interés de {formatInstallmentPrice(product.basePrice)}
                   </p>
                   {product.transferPrice ? (
@@ -153,9 +134,46 @@ export function HomeNewInStrip({
                     </p>
                   ) : null}
                 </div>
-              </div>
-            </article>
-          ))}
+              </>
+            );
+
+            return (
+              <article
+                key={product.id}
+                className={`w-[26rem] shrink-0 overflow-hidden rounded-[0.45rem] border bg-canvas/90 transition-colors duration-200 ${
+                  product.id === activeProductId
+                    ? "border-accent/60"
+                    : "border-line/60 hover:border-line"
+                }`}
+              >
+                {onSelectProduct ? (
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={product.id === activeProductId}
+                    onClick={() => onSelectProduct(product.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        onSelectProduct(product.id);
+                      }
+                    }}
+                    className="group flex h-[9.75rem] cursor-pointer"
+                  >
+                    {cardContent}
+                  </div>
+                ) : (
+                  // Without a controlled presentation the card goes to its product page.
+                  <Link
+                    href={product.productHref}
+                    className="group flex h-[9.75rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-ring"
+                  >
+                    {cardContent}
+                  </Link>
+                )}
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>

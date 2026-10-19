@@ -10,7 +10,7 @@ import { getNavigationActiveBranchIds, isCatalogPathActive } from "@/features/ca
 const baseLinkClassName =
   "text-sm tracking-[0.08em] text-foreground/78 transition-colors duration-200 hover:text-foreground";
 const dropdownLinkHoverClassName =
-  "origin-left text-[#4a3329] transition-all duration-200 ease-out hover:scale-[1.025] hover:text-[#2f211b]";
+  "origin-left text-brand transition-all duration-200 ease-out hover:scale-[1.025] hover:text-ink";
 
 type ProductsDropdownProps = {
   item: NavigationLink;
@@ -40,7 +40,7 @@ function DropdownTree({
     <ul
       className={cn(
         "min-w-0 space-y-2.5",
-        depth > 0 && "mt-2 border-l border-[#e3d8cb] pl-4",
+        depth > 0 && "mt-2 border-l border-line/90 pl-4",
         depth > 1 && "space-y-2",
       )}
     >
@@ -61,7 +61,7 @@ function DropdownTree({
                   depth === 0 && "text-[0.94rem]",
                   depth === 1 && "text-[0.92rem]",
                   depth >= 2 && "text-[0.88rem]",
-                  isActive && "font-medium text-[#2f211b]",
+                  isActive && "font-medium text-ink",
                 )}
                 title={item.label}
               >
@@ -75,8 +75,8 @@ function DropdownTree({
                   aria-controls={childrenId}
                   onClick={() => onToggle(item.id)}
                   className={cn(
-                    "inline-flex h-7 w-7 flex-shrink-0 items-center justify-center bg-transparent text-[1rem] font-medium leading-none text-[#6a4a3b] transition hover:text-[#2f211b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
-                    isExpanded && "text-[#2f211b]",
+                    "inline-flex h-7 w-7 flex-shrink-0 items-center justify-center bg-transparent text-[1rem] font-medium leading-none text-brand transition hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2",
+                    isExpanded && "text-ink",
                   )}
                 >
                   <span aria-hidden="true">{isExpanded ? "" : "+"}</span>
@@ -174,7 +174,7 @@ export function ProductsDropdown({ item, categories }: ProductsDropdownProps) {
       <div
         ref={dropdownRef}
         className={cn(
-          "absolute left-1/2 top-full z-[60] max-h-[420px] w-[min(1040px,calc(100vw-80px))] max-w-none -translate-x-1/2 overflow-x-hidden overflow-y-auto rounded-b-2xl border border-[#e0d5c8] bg-[linear-gradient(180deg,rgba(255,250,244,0.995),rgba(248,242,235,0.99))] shadow-[0_24px_70px_rgba(58,42,34,0.24)] transition-[opacity,transform] duration-200 [scrollbar-color:#8a6a58_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#b8a596] [&::-webkit-scrollbar-thumb:hover]:bg-[#8a6a58] [&::-webkit-scrollbar-track]:bg-transparent min-[1281px]:max-h-[min(460px,calc(100vh-240px))] min-[1281px]:w-[min(1180px,calc(100vw-96px))] min-[1440px]:max-h-[560px] min-[1440px]:w-[calc(100vw-40px)] [@media(max-height:800px)]:max-h-[min(460px,calc(100vh-240px))] [@media(max-height:800px)]:w-[min(1180px,calc(100vw-96px))] [@media(max-height:800px)]:max-[1280px]:max-h-[420px] [@media(max-height:800px)]:max-[1280px]:w-[min(1040px,calc(100vw-80px))] [transform-origin:top_center]",
+          "absolute left-1/2 top-full z-[60] max-h-[420px] w-[min(1040px,calc(100vw-80px))] max-w-none -translate-x-1/2 overflow-x-hidden overflow-y-auto rounded-b-2xl border border-line/90 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_99.5%,transparent),color-mix(in_srgb,var(--canvas)_99%,transparent))] shadow-[0_24px_70px_color-mix(in_srgb,var(--ink)_24%,transparent)] transition-[opacity,transform] duration-200 [scrollbar-color:var(--brand)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-accent [&::-webkit-scrollbar-thumb:hover]:bg-brand/80 [&::-webkit-scrollbar-track]:bg-transparent min-[1281px]:max-h-[min(460px,calc(100vh-240px))] min-[1281px]:w-[min(1180px,calc(100vw-96px))] min-[1440px]:max-h-[560px] min-[1440px]:w-[calc(100vw-40px)] [@media(max-height:800px)]:max-h-[min(460px,calc(100vh-240px))] [@media(max-height:800px)]:w-[min(1180px,calc(100vw-96px))] [@media(max-height:800px)]:max-[1280px]:max-h-[420px] [@media(max-height:800px)]:max-[1280px]:w-[min(1040px,calc(100vw-80px))] [transform-origin:top_center]",
           isOpen
             ? "pointer-events-auto translate-y-0 opacity-100"
             : "pointer-events-none -translate-y-1 opacity-0",
@@ -211,7 +211,7 @@ export function ProductsDropdown({ item, categories }: ProductsDropdownProps) {
                   className={cn(
                     dropdownLinkHoverClassName,
                     "block w-full max-w-full overflow-hidden whitespace-nowrap truncate text-[0.9rem] font-medium tracking-[0.08em]",
-                    isCatalogPathActive(pathname, category.href) && "text-[#2f211b]",
+                    isCatalogPathActive(pathname, category.href) && "text-ink",
                   )}
                   title={category.label}
                 >

@@ -42,7 +42,7 @@ export default function ComoComprarPage() {
           <ol className="space-y-3">
             {steps.map((step, index) => (
               <li key={index} className="flex items-start gap-4 text-sm leading-relaxed text-muted">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-neutral-300 text-xs font-semibold text-foreground">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-line text-xs font-semibold text-foreground">
                   {index + 1}
                 </span>
                 <span className="pt-0.5">{step}</span>
@@ -55,7 +55,7 @@ export default function ComoComprarPage() {
           <h2 className="mb-5 text-base font-semibold text-foreground">Información adicional:</h2>
           <div className="space-y-5">
             <div className="flex items-start gap-2 text-sm leading-relaxed text-muted">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-400" />
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink-muted/60" />
               <div>
                 <strong className="text-foreground">Envío gratis</strong> a todo el país en compras superiores a $50.000.{" "}
                 <span className="text-muted">
@@ -65,7 +65,7 @@ export default function ComoComprarPage() {
             </div>
 
             <div className="flex items-start gap-2 text-sm leading-relaxed text-muted">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-400" />
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink-muted/60" />
               <div>
                 <strong className="text-foreground">Compras con tarjeta de crédito:</strong>{" "}
                 Podés abonar en 3 o 6 cuotas sin interés (según la fecha) con tarjetas Visa, MasterCard, American Express o Cabal de cualquier banco.{" "}

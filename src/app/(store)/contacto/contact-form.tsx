@@ -133,10 +133,10 @@ export function ContactForm() {
           onChange={(event) => handleChange("name", event.target.value)}
           aria-invalid={Boolean(errors.name)}
           aria-describedby={errors.name ? "nombre-error" : undefined}
-          className="w-full rounded border border-[#d8cfc4] bg-[#e8ddd3] px-4 py-2.5 text-sm text-foreground outline-none placeholder:text-muted transition-colors focus:border-[#b69272] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b69272] focus-visible:ring-offset-2"
+          className="w-full rounded border border-line bg-accent/30 px-4 py-2.5 text-sm text-foreground outline-none placeholder:text-muted transition-colors focus:border-line-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2"
         />
         {errors.name ? (
-          <p id="nombre-error" className="mt-1.5 text-xs text-[var(--color-accent-strong)]">
+          <p id="nombre-error" className="mt-1.5 text-xs text-error">
             {errors.name}
           </p>
         ) : null}
@@ -158,10 +158,10 @@ export function ContactForm() {
           onChange={(event) => handleChange("email", event.target.value)}
           aria-invalid={Boolean(errors.email)}
           aria-describedby={errors.email ? "email-error" : undefined}
-          className="w-full rounded border border-[#d8cfc4] bg-[#e8ddd3] px-4 py-2.5 text-sm text-foreground outline-none placeholder:text-muted transition-colors focus:border-[#b69272] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b69272] focus-visible:ring-offset-2"
+          className="w-full rounded border border-line bg-accent/30 px-4 py-2.5 text-sm text-foreground outline-none placeholder:text-muted transition-colors focus:border-line-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2"
         />
         {errors.email ? (
-          <p id="email-error" className="mt-1.5 text-xs text-[var(--color-accent-strong)]">
+          <p id="email-error" className="mt-1.5 text-xs text-error">
             {errors.email}
           </p>
         ) : null}
@@ -182,10 +182,10 @@ export function ContactForm() {
           onChange={(event) => handleChange("phone", event.target.value)}
           aria-invalid={Boolean(errors.phone)}
           aria-describedby={errors.phone ? "telefono-error" : undefined}
-          className="w-full rounded border border-[#d8cfc4] bg-[#e8ddd3] px-4 py-2.5 text-sm text-foreground outline-none placeholder:text-muted transition-colors focus:border-[#b69272] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b69272] focus-visible:ring-offset-2"
+          className="w-full rounded border border-line bg-accent/30 px-4 py-2.5 text-sm text-foreground outline-none placeholder:text-muted transition-colors focus:border-line-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2"
         />
         {errors.phone ? (
-          <p id="telefono-error" className="mt-1.5 text-xs text-[var(--color-accent-strong)]">
+          <p id="telefono-error" className="mt-1.5 text-xs text-error">
             {errors.phone}
           </p>
         ) : null}
@@ -207,10 +207,10 @@ export function ContactForm() {
           onChange={(event) => handleChange("message", event.target.value)}
           aria-invalid={Boolean(errors.message)}
           aria-describedby={errors.message ? "mensaje-error" : undefined}
-          className="w-full resize-none rounded border border-[#d8cfc4] bg-[#e8ddd3] px-4 py-2.5 text-sm text-foreground outline-none placeholder:text-muted transition-colors focus:border-[#b69272] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b69272] focus-visible:ring-offset-2"
+          className="w-full resize-none rounded border border-line bg-accent/30 px-4 py-2.5 text-sm text-foreground outline-none placeholder:text-muted transition-colors focus:border-line-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2"
         />
         {errors.message ? (
-          <p id="mensaje-error" className="mt-1.5 text-xs text-[var(--color-accent-strong)]">
+          <p id="mensaje-error" className="mt-1.5 text-xs text-error">
             {errors.message}
           </p>
         ) : null}
@@ -222,7 +222,7 @@ export function ContactForm() {
           <p className="text-sm font-medium text-emerald-700">{successMessage}</p>
         ) : null}
         {submitError ? (
-          <p className="text-sm font-medium text-[var(--color-accent-strong)]">{submitError}</p>
+          <p className="text-sm font-medium text-error">{submitError}</p>
         ) : null}
       </div>
 
@@ -230,7 +230,7 @@ export function ContactForm() {
         type="submit"
         disabled={isSubmitting}
         aria-busy={isSubmitting}
-        className="w-full rounded bg-foreground px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b69272] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
+        className="w-full rounded bg-foreground px-6 py-3 text-sm font-semibold uppercase tracking-wider text-surface transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
       >
         {isSubmitting ? "Enviando..." : "Enviar"}
       </button>

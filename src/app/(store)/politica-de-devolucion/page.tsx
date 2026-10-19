@@ -41,15 +41,15 @@ export default function PoliticaDevolucionPage() {
             </p>
             <ul className="space-y-2 text-sm leading-relaxed text-muted">
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-400" />
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink-muted/60" />
                 Estar en <strong className="text-foreground">iguales condiciones</strong> en las que fue entregado.
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-400" />
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink-muted/60" />
                 No debe presentar <strong className="text-foreground">signos de uso</strong>, lavado o daños por manipulación.
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-400" />
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink-muted/60" />
                 Debe conservar su <strong className="text-foreground">empaque original</strong> y todas sus etiquetas intactas.
               </li>
             </ul>
@@ -62,11 +62,11 @@ export default function PoliticaDevolucionPage() {
             </p>
             <ul className="space-y-2 text-sm leading-relaxed text-muted">
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-400" />
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink-muted/60" />
                 El <strong className="text-foreground">reenvío</strong> de un producto nuevo (sujeto a stock).
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-400" />
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink-muted/60" />
                 El <strong className="text-foreground">reintegro total</strong> del dinero abonado por el producto.
               </li>
             </ul>
@@ -79,11 +79,11 @@ export default function PoliticaDevolucionPage() {
             </p>
             <ul className="mb-4 space-y-2 text-sm leading-relaxed text-muted">
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-400" />
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink-muted/60" />
                 <span><strong className="text-foreground">WhatsApp:</strong> +549 3624750741</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-400" />
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink-muted/60" />
                 <span>
                   <strong className="text-foreground">Email:</strong>{" "}
                   <a href="mailto:deluar2024@hotmail.com" className="underline hover:text-foreground transition-colors">

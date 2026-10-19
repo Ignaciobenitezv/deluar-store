@@ -25,7 +25,7 @@ export function HomeEditorialCategoryBanners() {
         {editorialCategories.map((category) => (
           <article key={category.title} className="flex flex-col">
             <Link href={category.href} className="group block">
-              <div className="relative h-[21.25rem] w-full overflow-hidden bg-[#efe7dc] md:h-[32.5rem] lg:h-[38.75rem]">
+              <div className="relative h-[21.25rem] w-full overflow-hidden bg-line/60 md:h-[32.5rem] lg:h-[38.75rem]">
                 <Image
                   src={category.imageSrc}
                   alt={category.imageAlt}
@@ -45,7 +45,7 @@ export function HomeEditorialCategoryBanners() {
               </p>
               <Link
                 href={category.href}
-                className="mt-5 inline-flex min-h-11 items-center justify-center rounded-full border border-foreground/14 px-5 text-[0.72rem] uppercase tracking-[0.18em] text-foreground transition-colors hover:border-foreground/24 hover:bg-white/42"
+                className="mt-5 inline-flex min-h-11 items-center justify-center rounded-full border border-foreground/14 px-5 text-[0.72rem] uppercase tracking-[0.18em] text-foreground transition-colors hover:border-foreground/24 hover:bg-surface-raised/42"
               >
                 Conocer mas
               </Link>

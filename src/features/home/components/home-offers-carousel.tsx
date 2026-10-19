@@ -49,13 +49,13 @@ function OfferPreviewCard({
       }}
       aria-label={`Ver ${direction === "left" ? "oferta anterior" : "oferta siguiente"}: ${product.title}`}
       className={cn(
-        "absolute top-1/2 hidden w-[16rem] -translate-y-1/2 overflow-hidden rounded-[2rem] border border-[#dbc7b2]/55 bg-[linear-gradient(180deg,rgba(252,247,241,0.68),rgba(243,234,225,0.6))] shadow-[0_18px_40px_rgba(58,40,26,0.07)] transition-all duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2 xl:block",
+        "absolute top-1/2 hidden w-[16rem] -translate-y-1/2 overflow-hidden rounded-[2rem] border border-accent/28 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_68%,transparent),color-mix(in_srgb,var(--canvas)_60%,transparent))] shadow-[0_18px_40px_color-mix(in_srgb,var(--ink)_7%,transparent)] transition-all duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 xl:block",
         direction === "left"
           ? "left-0 -translate-x-8 scale-[0.9] opacity-55 blur-[0.4px] hover:-translate-x-6 hover:opacity-70"
           : "right-0 translate-x-8 scale-[0.9] opacity-55 blur-[0.4px] hover:translate-x-6 hover:opacity-70",
       )}
     >
-      <div className="relative aspect-[0.9/1] bg-[#eadfce]">
+      <div className="relative aspect-[0.9/1] bg-accent-soft/80">
         <ProductCardImageStack
           images={product.images}
           imageUrl={product.imageUrl}
@@ -63,9 +63,9 @@ function OfferPreviewCard({
           hoverImageUrl={product.hoverImageUrl}
           sizes="16rem"
           imageClassName="object-cover"
-          placeholder={<div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(235,223,206,0.94),rgba(206,186,166,0.92))]" />}
+          placeholder={<div className="absolute inset-0 bg-[linear-gradient(135deg,color-mix(in_srgb,var(--accent-soft)_94%,transparent),color-mix(in_srgb,var(--accent)_50%,var(--line)))]" />}
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(24,18,14,0.08),rgba(24,18,14,0.38))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--ink)_8%,transparent),color-mix(in_srgb,var(--ink)_38%,transparent))]" />
         <div className="absolute inset-x-0 bottom-0 p-5 text-left text-white">
           <p className="text-[0.64rem] uppercase tracking-[0.22em] text-white/68">Oferta</p>
           <h3 className="mt-2 line-clamp-2 text-[1.2rem] font-medium leading-[1.08]">
@@ -152,9 +152,9 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0.72, x: direction > 0 ? -28 : 28 }}
                 transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute inset-0 z-10 grid w-full grid-cols-[minmax(18rem,0.95fr)_minmax(20rem,1.05fr)] overflow-hidden rounded-[2.25rem] border border-[#dcc8b4]/72 bg-[linear-gradient(180deg,rgba(255,251,246,0.98),rgba(244,236,227,0.94))] shadow-[0_28px_60px_rgba(58,40,26,0.08)]"
+                className="absolute inset-0 z-10 grid w-full grid-cols-[minmax(18rem,0.95fr)_minmax(20rem,1.05fr)] overflow-hidden rounded-[2.25rem] border border-accent/36 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_98%,transparent),color-mix(in_srgb,var(--canvas)_94%,transparent))] shadow-[0_28px_60px_color-mix(in_srgb,var(--ink)_8%,transparent)]"
               >
-                <div className="relative min-h-[36rem] bg-[#eadfce]">
+                <div className="relative min-h-[36rem] bg-accent-soft/80">
                   <ProductCardImageStack
                     images={activeProduct.images}
                     imageUrl={activeProduct.imageUrl}
@@ -162,21 +162,21 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                     hoverImageUrl={activeProduct.hoverImageUrl}
                     sizes="(min-width: 1280px) 34rem, 50vw"
                     imageClassName="object-cover"
-                    placeholder={<div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(235,223,206,0.98),rgba(201,181,160,0.92))]" />}
+                    placeholder={<div className="absolute inset-0 bg-[linear-gradient(135deg,color-mix(in_srgb,var(--accent-soft)_98%,transparent),color-mix(in_srgb,var(--accent)_50%,var(--line)))]" />}
                   />
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(24,18,14,0.02),rgba(24,18,14,0.22))]" />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--ink)_2%,transparent),color-mix(in_srgb,var(--ink)_22%,transparent))]" />
                 </div>
 
                 <div className="flex min-h-[36rem] flex-col justify-between p-8 xl:p-10">
                   <div className="space-y-5">
-                    <span className="inline-flex min-h-8 items-center rounded-full border border-[#d9b99f]/72 bg-[#f5e5d3] px-4 text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#73503f]">
+                    <span className="inline-flex min-h-8 items-center rounded-full border border-accent/50 bg-accent-soft/80 px-4 text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-brand">
                       Oferta
                     </span>
                     <div className="space-y-4">
-                      <h3 className="max-w-[22rem] text-[2.4rem] font-semibold leading-[0.98] tracking-[0.02em] text-[#2f2219] xl:text-[2.75rem]">
+                      <h3 className="max-w-[22rem] text-[2.4rem] font-semibold leading-[0.98] tracking-[0.02em] text-ink xl:text-[2.75rem]">
                         {activeProduct.title}
                       </h3>
-                      <p className="max-w-[27rem] text-[0.98rem] leading-7 text-[#6d594b] xl:text-[1.02rem]">
+                      <p className="max-w-[27rem] text-[0.98rem] leading-7 text-ink-muted xl:text-[1.02rem]">
                         {activeProduct.shortDescription}
                       </p>
                     </div>
@@ -184,11 +184,11 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
 
                   <div className="space-y-6">
                     <div className="space-y-2">
-                      <p className="text-[2rem] font-semibold leading-none tracking-[0.01em] text-[#3a281e] xl:text-[2.3rem]">
+                      <p className="text-[2rem] font-semibold leading-none tracking-[0.01em] text-ink xl:text-[2.3rem]">
                         {activeProduct.pricePrefix ? `${activeProduct.pricePrefix} ` : null}
                         {formatPrice(activeProduct.basePrice)}
                       </p>
-                      <p className="text-xs text-neutral-500">
+                      <p className="text-xs text-ink-muted">
                         6 cuotas sin interés de {formatInstallmentPrice(activeProduct.basePrice)}
                       </p>
                       {activeProduct.transferPrice ? (
@@ -201,7 +201,7 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                     <div className="flex flex-wrap items-center gap-3">
                       <Link
                         href={activeProduct.productHref}
-                        className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#d3b192] bg-[#f1dcc7] px-6 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-[#5d4033] shadow-[0_10px_24px_rgba(84,58,42,0.1)] transition-all duration-300 hover:-translate-y-[1px] hover:border-[#c89f81] hover:bg-[#ebd0b4]"
+                        className="inline-flex min-h-12 items-center justify-center rounded-full border border-accent/80 bg-accent-soft px-6 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-brand shadow-[0_10px_24px_color-mix(in_srgb,var(--cta)_10%,transparent)] transition-all duration-300 hover:-translate-y-[1px] hover:border-accent/90 hover:bg-accent-soft"
                       >
                         Ver producto
                       </Link>
@@ -212,7 +212,7 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                             type="button"
                             aria-label="Oferta anterior"
                             onClick={() => goToIndex(getPrevIndex(activeIndex, products.length), -1)}
-                            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#d7c2ad]/72 bg-white/62 text-[#5e4436] transition-all duration-300 hover:border-[#caac92] hover:bg-[#f8efe6]"
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-accent/43 bg-surface-raised/62 text-brand transition-all duration-300 hover:border-accent/80 hover:bg-accent-soft/40"
                           >
                             ‹
                           </button>
@@ -220,7 +220,7 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                             type="button"
                             aria-label="Oferta siguiente"
                             onClick={() => goToIndex(getNextIndex(activeIndex, products.length), 1)}
-                            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#d7c2ad]/72 bg-white/62 text-[#5e4436] transition-all duration-300 hover:border-[#caac92] hover:bg-[#f8efe6]"
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-accent/43 bg-surface-raised/62 text-brand transition-all duration-300 hover:border-accent/80 hover:bg-accent-soft/40"
                           >
                             ›
                           </button>
@@ -252,9 +252,9 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0.76, x: direction > 0 ? -22 : 22 }}
                 transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute inset-0 flex flex-col overflow-hidden rounded-[1.9rem] border border-[#dcc8b4]/72 bg-[linear-gradient(180deg,rgba(255,251,246,0.98),rgba(244,236,227,0.94))] shadow-[0_20px_40px_rgba(58,40,26,0.07)]"
+                className="absolute inset-0 flex flex-col overflow-hidden rounded-[1.9rem] border border-accent/36 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_98%,transparent),color-mix(in_srgb,var(--canvas)_94%,transparent))] shadow-[0_20px_40px_color-mix(in_srgb,var(--ink)_7%,transparent)]"
               >
-                <div className="relative h-[260px] bg-[#eadfce] sm:h-[300px]">
+                <div className="relative h-[260px] bg-accent-soft/80 sm:h-[300px]">
                   <ProductCardImageStack
                     images={activeProduct.images}
                     imageUrl={activeProduct.imageUrl}
@@ -262,26 +262,26 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                     hoverImageUrl={activeProduct.hoverImageUrl}
                     sizes="(max-width: 640px) 100vw, 90vw"
                     imageClassName="object-cover"
-                    placeholder={<div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(235,223,206,0.98),rgba(201,181,160,0.92))]" />}
+                    placeholder={<div className="absolute inset-0 bg-[linear-gradient(135deg,color-mix(in_srgb,var(--accent-soft)_98%,transparent),color-mix(in_srgb,var(--accent)_50%,var(--line)))]" />}
                   />
                 </div>
 
                 <div className="flex flex-1 flex-col justify-between gap-4 p-4">
                   <div className="space-y-3">
-                    <span className="inline-flex min-h-7 items-center rounded-full border border-[#d9b99f]/72 bg-[#f5e5d3] px-3.5 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-[#73503f]">
+                    <span className="inline-flex min-h-7 items-center rounded-full border border-accent/50 bg-accent-soft/80 px-3.5 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-brand">
                       Oferta
                     </span>
-                    <h3 className="text-[1.9rem] font-semibold leading-[1] tracking-[0.02em] text-[#2f2219]">
+                    <h3 className="text-[1.9rem] font-semibold leading-[1] tracking-[0.02em] text-ink">
                       {activeProduct.title}
                     </h3>
-                    <p className="text-[0.92rem] leading-6 text-[#6d594b]">{activeProduct.shortDescription}</p>
+                    <p className="text-[0.92rem] leading-6 text-ink-muted">{activeProduct.shortDescription}</p>
                   </div>
 
                   <div className="space-y-2">
-                    <p className="text-[1.7rem] font-semibold leading-none text-[#3a281e]">
+                    <p className="text-[1.7rem] font-semibold leading-none text-ink">
                       {formatPrice(activeProduct.basePrice)}
                     </p>
-                    <p className="text-[11px] text-neutral-500 sm:text-xs">
+                    <p className="text-[11px] text-ink-muted sm:text-xs">
                       6 cuotas sin interés de {formatInstallmentPrice(activeProduct.basePrice)}
                     </p>
                     {activeProduct.transferPrice ? (
@@ -294,7 +294,7 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                   <div className="flex flex-wrap items-center gap-3">
                     <Link
                       href={activeProduct.productHref}
-                      className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#d3b192] bg-[#f1dcc7] px-5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-[#5d4033]"
+                      className="inline-flex min-h-11 items-center justify-center rounded-full border border-accent/80 bg-accent-soft px-5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-brand"
                     >
                       Ver producto
                     </Link>
@@ -305,7 +305,7 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                           type="button"
                           aria-label="Oferta anterior"
                           onClick={() => goToIndex(getPrevIndex(activeIndex, products.length), -1)}
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d7c2ad]/72 bg-white/62 text-[#5e4436]"
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-accent/43 bg-surface-raised/62 text-brand"
                         >
                           ‹
                         </button>
@@ -313,7 +313,7 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                           type="button"
                           aria-label="Oferta siguiente"
                           onClick={() => goToIndex(getNextIndex(activeIndex, products.length), 1)}
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d7c2ad]/72 bg-white/62 text-[#5e4436]"
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-accent/43 bg-surface-raised/62 text-brand"
                         >
                           ›
                         </button>
@@ -338,7 +338,7 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                 className={cn(
                   "h-2 rounded-full transition-all duration-300",
                   index === activeIndex
-                    ? "w-7 bg-[var(--color-accent-strong)]"
+                    ? "w-7 bg-brand"
                     : "w-2 bg-border/80 hover:bg-border",
                 )}
               />

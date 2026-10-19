@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { StorefrontThemeStyle } from "@/features/theme/components/storefront-theme-style";
+import { DEFAULT_THEME_TOKENS } from "@/features/theme/default-theme";
 
 type AppErrorProps = {
   error: Error & { digest?: string };
@@ -9,13 +12,18 @@ type AppErrorProps = {
 };
 
 export default function Error({ error, unstable_retry }: AppErrorProps) {
+  const pathname = usePathname();
+
   useEffect(() => {
     console.error(error);
   }, [error]);
 
   return (
     <main className="min-h-[70vh] bg-background px-5 py-16 text-foreground sm:px-8">
-      <section className="mx-auto flex max-w-2xl flex-col gap-8 rounded-[2rem] border border-border/80 bg-surface px-6 py-8 shadow-[0_20px_50px_rgba(58,40,26,0.06)] sm:px-8 sm:py-10">
+      {/* Storefront errors carry the storefront theme; admin errors (this
+          boundary also catches them) keep the globals.css defaults. */}
+      {pathname?.startsWith("/admin") ? null : <StorefrontThemeStyle tokens={DEFAULT_THEME_TOKENS} />}
+      <section className="mx-auto flex max-w-2xl flex-col gap-8 rounded-[2rem] border border-border/80 bg-surface px-6 py-8 shadow-[0_20px_50px_color-mix(in_srgb,var(--ink)_6%,transparent)] sm:px-8 sm:py-10">
         <div className="space-y-3">
           <p className="text-xs uppercase tracking-[0.24em] text-muted">Error inesperado</p>
           <h1 className="text-3xl font-semibold tracking-[0.02em] sm:text-4xl">
@@ -31,7 +39,7 @@ export default function Error({ error, unstable_retry }: AppErrorProps) {
           <button
             type="button"
             onClick={() => unstable_retry()}
-            className="inline-flex min-h-12 items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white transition-opacity hover:opacity-95"
+            className="inline-flex min-h-12 items-center justify-center rounded-full bg-cta px-6 text-sm uppercase tracking-[0.22em] text-cta-foreground transition-opacity hover:opacity-95"
           >
             Reintentar
           </button>

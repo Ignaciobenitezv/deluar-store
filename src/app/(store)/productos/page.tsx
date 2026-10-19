@@ -234,17 +234,17 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                     Productos
                   </h1>
                   {query ? (
-                    <p className="text-sm text-neutral-500">
+                    <p className="text-sm text-ink-muted">
                       Resultados para: <span className="text-foreground">{query}</span>
                     </p>
                   ) : (
-                    <p className="text-sm text-neutral-500">{catalog.description}</p>
+                    <p className="text-sm text-ink-muted">{catalog.description}</p>
                   )}
                 </div>
 
                 <div className="space-y-8">
                   <div className="space-y-3">
-                    <h2 className="text-xs uppercase tracking-[0.2em] text-neutral-400">Categorias</h2>
+                    <h2 className="text-xs uppercase tracking-[0.2em] text-ink-muted">Categorias</h2>
                     <ul className="space-y-3 text-sm text-foreground">
                       {catalog.categories.map((category) => (
                         <li key={category.id}>
@@ -259,13 +259,13 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                     </ul>
                   </div>
 
-                  <div className="space-y-4 border-t border-neutral-100 pt-6">
+                  <div className="space-y-4 border-t border-line/50 pt-6">
                     <div className="flex items-center justify-between gap-3">
-                      <h2 className="text-xs uppercase tracking-[0.2em] text-neutral-400">Filtrar por</h2>
+                      <h2 className="text-xs uppercase tracking-[0.2em] text-ink-muted">Filtrar por</h2>
                       {hasActiveFilters ? (
                         <Link
                           href={`${buildCatalogPageSizeHref("/productos", {}, perPage)}#catalog-grid`}
-                          className="text-xs text-neutral-500 transition hover:underline"
+                          className="text-xs text-ink-muted transition hover:underline"
                         >
                           Limpiar filtros
                         </Link>
@@ -273,18 +273,18 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                     </div>
                     <div className="space-y-4 text-sm text-foreground">
                       <div className="space-y-2">
-                        <h3 className="text-[11px] uppercase tracking-[0.15em] text-neutral-500">Disponibilidad</h3>
-                        <ul className="space-y-2 text-neutral-700">
+                        <h3 className="text-[11px] uppercase tracking-[0.15em] text-ink-muted">Disponibilidad</h3>
+                        <ul className="space-y-2 text-ink">
                           <li>
                             <Link
                               href={buildProductsPath({
                                 ...currentFilters,
                                 inStock: true,
                               })}
-                              className={inStock ? "flex items-center gap-2 text-sm font-medium text-foreground transition hover:text-black" : "flex items-center gap-2 text-sm text-neutral-700 transition hover:text-black"}
+                              className={inStock ? "flex items-center gap-2 text-sm font-medium text-foreground transition hover:text-ink" : "flex items-center gap-2 text-sm text-ink transition hover:text-ink"}
                             >
-                              <span className="flex h-4 w-4 items-center justify-center rounded-full border border-neutral-300">
-                                {inStock ? <span className="h-2 w-2 rounded-full bg-black" /> : null}
+                              <span className="flex h-4 w-4 items-center justify-center rounded-full border border-line">
+                                {inStock ? <span className="h-2 w-2 rounded-full bg-ink" /> : null}
                               </span>
                               En stock
                             </Link>
@@ -292,16 +292,16 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                         </ul>
                       </div>
                       <div className="space-y-2">
-                        <h3 className="text-[11px] uppercase tracking-[0.15em] text-neutral-500">Precio</h3>
-                        <ul className="space-y-2 text-neutral-700">
+                        <h3 className="text-[11px] uppercase tracking-[0.15em] text-ink-muted">Precio</h3>
+                        <ul className="space-y-2 text-ink">
                           {priceOptions.map((option) => (
                             <li key={option.label}>
                               <Link
                                 href={option.href}
-                                className={option.isActive ? "flex items-center gap-2 text-sm font-medium text-foreground transition hover:text-black" : "flex items-center gap-2 text-sm text-neutral-700 transition hover:text-black"}
+                                className={option.isActive ? "flex items-center gap-2 text-sm font-medium text-foreground transition hover:text-ink" : "flex items-center gap-2 text-sm text-ink transition hover:text-ink"}
                               >
-                                <span className="flex h-4 w-4 items-center justify-center rounded-full border border-neutral-300">
-                                  {option.isActive ? <span className="h-2 w-2 rounded-full bg-black" /> : null}
+                                <span className="flex h-4 w-4 items-center justify-center rounded-full border border-line">
+                                  {option.isActive ? <span className="h-2 w-2 rounded-full bg-ink" /> : null}
                                 </span>
                                 {option.label}
                               </Link>
@@ -316,9 +316,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             </aside>
 
             <div className="flex-1 space-y-8">
-              <div className="flex items-end justify-between gap-4 border-b border-neutral-200 pb-4">
+              <div className="flex items-end justify-between gap-4 border-b border-line/80 pb-4">
                 <div className="space-y-2">
-                  <p className="text-xs uppercase tracking-[0.18em] text-neutral-500">
+                  <p className="text-xs uppercase tracking-[0.18em] text-ink-muted">
                     {query ? "Busqueda" : "Catalogo"}
                   </p>
                   <h2 className="text-[2rem] font-medium tracking-[0.01em] text-foreground">
@@ -357,7 +357,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
       <div className="lg:hidden">
         <section className="space-y-6">
-          <div className="relative h-[160px] w-full overflow-hidden bg-[#e9dfd2]">
+          <div className="relative h-[160px] w-full overflow-hidden bg-line/70">
             {catalog.products[0]?.imageUrl ? (
               <>
                 <Image

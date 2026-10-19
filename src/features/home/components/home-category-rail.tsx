@@ -29,7 +29,7 @@ export function HomeCategoryRail({ categories }: HomeCategoryRailProps) {
   };
 
   return (
-    <section className="w-full bg-white py-6 sm:py-8">
+    <section className="w-full bg-surface-raised py-6 sm:py-8">
       <SiteContainer className="space-y-3.5">
         <div className="flex items-center justify-between gap-4">
           <h2 className="text-[1.35rem] sm:text-[1.55rem] font-bold tracking-tight text-foreground">
@@ -41,7 +41,7 @@ export function HomeCategoryRail({ categories }: HomeCategoryRailProps) {
               type="button"
               aria-label="Categorias anteriores"
               onClick={() => scrollRail("left")}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d8d2ca] bg-white text-foreground/70 transition-colors duration-200 hover:border-[#c6bbae] hover:bg-[#f7f5f1] hover:text-foreground"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line-strong/40 bg-surface-raised text-foreground/70 transition-colors duration-200 hover:border-brand/40 hover:bg-canvas-alt/40 hover:text-foreground"
             >
               <svg
                 aria-hidden="true"
@@ -60,7 +60,7 @@ export function HomeCategoryRail({ categories }: HomeCategoryRailProps) {
               type="button"
               aria-label="Categorias siguientes"
               onClick={() => scrollRail("right")}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d8d2ca] bg-white text-foreground/70 transition-colors duration-200 hover:border-[#c6bbae] hover:bg-[#f7f5f1] hover:text-foreground"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line-strong/40 bg-surface-raised text-foreground/70 transition-colors duration-200 hover:border-brand/40 hover:bg-canvas-alt/40 hover:text-foreground"
             >
               <svg
                 aria-hidden="true"
@@ -87,9 +87,9 @@ export function HomeCategoryRail({ categories }: HomeCategoryRailProps) {
               <Link
                 key={category.id}
                 href={category.href}
-                className="group flex w-[8.75rem] shrink-0 flex-col bg-white transition-transform duration-200 hover:-translate-y-px sm:w-[9.25rem] lg:w-[9.5rem] xl:w-[9.75rem]"
+                className="group flex w-[8.75rem] shrink-0 flex-col bg-surface-raised transition-transform duration-200 hover:-translate-y-px sm:w-[9.25rem] lg:w-[9.5rem] xl:w-[9.75rem]"
               >
-                <div className="relative aspect-[1/0.78] overflow-hidden rounded-t-[0.3rem] bg-[#f4efe8]">
+                <div className="relative aspect-[1/0.78] overflow-hidden rounded-t-[0.3rem] bg-canvas/90">
                   {category.imageUrl ? (
                     <Image
                       src={category.imageUrl}
@@ -103,7 +103,7 @@ export function HomeCategoryRail({ categories }: HomeCategoryRailProps) {
                   )}
                 </div>
 
-                <div className="-mt-px flex h-[2.45rem] items-center justify-center rounded-b-[0.35rem] border border-[#ebe6de] px-2 text-center">
+                <div className="-mt-px flex h-[2.45rem] items-center justify-center rounded-b-[0.35rem] border border-line/50 px-2 text-center">
                   <h3 className="line-clamp-1 w-full overflow-hidden text-ellipsis whitespace-nowrap text-[0.75rem] font-normal tracking-[0.01em] text-foreground/72">
                     {category.title}
                   </h3>

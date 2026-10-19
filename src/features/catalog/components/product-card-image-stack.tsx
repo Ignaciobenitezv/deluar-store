@@ -30,7 +30,14 @@ type ProductCardImageStackProps = {
   placeholder?: ReactNode;
   placeholderClassName?: string;
   href?: string;
+  /** Catalog cards: link cursor, glass prev/next arrows and, on desktop,
+   * photos that cycle while the mouse is over the image (crossfading) and
+   * return to the main one on leave. */
+  catalogGallery?: boolean;
 };
+
+const AUTOPLAY_INTERVAL_MS = 1500;
+const CROSSFADE_MS = 300;
 
 type ProductCardImageStackInnerProps = {
   images: ProductCardImage[];
@@ -41,6 +48,7 @@ type ProductCardImageStackInnerProps = {
   placeholderClassName?: string;
   canHover: boolean;
   href?: string;
+  catalogGallery: boolean;
 };
 
 function normalizeImages(
@@ -108,9 +116,18 @@ function ProductCardImageStackInner({
   placeholderClassName,
   canHover,
   href,
+  catalogGallery,
 }: ProductCardImageStackInnerProps) {
   const hasMultipleImages = images.length > 1;
-  const [activeIndex, setActiveIndex] = useState(0);
+  // `previous` is the outgoing photo: it fades out on top of the incoming one.
+  const [{ active: activeIndex, previous: previousIndex }, setSlide] = useState({
+    active: 0,
+    previous: 0,
+  });
+  // Photos are mounted (and so downloaded) only once they are about to show.
+  const [mountedIndices, setMountedIndices] = useState<ReadonlySet<number>>(() => new Set([0]));
+  const loadedIndicesRef = useRef(new Set<number>());
+  const [isHoverPlaying, setIsHoverPlaying] = useState(false);
   const [isPointerActive, setIsPointerActive] = useState(false);
   const swipeStateRef = useRef<{
     pointerId: number;
@@ -123,24 +140,74 @@ function ProductCardImageStackInner({
   const safeActiveIndex = Math.min(activeIndex, Math.max(images.length - 1, 0));
   const activeImage = images[safeActiveIndex];
 
-  const goToPreviousImage = () => {
-    setActiveIndex((current) => {
-      if (images.length <= 1) {
-        return 0;
-      }
-
-      return (current - 1 + images.length) % images.length;
+  const goToImage = (getIndex: (current: number) => number) => {
+    setSlide((current) => {
+      const next = images.length <= 1 ? 0 : getIndex(current.active);
+      return next === current.active ? current : { active: next, previous: current.active };
     });
   };
 
-  const goToNextImage = () => {
-    setActiveIndex((current) => {
-      if (images.length <= 1) {
-        return 0;
-      }
+  const goToPreviousImage = () => {
+    goToImage((current) => (current - 1 + images.length) % images.length);
+  };
 
-      return (current + 1) % images.length;
-    });
+  const goToNextImage = () => {
+    goToImage((current) => (current + 1) % images.length);
+  };
+
+  // Bumped by every manual navigation (arrows, dots, swipe) to restart the
+  // autoplay countdown, so the chosen photo stays a full interval.
+  const [manualNavCount, setManualNavCount] = useState(0);
+
+  const navigateManually = (go: () => void) => {
+    go();
+    setManualNavCount((count) => count + 1);
+  };
+
+  const canAutoplay = catalogGallery && canHover && hasMultipleImages;
+
+  // One interval per hover, torn down on leave, so quick in/out never stacks
+  // timers. While playing, the next photo is mounted one step ahead so it has
+  // time to load; a tick whose photo is not loaded yet waits for the next one.
+  // The previous one too, so the left arrow does not wait on a download.
+  const preloadIndices = isHoverPlaying
+    ? [(activeIndex + 1) % images.length, (activeIndex - 1 + images.length) % images.length]
+    : [];
+
+  useEffect(() => {
+    if (!isHoverPlaying) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setSlide((current) => {
+        const next = (current.active + 1) % images.length;
+        return loadedIndicesRef.current.has(next) ? { active: next, previous: current.active } : current;
+      });
+    }, AUTOPLAY_INTERVAL_MS);
+
+    return () => window.clearInterval(intervalId);
+  }, [isHoverPlaying, images.length, manualNavCount]);
+
+  const handlePointerEnter = (event: PointerEvent<HTMLDivElement>) => {
+    if (
+      !canAutoplay ||
+      event.pointerType !== "mouse" ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
+
+    setIsHoverPlaying(true);
+  };
+
+  const handlePointerLeave = () => {
+    if (!isHoverPlaying) {
+      return;
+    }
+
+    setIsHoverPlaying(false);
+    goToImage(() => 0);
   };
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
@@ -149,6 +216,12 @@ function ProductCardImageStackInner({
     }
 
     if (event.pointerType === "mouse" && event.button !== 0) {
+      return;
+    }
+
+    // Capturing a press on a dot or arrow would retarget its click to this
+    // container and open the product page.
+    if ((event.target as HTMLElement).closest("[data-gallery-control='true']")) {
       return;
     }
 
@@ -213,11 +286,7 @@ function ProductCardImageStackInner({
         suppressClickRef.current = false;
       }, 0);
 
-      if (deltaX < 0) {
-        goToNextImage();
-      } else {
-        goToPreviousImage();
-      }
+      navigateManually(deltaX < 0 ? goToNextImage : goToPreviousImage);
     }
 
     swipeStateRef.current = null;
@@ -236,14 +305,17 @@ function ProductCardImageStackInner({
     <div
       className={cn(
         "group/image relative h-full w-full overflow-hidden touch-pan-y",
-        canHover ? "cursor-grab active:cursor-grabbing" : "touch-pan-y",
-        isPointerActive && "cursor-grabbing",
+        catalogGallery
+          ? "cursor-pointer"
+          : cn(canHover ? "cursor-grab active:cursor-grabbing" : "touch-pan-y", isPointerActive && "cursor-grabbing"),
         className,
       )}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={finishSwipe}
       onPointerCancel={finishSwipe}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
       onClickCapture={(event) => {
         if (!suppressClickRef.current) {
           return;
@@ -262,7 +334,7 @@ function ProductCardImageStackInner({
         handleActivate();
       }}
       onKeyDown={(event) => {
-        if (!href) {
+        if (!href || (event.target as HTMLElement).closest("[data-gallery-control='true']")) {
           return;
         }
 
@@ -274,7 +346,46 @@ function ProductCardImageStackInner({
       role={href ? "link" : undefined}
       tabIndex={href ? 0 : undefined}
     >
-      {activeImage ? (
+      {activeImage && catalogGallery ? (
+        images.map((image, index) => {
+          const isActive = index === safeActiveIndex;
+          // Outgoing photo, fading out above the incoming one.
+          const isLeaving = index === previousIndex && !isActive;
+
+          // Loaded photos stay mounted; manual navigation can jump to one
+          // that is not mounted yet.
+          if (!isActive && !preloadIndices.includes(index) && !mountedIndices.has(index)) {
+            return null;
+          }
+
+          return (
+            <Image
+              key={`${image.url}-${index}`}
+              src={image.url}
+              alt={isActive ? image.alt : ""}
+              aria-hidden={isActive ? undefined : true}
+              fill
+              sizes={sizes}
+              className={cn(
+                "h-full w-full rounded-none object-cover object-center transition-opacity ease-out motion-reduce:transition-none",
+                imageClassName,
+              )}
+              style={{
+                objectPosition: image.objectPosition ?? "50% 50%",
+                transformOrigin: "center center",
+                opacity: isActive ? 1 : 0,
+                zIndex: isLeaving ? 2 : isActive ? 1 : 0,
+                transitionDuration: isLeaving ? `${CROSSFADE_MS}ms` : "0ms",
+              }}
+              onLoad={() => {
+                loadedIndicesRef.current.add(index);
+                setMountedIndices((current) => (current.has(index) ? current : new Set(current).add(index)));
+              }}
+              draggable={false}
+            />
+          );
+        })
+      ) : activeImage ? (
         <Image
           src={activeImage.url}
           alt={activeImage.alt}
@@ -303,6 +414,14 @@ function ProductCardImageStackInner({
         </div>
       )}
 
+      {/* Before the dots so Tab goes photo, previous, next, dots. */}
+      {catalogGallery && canHover && hasMultipleImages ? (
+        <>
+          <GalleryArrow direction="previous" onClick={() => navigateManually(goToPreviousImage)} />
+          <GalleryArrow direction="next" onClick={() => navigateManually(goToNextImage)} />
+        </>
+      ) : null}
+
       {hasMultipleImages ? (
         <div className="pointer-events-none absolute inset-x-0 bottom-2 z-20 flex justify-center">
           <div className="pointer-events-auto inline-flex items-center gap-1 rounded-full bg-white/18 px-2 py-1 shadow-[0_3px_12px_rgba(0,0,0,0.12)] backdrop-blur-md backdrop-saturate-150">
@@ -319,10 +438,10 @@ function ProductCardImageStackInner({
                   onClick={(event) => {
                     event.preventDefault();
                     event.stopPropagation();
-                    setActiveIndex(index);
+                    navigateManually(() => goToImage(() => index));
                   }}
                   className={cn(
-                    "h-1.5 rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#243247] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+                    "h-1.5 rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
                     isActive ? "w-4 bg-white opacity-95" : "w-1.5 bg-white/60 hover:bg-white/80",
                   )}
                 />
@@ -332,6 +451,46 @@ function ProductCardImageStackInner({
         </div>
       ) : null}
     </div>
+  );
+}
+
+// Frosted glass arrows: shown while the photo is hovered or while keyboard
+// focus is anywhere in it; only rendered on devices with a real hover.
+function GalleryArrow({
+  direction,
+  onClick,
+}: {
+  direction: "previous" | "next";
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      data-gallery-control="true"
+      aria-label={direction === "previous" ? "Imagen anterior" : "Imagen siguiente"}
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onClick();
+      }}
+      className={cn(
+        "absolute top-1/2 z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/70 bg-white/45 text-ink opacity-0 shadow-[0_2px_10px_color-mix(in_srgb,var(--ink)_12%,transparent)] backdrop-blur-md transition-opacity duration-200 hover:bg-white/65 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring group-hover/image:opacity-100 group-has-[:focus-visible]/image:opacity-100",
+        direction === "previous" ? "left-2.5" : "right-2.5",
+      )}
+    >
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 16 16"
+        className="h-3.5 w-3.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d={direction === "previous" ? "M10 3.5 5.5 8l4.5 4.5" : "M6 3.5 10.5 8 6 12.5"} />
+      </svg>
+    </button>
   );
 }
 
@@ -346,6 +505,7 @@ export function ProductCardImageStack({
   placeholder,
   placeholderClassName,
   href,
+  catalogGallery = false,
 }: ProductCardImageStackProps) {
   const resolvedImages = useMemo(
     () => normalizeImages(images, imageUrl, imageAlt, hoverImageUrl),
@@ -368,6 +528,7 @@ export function ProductCardImageStack({
       placeholderClassName={placeholderClassName}
       canHover={canHover}
       href={href}
+      catalogGallery={catalogGallery}
     />
   );
 }

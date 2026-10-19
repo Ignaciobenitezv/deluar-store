@@ -15,9 +15,10 @@ export default function CheckoutFailurePage() {
         <div className="flex flex-wrap gap-3">
           <Link
             href="/carrito"
-            className="inline-flex min-h-12 items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white"
+            className="inline-flex min-h-12 items-center justify-center rounded-full bg-cta px-6 text-sm uppercase tracking-[0.22em]"
           >
-            Volver al carrito
+            {/* Colour on a span: the global `a { color: inherit }` rule beats utilities on links. */}
+            <span className="text-cta-foreground">Volver al carrito</span>
           </Link>
           <Link
             href="/productos"

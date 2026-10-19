@@ -53,17 +53,17 @@ function ProductMiniCard({
     <article
       style={style}
       className={cn(
-        "group flex h-full flex-col rounded-[1.1rem] border border-[#d8c3ae]/70 bg-[linear-gradient(180deg,rgba(252,247,241,0.96),rgba(245,236,227,0.94))] p-2.5 shadow-[0_10px_24px_rgba(73,52,39,0.06)] transition-all duration-300 hover:border-[#cfb59d] hover:translate-y-[-2px] hover:shadow-[0_16px_30px_rgba(73,52,39,0.1)]",
+        "group flex h-full flex-col rounded-[1.1rem] border border-accent/42 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_96%,transparent),color-mix(in_srgb,var(--canvas)_94%,transparent))] p-2.5 shadow-[0_10px_24px_color-mix(in_srgb,var(--cta)_6%,transparent)] transition-all duration-300 hover:border-accent/70 hover:translate-y-[-2px] hover:shadow-[0_16px_30px_color-mix(in_srgb,var(--cta)_10%,transparent)]",
         compact
           ? "rounded-[1rem] p-2.5"
-          : "lg:relative lg:isolate lg:overflow-hidden lg:rounded-[1.2rem] lg:border-[#d4bda7]/72 lg:bg-[linear-gradient(180deg,rgba(252,247,241,0.98),rgba(244,234,224,0.95))] lg:p-2.5 lg:shadow-[0_12px_28px_rgba(73,52,39,0.07),inset_0_1px_0_rgba(255,251,246,0.55)] lg:before:pointer-events-none lg:before:absolute lg:before:inset-0 lg:before:bg-[linear-gradient(180deg,rgba(255,252,248,0.42),rgba(255,252,248,0.08)_40%,transparent_100%)] lg:before:content-[''] lg:hover:border-[#c8ab90] lg:hover:bg-[linear-gradient(180deg,rgba(253,248,242,1),rgba(245,236,227,0.98))] lg:hover:shadow-[0_18px_34px_rgba(73,52,39,0.11),inset_0_1px_0_rgba(255,251,246,0.62)]",
+          : "lg:relative lg:isolate lg:overflow-hidden lg:rounded-[1.2rem] lg:border-accent/43 lg:bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_98%,transparent),color-mix(in_srgb,var(--canvas)_95%,transparent))] lg:p-2.5 lg:shadow-[0_12px_28px_color-mix(in_srgb,var(--cta)_7%,transparent),inset_0_1px_0_color-mix(in_srgb,var(--surface)_55%,transparent)] lg:before:pointer-events-none lg:before:absolute lg:before:inset-0 lg:before:bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_42%,transparent),color-mix(in_srgb,var(--surface)_8%,transparent)_40%,transparent_100%)] lg:before:content-[''] lg:hover:border-accent/80 lg:hover:bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_100%,transparent),color-mix(in_srgb,var(--canvas)_98%,transparent))] lg:hover:shadow-[0_18px_34px_color-mix(in_srgb,var(--cta)_11%,transparent),inset_0_1px_0_color-mix(in_srgb,var(--surface)_62%,transparent)]",
         className,
       )}
     >
       <Link
         href={product.productHref}
         className={cn(
-          "relative block overflow-hidden bg-[#efe5d8]",
+          "relative block overflow-hidden bg-accent-soft/70",
           compact
           ? "rounded-[1rem] p-2.5"
             : "aspect-[1/1.03] rounded-[0.95rem] lg:z-10 lg:aspect-[1.08/1]",
@@ -84,7 +84,7 @@ function ProductMiniCard({
           </div>
         )}
         {badgeLabel ? (
-          <span className="absolute left-2.5 top-2.5 z-20 inline-flex min-h-7 items-center rounded-full bg-[#f5e2ca] px-3 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-[#6f4d3a] shadow-[0_8px_18px_rgba(84,58,42,0.12)]">
+          <span className="absolute left-2.5 top-2.5 z-20 inline-flex min-h-7 items-center rounded-full bg-accent-soft px-3 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-brand shadow-[0_8px_18px_color-mix(in_srgb,var(--cta)_12%,transparent)]">
             {badgeLabel}
           </span>
         ) : null}
@@ -96,14 +96,14 @@ function ProductMiniCard({
         )}
       >
         {!compact ? (
-          <p className="mb-2 text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#8d6d5c]">
+          <p className="mb-2 text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-ink-muted">
             {detailAttribute}
           </p>
         ) : null}
         <Link href={product.productHref} className="block">
           <h3
             className={cn(
-              "line-clamp-2 font-medium tracking-[0.018em] text-[#2f2219]",
+              "line-clamp-2 font-medium tracking-[0.018em] text-ink",
               compact ? "text-[0.82rem] leading-5" : "text-[0.96rem] leading-[1.35] lg:text-[1rem]",
             )}
           >
@@ -113,7 +113,7 @@ function ProductMiniCard({
         {product.shortDescription ? (
           <p
             className={cn(
-              "text-[#746154]",
+              "text-ink-muted",
               compact
                 ? "mt-1.5 line-clamp-2 text-[0.73rem] leading-4"
                 : "mt-2 line-clamp-2 text-[0.8rem] leading-[1.45]",
@@ -125,7 +125,7 @@ function ProductMiniCard({
         <div className={cn(compact ? "mt-2 space-y-0.5" : "mt-3 space-y-0.5")}>
           <p
             className={cn(
-              "text-[#4a3327]",
+              "text-ink",
               compact ? "text-[0.9rem] font-semibold" : "text-[1.12rem] font-semibold tracking-[0.01em]",
             )}
           >
@@ -134,7 +134,7 @@ function ProductMiniCard({
           </p>
           <p
             className={cn(
-              "text-[#8a6a58]",
+              "text-ink-muted",
               compact ? "text-[0.72rem]" : "text-[0.78rem] font-medium",
             )}
           >
@@ -265,7 +265,7 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
             key={activeCategory.id}
             className="grid min-h-[36rem] items-stretch grid-cols-[minmax(26rem,0.43fr)_minmax(0,0.57fr)] gap-2.5 animate-[fade-up_700ms_cubic-bezier(0.16,1,0.3,1)] xl:min-h-[38rem] xl:gap-3 2xl:grid-cols-[minmax(28rem,0.45fr)_minmax(0,0.55fr)]"
           >
-            <div className="relative z-0 h-full overflow-hidden rounded-l-[2.15rem] rounded-r-none bg-[linear-gradient(180deg,rgba(255,251,246,0.28),rgba(244,237,228,0.16))] shadow-[0_18px_48px_rgba(58,40,26,0.07)]">
+            <div className="relative z-0 h-full overflow-hidden rounded-l-[2.15rem] rounded-r-none bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_28%,transparent),color-mix(in_srgb,var(--canvas)_16%,transparent))] shadow-[0_18px_48px_color-mix(in_srgb,var(--ink)_7%,transparent)]">
               {activeCategory.imageUrl ? (
                 <Image
                   src={activeCategory.imageUrl}
@@ -275,11 +275,11 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
                   className="object-cover"
                 />
               ) : (
-                <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(235,223,206,0.98),rgba(201,181,160,0.92))]" />
+                <div className="absolute inset-0 bg-[linear-gradient(135deg,color-mix(in_srgb,var(--accent-soft)_98%,transparent),color-mix(in_srgb,var(--accent)_50%,var(--line)))]" />
               )}
 
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,13,10,0.16)_0%,rgba(18,13,10,0.34)_36%,rgba(18,13,10,0.58)_100%)]" />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,248,240,0.18),transparent_32%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,color-mix(in_srgb,var(--surface)_18%,transparent),transparent_32%)]" />
 
               <div className="relative flex h-full items-end p-6 xl:p-8 2xl:p-10">
                 <div className="max-w-[24rem] space-y-4 text-white 2xl:max-w-[26rem]">
@@ -298,7 +298,7 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
 
                   <Link
                     href={activeCategory.href}
-                    className="inline-flex min-h-[3.25rem] items-center justify-center rounded-full border border-[#f4e7d8]/42 bg-[#ead6bf] px-6 text-[0.78rem] font-medium uppercase tracking-[0.14em] text-[#2b1f17] shadow-[0_10px_24px_rgba(24,18,14,0.12)] transition-all duration-300 hover:bg-[#e1c6a6] hover:translate-y-[-1px] xl:min-h-[3.4rem] xl:px-7"
+                    className="inline-flex min-h-[3.25rem] items-center justify-center rounded-full border border-accent-soft/29 bg-accent-soft px-6 text-[0.78rem] font-medium uppercase tracking-[0.14em] text-ink shadow-[0_10px_24px_color-mix(in_srgb,var(--ink)_12%,transparent)] transition-all duration-300 hover:bg-accent/60 hover:translate-y-[-1px] xl:min-h-[3.4rem] xl:px-7"
                   >
                     Ver categoria
                   </Link>
@@ -325,7 +325,7 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-[1.7rem] border border-black/6 bg-[linear-gradient(180deg,rgba(255,251,246,0.9),rgba(244,237,228,0.76))] lg:hidden">
+        <div className="overflow-hidden rounded-[1.7rem] border border-black/6 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_90%,transparent),color-mix(in_srgb,var(--canvas)_76%,transparent))] lg:hidden">
           <div
             key={`${activeCategory.id}-mobile`}
             className="animate-[fade-up_700ms_cubic-bezier(0.16,1,0.3,1)]"
@@ -340,7 +340,7 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
                   className="object-cover"
                 />
               ) : (
-                <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(235,223,206,0.98),rgba(201,181,160,0.92))]" />
+                <div className="absolute inset-0 bg-[linear-gradient(135deg,color-mix(in_srgb,var(--accent-soft)_98%,transparent),color-mix(in_srgb,var(--accent)_50%,var(--line)))]" />
               )}
 
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,13,10,0.12)_0%,rgba(18,13,10,0.3)_44%,rgba(18,13,10,0.56)_100%)]" />
@@ -355,7 +355,7 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
                   </h2>
                   <Link
                     href={activeCategory.href}
-                    className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#f4e7d8]/35 bg-[#ead6bf] px-5 text-[0.7rem] font-medium uppercase tracking-[0.14em] text-[#302219]"
+                    className="inline-flex min-h-11 items-center justify-center rounded-full border border-accent-soft/24 bg-accent-soft px-5 text-[0.7rem] font-medium uppercase tracking-[0.14em] text-ink"
                   >
                     Ver categoria
                   </Link>
@@ -363,7 +363,7 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5 bg-[linear-gradient(180deg,rgba(255,251,246,0.18),rgba(244,237,228,0.64))] p-3.5 sm:gap-3 sm:p-4">
+            <div className="grid grid-cols-2 gap-2.5 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_18%,transparent),color-mix(in_srgb,var(--canvas)_64%,transparent))] p-3.5 sm:gap-3 sm:p-4">
               {mobileProducts.map((product) => (
                 <ProductMiniCard key={product.id} product={product} sizes="50vw" compact />
               ))}
@@ -382,7 +382,7 @@ export function HomeCategoryShowcase({ categories }: HomeCategoryShowcaseProps) 
                 className={cn(
                   "h-2 rounded-full transition-all duration-300",
                   index === safeIndex
-                    ? "w-6 bg-[var(--color-accent-strong)]"
+                    ? "w-6 bg-brand"
                     : "w-2 bg-border/80 hover:bg-border",
                 )}
             />

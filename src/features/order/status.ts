@@ -176,7 +176,7 @@ export function getOrderStatusBadgeClasses(status: OrderStatusInput) {
     case "warning":
       return "border-amber-700/20 bg-amber-50 text-amber-800";
     case "progress":
-      return "border-[var(--color-accent-strong)]/25 bg-[rgba(182,146,114,0.14)] text-[var(--color-accent-strong)]";
+      return "border-brand/25 bg-accent/14 text-brand";
     case "neutral":
     default:
       return "border-border bg-surface text-foreground";

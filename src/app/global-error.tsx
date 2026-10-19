@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
+import { StorefrontThemeStyle } from "@/features/theme/components/storefront-theme-style";
+import { DEFAULT_THEME_TOKENS } from "@/features/theme/default-theme";
 
 type GlobalErrorProps = {
   error: Error & { digest?: string };
@@ -16,6 +18,10 @@ export default function GlobalError({ error, unstable_retry }: GlobalErrorProps)
   return (
     <html lang="es">
       <body className="min-h-screen bg-background text-foreground">
+        {/* Replaces the root layout, so it reads the location directly. */}
+        {typeof window !== "undefined" && window.location.pathname.startsWith("/admin") ? null : (
+          <StorefrontThemeStyle tokens={DEFAULT_THEME_TOKENS} />
+        )}
         <main className="flex min-h-screen items-center justify-center px-5 py-16 sm:px-8">
           <section className="w-full max-w-2xl rounded-[2rem] border border-border/80 bg-surface px-6 py-8 shadow-[0_20px_50px_rgba(58,40,26,0.06)] sm:px-8 sm:py-10">
             <div className="space-y-3">

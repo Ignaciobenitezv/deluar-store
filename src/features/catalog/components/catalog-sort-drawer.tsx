@@ -72,13 +72,13 @@ export function CatalogSortDrawer({ sort }: CatalogSortDrawerProps) {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="inline-flex h-10 items-center gap-2 rounded-full border border-neutral-200 bg-white px-4 text-sm text-foreground"
+        className="inline-flex h-10 items-center gap-2 rounded-full border border-line/80 bg-surface-raised px-4 text-sm text-foreground"
       >
         Ordenar
         <svg
           aria-hidden="true"
           viewBox="0 0 16 16"
-          className="h-3.5 w-3.5 text-neutral-500"
+          className="h-3.5 w-3.5 text-ink-muted"
           fill="none"
           stroke="currentColor"
           strokeWidth="1.5"
@@ -102,15 +102,15 @@ export function CatalogSortDrawer({ sort }: CatalogSortDrawerProps) {
             role="dialog"
             aria-modal="true"
             aria-labelledby="catalog-sort-drawer-title"
-            className="absolute right-0 top-0 h-dvh w-full max-w-[420px] bg-white shadow-xl"
+            className="absolute right-0 top-0 h-dvh w-full max-w-[420px] bg-surface-raised shadow-xl"
           >
-            <div className="flex h-16 items-center justify-between border-b border-neutral-200 px-5">
+            <div className="flex h-16 items-center justify-between border-b border-line/80 px-5">
               <h2 id="catalog-sort-drawer-title" className="text-base font-medium text-foreground">Ordenar</h2>
               <button
                 type="button"
                 aria-label="Cerrar ordenar"
                 ref={closeButtonRef}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2"
                 onClick={closeDrawer}
               >
                 X
@@ -126,7 +126,7 @@ export function CatalogSortDrawer({ sort }: CatalogSortDrawerProps) {
                     key={option.value}
                     type="button"
                     onClick={() => handleSelect(option.value)}
-                    className="flex w-full items-center justify-between px-5 py-4 text-left text-sm text-foreground transition hover:bg-neutral-50 focus-visible:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-accent-strong)]"
+                    className="flex w-full items-center justify-between px-5 py-4 text-left text-sm text-foreground transition hover:bg-canvas/40 focus-visible:bg-canvas/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-ring"
                   >
                     <span>{option.label}</span>
                     <span className={isActive ? "text-foreground" : "invisible"}>

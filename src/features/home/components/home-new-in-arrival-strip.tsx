@@ -5,7 +5,23 @@ import Link from "next/link";
 import { Archivo } from "next/font/google";
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { SiteContainer } from "@/components/layout/site-container";
-import type { HomeNewInProduct } from "@/features/home/types";
+import type { CatalogProductCard } from "@/features/catalog/types";
+import {
+  createArrivalStripStart,
+  drawArrivalGroup,
+  type ArrivalStripBag,
+} from "@/features/home/arrival-strip-bag";
+import {
+  ADD_EVERY_MS,
+  GROW_MS,
+  HOLD_MS,
+  WIPE_EASING,
+  WIPE_MS,
+  getPageVisible,
+  getReducedMotion,
+  subscribeToPageVisibility,
+  subscribeToReducedMotion,
+} from "@/features/home/strip-motion";
 import { cn } from "@/lib/utils";
 
 // Display face for this headline only; the rest of the storefront keeps
@@ -17,55 +33,37 @@ const archivo = Archivo({
 });
 
 // Each photo is a piece of the row: it grows to PIECE_PCT of the row width and
-// the headline block gives up exactly that space. Desktop caps at 5 pieces
-// (60%), mobile at 4 (48%) so the two-line headline keeps its room.
+// the headline block gives up exactly that space. Each cycle shows a group of
+// up to 4 pieces (48%) so the two-line mobile headline keeps its room.
 const PIECE_PCT = 12;
-const MAX_PIECES_DESKTOP = 5;
-const MAX_PIECES_MOBILE = 4;
-
-const ADD_EVERY_MS = 350;
-const GROW_MS = 300;
-const HOLD_MS = 900;
-const WIPE_MS = 280;
+const PIECES_PER_GROUP = 4;
 
 type Phase = "build" | "cover" | "reveal";
 
 type CycleState = {
   phase: Phase;
   count: number;
+  /** Indices into `products` shown this cycle. */
+  group: number[];
 };
+
+// Only what a piece needs, so any product card list (here the featured grid
+// right below) can feed the strip.
+type ArrivalStripProduct = Pick<
+  CatalogProductCard,
+  "id" | "title" | "productHref" | "images" | "imageUrl" | "imageAlt"
+>;
 
 type HomeNewInArrivalStripProps = {
-  products: HomeNewInProduct[];
+  products: ArrivalStripProduct[];
 };
 
-const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-
-function subscribeToReducedMotion(onChange: () => void) {
-  const query = window.matchMedia(REDUCED_MOTION_QUERY);
-  query.addEventListener("change", onChange);
-  return () => query.removeEventListener("change", onChange);
-}
-
-function getReducedMotion() {
-  return window.matchMedia(REDUCED_MOTION_QUERY).matches;
-}
-
-function subscribeToPageVisibility(onChange: () => void) {
-  document.addEventListener("visibilitychange", onChange);
-  return () => document.removeEventListener("visibilitychange", onChange);
-}
-
-function getPageVisible() {
-  return document.visibilityState === "visible";
-}
-
-function PiecePhoto({ product }: { product: HomeNewInProduct }) {
+function PiecePhoto({ product }: { product: ArrivalStripProduct }) {
   const image = product.images[0];
   const url = image?.url ?? product.imageUrl;
 
   if (!url) {
-    return <div className="absolute inset-0 bg-[#efe6da]" />;
+    return <div className="absolute inset-0 bg-line/60" />;
   }
 
   return (
@@ -87,7 +85,7 @@ function SupportLine({ countLabel, className }: { countLabel: string; className?
       <span aria-hidden="true">·</span>
       <Link
         href="/productos"
-        className="inline-flex items-center gap-1.5 font-medium text-foreground underline-offset-4 transition-colors hover:text-[var(--color-accent-strong)] hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
+        className="inline-flex items-center gap-1.5 font-medium text-foreground underline-offset-4 transition-colors hover:text-brand hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2"
       >
         Ver todo
         <svg
@@ -109,12 +107,22 @@ function SupportLine({ countLabel, className }: { countLabel: string; className?
 
 export function HomeNewInArrivalStrip({ products }: HomeNewInArrivalStripProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
-  const pieces = products.slice(0, MAX_PIECES_DESKTOP);
-  const pieceCount = pieces.length;
+  const productCount = products.length;
+  // Rest of the shuffle bag; only touched from timer callbacks, never render.
+  const bagRef = useRef<ArrivalStripBag | null>(null);
 
-  // Server render and no-JS show the finished composition; the client empties
-  // it only when the strip starts below the fold, so it builds on arrival.
-  const [cycle, setCycle] = useState<CycleState>({ phase: "build", count: pieceCount });
+  // Server render and no-JS show the finished composition of the first group,
+  // in grid order, so server and client agree; groups are shuffled only after
+  // the first red wipe. The client empties it only when the strip starts below
+  // the fold, so it builds on arrival.
+  const [cycle, setCycle] = useState<CycleState>(() => {
+    const { group } = createArrivalStripStart(productCount, PIECES_PER_GROUP);
+    return { phase: "build", count: group.length, group };
+  });
+  const pieces = cycle.group
+    .map((index) => products[index])
+    .filter((product): product is ArrivalStripProduct => Boolean(product));
+  const pieceCount = pieces.length;
   const [inView, setInView] = useState(false);
   const [paused, setPaused] = useState(false);
   const reducedMotion = useSyncExternalStore(subscribeToReducedMotion, getReducedMotion, () => false);
@@ -137,7 +145,7 @@ export function HomeNewInArrivalStrip({ products }: HomeNewInArrivalStripProps) 
           isFirstEntry = false;
 
           if (!entry.isIntersecting) {
-            setCycle({ phase: "build", count: 0 });
+            setCycle((current) => ({ ...current, phase: "build", count: 0 }));
           }
         }
 
@@ -151,32 +159,40 @@ export function HomeNewInArrivalStrip({ products }: HomeNewInArrivalStripProps) 
   }, [animated]);
 
   // One timer per step: add a piece, hold the full composition, cover with the
-  // red band (resetting underneath), uncover, and build again from zero.
+  // red band (swapping in the next group underneath), uncover, and build again
+  // from zero.
   useEffect(() => {
     if (!running) {
       return;
     }
 
     let delay: number;
-    let next: CycleState;
+    let next: () => CycleState;
 
     if (cycle.phase === "build" && cycle.count < pieceCount) {
       delay = ADD_EVERY_MS;
-      next = { phase: "build", count: cycle.count + 1 };
+      next = () => ({ ...cycle, count: cycle.count + 1 });
     } else if (cycle.phase === "build") {
       delay = GROW_MS + HOLD_MS;
-      next = { phase: "cover", count: pieceCount };
+      next = () => ({ ...cycle, phase: "cover", count: pieceCount });
     } else if (cycle.phase === "cover") {
       delay = WIPE_MS;
-      next = { phase: "reveal", count: 0 };
+      // Drawn in the timer, not in render or an updater, so each wipe draws once.
+      next = () => {
+        const bag =
+          bagRef.current ?? createArrivalStripStart(productCount, PIECES_PER_GROUP).bag;
+        const drawn = drawArrivalGroup(bag, productCount, PIECES_PER_GROUP);
+        bagRef.current = drawn.bag;
+        return { phase: "reveal", count: 0, group: drawn.group };
+      };
     } else {
       delay = WIPE_MS;
-      next = { phase: "build", count: 0 };
+      next = () => ({ ...cycle, phase: "build", count: 0 });
     }
 
-    const timeoutId = window.setTimeout(() => setCycle(next), delay);
+    const timeoutId = window.setTimeout(() => setCycle(next()), delay);
     return () => window.clearTimeout(timeoutId);
-  }, [running, cycle, pieceCount]);
+  }, [running, cycle, pieceCount, productCount]);
 
   if (pieceCount === 0) {
     return null;
@@ -196,7 +212,7 @@ export function HomeNewInArrivalStrip({ products }: HomeNewInArrivalStripProps) 
         ? "translateX(101%)"
         : "translateX(-101%)";
   const bandTransition =
-    cycle.phase === "build" ? "none" : `transform ${WIPE_MS}ms cubic-bezier(0.65, 0, 0.35, 1)`;
+    cycle.phase === "build" ? "none" : `transform ${WIPE_MS}ms ${WIPE_EASING}`;
 
   const pieceNodes: ReactNode[] = pieces.map((product, index) => {
     const isShown = index < visibleCount;
@@ -208,14 +224,11 @@ export function HomeNewInArrivalStrip({ products }: HomeNewInArrivalStripProps) 
         aria-label={product.title}
         aria-hidden={!isShown}
         tabIndex={isShown ? undefined : -1}
-        className={cn(
-          "relative block h-full shrink-0 overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
-          index >= MAX_PIECES_MOBILE && "max-lg:hidden",
-        )}
+        className="relative block h-full shrink-0 overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2"
         style={{ width: isShown ? `${PIECE_PCT}%` : "0%", transition: growTransition }}
       >
         {/* Inset from the right so a 0-width piece leaves no visible gap. */}
-        <span className="absolute inset-y-0 left-0 right-1 overflow-hidden bg-[#efe6da]">
+        <span className="absolute inset-y-0 left-0 right-1 overflow-hidden bg-line/60">
           <PiecePhoto product={product} />
         </span>
       </Link>

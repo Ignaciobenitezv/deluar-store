@@ -1,13 +1,44 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4ede4;
-  --foreground: #2f241b;
-  --muted: #786b5f;
+  /*
+   * Storefront theme tokens (src/features/theme), named by role. These are
+   * the defaults: the "Actual" preset, resolved. The storefront layout writes
+   * the published theme over them at runtime (StorefrontThemeStyle), so keep
+   * them in sync with the preset; theme.test.ts fails if they drift.
+   */
+  --canvas: #f4ede4;
+  --canvas-alt: #eae3da;
   --surface: #fffaf4;
-  --border: #ddd0c2;
+  --surface-raised: #ffffff;
+  --ink: #2f241b;
+  --ink-muted: #76695d;
+  --line: #ddd0c2;
+  --line-strong: #8e847b;
+  --cta: #604738;
+  --cta-hover: #735d50;
+  --cta-foreground: #fffaf4;
+  --brand: #604738;
+  --brand-hover: #735d50;
+  --brand-soft: #efe8e1;
+  --brand-foreground: #fffaf4;
+  --brand-alt: #465344;
+  --brand-alt-foreground: #fffaf4;
   --accent: #b69272;
-  --color-accent-strong: #604738;
+  --accent-soft: #f1dcc7;
+  --error: #a3261b;
+  --focus-ring: #604738;
+
+  /*
+   * Legacy names, now aliases of the role tokens (same values today).
+   * Components migrate to the role tokens stage by stage. .admin-root
+   * redefines --background/--surface/--border with its own values.
+   */
+  --background: var(--canvas);
+  --foreground: var(--ink);
+  --muted: var(--ink-muted);
+  --border: var(--line);
+  --color-accent-strong: var(--cta);
 
   /*
    * Promotional red: commercial attention only (transfer price and its
@@ -33,6 +64,28 @@
   --color-promo-strong: var(--promo-strong);
   --color-promo-soft: var(--promo-soft);
   --color-promo-foreground: var(--promo-foreground);
+
+  /* Role tokens (storefront theme). */
+  --color-canvas: var(--canvas);
+  --color-canvas-alt: var(--canvas-alt);
+  --color-surface-raised: var(--surface-raised);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-cta: var(--cta);
+  --color-cta-hover: var(--cta-hover);
+  --color-cta-foreground: var(--cta-foreground);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-alt: var(--brand-alt);
+  --color-brand-alt-foreground: var(--brand-alt-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-error: var(--error);
+  --color-focus-ring: var(--focus-ring);
+
   --font-sans: "Aptos", "Segoe UI", sans-serif;
   --font-mono: "Cascadia Code", "Consolas", monospace;
 }
@@ -70,7 +123,25 @@
   box-sizing: border-box;
 }
 
-* {
+/*
+ * Default border colour (--border, the theme's `line`). In the base layer so
+ * an explicit border-* utility (utilities layer) wins over it; unlayered, it
+ * used to beat every border colour class.
+ */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+}
+
+/*
+ * The admin keeps the previous behaviour (every border = its --border, class
+ * colours ignored) until its border classes are reviewed on their own: about
+ * 100 of them (border-primary, danger/success/warning…) have never rendered.
+ * Unlayered, like the old global rule, and scoped to the admin shell only.
+ */
+.admin-root,
+.admin-root * {
   border-color: var(--border);
 }
 
@@ -80,6 +151,8 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Shared with /admin/login (outside .admin-root), so its gradient stays
+   literal: theming it would leak the storefront theme into the admin. */
 body {
   margin: 0;
   font-family: var(--font-sans);
@@ -143,6 +216,142 @@ select {
   flex: 0 0 auto;
 }
 
+/* Product card promo band (the catalog card's buy control): three still
+   states swapped under a horizontal wipe, same idea as the home "Lo nuevo"
+   strip. One 12s cycle, a third per state (3.16s hold, 0.42s wipe in, swap,
+   0.42s wipe out):
+     A transfer price (red) -> B discount (red) -> C COMPRAR (CTA) -> A.
+   The wipe paints the next state's background: dark red into B, the CTA
+   colour into C (COMPRAR is the buy action), red back into A. */
+@keyframes promo-band-wipe {
+  0%,
+  26.333% {
+    transform: translateX(-101%);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  29.833% {
+    transform: translateX(0);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  33.333% {
+    transform: translateX(101%);
+    /* Jump back off the left edge without sweeping across the band. */
+    animation-timing-function: step-end;
+  }
+  33.343%,
+  59.667% {
+    transform: translateX(-101%);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  63.167% {
+    transform: translateX(0);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  66.667% {
+    transform: translateX(101%);
+    animation-timing-function: step-end;
+  }
+  66.677%,
+  93% {
+    transform: translateX(-101%);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  96.5% {
+    transform: translateX(0);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  100% {
+    transform: translateX(101%);
+  }
+}
+
+/* Wipe colour, switched only while the wipe is parked off the band. */
+@keyframes promo-band-wipe-color {
+  0% {
+    background-color: var(--promo-strong);
+  }
+  33.338% {
+    background-color: var(--cta);
+  }
+  66.672%,
+  100% {
+    background-color: var(--promo);
+  }
+}
+
+@keyframes promo-band-state-a {
+  0% {
+    opacity: 1;
+  }
+  29.833% {
+    opacity: 0;
+  }
+  96.5%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes promo-band-state-b {
+  0% {
+    opacity: 0;
+  }
+  29.833% {
+    opacity: 1;
+  }
+  63.167%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes promo-band-state-c {
+  0% {
+    opacity: 0;
+  }
+  63.167% {
+    opacity: 1;
+  }
+  96.5%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.promo-band-wipe {
+  transform: translateX(-101%);
+  background-color: var(--promo-strong);
+  animation:
+    promo-band-wipe 12s infinite backwards,
+    promo-band-wipe-color 12s step-end infinite backwards;
+  animation-delay: var(--promo-band-delay, 0ms);
+}
+
+.promo-band-state-b,
+.promo-band-state-c {
+  opacity: 0;
+}
+
+.promo-band-state-a,
+.promo-band-state-b,
+.promo-band-state-c {
+  animation: promo-band-state-a 12s step-end infinite backwards;
+  animation-delay: var(--promo-band-delay, 0ms);
+}
+
+.promo-band-state-b {
+  animation-name: promo-band-state-b;
+}
+
+.promo-band-state-c {
+  animation-name: promo-band-state-c;
+}
+
+.promo-band[data-offscreen="true"] :is(.promo-band-wipe, .promo-band-state-a, .promo-band-state-b, .promo-band-state-c),
+.promo-band[data-paused="true"] :is(.promo-band-wipe, .promo-band-state-a, .promo-band-state-b, .promo-band-state-c) {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -151,5 +360,22 @@ select {
   .home-marquee {
     animation: none;
     transform: translateX(0);
+  }
+
+  /* Static transfer price, no wipe; the band stays a working button. */
+  .promo-band-wipe,
+  .promo-band-state-a,
+  .promo-band-state-b,
+  .promo-band-state-c {
+    animation: none;
+  }
+
+  .promo-band-state-a {
+    opacity: 1;
+  }
+
+  .promo-band-state-b,
+  .promo-band-state-c {
+    opacity: 0;
   }
 }

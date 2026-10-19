@@ -23,19 +23,19 @@ const stepStateClasses: Record<
   }
 > = {
   complete: {
-    dot: "border-[var(--color-accent-strong)]/25 bg-[rgba(182,146,114,0.16)] text-[var(--color-accent-strong)]",
-    line: "bg-[rgba(182,146,114,0.45)]",
+    dot: "border-brand/25 bg-accent/16 text-brand",
+    line: "bg-accent/45",
     label: "text-foreground",
     helper: "Completado",
   },
   current: {
-    dot: "border-[var(--color-accent-strong)] bg-[var(--color-accent-strong)] text-white shadow-[0_8px_20px_rgba(96,71,56,0.2)]",
+    dot: "border-brand bg-brand text-brand-foreground shadow-[0_8px_20px_color-mix(in_srgb,var(--cta)_20%,transparent)]",
     line: "bg-border",
-    label: "text-[var(--color-accent-strong)]",
+    label: "text-brand",
     helper: "Actual",
   },
   pending: {
-    dot: "border-border/80 bg-[#f1e9df] text-[#9a8a7b]",
+    dot: "border-border/80 bg-canvas text-ink-muted",
     line: "bg-border",
     label: "text-muted/75",
     helper: "Pendiente",
@@ -51,7 +51,7 @@ function getTerminalClasses(tone: "neutral" | "progress" | "success" | "warning"
     case "success":
       return "border-emerald-700/15 bg-emerald-50/75 text-emerald-900";
     case "progress":
-      return "border-[var(--color-accent-strong)]/20 bg-[rgba(182,146,114,0.11)] text-foreground";
+      return "border-brand/20 bg-accent/11 text-foreground";
     case "neutral":
     default:
       return "border-border bg-background/70 text-foreground";
@@ -73,7 +73,7 @@ export function OrderTimeline({
     <section
       aria-label="Estado del pedido"
       className={cn(
-        "mx-auto max-w-[21rem] rounded-[1.25rem] border border-border/75 bg-white/65 p-4 shadow-[0_14px_34px_rgba(58,40,26,0.04)] sm:max-w-none sm:rounded-[1.4rem] sm:p-5 sm:shadow-[0_16px_40px_rgba(58,40,26,0.04)]",
+        "mx-auto max-w-[21rem] rounded-[1.25rem] border border-border/75 bg-surface-raised/65 p-4 shadow-[0_14px_34px_color-mix(in_srgb,var(--ink)_4%,transparent)] sm:max-w-none sm:rounded-[1.4rem] sm:p-5 sm:shadow-[0_16px_40px_color-mix(in_srgb,var(--ink)_4%,transparent)]",
         className,
       )}
     >

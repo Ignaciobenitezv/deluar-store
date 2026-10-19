@@ -421,6 +421,29 @@ export const siteSettingsQuery = groq`
   }
 `;
 
+// Fixed singleton _id: the draft ("drafts.storefrontTheme") can never match,
+// whatever perspective or token the client uses.
+export const storefrontThemeQuery = groq`
+  *[_type == "storefrontTheme" && _id == "storefrontTheme"][0]{
+    preset,
+    colors,
+    overrides
+  }
+`;
+
+// Admin editor only (raw perspective, authenticated): the published document
+// and the saved draft, each with the revision the write flow locks on.
+export const storefrontThemeAdminQuery = groq`
+  *[_type == "storefrontTheme" && _id in [$publishedId, $draftId]]{
+    _id,
+    _rev,
+    _updatedAt,
+    preset,
+    colors,
+    overrides
+  }
+`;
+
 export const promoSettingsQuery = groq`
   *[_type == "promoSettings"][0]{
     _id,
@@ -519,6 +542,11 @@ export const homePageQuery = groq`
       basePrice,
       transferPrice,
       stock,
+      isActive,
+      attributes[]{
+        label,
+        value
+      },
       isFeatured,
       isOnOffer,
       showInNewIn,

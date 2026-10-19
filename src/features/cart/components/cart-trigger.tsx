@@ -30,10 +30,10 @@ export function CartTrigger({ variant = "desktop" }: CartTriggerProps) {
       onClick={toggleCart}
       aria-label="Abrir carrito"
       className={cn(
-        "relative inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
+        "relative inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2",
         variant === "desktop"
-          ? "h-10 rounded-full border border-neutral-200 bg-white px-4 text-neutral-900 hover:border-[#e8e0d8]"
-          : "h-9 w-9 text-foreground hover:text-[var(--color-accent-strong)]",
+          ? "h-10 rounded-full border border-line/80 bg-surface-raised px-4 text-ink hover:border-line/60"
+          : "h-9 w-9 text-foreground hover:text-brand",
       )}
     >
       {variant === "desktop" ? (
@@ -41,7 +41,7 @@ export function CartTrigger({ variant = "desktop" }: CartTriggerProps) {
           <span className="h-[18px] w-[18px]">
             <CartIcon />
           </span>
-          <span className="ml-2 text-xs text-neutral-500">({itemCount})</span>
+          <span className="ml-2 text-xs text-ink-muted">({itemCount})</span>
         </>
       ) : (
         <>

@@ -4,6 +4,7 @@ import { productSchema } from "./schemas/documents/product";
 import { promoSettingsSchema } from "./schemas/documents/promo-settings";
 import { siteSettingsSchema } from "./schemas/documents/site-settings";
 import { staticPageSchema } from "./schemas/documents/static-page";
+import { storefrontThemeSchema } from "./schemas/documents/storefront-theme";
 import { subcategorySchema } from "./schemas/documents/subcategory";
 import { imageWithAltSchema } from "./schemas/objects/image-with-alt";
 import { productLogisticsSchema } from "./schemas/objects/product-logistics";
@@ -30,4 +31,5 @@ export const schemaTypes = [
   promoSettingsSchema,
   staticPageSchema,
   homePageSchema,
+  storefrontThemeSchema,
 ];

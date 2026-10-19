@@ -9,7 +9,7 @@ const notificationPreferences = [
 ];
 
 /**
- * Apariencia uses AppearanceThemeSelector — a Configuración-only, large
+ * Tema del panel uses AppearanceThemeSelector — a Configuración-only, large
  * segmented Claro/Oscuro control that reads/writes the same dataset
  * attribute + localStorage mechanism as the topbar's ThemeToggle (that
  * component itself is untouched — this is a separate, standalone Client
@@ -26,7 +26,7 @@ export function PreferencesSection() {
       <section className={dashboardUi.card}>
         <div className={dashboardUi.cardHeader}>
           <div className="min-w-0">
-            <h2 className="text-[13px] font-semibold tracking-[-0.01em] text-text-primary">Apariencia</h2>
+            <h2 className="text-[13px] font-semibold tracking-[-0.01em] text-text-primary">Tema del panel</h2>
             <p className="mt-1 text-[12.5px] leading-5 text-text-secondary">Tema visual del panel de administración.</p>
           </div>
         </div>

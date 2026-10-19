@@ -187,9 +187,9 @@ export function CatalogMobileActions({
             role="dialog"
             aria-modal="true"
             aria-labelledby={openSheet === "sort" ? "catalog-mobile-sort-title" : "catalog-mobile-filters-title"}
-            className="fixed inset-x-0 bottom-0 z-[100] max-h-[70dvh] overflow-hidden rounded-t-[24px] bg-white lg:hidden"
+            className="fixed inset-x-0 bottom-0 z-[100] max-h-[70dvh] overflow-hidden rounded-t-[24px] bg-surface-raised lg:hidden"
           >
-            <div className="flex h-16 items-center justify-between border-b border-neutral-200 px-5">
+            <div className="flex h-16 items-center justify-between border-b border-line/80 px-5">
               <h2
                 id={openSheet === "sort" ? "catalog-mobile-sort-title" : "catalog-mobile-filters-title"}
                 className="text-base font-medium text-foreground"
@@ -200,7 +200,7 @@ export function CatalogMobileActions({
                 type="button"
                 aria-label="Cerrar panel"
                 ref={closeButtonRef}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2"
                 onClick={closeSheet}
               >
                 X
@@ -215,7 +215,7 @@ export function CatalogMobileActions({
                       key={option.value}
                       type="button"
                       onClick={() => applySort(option.value)}
-                      className="flex w-full items-center justify-between px-5 py-4 text-left text-sm text-foreground transition hover:bg-neutral-50"
+                      className="flex w-full items-center justify-between px-5 py-4 text-left text-sm text-foreground transition hover:bg-canvas/40"
                     >
                       <span>{option.label}</span>
                       <CheckIcon visible={activeSort === option.value} />
@@ -225,13 +225,13 @@ export function CatalogMobileActions({
               ) : (
                 <div className="space-y-6 px-5 py-5">
                   <div className="space-y-3">
-                    <h3 className="text-[11px] uppercase tracking-[0.15em] text-neutral-500">
+                    <h3 className="text-[11px] uppercase tracking-[0.15em] text-ink-muted">
                       Disponibilidad
                     </h3>
                     <button
                       type="button"
                       onClick={applyStock}
-                      className="flex w-full items-center justify-between text-left text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-accent-strong)]"
+                      className="flex w-full items-center justify-between text-left text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-ring"
                     >
                       <span>En stock</span>
                       <CheckIcon visible={inStock} />
@@ -239,13 +239,13 @@ export function CatalogMobileActions({
                   </div>
 
                   <div className="space-y-3">
-                    <h3 className="text-[11px] uppercase tracking-[0.15em] text-neutral-500">
+                    <h3 className="text-[11px] uppercase tracking-[0.15em] text-ink-muted">
                       Precio
                     </h3>
                     <button
                       type="button"
                       onClick={() => applyPrice({ maxPrice: 10000 })}
-                      className="flex w-full items-center justify-between text-left text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-accent-strong)]"
+                      className="flex w-full items-center justify-between text-left text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-ring"
                     >
                       <span>Hasta $10.000</span>
                       <CheckIcon visible={isPriceRangeActive({ maxPrice: "10000" })} />
@@ -253,7 +253,7 @@ export function CatalogMobileActions({
                     <button
                       type="button"
                       onClick={() => applyPrice({ minPrice: 10000, maxPrice: 30000 })}
-                      className="flex w-full items-center justify-between text-left text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-accent-strong)]"
+                      className="flex w-full items-center justify-between text-left text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-ring"
                     >
                       <span>$10.000 a $30.000</span>
                       <CheckIcon
@@ -263,7 +263,7 @@ export function CatalogMobileActions({
                     <button
                       type="button"
                       onClick={() => applyPrice({ minPrice: 30000 })}
-                      className="flex w-full items-center justify-between text-left text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-accent-strong)]"
+                      className="flex w-full items-center justify-between text-left text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-ring"
                     >
                       <span>Más de $30.000</span>
                       <CheckIcon visible={isPriceRangeActive({ minPrice: "30000" })} />
@@ -271,7 +271,7 @@ export function CatalogMobileActions({
                   </div>
 
                   <div className="space-y-3">
-                    <h3 className="text-[11px] uppercase tracking-[0.15em] text-neutral-500">
+                    <h3 className="text-[11px] uppercase tracking-[0.15em] text-ink-muted">
                       Categoría
                     </h3>
                     {categories.map((category) => (
@@ -279,7 +279,7 @@ export function CatalogMobileActions({
                         key={category.id}
                         type="button"
                         onClick={() => applyCategory(category.href)}
-                        className="flex w-full items-center justify-between text-left text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-accent-strong)]"
+                        className="flex w-full items-center justify-between text-left text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-ring"
                       >
                         <span>{category.title}</span>
                         <CheckIcon visible={category.slug === activeCategorySlug} />
@@ -290,9 +290,9 @@ export function CatalogMobileActions({
               )}
             </div>
 
-            <div className="h-[calc(env(safe-area-inset-bottom)+32px)] bg-white" />
+            <div className="h-[calc(env(safe-area-inset-bottom)+32px)] bg-surface-raised" />
           </div>
-          <div className="fixed inset-x-0 bottom-0 z-[101] h-[calc(env(safe-area-inset-bottom)+32px)] bg-white lg:hidden" />
+          <div className="fixed inset-x-0 bottom-0 z-[101] h-[calc(env(safe-area-inset-bottom)+32px)] bg-surface-raised lg:hidden" />
         </>
       ) : null}
     </>

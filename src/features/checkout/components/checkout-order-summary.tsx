@@ -66,7 +66,7 @@ export function CheckoutOrderSummary({
   const total = subtotal + shippingCost;
 
   return (
-    <aside className="space-y-6 rounded-[2rem] border border-border/80 bg-[linear-gradient(180deg,rgba(255,253,249,0.98),rgba(243,235,226,0.95))] px-6 py-7 shadow-[0_24px_60px_rgba(58,40,26,0.05)] lg:sticky lg:top-28">
+    <aside className="space-y-6 rounded-[2rem] border border-border/80 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_98%,transparent),color-mix(in_srgb,var(--canvas)_95%,transparent))] px-6 py-7 shadow-[0_24px_60px_color-mix(in_srgb,var(--ink)_5%,transparent)] lg:sticky lg:top-28">
       <div className="space-y-2">
         <p className="text-xs uppercase tracking-[0.24em] text-muted">Tu pedido</p>
         <h2 className="text-3xl font-semibold tracking-[0.03em] text-foreground">
@@ -91,9 +91,9 @@ export function CheckoutOrderSummary({
           return (
             <article
               key={item.id}
-              className="grid grid-cols-[5rem_minmax(0,1fr)] gap-4 rounded-[1.4rem] border border-border/70 bg-white/74 p-4"
+              className="grid grid-cols-[5rem_minmax(0,1fr)] gap-4 rounded-[1.4rem] border border-border/70 bg-surface-raised/74 p-4"
             >
-              <div className="relative aspect-[4/5] overflow-hidden rounded-[0.9rem] bg-[#efe5d8]">
+              <div className="relative aspect-[4/5] overflow-hidden rounded-[0.9rem] bg-accent-soft/70">
                 {item.imageUrl ? (
                   <Image
                     src={item.imageUrl}
@@ -129,8 +129,8 @@ export function CheckoutOrderSummary({
                   </p>
                 </div>
                 {paymentMethod !== PAYMENT_METHODS.TRANSFER && transferPrice !== null ? (
-                  <div className="space-y-1 rounded-[1rem] bg-[rgba(167,88,60,0.07)] px-3 py-2">
-                    <p className="text-[0.68rem] uppercase tracking-[0.18em] text-[var(--color-accent-strong)]">
+                  <div className="space-y-1 rounded-[1rem] bg-brand/7 px-3 py-2">
+                    <p className="text-[0.68rem] uppercase tracking-[0.18em] text-brand">
                       Transferencia
                     </p>
                     <p className="mt-1 text-xs text-foreground">
@@ -152,7 +152,7 @@ export function CheckoutOrderSummary({
         })}
       </div>
 
-      <div className="space-y-4 rounded-[1.4rem] border border-border/75 bg-white/72 px-4 py-5 text-sm">
+      <div className="space-y-4 rounded-[1.4rem] border border-border/75 bg-surface-raised/72 px-4 py-5 text-sm">
         <div className="flex items-center justify-between gap-4 text-muted">
           <span>Items</span>
           <span>{items.reduce((accumulator, item) => accumulator + item.quantity, 0)}</span>

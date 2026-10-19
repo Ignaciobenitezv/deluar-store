@@ -19,17 +19,17 @@ export function WhatsAppFloatingButton() {
     <>
       <a
         aria-label="Consultar por WhatsApp"
-        className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-6 z-50 hidden items-center gap-2 rounded-full border border-white/20 bg-[#f1dcc7] px-4 py-3 text-sm font-medium text-[#f8f4ef] shadow-[0_18px_42px_rgba(58,42,34,0.34)] ring-1 ring-black/5 backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#ead0b3] hover:shadow-[0_22px_52px_rgba(58,42,34,0.40)] md:flex"
+        className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-6 z-50 hidden items-center gap-2 rounded-full border border-white/20 bg-accent-soft px-4 py-3 text-sm font-medium text-surface shadow-[0_18px_42px_color-mix(in_srgb,var(--ink)_34%,transparent)] ring-1 ring-black/5 backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-accent-soft hover:shadow-[0_22px_52px_color-mix(in_srgb,var(--ink)_40%,transparent)] md:flex"
         href={WHATSAPP_URL}
         rel="noopener noreferrer"
         target="_blank"
       >
         <WhatsAppIcon className="h-5 w-5" />
-        <span>\u00bfNecesitas ayuda??</span>
+        <span>{"\u00bfNecesitas ayuda?"}</span>
       </a>
       <a
         aria-label="Consultar por WhatsApp"
-        className="fixed bottom-[calc(2.875rem+env(safe-area-inset-bottom))] right-4 z-50 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-[#f1dcc7] text-[#f8f4ef] shadow-[0_12px_28px_rgba(58,42,34,0.28)] ring-1 ring-black/5 backdrop-blur-sm md:hidden"
+        className="fixed bottom-[calc(2.875rem+env(safe-area-inset-bottom))] right-4 z-50 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-accent-soft text-surface shadow-[0_12px_28px_color-mix(in_srgb,var(--ink)_28%,transparent)] ring-1 ring-black/5 backdrop-blur-sm md:hidden"
         href={WHATSAPP_URL}
         rel="noopener noreferrer"
         target="_blank"

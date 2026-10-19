@@ -1,4 +1,5 @@
 import type { StructureResolver } from "sanity/structure";
+import { STOREFRONT_THEME_DOCUMENT_ID } from "@/features/theme/storefront-theme-document";
 
 export const structure: StructureResolver = (S) =>
   S.list()
@@ -25,6 +26,16 @@ export const structure: StructureResolver = (S) =>
               S.documentTypeListItem("promoSettings").title("Promociones (sin impacto visible)"),
               S.documentTypeListItem("staticPage").title("Páginas (sin impacto visible)"),
               S.documentTypeListItem("homePage").title("Página de inicio (impacto parcial)"),
+              // Singleton: always this one document, never a list.
+              S.listItem()
+                .title("Colores de la tienda (solo lectura)")
+                .id(STOREFRONT_THEME_DOCUMENT_ID)
+                .child(
+                  S.document()
+                    .schemaType("storefrontTheme")
+                    .documentId(STOREFRONT_THEME_DOCUMENT_ID)
+                    .title("Colores de la tienda (solo lectura)"),
+                ),
             ]),
         ),
     ]);

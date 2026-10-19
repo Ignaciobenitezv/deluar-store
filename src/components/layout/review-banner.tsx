@@ -6,7 +6,7 @@ export function ReviewBanner() {
   }
 
   return (
-    <div className="bg-foreground px-4 py-2 text-center text-xs font-medium uppercase tracking-[0.18em] text-white">
+    <div className="bg-foreground px-4 py-2 text-center text-xs font-medium uppercase tracking-[0.18em] text-surface">
       Version de revision - pagos reales deshabilitados
     </div>
   );

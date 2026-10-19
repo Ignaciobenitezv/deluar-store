@@ -47,8 +47,8 @@ function CatalogSidebarTreeNode({
 
   const buttonClassName =
     variant === "mobile"
-      ? "inline-flex h-8 w-8 flex-shrink-0 items-center justify-center bg-transparent text-[1.05rem] font-medium leading-none text-[#6a4a3b] transition hover:text-[#2f211b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
-      : "inline-flex h-6 w-6 flex-shrink-0 items-center justify-center bg-transparent text-[1rem] font-medium leading-none text-[#6a4a3b] transition hover:text-[#2f211b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2";
+      ? "inline-flex h-8 w-8 flex-shrink-0 items-center justify-center bg-transparent text-[1.05rem] font-medium leading-none text-brand transition hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2"
+      : "inline-flex h-6 w-6 flex-shrink-0 items-center justify-center bg-transparent text-[1rem] font-medium leading-none text-brand transition hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2";
 
   return (
     <li className={variant === "mobile" ? "space-y-1.5" : "space-y-2"}>
@@ -58,7 +58,7 @@ function CatalogSidebarTreeNode({
           title={node.title}
           className={cn(
             linkClassName,
-            isActive && "font-medium text-[#2f211b]",
+            isActive && "font-medium text-ink",
           )}
         >
           {node.title}
@@ -70,7 +70,7 @@ function CatalogSidebarTreeNode({
             aria-expanded={isExpanded}
             aria-controls={childrenId}
             onClick={() => onToggleNode(node._id)}
-            className={cn(buttonClassName, isExpanded && "text-[#2f211b]")}
+            className={cn(buttonClassName, isExpanded && "text-ink")}
           >
             <span aria-hidden="true">{isExpanded ? "" : "+"}</span>
           </button>
@@ -81,7 +81,7 @@ function CatalogSidebarTreeNode({
         <ul
           id={childrenId}
           className={cn(
-            "mt-2 border-l border-[#e3d8cb] pl-4",
+            "mt-2 border-l border-line/90 pl-4",
             variant === "mobile" ? "space-y-1.5" : "space-y-2",
           )}
         >
@@ -148,11 +148,11 @@ function CatalogSidebarSubcategoryTreeContent({
   const isMobile = variant === "mobile";
 
   return (
-    <section className={cn(isMobile ? "w-full border-t border-neutral-200 py-4" : "space-y-3")}>
+    <section className={cn(isMobile ? "w-full border-t border-line/80 py-4" : "space-y-3")}>
       <div className="flex items-center justify-between gap-3">
         <p
           className={cn(
-            "uppercase tracking-[0.18em] text-neutral-500",
+            "uppercase tracking-[0.18em] text-ink-muted",
             isMobile ? "text-[10px]" : "text-[11px]",
           )}
         >
@@ -164,7 +164,7 @@ function CatalogSidebarSubcategoryTreeContent({
           aria-controls="catalog-sidebar-subcategory-tree"
           onClick={toggleSection}
           className={cn(
-            "inline-flex flex-shrink-0 items-center justify-center bg-transparent font-medium leading-none text-[#6a4a3b] transition hover:text-[#2f211b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
+            "inline-flex flex-shrink-0 items-center justify-center bg-transparent font-medium leading-none text-brand transition hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2",
             isMobile ? "h-8 w-8 text-[1.15rem]" : "h-6 w-6 text-[1rem]",
           )}
         >

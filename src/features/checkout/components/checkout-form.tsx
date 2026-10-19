@@ -52,9 +52,9 @@ function Field({
   onChange,
 }: FieldProps) {
   const sharedClassName = cn(
-    "w-full rounded-[1.2rem] border bg-white/86 px-4 py-3.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
+    "w-full rounded-[1.2rem] border bg-surface-raised/86 px-4 py-3.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2",
     error
-      ? "border-[var(--color-accent-strong)]/55 bg-[rgba(167,88,60,0.03)]"
+      ? "border-error/55 bg-error/3"
       : "border-border/80 focus:border-foreground/30",
   );
   const errorId = `${id}-error`;
@@ -86,7 +86,7 @@ function Field({
         />
       )}
       {error ? (
-        <p id={errorId} className="text-sm leading-6 text-[var(--color-accent-strong)]">
+        <p id={errorId} className="text-sm leading-6 text-error">
           {error}
         </p>
       ) : null}
@@ -173,7 +173,7 @@ export function CheckoutForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-7 rounded-[2rem] border border-border/80 bg-[linear-gradient(180deg,rgba(255,253,249,0.97),rgba(245,239,230,0.94))] px-6 py-7 shadow-[0_24px_60px_rgba(58,40,26,0.05)] sm:px-8 sm:py-8"
+      className="space-y-7 rounded-[2rem] border border-border/80 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_97%,transparent),color-mix(in_srgb,var(--canvas)_94%,transparent))] px-6 py-7 shadow-[0_24px_60px_color-mix(in_srgb,var(--ink)_5%,transparent)] sm:px-8 sm:py-8"
     >
       <div className="space-y-3">
         <p className="text-xs uppercase tracking-[0.24em] text-muted">Datos del comprador</p>
@@ -186,7 +186,7 @@ export function CheckoutForm({
         </p>
       </div>
 
-      <section className="space-y-5 rounded-[1.5rem] border border-border/75 bg-white/68 px-5 py-5">
+      <section className="space-y-5 rounded-[1.5rem] border border-border/75 bg-surface-raised/68 px-5 py-5">
         <div className="space-y-1">
           <p className="text-xs uppercase tracking-[0.22em] text-muted">Contacto</p>
           <h3 className="text-xl font-semibold tracking-[0.03em] text-foreground">
@@ -208,7 +208,7 @@ export function CheckoutForm({
         </div>
       </section>
 
-      <section className="space-y-5 rounded-[1.5rem] border border-border/75 bg-white/68 px-5 py-5">
+      <section className="space-y-5 rounded-[1.5rem] border border-border/75 bg-surface-raised/68 px-5 py-5">
         <div className="space-y-1">
           <p className="text-xs uppercase tracking-[0.22em] text-muted">Entrega</p>
           <h3 className="text-xl font-semibold tracking-[0.03em] text-foreground">
@@ -228,9 +228,9 @@ export function CheckoutForm({
                 <label
                   key={option.value}
                   className={cn(
-                    "cursor-pointer rounded-[1.2rem] border bg-white/78 px-4 py-4 transition-colors",
+                    "cursor-pointer rounded-[1.2rem] border bg-surface-raised/78 px-4 py-4 transition-colors",
                     isSelected
-                      ? "border-[var(--color-accent-strong)]/45 bg-[rgba(167,88,60,0.06)]"
+                      ? "border-cta/45 bg-cta/6"
                       : "border-border/80 hover:border-foreground/25",
                   )}
                 >
@@ -242,11 +242,11 @@ export function CheckoutForm({
                     onChange={() => handleShippingMethodChange(option.value)}
                     className="peer sr-only"
                   />
-                  <span className="flex items-start justify-between gap-4 rounded-[1.1rem] outline-none transition focus-within:ring-2 focus-within:ring-[var(--color-accent-strong)] focus-within:ring-offset-2">
+                  <span className="flex items-start justify-between gap-4 rounded-[1.1rem] outline-none transition focus-within:ring-2 focus-within:ring-focus-ring focus-within:ring-offset-2">
                     <span className="flex items-start gap-3">
                       <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-foreground/25">
                         {isSelected ? (
-                          <span className="h-2 w-2 rounded-full bg-[var(--color-accent-strong)]" />
+                          <span className="h-2 w-2 rounded-full bg-cta" />
                         ) : null}
                       </span>
                       <span>
@@ -267,14 +267,14 @@ export function CheckoutForm({
             })}
           </div>
           {errors.shippingMethod ? (
-            <p className="text-sm leading-6 text-[var(--color-accent-strong)]">
+            <p className="text-sm leading-6 text-error">
               {errors.shippingMethod}
             </p>
           ) : null}
         </div>
 
         {isPickupMethod ? (
-          <div className="rounded-[1.2rem] border border-border/75 bg-white/78 px-4 py-4 text-sm leading-7 text-muted">
+          <div className="rounded-[1.2rem] border border-border/75 bg-surface-raised/78 px-4 py-4 text-sm leading-7 text-muted">
             Podes retirar tu pedido en Resistencia, Chaco. Luego coordinaremos por
             WhatsApp el punto y horario de retiro.
           </div>
@@ -352,7 +352,7 @@ export function CheckoutForm({
         </div>
       </section>
 
-      <div className="space-y-4 rounded-[1.5rem] border border-border/75 bg-white/68 px-5 py-5">
+      <div className="space-y-4 rounded-[1.5rem] border border-border/75 bg-surface-raised/68 px-5 py-5">
         <div className="space-y-4">
           <div className="space-y-1">
             <p className="text-xs uppercase tracking-[0.22em] text-muted">Medio de pago</p>
@@ -388,9 +388,9 @@ export function CheckoutForm({
                 <label
                   key={option.value}
                   className={cn(
-                    "cursor-pointer rounded-[1.2rem] border bg-white/78 px-4 py-4 transition-colors",
+                    "cursor-pointer rounded-[1.2rem] border bg-surface-raised/78 px-4 py-4 transition-colors",
                     isSelected
-                      ? "border-[var(--color-accent-strong)]/45 bg-[rgba(167,88,60,0.06)]"
+                      ? "border-cta/45 bg-cta/6"
                       : "border-border/80 hover:border-foreground/25",
                   )}
                 >
@@ -402,10 +402,10 @@ export function CheckoutForm({
                     onChange={() => handlePaymentMethodChange(option.value)}
                     className="peer sr-only"
                   />
-                  <span className="flex items-start gap-3 rounded-[1.1rem] outline-none transition focus-within:ring-2 focus-within:ring-[var(--color-accent-strong)] focus-within:ring-offset-2">
+                  <span className="flex items-start gap-3 rounded-[1.1rem] outline-none transition focus-within:ring-2 focus-within:ring-focus-ring focus-within:ring-offset-2">
                     <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-foreground/25">
                       {isSelected ? (
-                        <span className="h-2 w-2 rounded-full bg-[var(--color-accent-strong)]" />
+                        <span className="h-2 w-2 rounded-full bg-cta" />
                       ) : null}
                     </span>
                     <span>
@@ -434,7 +434,7 @@ export function CheckoutForm({
           type="submit"
           disabled={isSubmitting}
           aria-busy={isSubmitting}
-          className="inline-flex min-h-14 w-full items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white shadow-[0_18px_44px_rgba(167,88,60,0.2)] transition-all hover:translate-y-[-1px] hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+          className="inline-flex min-h-14 w-full items-center justify-center rounded-full bg-cta px-6 text-sm uppercase tracking-[0.22em] text-cta-foreground shadow-[0_18px_44px_color-mix(in_srgb,var(--cta)_20%,transparent)] transition-all hover:translate-y-[-1px] hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
         >
           {isSubmitting ? "Creando orden..." : submitLabel}
         </button>

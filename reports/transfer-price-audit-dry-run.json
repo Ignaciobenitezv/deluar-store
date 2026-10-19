@@ -1,0 +1,42 @@
+{
+  "generatedAt": "2026-09-18T22:06:01.534Z",
+  "products": {
+    "summary": {
+      "total": 467,
+      "correcto": 467,
+      "faltante": 0,
+      "incorrecto": 0,
+      "invalido": 0
+    },
+    "examples": {
+      "incorrecto": [],
+      "invalido": []
+    }
+  },
+  "variants": {
+    "summary": {
+      "total": 198,
+      "correcto": 198,
+      "faltante": 0,
+      "incorrecto": 0,
+      "invalido": 0,
+      "heredada_ok": 0,
+      "heredada_transferprice_a_eliminar": 0
+    },
+    "examples": {
+      "incorrecto": [],
+      "heredada_transferprice_a_eliminar": []
+    }
+  },
+  "colorVariantsLegacy": {
+    "productsWithColorVariants": 2,
+    "totalColorVariants": 8,
+    "withOwnBasePrice": 0,
+    "withTransferPrice": 0,
+    "inconsistentUnderNewRule": 0
+  },
+  "documentsThatWouldChange": {
+    "count": 0,
+    "note": "Cada producto se cuenta una sola vez aunque tenga varias correcciones (propia + de una o más variantes), porque el patch de un backfill futuro sería un único documento por producto."
+  }
+}

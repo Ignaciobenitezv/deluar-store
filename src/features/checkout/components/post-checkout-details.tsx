@@ -28,7 +28,7 @@ export function PostCheckoutDetails({
   ].filter((row): row is { label: string; value: string } => Boolean(row));
 
   return (
-    <section className="space-y-3 rounded-[1.25rem] border border-border/75 bg-white/72 px-4 py-4">
+    <section className="space-y-3 rounded-[1.25rem] border border-border/75 bg-surface-raised/72 px-4 py-4">
       <div className="space-y-1">
         <p className="text-xs uppercase tracking-[0.24em] text-muted">Retorno</p>
         <h2 className="text-lg font-semibold tracking-[0.02em] text-foreground">{title}</h2>

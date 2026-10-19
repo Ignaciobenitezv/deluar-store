@@ -31,7 +31,7 @@ export function CatalogPageSizeSelector({ variant = "desktop" }: CatalogPageSize
     >
       <span
         className={cn(
-          "text-[11px] uppercase tracking-[0.15em] text-neutral-500",
+          "text-[11px] uppercase tracking-[0.15em] text-ink-muted",
           !isDesktop && "shrink-0",
         )}
       >
@@ -40,7 +40,7 @@ export function CatalogPageSizeSelector({ variant = "desktop" }: CatalogPageSize
 
       <div
         className={cn(
-          "inline-flex items-center rounded-full border border-neutral-200 bg-white p-1 shadow-sm",
+          "inline-flex items-center rounded-full border border-line/80 bg-surface-raised p-1 shadow-sm",
           !isDesktop && "flex-wrap gap-1",
         )}
       >
@@ -54,10 +54,10 @@ export function CatalogPageSizeSelector({ variant = "desktop" }: CatalogPageSize
               href={href}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "inline-flex min-h-8 min-w-10 items-center justify-center rounded-full px-3 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
+                "inline-flex min-h-8 min-w-10 items-center justify-center rounded-full px-3 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2",
                 isActive
-                  ? "bg-[#A88772] text-[#2f241b]"
-                  : "text-neutral-500 hover:bg-neutral-50 hover:text-foreground",
+                  ? "bg-accent text-ink"
+                  : "text-ink-muted hover:bg-canvas/40 hover:text-foreground",
               )}
             >
               {pageSize}

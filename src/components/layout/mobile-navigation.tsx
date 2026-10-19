@@ -39,6 +39,17 @@ type MobileCatalogTreeProps = {
   pathname: string;
 };
 
+function isPrimaryItemActive(pathname: string, href: string) {
+  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+}
+
+// Colour on a span: the global `a { color: inherit }` rule beats utilities on
+// links. Active = weight (on the link) + a brand underline bar, so the state
+// does not rely on colour alone.
+function PrimaryLabel({ label, isActive }: { label: string; isActive: boolean }) {
+  return <span className={cn("text-ink", isActive && "pb-0.5 shadow-[inset_0_-2px_0_var(--brand)]")}>{label}</span>;
+}
+
 function MobileCatalogTree({
   nodes,
   expandedNodeIds,
@@ -52,7 +63,7 @@ function MobileCatalogTree({
   }
 
   return (
-    <ul className={level === 0 ? "flex flex-col" : "mt-3 grid gap-2 border-t border-neutral-200 pt-3"}>
+    <ul className={level === 0 ? "flex flex-col" : "mt-3 grid gap-2 border-t border-line/80 pt-3"}>
       {nodes.map((node) => {
         const hasChildren = (node.items ?? []).length > 0;
         const isExpanded = expandedNodeIds.includes(node.id);
@@ -62,7 +73,7 @@ function MobileCatalogTree({
         return (
           <li
             key={node.id}
-            className={level === 0 ? "border-b border-neutral-100 last:border-b-0" : "last:border-b-0"}
+            className={level === 0 ? "border-b border-line/50 last:border-b-0" : "last:border-b-0"}
           >
             <div
               className={
@@ -74,14 +85,20 @@ function MobileCatalogTree({
               <Link
                 href={node.href}
                 className={cn(
-                  "min-w-0 flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
+                  "min-w-0 flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2",
                   level === 0 && "text-[15px] tracking-[0.02em]",
-                  level > 0 && "text-sm leading-6 text-neutral-700",
-                  isActive && "font-medium text-neutral-950",
+                  level > 0 && "text-sm leading-6",
+                  isActive && "font-medium",
                 )}
+                aria-current={isActive ? "page" : undefined}
                 onClick={onNavigate}
               >
-                {node.label}
+                {/* Colour on a span: the global `a { color: inherit }` rule beats
+                    utilities on links. Active = ink + weight + a brand underline
+                    bar, so the state does not rely on colour alone. */}
+                <span className={cn("text-ink", isActive && "pb-0.5 shadow-[inset_0_-2px_0_var(--brand)]")}>
+                  {node.label}
+                </span>
               </Link>
 
               {hasChildren ? (
@@ -90,7 +107,7 @@ function MobileCatalogTree({
                   aria-expanded={isExpanded}
                   aria-controls={panelId}
                   aria-label={isExpanded ? `Contraer ${node.label}` : `Expandir ${node.label}`}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2"
                   onClick={() => onToggleNode(node.id)}
                 >
                   <span
@@ -108,7 +125,7 @@ function MobileCatalogTree({
             {hasChildren && isExpanded ? (
               <div
                 id={panelId}
-                className={level === 0 ? "border-t border-neutral-100 bg-neutral-50" : "ml-4"}
+                className={level === 0 ? "border-t border-line/50 bg-canvas/40" : "ml-4"}
               >
                 <MobileCatalogTree
                   nodes={node.items ?? []}
@@ -206,9 +223,9 @@ export function MobileNavigation({ navigation, buttonClassName }: MobileNavigati
         role="dialog"
         aria-modal="true"
         aria-labelledby="mobile-navigation-title"
-        className="fixed left-0 top-0 z-[80] h-dvh w-full max-w-[390px] overflow-y-auto bg-white text-neutral-900 shadow-xl lg:hidden"
+        className="fixed left-0 top-0 z-[80] h-dvh w-full max-w-[390px] overflow-y-auto bg-surface-raised text-ink shadow-xl lg:hidden"
       >
-        <div className="flex h-14 items-center border-b border-neutral-100 px-4">
+        <div className="flex h-14 items-center border-b border-line/50 px-4">
           <h2 id="mobile-navigation-title" className="sr-only">
             Navegacion mobile
           </h2>
@@ -216,7 +233,7 @@ export function MobileNavigation({ navigation, buttonClassName }: MobileNavigati
             type="button"
             ref={closeButtonRef}
             aria-label="Cerrar menu"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2"
             onClick={closeMenu}
           >
             <span className="relative block h-[18px] w-[18px]">
@@ -228,24 +245,31 @@ export function MobileNavigation({ navigation, buttonClassName }: MobileNavigati
 
         <nav aria-label="Navegacion mobile" className="py-3">
           <ul className="flex flex-col">
-            {navigation.primary.map((item) => (
-              <li key={item.id} className="border-b border-neutral-100 last:border-b-0">
+            {navigation.primary.map((item) => {
+              const isItemActive = isPrimaryItemActive(pathname, item.href);
+
+              return (
+              <li key={item.id} className="border-b border-line/50 last:border-b-0">
                 {item.id === "productos" ? (
                   <>
                     <div className="flex items-center justify-between gap-3 px-4 py-4">
                       <Link
                         href={item.href}
-                        className="min-w-0 flex-1 text-[15px] tracking-[0.02em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
+                        aria-current={isItemActive ? "page" : undefined}
+                        className={cn(
+                          "min-w-0 flex-1 text-[15px] tracking-[0.02em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2",
+                          isItemActive && "font-medium",
+                        )}
                         onClick={closeMenu}
                       >
-                        {item.label}
+                        <PrimaryLabel label={item.label} isActive={isItemActive} />
                       </Link>
                       <button
                         type="button"
                         aria-expanded={isProductsOpen}
                         aria-controls="mobile-products-panel"
                         aria-label={isProductsOpen ? "Contraer productos" : "Expandir productos"}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full text-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2"
                         onClick={toggleProductsPanel}
                       >
                         <span
@@ -260,7 +284,7 @@ export function MobileNavigation({ navigation, buttonClassName }: MobileNavigati
                     </div>
 
                     {isProductsOpen ? (
-                      <div id="mobile-products-panel" className="border-t border-neutral-100 bg-neutral-50">
+                      <div id="mobile-products-panel" className="border-t border-line/50 bg-canvas/40">
                         <MobileCatalogTree
                           nodes={navigation.categories}
                           expandedNodeIds={expandedNodeIds}
@@ -274,14 +298,19 @@ export function MobileNavigation({ navigation, buttonClassName }: MobileNavigati
                 ) : (
                   <Link
                     href={item.href}
-                    className="flex items-center justify-between px-4 py-4 text-[15px] tracking-[0.02em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2"
+                    aria-current={isItemActive ? "page" : undefined}
+                    className={cn(
+                      "flex items-center justify-between px-4 py-4 text-[15px] tracking-[0.02em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2",
+                      isItemActive && "font-medium",
+                    )}
                     onClick={closeMenu}
                   >
-                    {item.label}
+                    <PrimaryLabel label={item.label} isActive={isItemActive} />
                   </Link>
                 )}
               </li>
-            ))}
+              );
+            })}
           </ul>
         </nav>
       </div>
@@ -296,7 +325,7 @@ export function MobileNavigation({ navigation, buttonClassName }: MobileNavigati
         aria-controls="mobile-navigation-panel"
         aria-label={isOpen ? "Cerrar menu" : "Abrir menu"}
         className={cn(
-          "inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-foreground transition-colors hover:border-foreground/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
+          "inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-foreground transition-colors hover:border-foreground/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2",
           buttonClassName,
         )}
         onClick={() => (isOpen ? closeMenu() : setIsOpen(true))}

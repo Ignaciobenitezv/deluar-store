@@ -3,7 +3,7 @@ import { SiteContainer } from "@/components/layout/site-container";
 export function HomeNewsletterBanner() {
   return (
     <section
-      className="relative -mb-14 w-full overflow-hidden bg-neutral-900 sm:-mb-16"
+      className="relative -mb-14 w-full overflow-hidden bg-ink sm:-mb-16"
       style={{
         backgroundImage: "url('/mdomi.jpg')",
         backgroundPosition: "center center",
@@ -38,7 +38,7 @@ export function HomeNewsletterBanner() {
               />
               <button
                 type="submit"
-                className="h-12 shrink-0 bg-white px-6 text-sm font-medium text-neutral-900 transition hover:bg-neutral-200"
+                className="h-12 shrink-0 bg-surface px-6 text-sm font-medium text-ink transition hover:bg-canvas"
               >
                 Enviar
               </button>

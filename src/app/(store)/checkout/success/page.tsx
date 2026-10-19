@@ -43,9 +43,10 @@ export default async function CheckoutSuccessPage({
         <OrderTimeline status="PAID" />
         <Link
           href="/productos"
-          className="inline-flex min-h-12 items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white"
+          className="inline-flex min-h-12 items-center justify-center rounded-full bg-cta px-6 text-sm uppercase tracking-[0.22em]"
         >
-          Seguir comprando
+          {/* Colour on a span: the global `a { color: inherit }` rule beats utilities on links. */}
+          <span className="text-cta-foreground">Seguir comprando</span>
         </Link>
       </div>
     </section>

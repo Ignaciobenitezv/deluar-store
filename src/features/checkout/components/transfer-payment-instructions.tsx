@@ -57,7 +57,7 @@ function CopyButton({
     <button
       type="button"
       onClick={handleCopy}
-      className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#d8c8bc] bg-white/82 px-4 text-xs font-medium uppercase tracking-[0.18em] text-[#5f473b] transition-all hover:-translate-y-0.5 hover:border-[#6f4b3a]/35 hover:bg-[#f8f4ef]"
+      className="inline-flex min-h-11 items-center justify-center rounded-full border border-accent/50 bg-surface-raised/82 px-4 text-xs font-medium uppercase tracking-[0.18em] text-brand transition-all hover:-translate-y-0.5 hover:border-brand/35 hover:bg-canvas/60"
     >
       {copied ? "Copiado" : label}
     </button>
@@ -74,13 +74,13 @@ export function TransferPaymentInstructions({
   }, [order.orderNumber]);
 
   return (
-    <section className="mx-auto max-w-3xl rounded-[1.45rem] border border-[#e2d5cb] bg-[linear-gradient(180deg,rgba(255,253,249,0.98),rgba(246,240,233,0.96))] p-4 shadow-[0_18px_46px_rgba(58,42,34,0.09)] sm:rounded-[1.6rem] sm:p-7">
+    <section className="mx-auto max-w-3xl rounded-[1.45rem] border border-accent/40 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_98%,transparent),color-mix(in_srgb,var(--canvas)_96%,transparent))] p-4 shadow-[0_18px_46px_color-mix(in_srgb,var(--ink)_9%,transparent)] sm:rounded-[1.6rem] sm:p-7">
       <div className="flex items-start gap-3.5 sm:gap-4">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/70 bg-[#efe3d8] text-[#6f4b3a] shadow-[0_10px_24px_rgba(58,42,34,0.08)] sm:h-11 sm:w-11">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-surface-raised/70 bg-line/60 text-brand shadow-[0_10px_24px_color-mix(in_srgb,var(--ink)_8%,transparent)] sm:h-11 sm:w-11">
           <BankIcon />
         </div>
         <div className="min-w-0 space-y-1.5 sm:space-y-2">
-          <p className="text-xs uppercase tracking-[0.22em] text-[#8b7568]">
+          <p className="text-xs uppercase tracking-[0.22em] text-ink-muted">
             En espera de pago
           </p>
           <h2 className="text-xl font-semibold leading-[1.12] tracking-[0.01em] text-foreground sm:text-3xl sm:leading-tight sm:tracking-[0.02em]">
@@ -94,17 +94,17 @@ export function TransferPaymentInstructions({
       </div>
 
       <div className="mt-5 grid gap-2.5 sm:mt-7 sm:gap-3">
-        <div className="rounded-[1.1rem] border border-[#e5d8cf] bg-white/72 p-3.5 sm:rounded-[1.2rem] sm:p-4">
+        <div className="rounded-[1.1rem] border border-line/80 bg-surface-raised/72 p-3.5 sm:rounded-[1.2rem] sm:p-4">
           <p className="text-xs uppercase tracking-[0.18em] text-muted">Banco</p>
           <p className="mt-1 text-base font-medium text-foreground">{bankDetails.bank}</p>
         </div>
-        <div className="rounded-[1.1rem] border border-[#e5d8cf] bg-white/72 p-3.5 sm:rounded-[1.2rem] sm:p-4">
+        <div className="rounded-[1.1rem] border border-line/80 bg-surface-raised/72 p-3.5 sm:rounded-[1.2rem] sm:p-4">
           <p className="text-xs uppercase tracking-[0.18em] text-muted">Titular</p>
           <p className="mt-1 text-base font-medium text-foreground">
             {bankDetails.holder}
           </p>
         </div>
-        <div className="rounded-[1.1rem] border border-[#e5d8cf] bg-white/72 p-3.5 sm:rounded-[1.2rem] sm:p-4">
+        <div className="rounded-[1.1rem] border border-line/80 bg-surface-raised/72 p-3.5 sm:rounded-[1.2rem] sm:p-4">
           <p className="text-xs uppercase tracking-[0.18em] text-muted">Alias</p>
           <div className="mt-2 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
             <p className="break-all text-lg font-semibold tracking-[0.02em] text-foreground">
@@ -113,7 +113,7 @@ export function TransferPaymentInstructions({
             <CopyButton label="Copiar Alias" value={bankDetails.alias} />
           </div>
         </div>
-        <div className="rounded-[1.1rem] border border-[#e5d8cf] bg-white/72 p-3.5 sm:rounded-[1.2rem] sm:p-4">
+        <div className="rounded-[1.1rem] border border-line/80 bg-surface-raised/72 p-3.5 sm:rounded-[1.2rem] sm:p-4">
           <p className="text-xs uppercase tracking-[0.18em] text-muted">CBU</p>
           <div className="mt-2 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
             <p className="break-all text-lg font-semibold tracking-[0.02em] text-foreground">
@@ -124,14 +124,14 @@ export function TransferPaymentInstructions({
         </div>
       </div>
 
-      <div className="mt-5 rounded-[1.1rem] border border-[#e2d5cb] bg-[#fbf8f5] p-3.5 sm:mt-7 sm:rounded-[1.2rem] sm:p-4">
+      <div className="mt-5 rounded-[1.1rem] border border-accent/40 bg-canvas/40 p-3.5 sm:mt-7 sm:rounded-[1.2rem] sm:p-4">
         <p className="text-sm leading-6 text-muted sm:leading-7">
           Una vez realizada la transferencia, envianos el comprobante por WhatsApp o
           email.
         </p>
         <a
           href="mailto:deluar2024@hotmail.com"
-          className="mt-1 inline-flex text-sm font-medium text-[#6f4b3a] underline-offset-4 hover:underline"
+          className="mt-1 inline-flex text-sm font-medium text-brand underline-offset-4 hover:underline"
         >
           deluar2024@hotmail.com
         </a>
@@ -141,9 +141,10 @@ export function TransferPaymentInstructions({
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[#6f4b3a] px-5 text-sm font-medium uppercase tracking-[0.18em] text-[#f8f4ef] shadow-[0_14px_30px_rgba(58,42,34,0.16)] transition-all hover:-translate-y-0.5 hover:bg-[#5a3d30] sm:mt-6 sm:min-h-12 sm:w-auto"
+        className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-cta px-5 text-sm font-medium uppercase tracking-[0.18em] shadow-[0_14px_30px_color-mix(in_srgb,var(--ink)_16%,transparent)] transition-all hover:-translate-y-0.5 hover:bg-cta-hover sm:mt-6 sm:min-h-12 sm:w-auto"
       >
-        Enviar comprobante
+        {/* Colour on a span: the global `a { color: inherit }` rule beats utilities on links. */}
+        <span className="text-cta-foreground">Enviar comprobante</span>
       </a>
     </section>
   );

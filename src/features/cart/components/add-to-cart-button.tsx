@@ -38,7 +38,7 @@ export function AddToCartButton({
       type="button"
       onClick={handleClick}
       disabled={disabled || isPending}
-      className="inline-flex min-h-14 w-full items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white shadow-[0_18px_44px_rgba(167,88,60,0.22)] transition-all hover:translate-y-[-1px] hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-55 disabled:shadow-none"
+      className="inline-flex min-h-14 w-full items-center justify-center rounded-full bg-cta px-6 text-sm uppercase tracking-[0.22em] text-cta-foreground shadow-[0_18px_44px_color-mix(in_srgb,var(--cta)_22%,transparent)] transition-all hover:translate-y-[-1px] hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-55 disabled:shadow-none"
     >
       {disabled
         ? "Sin stock"

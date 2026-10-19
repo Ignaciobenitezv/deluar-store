@@ -1,10 +1,18 @@
 import Link from "next/link";
 import { SiteContainer } from "@/components/layout/site-container";
+import { StorefrontThemeStyle } from "@/features/theme/components/storefront-theme-style";
+import { getStorefrontTheme } from "@/features/theme/server/get-storefront-theme";
 
-export default function NotFound() {
+// Renders under the root layout, outside the (store) layout, so it carries the
+// storefront theme itself. (error.tsx / global-error.tsx are client
+// components and keep the globals.css defaults.)
+export default async function NotFound() {
+  const theme = await getStorefrontTheme();
+
   return (
     <SiteContainer className="py-16 sm:py-20">
-      <section className="mx-auto max-w-2xl rounded-[2rem] border border-border/80 bg-surface px-6 py-8 shadow-[0_20px_50px_rgba(58,40,26,0.06)] sm:px-8 sm:py-10">
+      <StorefrontThemeStyle tokens={theme.tokens} />
+      <section className="mx-auto max-w-2xl rounded-[2rem] border border-border/80 bg-surface px-6 py-8 shadow-[0_20px_50px_color-mix(in_srgb,var(--ink)_6%,transparent)] sm:px-8 sm:py-10">
         <p className="text-xs uppercase tracking-[0.24em] text-muted">404</p>
         <h1 className="mt-3 text-3xl font-semibold tracking-[0.02em] text-foreground sm:text-4xl">
           No encontramos esta página
@@ -16,9 +24,10 @@ export default function NotFound() {
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
             href="/"
-            className="inline-flex min-h-12 items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white transition-opacity hover:opacity-95"
+            className="inline-flex min-h-12 items-center justify-center rounded-full bg-cta px-6 text-sm uppercase tracking-[0.22em] transition-opacity hover:opacity-95"
           >
-            Ir al inicio
+            {/* Colour on a span: the global `a { color: inherit }` rule beats utilities on links. */}
+            <span className="text-cta-foreground">Ir al inicio</span>
           </Link>
           <Link
             href="/productos"

@@ -24,7 +24,7 @@ export function CartSummary({ className, compact = false }: CartSummaryProps) {
   return (
     <aside
       className={cn(
-        "space-y-5 rounded-[1.6rem] border border-border/80 bg-[linear-gradient(180deg,rgba(255,253,249,0.96),rgba(244,237,228,0.94))] px-5 py-6",
+        "space-y-5 rounded-[1.6rem] border border-border/80 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_96%,transparent),color-mix(in_srgb,var(--canvas)_94%,transparent))] px-5 py-6",
         className,
       )}
     >
@@ -59,15 +59,16 @@ export function CartSummary({ className, compact = false }: CartSummaryProps) {
           <Link
             href="/checkout"
             onClick={closeCart}
-            className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white transition-opacity hover:opacity-95"
+            className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-cta px-6 text-sm uppercase tracking-[0.22em] transition-opacity hover:opacity-95"
           >
-            Continuar compra
+            {/* Colour on a span: the global `a { color: inherit }` rule beats utilities on links. */}
+            <span className="text-cta-foreground">Continuar compra</span>
           </Link>
         ) : (
           <button
             type="button"
             disabled
-            className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white opacity-55"
+            className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-cta px-6 text-sm uppercase tracking-[0.22em] text-cta-foreground opacity-55"
           >
             Continuar compra
           </button>

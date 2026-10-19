@@ -34,11 +34,11 @@ export function SiteHeader({ navigation }: SiteHeaderProps) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full bg-white transition-all duration-300 ease-in-out",
+        "sticky top-0 z-50 w-full bg-surface-raised transition-all duration-300 ease-in-out",
         isScrolled && "shadow-sm backdrop-blur-sm",
       )}
     >
-      <div className="relative border-b border-[#e7ddd2] bg-white lg:hidden">
+      <div className="relative border-b border-line/70 bg-surface-raised lg:hidden">
         <div
           className={cn(
             "relative flex items-center px-4 transition-all duration-300 ease-in-out",
@@ -75,7 +75,7 @@ export function SiteHeader({ navigation }: SiteHeaderProps) {
         <form
           action="/productos"
           className={cn(
-            "border-t border-[#efe5db] px-4 transition-all duration-300 ease-in-out",
+            "border-t border-line/60 px-4 transition-all duration-300 ease-in-out",
             isScrolled ? "py-2" : "py-2.5",
           )}
         >
@@ -86,7 +86,7 @@ export function SiteHeader({ navigation }: SiteHeaderProps) {
               placeholder="Buscar productos"
               aria-label="Buscar productos"
               className={cn(
-                "w-full rounded-full border border-neutral-200 bg-[#f7f4ef] px-4 pr-10 text-[13px] text-foreground outline-none placeholder:text-[12px] placeholder:text-muted transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
+                "w-full rounded-full border border-line/80 bg-canvas/60 px-4 pr-10 text-[13px] text-foreground outline-none placeholder:text-[12px] placeholder:text-muted transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2",
                 isScrolled ? "h-9" : "h-10",
               )}
             />
@@ -100,7 +100,7 @@ export function SiteHeader({ navigation }: SiteHeaderProps) {
         </form>
       </div>
 
-      <div className="hidden bg-white lg:block">
+      <div className="hidden bg-surface-raised lg:block">
         <div
           className={cn(
             "relative mx-auto flex w-full max-w-[112rem] items-center px-8 transition-all duration-300 ease-in-out lg:px-12 xl:px-16",
@@ -115,7 +115,7 @@ export function SiteHeader({ navigation }: SiteHeaderProps) {
                 placeholder="Buscar"
                 aria-label="Buscar productos"
                 className={cn(
-                  "w-full rounded-full border border-neutral-200 bg-[#faf6f1] px-4 pr-10 text-sm text-foreground outline-none placeholder:text-muted transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
+                  "w-full rounded-full border border-line/80 bg-canvas/50 px-4 pr-10 text-sm text-foreground outline-none placeholder:text-muted transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2",
                   isScrolled ? "h-9" : "h-[38px]",
                 )}
               />
@@ -148,7 +148,7 @@ export function SiteHeader({ navigation }: SiteHeaderProps) {
           </div>
         </div>
 
-        <div className="border-t border-neutral-100">
+        <div className="border-t border-line/50">
           <div className="mx-auto w-full max-w-[112rem] px-8 lg:px-12 xl:px-16">
             <DesktopNavigation navigation={navigation} />
           </div>

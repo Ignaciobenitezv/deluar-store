@@ -25,13 +25,13 @@ function PaginationLink({
   active?: boolean;
 }) {
   const baseClassName =
-    "inline-flex min-h-10 min-w-10 items-center justify-center rounded-full border px-3 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2";
+    "inline-flex min-h-10 min-w-10 items-center justify-center rounded-full border px-3 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2";
 
   if (disabled || !href) {
     return (
       <span
         aria-disabled="true"
-        className={`${baseClassName} cursor-not-allowed border-neutral-200 bg-neutral-100 text-neutral-400`}
+        className={`${baseClassName} cursor-not-allowed border-line/80 bg-canvas-alt/60 text-ink-muted/60`}
       >
         {label}
       </span>
@@ -43,8 +43,8 @@ function PaginationLink({
       href={href}
       className={`${baseClassName} ${
         active
-          ? "border-[#A88772] bg-[#A88772] text-[#2f241b]"
-          : "border-neutral-200 bg-white text-foreground hover:border-neutral-300 hover:bg-neutral-50"
+          ? "border-accent bg-accent text-ink"
+          : "border-line/80 bg-surface-raised text-foreground hover:border-line hover:bg-canvas/40"
       }`}
       aria-current={active ? "page" : undefined}
     >
@@ -68,7 +68,7 @@ export function CatalogPaginationControls({
 
   return (
     <nav aria-label="Paginacion del catalogo" className="space-y-4">
-      <div className="flex flex-col items-center justify-between gap-3 rounded-3xl border border-neutral-200 bg-white px-4 py-4 text-sm text-foreground shadow-sm sm:flex-row">
+      <div className="flex flex-col items-center justify-between gap-3 rounded-3xl border border-line/80 bg-surface-raised px-4 py-4 text-sm text-foreground shadow-sm sm:flex-row">
         <div className="flex items-center gap-2">
           <PaginationLink
             href={pagination.hasPrevious ? buildHref(pagination.previousPage ?? 1) : undefined}
@@ -82,7 +82,7 @@ export function CatalogPaginationControls({
             item === "ellipsis" ? (
               <span
                 key={`ellipsis-${index}`}
-                className="inline-flex min-h-10 min-w-10 items-center justify-center px-2 text-neutral-400"
+                className="inline-flex min-h-10 min-w-10 items-center justify-center px-2 text-ink-muted/60"
                 aria-hidden="true"
               >
                 ...
@@ -107,7 +107,7 @@ export function CatalogPaginationControls({
         </div>
       </div>
 
-      <p className="text-center text-xs uppercase tracking-[0.18em] text-neutral-500">
+      <p className="text-center text-xs uppercase tracking-[0.18em] text-ink-muted">
         Página {pagination.currentPage} de {pagination.totalPages}
       </p>
     </nav>

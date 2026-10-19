@@ -4,7 +4,13 @@ import {
   mapProductToCatalogCard,
 } from "@/features/catalog/mappers";
 import { isProductStockAvailable } from "@/features/catalog/product-availability";
-import type { HomeNewInProduct, HomePageData } from "@/features/home/types";
+import type {
+  HomeHero,
+  HomeHeroProduct,
+  HomeHeroSurface,
+  HomeNewInProduct,
+  HomePageData,
+} from "@/features/home/types";
 import { getSanityImageUrl } from "@/integrations/sanity/image";
 import type {
   CategoryDocument,
@@ -31,6 +37,54 @@ type MapHomePageDataInput = {
 // unconditionally the same way.
 function isVisibleProduct(product: ProductDocument) {
   return product.isActive !== false && isProductStockAvailable(product);
+}
+
+const HERO_PRODUCTS_PER_SLIDE = 2;
+const HERO_SURFACE_ROTATION: HomeHeroSurface[] = ["promo", "sand"];
+
+function mapProductToHeroProduct(product: ProductDocument): HomeHeroProduct | null {
+  const card = mapProductToCatalogCard(product);
+  const image = card.images[0];
+  const imageUrl = image?.url ?? card.imageUrl;
+
+  if (!imageUrl || !(card.basePrice > 0)) {
+    return null;
+  }
+
+  return {
+    id: card.id,
+    title: card.title,
+    href: card.productHref,
+    imageUrl,
+    imageAlt: image?.alt || card.imageAlt || card.title,
+    imageObjectPosition: image?.objectPosition,
+    basePrice: card.basePrice,
+    pricePrefix: card.pricePrefix,
+  };
+}
+
+// Temporary until slides reference their own products: a shuffled pool of the
+// products already curated for the Home, dealt two per slide without repeats.
+// Shuffled on the server so the client hydrates the same picks.
+function dealHeroProducts(pool: ProductDocument[], slideCount: number) {
+  const seen = new Set<string>();
+  const products = pool
+    .filter((product) => {
+      if (seen.has(product._id)) return false;
+      seen.add(product._id);
+      return true;
+    })
+    .map(mapProductToHeroProduct)
+    .filter((product): product is HomeHeroProduct => product !== null);
+
+  for (let index = products.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [products[index], products[swapIndex]] = [products[swapIndex], products[index]];
+  }
+
+  return Array.from({ length: slideCount }, (_, slideIndex) =>
+    products.slice(slideIndex * HERO_PRODUCTS_PER_SLIDE, (slideIndex + 1) * HERO_PRODUCTS_PER_SLIDE),
+  );
 }
 
 function mapProductToHomeNewIn(product: ProductDocument): HomeNewInProduct {
@@ -95,6 +149,21 @@ export function mapHomePageData({
       secondaryCtaHref: slide.secondaryCtaHref,
     }));
 
+  // Surface and products are not editable yet: alternate brand surfaces and
+  // deal random curated products until the slide schema carries them.
+  const withHeroComposition = (slides: HomeHero[]): HomeHero[] => {
+    const dealtProducts = dealHeroProducts(
+      [...effectiveFeaturedProducts, ...visibleNewInProducts, ...visibleOfferProducts],
+      slides.length,
+    );
+
+    return slides.map((slide, index) => ({
+      ...slide,
+      surface: slide.surface ?? HERO_SURFACE_ROTATION[index % HERO_SURFACE_ROTATION.length],
+      products: slide.products ?? dealtProducts[index],
+    }));
+  };
+
   return {
     hero: {
       id: heroSlides[0]?.id || "hero-main",
@@ -112,7 +181,7 @@ export function mapHomePageData({
       secondaryCtaLabel: undefined,
       secondaryCtaHref: undefined,
     },
-    heroSlides:
+    heroSlides: withHeroComposition(
       heroSlides.length > 0
         ? heroSlides
         : [
@@ -133,6 +202,7 @@ export function mapHomePageData({
               secondaryCtaHref: undefined,
             },
           ],
+    ),
     categories: selectedCategories.map(mapCategoryToSummary),
     featuredProducts: effectiveFeaturedProducts.map(mapProductToCatalogCard),
     campaignFeatured: {
@@ -145,6 +215,10 @@ export function mapHomePageData({
       products: visibleFeaturedProducts.map(mapProductToCatalogCard),
     },
     newInProducts: visibleNewInProducts.map(mapProductToHomeNewIn),
+    campaignSpotlightProducts: (homePage?.campaignFeaturedProducts ?? [])
+      // A reference to a deleted product dereferences to null.
+      .filter((product): product is ProductDocument => Boolean(product) && isVisibleProduct(product))
+      .map(mapProductToHomeNewIn),
     spotlightProduct: visibleSpotlightProduct && spotlightCard
       ? {
           id: visibleSpotlightProduct._id,

@@ -3,12 +3,13 @@ import { cn } from "@/lib/utils";
 import {
   formatInstallmentPrice,
   formatProductPrice,
+  resolveTransferOffer,
 } from "@/features/catalog/components/product-card-formatting";
 import {
   ProductCardActions,
 } from "@/features/catalog/components/product-card-commerce";
 import { ProductCardImageStack } from "@/features/catalog/components/product-card-image-stack";
-import { calculateTransferPrice, isValidCommercialPrice } from "@/features/pricing/commercial-pricing";
+import { ProductCardBuyPill } from "@/features/catalog/components/product-card-buy-pill";
 import type { CatalogProductCard } from "@/features/catalog/types";
 
 function formatPrice(value: number) {
@@ -30,18 +31,16 @@ export function ProductCard({
   const isCatalogMobile = variant === "catalogMobile";
   const isDefaultCatalog = variant === "default";
   const isCatalogVariant = isDesktopCatalog || isCatalogMobile;
-  const transferDiscountedPrice = isValidCommercialPrice(product.basePrice)
-    ? calculateTransferPrice(product.basePrice)
-    : null;
+  const transferOffer = isCatalogVariant ? resolveTransferOffer(product) : null;
 
   return (
     <article
       className={cn(
         "group h-full",
-        isCatalogVariant &&
-          "flex flex-col overflow-hidden rounded-[12px] border border-[#e7d9c9] bg-white shadow-none",
+        // Catalog cards are flat: photo, text and a small buy pill, no frame.
+        isCatalogVariant && "flex flex-col",
         isDefaultCatalog &&
-          "overflow-hidden rounded-[8px] border border-neutral-200/40 bg-neutral-50/20 shadow-none sm:rounded-[10px] sm:border-neutral-200/50 sm:bg-neutral-50/30",
+          "overflow-hidden rounded-[8px] border border-line/32 bg-canvas/8 shadow-none sm:rounded-[10px] sm:border-line/40 sm:bg-canvas/12",
       )}
     >
       {/* aspect-[4/5]: taller than the previous 1.28:1 (catalog) / 1:1
@@ -53,7 +52,7 @@ export function ProductCard({
       <div
         className={cn(
           "relative aspect-[4/5] w-full overflow-hidden",
-          isCatalogVariant ? "bg-[#f4eadf]" : "bg-neutral-100 sm:bg-[#efe5d8]",
+          isCatalogVariant ? "bg-accent-soft/50" : "bg-canvas-alt/60 sm:bg-accent-soft/70",
         )}
       >
         <ProductCardImageStack
@@ -69,13 +68,14 @@ export function ProductCard({
           }
           imageClassName="object-cover"
           placeholderClassName="text-sm uppercase tracking-[0.24em] text-muted"
+          catalogGallery={isCatalogVariant}
         />
       </div>
 
       <div
         className={cn(
           isCatalogVariant
-            ? "flex flex-1 flex-col gap-1.5 px-3 pb-3 pt-3"
+            ? "flex flex-1 flex-col pt-3"
             : "space-y-1 px-1.5 pb-2 pt-2 sm:space-y-1.5 sm:px-3 sm:pb-4 sm:pt-3",
         )}
       >
@@ -84,10 +84,9 @@ export function ProductCard({
       <h2
         title={product.title}
         className={cn(
-          "text-neutral-900",
           isCatalogVariant
-            ? "min-h-[2.75rem] line-clamp-2 text-[1rem] font-medium leading-[1.2]"
-            : "truncate text-sm font-semibold",
+            ? "line-clamp-2 text-[0.85rem] font-normal leading-snug text-ink-muted sm:text-[0.95rem]"
+            : "truncate text-sm font-semibold text-ink",
         )}
             >
               {product.title}
@@ -95,43 +94,41 @@ export function ProductCard({
           </Link>
         </div>
 
-        <div className={cn(isCatalogVariant ? "space-y-2" : "space-y-0.5")}>
-          <p
-            className={cn(
-              "leading-none",
-              isCatalogVariant
-                ? "text-[1.625rem] font-extrabold tracking-[-0.02em] tabular-nums text-[#2f241b] sm:text-[2rem]"
-                : "text-[0.96rem] font-semibold text-neutral-900",
-            )}
-          >
+        {isCatalogVariant ? (
+          <div className="mt-3 flex flex-col gap-1">
+            {/* With a transfer discount the list price steps back and the
+                transfer price leads; without one the list price is the main
+                price. */}
+            <p
+              className={cn(
+                "leading-tight tabular-nums",
+                transferOffer
+                  ? "text-[0.75rem] text-ink-muted sm:text-[0.8rem]"
+                  : "text-[0.9rem] font-bold sm:text-[1.05rem] text-ink",
+              )}
+            >
+              {product.pricePrefix ? `${product.pricePrefix} ` : null}
+              {formatPrice(product.basePrice)}
+            </p>
+            {showCommerceEnhancements ? (
+              <p className="text-[0.9rem] font-bold sm:text-[1.05rem] leading-tight tabular-nums text-ink-muted">
+                6 x {formatInstallmentPrice(product.basePrice)} sin interés
+              </p>
+            ) : null}
+            {transferOffer ? (
+              <p className="text-[0.9rem] font-bold sm:text-[1.05rem] leading-tight tabular-nums text-promo">
+                {formatPrice(transferOffer.transferPrice)} con Transferencia
+              </p>
+            ) : null}
+          </div>
+        ) : (
+        <div className="space-y-0.5">
+          <p className="leading-none text-[0.96rem] font-semibold text-ink">
             {product.pricePrefix ? `${product.pricePrefix} ` : null}
             {formatPrice(product.basePrice)}
           </p>
-          {isCatalogVariant && transferDiscountedPrice !== null ? (
-            <div className="pb-0.5 pt-1 text-promo">
-              {/* Mobile cards are ~150px wide: stack tag above price so every
-                  band in a row has the same height regardless of price length. */}
-              <p className="flex flex-col items-start gap-1.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-2.5">
-                <span className="text-[1.25rem] font-extrabold leading-none tracking-[-0.015em] tabular-nums sm:text-[1.5rem]">
-                  {formatPrice(transferDiscountedPrice)}
-                </span>
-                <span className="order-first rounded-full bg-promo px-2.5 py-1 text-xs font-bold leading-none tracking-[0.04em] text-promo-foreground sm:order-none sm:text-[13px]">
-                  20% OFF
-                </span>
-              </p>
-              <p className="mt-1.5 text-[13px] font-semibold leading-tight">con transferencia</p>
-            </div>
-          ) : null}
-          {showCommerceEnhancements && isCatalogVariant ? (
-            <p className="text-[13px] leading-snug text-muted sm:text-sm">
-              <span className="font-medium text-foreground">6 cuotas sin interés</span>{" "}
-              <span className="whitespace-nowrap tabular-nums">
-                de {formatInstallmentPrice(product.basePrice)}
-              </span>
-            </p>
-          ) : null}
-          {showCommerceEnhancements && !isCatalogVariant ? (
-            <p className="text-[11px] leading-tight text-neutral-500">
+          {showCommerceEnhancements ? (
+            <p className="text-[11px] leading-tight text-ink-muted">
               6 cuotas sin interés de {formatInstallmentPrice(product.basePrice)}
             </p>
           ) : null}
@@ -139,13 +136,13 @@ export function ProductCard({
             <p
               className={cn(
                 "text-[11px] leading-tight sm:hidden",
-                showCommerceEnhancements ? "text-promo" : "text-neutral-500",
+                showCommerceEnhancements ? "text-promo" : "text-ink-muted",
               )}
             >
               <span
                 className={cn(
                   "font-medium",
-                  !showCommerceEnhancements && "text-neutral-700",
+                  !showCommerceEnhancements && "text-ink",
                 )}
               >
                 Transferencia:
@@ -157,7 +154,7 @@ export function ProductCard({
             <p
               className={cn(
                 "mt-1 hidden text-xs sm:block sm:text-sm",
-                showCommerceEnhancements ? "text-promo" : "text-neutral-600",
+                showCommerceEnhancements ? "text-promo" : "text-ink-muted",
                 isDesktopCatalog && "block",
               )}
             >
@@ -166,28 +163,27 @@ export function ProductCard({
             </p>
           ) : null}
         </div>
+        )}
 
-        {showCommerceEnhancements ? (
+        {showCommerceEnhancements && isCatalogVariant ? (
+          <div className="mt-auto pt-3">
+            <ProductCardBuyPill product={product} />
+          </div>
+        ) : null}
+
+        {showCommerceEnhancements && !isCatalogVariant ? (
           <div className="mt-auto pt-2">
             <ProductCardActions
               product={product}
               addLabel="Agregar al carrito"
               viewLabel="Ver producto"
               outOfStockLabel="Sin stock"
-              variant={isCatalogVariant ? "catalog" : "default"}
+              variant="default"
               className={cn(
-                isCatalogVariant ? "w-full overflow-hidden" : "w-full items-center overflow-hidden pt-2",
-                !isCatalogVariant && product.hasSelectableOptions
-                  ? "justify-end"
-                  : !isCatalogVariant
-                    ? "justify-between gap-1.5"
-                    : undefined,
+                "w-full items-center overflow-hidden pt-2",
+                product.hasSelectableOptions ? "justify-end" : "justify-between gap-1.5",
               )}
-              buttonClassName={
-                isCatalogVariant
-                  ? "w-full min-w-0"
-                  : "h-7 min-w-0 px-2.5 text-[10px] sm:px-2.5 sm:text-[10px]"
-              }
+              buttonClassName="h-7 min-w-0 px-2.5 text-[10px] sm:px-2.5 sm:text-[10px]"
             />
           </div>
         ) : null}

@@ -57,9 +57,10 @@ export function CartPageContent() {
             </p>
             <Link
               href="/productos"
-              className="inline-flex min-h-12 items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white transition-opacity hover:opacity-95"
+              className="inline-flex min-h-12 items-center justify-center rounded-full bg-cta px-6 text-sm uppercase tracking-[0.22em] transition-opacity hover:opacity-95"
             >
-              Ir a productos
+              {/* Colour on a span: the global `a { color: inherit }` rule beats utilities on links. */}
+              <span className="text-cta-foreground">Ir a productos</span>
             </Link>
           </div>
         </section>

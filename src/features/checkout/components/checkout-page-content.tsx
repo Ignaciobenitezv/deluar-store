@@ -148,9 +148,9 @@ export function CheckoutPageContent({
 
     return (
       <section className="space-y-8">
-        <div className="rounded-[2rem] border border-border/80 bg-[linear-gradient(180deg,rgba(255,253,249,0.97),rgba(245,239,230,0.94))] px-5 py-7 shadow-[0_24px_60px_rgba(58,40,26,0.05)] sm:px-8 sm:py-8">
+        <div className="rounded-[2rem] border border-border/80 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_97%,transparent),color-mix(in_srgb,var(--canvas)_94%,transparent))] px-5 py-7 shadow-[0_24px_60px_color-mix(in_srgb,var(--ink)_5%,transparent)] sm:px-8 sm:py-8">
           {isReview ? (
-            <div className="mb-6 rounded-[1.3rem] border border-[var(--color-accent-strong)]/25 bg-[rgba(167,88,60,0.07)] px-5 py-4 text-sm font-medium leading-6 text-foreground">
+            <div className="mb-6 rounded-[1.3rem] border border-brand/25 bg-brand/7 px-5 py-4 text-sm font-medium leading-6 text-foreground">
               {reviewPaymentMessage}
             </div>
           ) : null}
@@ -168,7 +168,7 @@ export function CheckoutPageContent({
             </p>
           </div>
 
-          <div className="mt-6 grid gap-4 rounded-[1.5rem] border border-border/75 bg-white/72 p-5 sm:grid-cols-2">
+          <div className="mt-6 grid gap-4 rounded-[1.5rem] border border-border/75 bg-surface-raised/72 p-5 sm:grid-cols-2">
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-muted">Número</p>
               <p className="mt-1 text-lg font-medium text-foreground">
@@ -180,7 +180,7 @@ export function CheckoutPageContent({
               <div className="mt-2">
                 <OrderStatusBadge
                   status={createdOrder.status}
-                  className="min-h-8 border-[var(--color-accent-strong)]/30 bg-[rgba(96,71,56,0.08)] px-[1.125rem] py-1.5 text-[0.68rem] tracking-[0.14em] text-[var(--color-accent-strong)] sm:px-3 sm:py-1"
+                  className="min-h-8 border-brand/30 bg-brand/8 px-[1.125rem] py-1.5 text-[0.68rem] tracking-[0.14em] text-brand sm:px-3 sm:py-1"
                 />
               </div>
             </div>
@@ -221,7 +221,7 @@ export function CheckoutPageContent({
               <TransferPaymentInstructions order={createdOrder} />
             </div>
           ) : (
-            <div className="mt-6 rounded-[1.6rem] border border-border/75 bg-white/72 p-5">
+            <div className="mt-6 rounded-[1.6rem] border border-border/75 bg-surface-raised/72 p-5">
               <div className="space-y-2">
                 <p className="text-xs uppercase tracking-[0.22em] text-muted">
                   Estado del pago
@@ -276,8 +276,8 @@ export function CheckoutPageContent({
                 }}
                 className={
                   createdOrder.checkoutUrl
-                    ? "inline-flex min-h-12 items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white transition-opacity hover:opacity-95"
-                    : "inline-flex min-h-12 items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white opacity-55"
+                    ? "inline-flex min-h-12 items-center justify-center rounded-full bg-cta px-6 text-sm uppercase tracking-[0.22em] text-cta-foreground transition-opacity hover:opacity-95"
+                    : "inline-flex min-h-12 items-center justify-center rounded-full bg-cta px-6 text-sm uppercase tracking-[0.22em] text-cta-foreground opacity-55"
                 }
               >
                 {createdOrder.checkoutUrl ? "Ir al pago" : "Continuar al pago"}
@@ -304,9 +304,10 @@ export function CheckoutPageContent({
           </p>
           <Link
             href="/productos"
-            className="inline-flex min-h-12 items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 text-sm uppercase tracking-[0.22em] text-white transition-opacity hover:opacity-95"
+            className="inline-flex min-h-12 items-center justify-center rounded-full bg-cta px-6 text-sm uppercase tracking-[0.22em] transition-opacity hover:opacity-95"
           >
-            Ir a productos
+            {/* Colour on a span: the global `a { color: inherit }` rule beats utilities on links. */}
+            <span className="text-cta-foreground">Ir a productos</span>
           </Link>
         </div>
       </section>
@@ -316,8 +317,8 @@ export function CheckoutPageContent({
   return (
     <div className="space-y-10">
       {isReview ? (
-        <section className="rounded-[1.5rem] border border-[var(--color-accent-strong)]/25 bg-[rgba(167,88,60,0.07)] px-6 py-5 sm:px-8">
-          <p className="text-xs uppercase tracking-[0.22em] text-[var(--color-accent-strong)]">
+        <section className="rounded-[1.5rem] border border-brand/25 bg-brand/7 px-6 py-5 sm:px-8">
+          <p className="text-xs uppercase tracking-[0.22em] text-brand">
                         Versión de revisión
           </p>
           <p className="mt-2 text-sm font-medium leading-7 text-foreground">
@@ -326,7 +327,7 @@ export function CheckoutPageContent({
         </section>
       ) : null}
 
-      <section className="grid gap-6 rounded-[2rem] border border-border/80 bg-[linear-gradient(180deg,rgba(255,253,249,0.95),rgba(243,236,227,0.92))] px-6 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
+      <section className="grid gap-6 rounded-[2rem] border border-border/80 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_95%,transparent),color-mix(in_srgb,var(--canvas)_92%,transparent))] px-6 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
         <div className="space-y-3">
           <p className="text-xs uppercase tracking-[0.24em] text-muted">Finalización de compra</p>
           <h1 className="text-4xl font-semibold tracking-[0.03em] text-foreground sm:text-[3.1rem] sm:leading-[1.04]">
@@ -337,7 +338,7 @@ export function CheckoutPageContent({
             flujo ya valida la información y te muestra el estado de cada paso.
           </p>
         </div>
-        <div className="grid gap-3 rounded-[1.5rem] border border-border/75 bg-white/70 px-5 py-5 text-sm">
+        <div className="grid gap-3 rounded-[1.5rem] border border-border/75 bg-surface-raised/70 px-5 py-5 text-sm">
           <div className="flex items-center justify-between gap-4">
             <span className="text-muted">Paso 1</span>
             <span className="font-medium text-foreground">Datos y env??o</span>
@@ -363,9 +364,9 @@ export function CheckoutPageContent({
           />
 
           {submitError ? (
-            <section className="rounded-[1.7rem] border border-[var(--color-accent-strong)]/25 bg-[rgba(167,88,60,0.06)] px-6 py-5 sm:px-8">
+            <section className="rounded-[1.7rem] border border-brand/25 bg-brand/6 px-6 py-5 sm:px-8">
               <div className="space-y-2">
-                <p className="text-xs uppercase tracking-[0.24em] text-[var(--color-accent-strong)]">
+                <p className="text-xs uppercase tracking-[0.24em] text-brand">
                   Error
                 </p>
                 <h2 className="text-2xl font-semibold tracking-[0.03em] text-foreground">

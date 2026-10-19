@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { SiteContainer } from "@/components/layout/site-container";
-import { HomeCampaignBanner } from "@/features/home/components/home-campaign-banner";
 import { HomeBenefitsStrip } from "@/features/home/components/home-benefits-strip";
 import { HomeCampaignFeaturedProducts } from "@/features/home/components/home-campaign-featured-products";
 import { HomeCategoryRail } from "@/features/home/components/home-category-rail";
+import { HomeBenefitsArrivalStrip } from "@/features/home/components/home-benefits-arrival-strip";
 import { HomeEditorialCategoryBanners } from "@/features/home/components/home-editorial-category-banners";
 import { HomeNewInArrivalStrip } from "@/features/home/components/home-new-in-arrival-strip";
-import { HomeNewInShowcase } from "@/features/home/components/home-new-in-showcase";
+import { HomeProductSpotlight } from "@/features/home/components/home-product-spotlight";
 import { HomeOffersCarousel } from "@/features/home/components/home-offers-carousel";
 import { HomeHeroSlider } from "@/features/home/components/home-hero-slider";
 import { HomeNewsletterBanner } from "@/features/home/components/home-newsletter-banner";
@@ -100,23 +100,37 @@ export default async function StoreIndexPage() {
     <>
       <HomeHeroSlider slides={heroSlides} />
       <HomeCategoryRail categories={categoryRailItems} />
-      <section className="py-10 sm:py-12">
+      {/* Same list as the featured grid right below: the strip opens with its
+          first row and then cycles through all of them in shuffled groups. */}
+      <HomeNewInArrivalStrip products={homePage.campaignFeatured.products} />
+      <section className="pb-10 sm:pb-12">
         <SiteContainer>
-          <div className="space-y-4 sm:space-y-5">
-            <HomeCampaignBanner />
-            <div className="bg-white px-3 py-3.5 sm:px-4 sm:py-4.5 lg:px-5 lg:py-5">
-              <HomeCampaignFeaturedProducts campaign={homePage.campaignFeatured} />
-            </div>
+          <div className="bg-surface-raised px-3 py-3.5 sm:px-4 sm:py-4.5 lg:px-5 lg:py-5">
+            <HomeCampaignFeaturedProducts campaign={homePage.campaignFeatured} />
           </div>
         </SiteContainer>
       </section>
-      <HomeNewInArrivalStrip products={homePage.newInProducts} />
-      <SiteContainer className="space-y-10 pb-10 sm:space-y-12 sm:pb-12">
-        <HomeNewInShowcase products={homePage.newInProducts} />
-      </SiteContainer>
+      <HomeProductSpotlight
+        // TEMPORARY local preview: Sanity has no campaignFeaturedProducts yet, so
+        // fall back to newInProducts. Remove once the campaign list is loaded.
+        products={
+          homePage.campaignSpotlightProducts.length > 0
+            ? homePage.campaignSpotlightProducts
+            : homePage.newInProducts
+        }
+        label={homePage.campaignFeatured.title}
+      />
+      <HomeBenefitsArrivalStrip
+        label="Beneficios de comprar en Deluar"
+        benefits={[
+          { title: "Envíos", text: "A todo el país" },
+          { title: "20% OFF", text: "Con pago en efectivo", highlight: true },
+          { title: "Cuotas", text: "En todos nuestros productos" },
+        ]}
+      />
       <HomeEditorialCategoryBanners />
 
-      <section className="bg-white py-12 sm:py-14">
+      <section className="bg-surface-raised py-12 sm:py-14">
         <SiteContainer>
           <HomeOffersCarousel products={homePage.offerProducts} />
         </SiteContainer>

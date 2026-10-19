@@ -11,8 +11,8 @@ export function ProductGrid({ products, variant = "default" }: ProductGridProps)
     <section
       className={
         variant === "desktopCatalog"
-          ? "grid grid-cols-3 gap-4"
-          : "grid w-full grid-cols-2 gap-x-4 gap-y-6"
+          ? "grid grid-cols-3 gap-x-5 gap-y-10"
+          : "grid w-full grid-cols-2 gap-x-3 gap-y-8"
       }
     >
       {products.map((product) => (

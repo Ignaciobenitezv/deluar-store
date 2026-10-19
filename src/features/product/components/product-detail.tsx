@@ -223,7 +223,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                     }}
                     className={`inline-flex min-h-10 items-center justify-center rounded-full border px-3.5 py-2 text-sm transition-all ${
                       activeOption?.id === option.id
-                        ? "border-foreground/50 bg-foreground text-white"
+                        ? "border-foreground/50 bg-foreground text-surface"
                         : "border-border hover:border-foreground/30"
                     }`}
                   >
@@ -235,13 +235,13 @@ export function ProductDetail({ product }: ProductDetailProps) {
           ) : null}
 
           <div className="flex items-center gap-2.5">
-            <span className={`h-2 w-2 rounded-full ${hasStock ? "bg-green-500" : "bg-neutral-300"}`} />
+            <span className={`h-2 w-2 rounded-full ${hasStock ? "bg-green-500" : "bg-line"}`} />
             <span className="text-sm text-muted">{hasStock ? "En stock" : "Sin stock"}</span>
           </div>
 
           {hasRemainingStock ? (
             <div className="flex items-stretch gap-3">
-              <div className="flex items-center rounded border border-border/70 bg-white/50">
+              <div className="flex items-center rounded border border-border/70 bg-surface-raised/50">
                 <button
                   type="button"
                   onClick={handleDecreaseQuantity}
@@ -309,7 +309,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 {product.attributes.map((attribute) => (
                   <span
                     key={`${attribute.label}-${attribute.value}`}
-                    className="rounded border border-border/60 bg-white/40 px-3 py-1.5 text-xs text-foreground/80"
+                    className="rounded border border-border/60 bg-surface-raised/40 px-3 py-1.5 text-xs text-foreground/80"
                   >
                     <span className="text-muted">{attribute.label}:</span> {attribute.value}
                   </span>
@@ -341,7 +341,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
       </section>
 
       {product.relatedProducts.length > 0 ? (
-        <div className="relative left-1/2 right-1/2 -mb-14 w-screen -ml-[50vw] -mr-[50vw] bg-white pt-8 pb-14 sm:-mb-16 sm:pb-16">
+        <div className="relative left-1/2 right-1/2 -mb-14 w-screen -ml-[50vw] -mr-[50vw] bg-surface-raised pt-8 pb-14 sm:-mb-16 sm:pb-16">
           <section className="mx-auto max-w-[1200px] space-y-5 px-4 lg:px-8">
             <h2 className="text-lg font-semibold tracking-tight text-foreground">Productos similares</h2>
 

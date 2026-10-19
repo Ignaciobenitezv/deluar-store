@@ -1,0 +1,1120 @@
+BACKFILL TRANSFER PRICE — modo: dry-run — 2026-09-18T21:50:16.253Z
+
+documentos analizados:                 467
+documentos que se modificarían:            454
+productos corregidos:                  454
+variantes corregidas:                  198
+variantes limpiadas para herencia:      0
+documentos sin cambios:                 13
+conflictos de _rev:                     0
+errores:                                0
+productos inválidos (no migrables):     0
+
+DETALLE DE DOCUMENTOS A MODIFICAR (before/after)
+  testeo1 (3158b1ae-ca70-4277-b488-8cb30943e6c9)
+    - producto.transferPrice: 10000 -> 12000
+  JuegoX6 Taza + Plato 250ml (433cc13c-8f0c-4bba-911c-935b825de9dd)
+    - producto.transferPrice: 37720 -> 36720
+  Alfombra JUANA PETIT 170X95CM (50d43972-1230-4493-9402-2f67ab9fcada)
+    - producto.transferPrice: 14000 -> 15600
+  Organizador Metal Colgante (ab29e720-84f3-4d0f-bb44-4ad9dd3f5d35)
+    - producto.transferPrice: 222 -> 6400
+  Camino de mesa ALELI de gasa 190x35cm (cbacee57-8e6f-4f8c-9e2f-1f1787b5e2d1)
+    - producto.transferPrice: 7920 -> 9200
+  Trapito BATH 60x48cm (d89668f2-7c87-43b9-8073-90cf5a857616)
+    - producto.transferPrice: 10 -> 8
+  100 luces Arroz 9.5m - Calida (import-product-100-luces-arroz-9-5m-calida-32hzj)
+    - producto.transferPrice: null -> 7120
+  ACEITERA DE ACRILICO 6X10CM (import-product-aceit-14hsk)
+    - producto.transferPrice: null -> 5520
+  ACOLCHADO 4 ESTACIONES 1 1/2 y 2 1/2 (import-product-acolchado-4-estaciones-blanco-6kqzr)
+    - producto.transferPrice: null -> 47120
+    - variante[tamano=full-queen-2-plazas].transferPrice: null -> 55920
+    - variante[tamano=king].transferPrice: null -> 70000
+    - variante[tamano=twin].transferPrice: null -> 47120
+  ACOLCHADO 4 ESTACIONES GRIS (import-product-acolchado-4-estaciones-gris-d37oe)
+    - producto.transferPrice: null -> 47120
+    - variante[tamano=full-queen-2-plazas].transferPrice: null -> 55920
+    - variante[tamano=king].transferPrice: null -> 70000
+    - variante[tamano=twin].transferPrice: null -> 47120
+  Acolchado/Plumón Queen Oxford Platinum 700 HQ (import-product-acolchado-plumon-queen-jean-cartier-oxford-platinum-700-hq-qbbpi)
+    - producto.transferPrice: null -> 92400
+  Adorno Renos 13x13cm (import-product-adorno-renos-13x13cm-kg921)
+    - producto.transferPrice: null -> 6400
+  Alfombra KELA 90x60cm algodón (import-product-alf2)
+    - producto.transferPrice: null -> 18400
+  Alfombra de baño TILE 60x40cm (import-product-alfombra-177ib)
+    - producto.transferPrice: null -> 8400
+    - variante[color=beige].transferPrice: null -> 8400
+    - variante[color=gris].transferPrice: null -> 8400
+    - variante[color=negro].transferPrice: null -> 8400
+  Alfombra BAMBI 60x110cm (import-product-alfombra-bambi-60x110cm)
+    - producto.transferPrice: null -> 18400
+  Alfombra baño BLOCKS 60x40cm (import-product-alfombra-bano-1g33f)
+    - producto.transferPrice: null -> 11000
+    - variante[color=verde-agua-grisaceo].transferPrice: null -> 11000
+    - variante[color=vison].transferPrice: null -> 11000
+  Alfombra baño WALL 60x40cm (import-product-alfombra-bano-1gz0i)
+    - producto.transferPrice: null -> 11000
+    - variante[color=beige].transferPrice: null -> 11000
+    - variante[color=verde-grisaceo].transferPrice: null -> 11000
+  Alfombra baño CORN MAX 60x40cm (import-product-alfombra-bano-6517o)
+    - producto.transferPrice: null -> 11000
+  Alfombra baño antideslizante 60x40cm (import-product-alfombra-bano-antideslizante-wntbs)
+    - producto.transferPrice: null -> 8000
+    - variante[color=gris].transferPrice: null -> 8000
+    - variante[color=marron].transferPrice: null -> 8000
+  Alfombra bath time 60x70cm (import-product-alfombra-bath-time-60x70cm)
+    - producto.transferPrice: null -> 4400
+  Alfombra MALAGA 60x110cm (import-product-alfombra-e1pdt)
+    - producto.transferPrice: null -> 14800
+  Alfombra GALA (import-product-alfombra-gala)
+    - producto.transferPrice: null -> 19999
+    - variante[color=gris].transferPrice: null -> 19999
+    - variante[color=negro].transferPrice: null -> 19999
+    - variante[color=vison].transferPrice: null -> 19999
+  Alfombra GRAY 45x70cm (import-product-alfombra-gray-45x70cm)
+    - producto.transferPrice: null -> 14320
+  Alfombra HELENA 60X110cm (import-product-alfombra-helena-60x110cm)
+    - producto.transferPrice: null -> 18400
+  Alfombra HOME 60X45cm (import-product-alfombra-home-60x45cm)
+    - producto.transferPrice: null -> 11600
+  ALFOMBRA SHAGGY 60X40CM (import-product-alfombra-lg7ds)
+    - producto.transferPrice: null -> 7120
+    - variante[color=crema].transferPrice: null -> 7120
+    - variante[color=gris].transferPrice: null -> 7120
+    - variante[color=marron].transferPrice: null -> 7120
+  Alfombra MARGA 160x195 cm (import-product-alfombra-marga-160x195-cm)
+    - producto.transferPrice: null -> 23920
+  Manta/ Alfombra MIA 150x125cm algodón (import-product-alfombra-mia-150x125cm-algodon)
+    - producto.transferPrice: null -> 30400
+  Alfombra OLGA 160X195 (import-product-alfombra-olga-160x195)
+    - producto.transferPrice: null -> 23920
+  Alfombra/ Manta PAZ 160X195 (import-product-alfombra-paz-160x195)
+    - producto.transferPrice: null -> 23920
+  Alfombra PAZ petit 175x100cm (import-product-alfombra-paz-petit-175x100cm)
+    - producto.transferPrice: null -> 15600
+  Alfombra Petit LILI 100X175cm (import-product-alfombra-petit-lili-100x175cm)
+    - producto.transferPrice: null -> 15600
+  Alfombra RAMA 90x60cm algodón (import-product-alfombra-rama-90x60cm-algodon)
+    - producto.transferPrice: null -> 18560
+  Alfombra TECA 60X110cm (import-product-alfombra-teca-60x110cm)
+    - producto.transferPrice: null -> 18400
+  Anotador + Lapicera MAMA (import-product-anotador-lapicera-mama)
+    - producto.transferPrice: null -> 4000
+  Arbol 50cm Champagne Snow con luz LED (import-product-arbol-50cm-champagne-snow-con-luz-led)
+    - producto.transferPrice: null -> 42000
+  Árbol de Navidad 30cm (import-product-arbol-de-navidad-30cm-7kyt1)
+    - producto.transferPrice: null -> 7920
+  Árbol de Navidad 30cm (import-product-arbol-de-navidad-30cm-8ab1k)
+    - producto.transferPrice: null -> 7920
+  Árbol de Navidad 30cm (import-product-arbol-de-navidad-30cm-aeszr)
+    - producto.transferPrice: null -> 7920
+  Árbol de Navidad 40cm Champagne White (import-product-arbol-de-navidad-40cm-champagne-white-yalkt)
+    - producto.transferPrice: null -> 28000
+  Árbol de Navidad 40cm Silver White (import-product-arbol-de-navidad-40cm-silver-white-ufb7y)
+    - producto.transferPrice: null -> 28000
+  Arbol de Navidad SNOW SILVER 50cm (import-product-arbol-de-navidad-snow-silver-50cm-8eccj)
+    - producto.transferPrice: null -> 36000
+    - variante[tamano=50-cm].transferPrice: null -> 36000
+  Arbol de Navidad WHITE 50cm (import-product-arbol-de-navidad-white-50cm-qmdu3)
+    - producto.transferPrice: null -> 34000
+    - variante[tamano=50-cm].transferPrice: null -> 34000
+  Árbol Navideño - 50cm DORADO (import-product-arbol-navideno-50cm-dorado-ccmq8)
+    - producto.transferPrice: null -> 39200
+  Arbol navideño 60cm - cono (import-product-arbol-navideno-60cm-cono-1b8c9)
+    - producto.transferPrice: null -> 28000
+  Pino navideño de madera - 40cm (import-product-arbol3)
+    - producto.transferPrice: null -> 18240
+  Arbolito DECO 14cm (import-product-arbolito-deco-14cm-ygcac)
+    - producto.transferPrice: null -> 7920
+  Atril Mamá 15x6cm (import-product-atril-mama-15x6cm)
+    - producto.transferPrice: null -> 4400
+  AZUCARERA MARGARITA 350 ML (import-product-azucarera-1eogd)
+    - producto.transferPrice: null -> 12400
+  Azucarera Jaspeada recta Blanco (import-product-azucarera-jaspeada-recta-blanco)
+    - producto.transferPrice: null -> 6320
+  BANDEJA ACACIA MANILA BLACK 30,5X30,5 CM (import-product-bandeja-1f6eh)
+    - producto.transferPrice: null -> 30000
+  Bandeja ACACIA MANILA BLACK 27.5x15cm (import-product-bandeja-2-4czqm)
+    - producto.transferPrice: null -> 17200
+  Bandeja Ceramica jaspeada 23x16cm (import-product-bandeja-ceramica-jaspeada-23x16cm)
+    - producto.transferPrice: null -> 12400
+  Bandeja de melamina 27x27cm (import-product-bandeja-de-melamina-27x27cm-yram4)
+    - producto.transferPrice: null -> 6400
+  Bandeja de Melamina 40x28cm (import-product-bandeja-de-melamina-40x28cm)
+    - producto.transferPrice: null -> 14000
+  Bandeja Rectangular con borde Terrazo 26x12cm (import-product-bandeja-rectangular-con-borde-terrazo-26x12cm)
+    - producto.transferPrice: null -> 17200
+  Bandeja Rectangular con bordes 20x30cm (import-product-bandeja-rectangular-con-bordes-20x30cm)
+    - producto.transferPrice: null -> 9280
+    - variante[color=naranja].transferPrice: null -> 9280
+  Bandeja Rectangular YUTE Varios tamaños (import-product-bandeja-rectangular-yute-varios-tamanos)
+    - producto.transferPrice: null -> 32800
+    - variante[tamano=xl].transferPrice: null -> 32800
+    - variante[tamano=xxl].transferPrice: null -> 36000
+  Bandeja Vintage Beige 23x16cm (import-product-bandeja-vintage-beige-23x16cm)
+    - producto.transferPrice: null -> 12400
+  Bateria de 5 piezas GRANITO triple capa antiadherente (import-product-bateria-1bw3c)
+    - producto.transferPrice: null -> 95920
+  Bateria de 5 piezas con mango desmontable CREMA (import-product-bateria-crema-26v20)
+    - producto.transferPrice: null -> 95920
+  Bateria de 5 piezas con mango desmontable GRIS (import-product-bateria-gris-1w9fo)
+    - producto.transferPrice: null -> 95920
+  Bolso térmico chico (import-product-bolso-termico-chico-1ib9u)
+    - producto.transferPrice: null -> 7600
+  Botella vidrio 1L (import-product-botella-vidrio-1l-1bwa0)
+    - producto.transferPrice: null -> 15920
+  BOWL VIDRIO FUME ROSES 16 CM (import-product-bowl-16-tv510)
+    - producto.transferPrice: null -> 10000
+  Bowl CHENINI gris con borde natural 15cm (import-product-bowl-1a95s)
+    - producto.transferPrice: null -> 6800
+  Ensaladera CHENINI gris con borde natural 26cm (import-product-bowl-1bxtz)
+    - producto.transferPrice: null -> 14800
+  BOWL VIDRIO FUME ROSES 19 CM (import-product-bowl-1xfvn)
+    - producto.transferPrice: null -> 12160
+  Bowl CANE XL Blanco 13x7.5cm (import-product-bowl-cane-xl-blanco-13x7-5cm-u1ip9)
+    - producto.transferPrice: null -> 7600
+  Bowl / Compotera Blanca VAINILLA (import-product-bowl-compotera-blanca-vainilla-akcsd)
+    - producto.transferPrice: null -> 6320
+  Bowl ESMERAY 15cm (import-product-bowl-h1qww)
+    - producto.transferPrice: null -> 5200
+  Bowl TOZEUR gris 10cm (import-product-bowl-vxg6k)
+    - producto.transferPrice: null -> 5200
+  Box 2 - Disney (import-product-box-2-disney)
+    - producto.transferPrice: null -> 12000
+  Tazón FELIZ DÍA (import-product-box-feliz-dia)
+    - producto.transferPrice: null -> 10000
+  Box MAMÁ (import-product-box-mama)
+    - producto.transferPrice: null -> 8000
+    - variante[modelo=1].transferPrice: null -> 8000
+    - variante[modelo=4].transferPrice: null -> 8000
+    - variante[modelo=5].transferPrice: null -> 8000
+  Box MAMÁ MEME (import-product-box-mama-meme)
+    - producto.transferPrice: null -> 16000
+  Box MAMA WHITE (import-product-box-mama-white)
+    - producto.transferPrice: null -> 20000
+    - variante[modelo=mama].transferPrice: null -> 20000
+    - variante[modelo=mama-te-amo].transferPrice: null -> 20000
+  Cajón de Tela con Tapa 38x25cm Rigida (import-product-cajon-de-tela-con-tapa-38x25cm-rigida)
+    - producto.transferPrice: null -> 7920
+  Camino de mesa ALELI de gasa BEIGE 190x35cm (import-product-camino-de-mesa-aleli-de-gasa-beige-190x35cm)
+    - producto.transferPrice: null -> 9200
+  Camino de mesa CARMELA 200X30cm (import-product-camino-de-mesa-carmela-200x30cm)
+    - producto.transferPrice: null -> 8720
+  Camino de mesa CRUDE 175X45cm (import-product-camino-de-mesa-crude-125x35cm)
+    - producto.transferPrice: null -> 8720
+  Camino de mesa RAYAS (import-product-camino-de-mesa-rayas)
+    - producto.transferPrice: null -> 6160
+    - variante[tamano=1-60x0-40cm].transferPrice: null -> 6160
+  Camino de mesa SAONA GRIS 175x40cm (import-product-camino-de-mesa-saona-gris-175x40cm-nfhjd)
+    - producto.transferPrice: null -> 9200
+  Camino mesa TULUM beige 175x45cm (import-product-camino-mesa-1ahgp)
+    - producto.transferPrice: null -> 8720
+  Camino mesa ALELI Off White 200x40cm (import-product-camino-mesa-aleli-off-white-200x40cm)
+    - producto.transferPrice: null -> 9200
+  Camino mesa LILI 175x45cm (import-product-camino-mesa-j20cx)
+    - producto.transferPrice: null -> 8400
+  Camino de mesa SAONA 175x40cm (import-product-camino-mesa1)
+    - producto.transferPrice: null -> 8720
+  Canasto Plastico transparente p/ calzado 10Lts (import-product-canasto-plastico-transparente-p-calzado-10lts)
+    - producto.transferPrice: null -> 6720
+  Cesta YUTE 24.5X15.5cm (import-product-cesta-yute-24-5x15-5cm)
+    - producto.transferPrice: null -> 18800
+  Cesto Nordico LORE 21x15cm (import-product-cesto-chico1)
+    - producto.transferPrice: null -> 5600
+  Cesto Combinado 20x17cm (import-product-cesto-combinado-chico)
+    - producto.transferPrice: null -> 30000
+  Cesto Cuadrado de Bambu con tapa 50x40cm (import-product-cesto-cuadrado-de-bambu-con-tapa-50x40cm)
+    - producto.transferPrice: null -> 47920
+  Cesto de tela Combinado 32x28cm (import-product-cesto-de-tela-combinado-32x28cm)
+    - producto.transferPrice: null -> 24000
+  Setx3 canastos Tricolo Yute y algodon (import-product-cesto-j56xr)
+    - producto.transferPrice: null -> 31920
+  Canasto Simil mimbre 3 Tamaños (import-product-cesto-mgdgy)
+    - producto.transferPrice: null -> 28160
+    - variante[tamano=chico].transferPrice: null -> 28160
+    - variante[tamano=grande].transferPrice: null -> 43920
+    - variante[tamano=mediano].transferPrice: null -> 36480
+  Cesto Nordico PARIS 18x10cm Gris (import-product-cesto-nordico-paris-18x10cm-gris)
+    - producto.transferPrice: null -> 10000
+  Cesto Plegable Triple De tela y Aluminio (import-product-cesto-plegable-triple-de-tela-y-aluminio)
+    - producto.transferPrice: null -> 39920
+  Cesto Plegable rombos 45x35cm (import-product-cesto-rombo-11dtq)
+    - producto.transferPrice: null -> 6000
+  Cesto ropa rigido con asas de metal y goma (import-product-cesto-ropa-hlpin)
+    - producto.transferPrice: null -> 30320
+  Setx3 Canastos bicolor fibras naturales (import-product-cesto-urgws)
+    - producto.transferPrice: null -> 60720
+  Setx3 canastas bicolor simil mimbre (import-product-cestos-2vq52)
+    - producto.transferPrice: null -> 36160
+  Combo Tacho Residuo 3L +Escobilla Acero Inox (import-product-combo-2oc3s)
+    - producto.transferPrice: null -> 26000
+  Combo Tacho Residuo 5L +Escobilla Acero Inox (import-product-combo-tacho-residuo-5l-escobilla-acero-inox)
+    - producto.transferPrice: null -> 31920
+  Contenedor Bathroom (import-product-contenedor-bathroom)
+    - producto.transferPrice: null -> 11920
+  Contenedor laundry 13x35cm (import-product-contenedor-laundry-13x35cm)
+    - producto.transferPrice: null -> 11920
+  Juego cortina VOILE blanco y natural (import-product-cortina-1gbhk)
+    - producto.transferPrice: null -> 43920
+    - variante[color=blanco].transferPrice: null -> 43920
+    - variante[color=natural].transferPrice: null -> 43920
+  Protector de cortina de PEVA + 12 ganchos plasticos (import-product-cortina-bano-1thu6)
+    - producto.transferPrice: null -> 6000
+  CORTINA BAÑO + ALFOMBRA + GANCHOS (import-product-cortina-bano-alfombra-ganchos-mjdd4)
+    - producto.transferPrice: null -> 16720
+    - variante[modelo=espigado].transferPrice: null -> 16720
+    - variante[modelo=rayado].transferPrice: null -> 16720
+  CORTINA BAÑO + CESTO (import-product-cortina-bano-cesto-9w2ph)
+    - producto.transferPrice: null -> 29200
+    - variante[color=gris].transferPrice: null -> 29200
+    - variante[color=negro].transferPrice: null -> 29200
+  CORTINA BAÑO SIMIL TUSOR + GANCHOS (import-product-cortina-bano-simil-tusor-ganchos-z7csd)
+    - producto.transferPrice: null -> 12720
+    - variante[color=beige].transferPrice: null -> 12720
+    - variante[color=blanco].transferPrice: null -> 12720
+    - variante[color=gris].transferPrice: null -> 12720
+  Juego Cortinas BERLIN 270x205cm AMPLIAS (import-product-cortina-berlin-1nqxx)
+    - producto.transferPrice: null -> 46320
+  Juego Cortinas BERLIN 270x205cm AMPLIAS (import-product-cortina-berlin-e6wx7)
+    - producto.transferPrice: null -> 46320
+  Cortina de baño LUXURY + 12 ganchos metalicos (import-product-cortina-cwr1a)
+    - producto.transferPrice: null -> 19920
+  CORTINA + GANCHOS LINEN 180x180cm (import-product-cortina-ganchos-linen-180x180cm-eu170)
+    - producto.transferPrice: null -> 16720
+    - variante[color=blanco].transferPrice: null -> 16720
+    - variante[color=gris].transferPrice: null -> 16720
+  Cortina JUSTINA Natural (import-product-cortina-justina-natural)
+    - producto.transferPrice: null -> 43600
+  Cortina JUSTINA Off White (import-product-cortina-justina-off-white)
+    - producto.transferPrice: null -> 43600
+  Cortina para baño + ganchos metalicos 180x180cm (import-product-cortina-para-bano-ganchos-metalicos-180x180cm-viwak)
+    - producto.transferPrice: null -> 16720
+  Packx2 Cuadros INHALE 22x18cm (import-product-cuadros-1kagv)
+    - producto.transferPrice: null -> 22240
+  Cubiertero de bambu 5 divisiones (import-product-cubiertero-de-bambu-5-divisiones)
+    - producto.transferPrice: null -> 19600
+  Cubiertero Organizador 4 Divisiones (import-product-cubiertero-organizador-4-divisiones)
+    - producto.transferPrice: null -> 8720
+    - variante[color=blanco].transferPrice: null -> 8720
+    - variante[color=crema].transferPrice: null -> 8720
+    - variante[color=gris].transferPrice: null -> 8720
+  Cubiertero madera 4 divisiones (import-product-cubiertero-tdqho)
+    - producto.transferPrice: null -> 14800
+  Setx16 Cubiertos GOLD (import-product-cubiertos-10rnq)
+    - producto.transferPrice: null -> 39920
+  Setx24 Cubiertos BLACK (import-product-cubiertos-147b7)
+    - producto.transferPrice: null -> 51920
+  Cubre Sommier 600HQ Oxford SOFT Blanco (import-product-cubre-sommier-600hq-oxford-soft-blanco)
+    - producto.transferPrice: null -> 18320
+    - variante[tamano=full-queen-2-plazas].transferPrice: null -> 19920
+    - variante[tamano=king].transferPrice: null -> 23120
+    - variante[tamano=twin].transferPrice: null -> 18320
+  Cubre Sommier 600HQ Oxford SOFT GRIS (import-product-cubre-sommier-600hq-oxford-soft-gris-1ou4m)
+    - producto.transferPrice: null -> 18320
+    - variante[tamano=full-queen-2-plazas].transferPrice: null -> 19920
+    - variante[tamano=king].transferPrice: null -> 23120
+    - variante[tamano=twin].transferPrice: null -> 18320
+  Cubre Sommier 600HQ Oxford SOFT Natural (import-product-cubre-sommier-600hq-oxford-soft-natural)
+    - producto.transferPrice: null -> 18320
+    - variante[tamano=full-queen-2-plazas].transferPrice: null -> 19920
+    - variante[tamano=king].transferPrice: null -> 23120
+    - variante[tamano=twin].transferPrice: null -> 18320
+  Cuchara dorada Mango símil mármol blanco (import-product-cuchara-dorada-mango-simil-marmol-blanco)
+    - producto.transferPrice: null -> 3040
+  Cuchara hojas doradas (import-product-cuchara-hojas-doradas)
+    - producto.transferPrice: null -> 2240
+    - variante[tamano=corta].transferPrice: null -> 2240
+    - variante[tamano=larga].transferPrice: null -> 2480
+  Cuenco MARTELE 10cm diametro (import-product-cuenco-martele-10cm-diametro)
+    - producto.transferPrice: null -> 7600
+  Deco Navideña 11x10cm (import-product-deco-navidena-11x10cm-om40f)
+    - producto.transferPrice: null -> 7920
+  Deco Navideña 17x8cm (import-product-deco-navidena-17x8cm-y41i7)
+    - producto.transferPrice: null -> 7920
+  Deco Papa Noel - 15x6cm (import-product-deco-papa-noel-15x6cm-k5o7g)
+    - producto.transferPrice: null -> 5600
+  Dispenser 4 lts Con Canilla y Pie (import-product-dispenser-4-lts-con-canilla-y-pie-e0kox)
+    - producto.transferPrice: null -> 39920
+  Dispenser cocina 600ml NEGRO (import-product-dispenser-cocina-pe0x2)
+    - producto.transferPrice: null -> 4640
+  Dispenser cocina 600ml GRIS (import-product-dispenser-cocina-pqc7e)
+    - producto.transferPrice: null -> 4640
+  Dispenser de jabón + portacepillo PARIS II (import-product-dispenser-de-jabon-portacepillo-paris-ii)
+    - producto.transferPrice: null -> 17520
+  Dispenser Jabón RELAX (import-product-dispenser-jabon-relax)
+    - producto.transferPrice: null -> 7760
+  Dispenser vidrio labrado 330cc (import-product-dispenser-vidrio-thl25)
+    - producto.transferPrice: null -> 6000
+  Escobilla Acero y Bambu - Blanco (import-product-escobilla-acero-y-bambu-blanco-ypbg1)
+    - producto.transferPrice: null -> 16720
+  Escobilla Acero y Bambu Negro (import-product-escobilla-acero-y-bambu-negro-e6k5u)
+    - producto.transferPrice: null -> 16720
+  Escobilla PVC con mango metal (import-product-escobilla-cc7v4)
+    - producto.transferPrice: null -> 6800
+  Escobilla de Metal y Bambu (import-product-escobilla-de-metal-y-bambu)
+    - producto.transferPrice: null -> 13520
+  Escobilla negra con mango madera (import-product-escobilla-negra-18zsa)
+    - producto.transferPrice: null -> 10000
+  Escobilla Negra Acero (import-product-escobilla-negra-acero)
+    - producto.transferPrice: null -> 13600
+  Escobilla de Acero inoxidable negro facetado (import-product-escobilla-x19sq)
+    - producto.transferPrice: null -> 14000
+  Escurridor/Secaplatos de acero Blanco (import-product-escurridor-secaplatos-de-acero-blanco)
+    - producto.transferPrice: null -> 36400
+  Escurridor/Secaplatos de acero Negro (import-product-escurridor-secaplatos-de-acero-negro)
+    - producto.transferPrice: null -> 36400
+  Escurridor/Secaplatos de plastico y silicona (import-product-escurridor-secaplatos-de-plastico-y-silicona)
+    - producto.transferPrice: null -> 10000
+  Setx3 Especieros Imantados (import-product-especiero-1f0sb)
+    - producto.transferPrice: null -> 13200
+  Estrella navideña 14cm (import-product-estrella-navidena-14cm-91jy3)
+    - producto.transferPrice: null -> 7920
+  Estrella navideña 14cm (import-product-estrella-navidena-14cm-ty0he)
+    - producto.transferPrice: null -> 7920
+  Fanal de vidrio labrado 7.5x5.5cm (import-product-fanal-de-vidrio-labrado-7-5x5-5cm-8bmrt)
+    - producto.transferPrice: null -> 3920
+  Felpudo Carpet Diem 75x25cm (import-product-felpudo-carpet-diem-75x25cm)
+    - producto.transferPrice: null -> 14000
+  Felpudo Hello Bye 75x25cm (import-product-felpudo-hello-bye-75x25cm)
+    - producto.transferPrice: null -> 14000
+  Felpudo HOME 60x40cm (import-product-felpudo-home-60x40cm)
+    - producto.transferPrice: null -> 15920
+  Felpudo KITCHEN 60x40cm (import-product-felpudo-kitchen-60x40cm)
+    - producto.transferPrice: null -> 8000
+  Felpudo HELLO beige 60x40cm (import-product-felpudo-vjmzp)
+    - producto.transferPrice: null -> 10000
+  Felpudo WELCOME 60x40cm (import-product-felpudo-welcome-60x40cm1)
+    - producto.transferPrice: null -> 15920
+  Felpudo WELCOME 75x25cm (import-product-felpudo-welcome-75x25cm)
+    - producto.transferPrice: null -> 14000
+  Florero CILINDRO 26X10CM (import-product-florero-1kfxy)
+    - producto.transferPrice: null -> 23120
+  Florero CREMA mate 18x18cm (import-product-florero-1szw2)
+    - producto.transferPrice: null -> 15920
+  Florero LINEAS gris oscuro 19x8.5cm (import-product-florero-fkkxc)
+    - producto.transferPrice: null -> 13520
+  Florero Gold Vidrio Labrado 15.5x6cm (import-product-florero-gold-vidrio-labrado-15-5x6cm-fkeqa)
+    - producto.transferPrice: null -> 11120
+  Florero INVERTIDO 17x9cm (import-product-florero-k5vj7)
+    - producto.transferPrice: null -> 11920
+  Florero LUXURY Vidrio Labrado 17x10cm (import-product-florero-luxury-vidrio-labrado-17x10cm)
+    - producto.transferPrice: null -> 13200
+  Florero MAMÁ 12x10cm (import-product-florero-mama-12x10cm)
+    - producto.transferPrice: null -> 7200
+  Florero MARINA 20X8CM (import-product-florero-oadk2)
+    - producto.transferPrice: null -> 14000
+  Florero SOS LA MEJOR 12x13cm (import-product-florero-sos-la-mejor-12x13cm)
+    - producto.transferPrice: null -> 7200
+  Florero TUR 20x11cm (import-product-florero-tur-20x11cm)
+    - producto.transferPrice: null -> 16400
+  Florero Vidrio 13x25 (import-product-florero-vidrio-13x25-hnvc0)
+    - producto.transferPrice: null -> 17520
+  Florero Vidrio 13x30 (import-product-florero-vidrio-13x30-c1nhk)
+    - producto.transferPrice: null -> 19120
+  Florero Vidrio 13x8cm (import-product-florero-vidrio-13x8cm-8s3uo)
+    - producto.transferPrice: null -> 11920
+  Florero vidrio labrado 20cm (import-product-florero-vidrio-labrado-20cm-qlsls)
+    - producto.transferPrice: null -> 8720
+  Florero VERA 22x12cm (import-product-florero-wjze1)
+    - producto.transferPrice: null -> 15920
+  Florero BRUMA 20x13cm (import-product-florero3)
+    - producto.transferPrice: null -> 15920
+  Florero CÁDIZ 26x8cm (import-product-florero6)
+    - producto.transferPrice: null -> 14000
+  Frasco de vidrio con visor GOLDEN 800ml (import-product-frasco-de-vidrio-con-visor-golden-800ml)
+    - producto.transferPrice: null -> 6000
+  Frasco de vidrio Hermetico con tapa de acero negro (import-product-frasco-de-vidrio-hermetico-con-tapa-de-acero-negro)
+    - producto.transferPrice: null -> 6800
+    - variante[tamano=s].transferPrice: null -> 6800
+  Frasco Piramide de vidrio con tapa bambu (import-product-frasco-piramide-de-vidrio-con-tapa-bambu)
+    - producto.transferPrice: null -> 9600
+    - variante[tamano=m].transferPrice: null -> 11200
+    - variante[tamano=s].transferPrice: null -> 9600
+  FRAZADA OKLAHOMA 2 1/2 plazas (import-product-frazada-oklahoma-vkx4k)
+    - producto.transferPrice: null -> 43920
+  Funda almohada 70x50cm simil tusor (import-product-funda-almohada-1impd)
+    - producto.transferPrice: null -> 7120
+    - variante[color=beige].transferPrice: null -> 7120
+    - variante[color=gris-claro].transferPrice: null -> 7120
+    - variante[color=gris-oscuro].transferPrice: null -> 7120
+  Funda almohadón LOLA 45x45cm (import-product-funda-almohadon-1h0b2)
+    - producto.transferPrice: null -> 10000
+  Funda almohadon 40x40cm (import-product-funda-almohadon-40x40cm-fxhk2)
+    - producto.transferPrice: null -> 5680
+    - variante[color=arena].transferPrice: null -> 5680
+    - variante[color=gris-claro].transferPrice: null -> 5680
+    - variante[color=gris-oscuro].transferPrice: null -> 5680
+    - variante[color=vison].transferPrice: null -> 5680
+  Funda almohadon 45x45cm pelo (import-product-funda-almohadon-45x45cm-pelo)
+    - producto.transferPrice: null -> 10000
+    - variante[color=blanco].transferPrice: null -> 10000
+    - variante[color=gris].transferPrice: null -> 10000
+    - variante[color=negro].transferPrice: null -> 10000
+    - variante[color=plata].transferPrice: null -> 10000
+  Funda almohadón Rayas grandes 45x45cm (import-product-funda-almohadon-7ru7t)
+    - producto.transferPrice: null -> 7200
+    - variante[color=gris].transferPrice: null -> 7200
+    - variante[color=verde].transferPrice: null -> 7200
+  Funda Almohadon Lino 45x45cm (import-product-funda-almohadon-lino-45x45cm)
+    - producto.transferPrice: null -> 6000
+    - variante[color=beige].transferPrice: null -> 6000
+    - variante[color=gris-claro].transferPrice: null -> 6000
+    - variante[color=gris-oscuro].transferPrice: null -> 6000
+  Funda Almohadon Melbourne 45x45cm (import-product-funda-almohadon-melbourne-45x45cm)
+    - producto.transferPrice: null -> 8720
+    - variante[color=azul].transferPrice: null -> 8720
+    - variante[color=beige].transferPrice: null -> 8720
+    - variante[color=gris].transferPrice: null -> 8720
+  Funda almohadón GUILLE beige 70x50cm (import-product-funda-almohadon1)
+    - producto.transferPrice: null -> 10800
+  Funda de Almohadon BALI 40x40cm negro (import-product-funda-de-almohadon-bali-40x40cm)
+    - producto.transferPrice: null -> 6560
+    - variante[color=negro].transferPrice: null -> 6560
+  Funda de almohadón Frases 50x50cm (import-product-funda-de-almohadon-frases-50x50cm)
+    - producto.transferPrice: null -> 7600
+    - variante[modelo=enjoy].transferPrice: null -> 7600
+    - variante[modelo=good].transferPrice: null -> 7600
+    - variante[modelo=home].transferPrice: null -> 7600
+    - variante[modelo=palmera].transferPrice: null -> 7600
+    - variante[modelo=plume].transferPrice: null -> 7600
+  Funda de almohadón Rayas 45x45cm (import-product-funda-de-almohadon-rayas-45x45cm)
+    - producto.transferPrice: null -> 7200
+    - variante[color=celeste].transferPrice: null -> 7200
+    - variante[color=gris].transferPrice: null -> 7200
+    - variante[color=rosa].transferPrice: null -> 7200
+    - variante[color=verde].transferPrice: null -> 7200
+  Funda de almohadón liso 45x45cm (import-product-funda-de-almohadon1)
+    - producto.transferPrice: null -> 7200
+    - variante[color=gris].transferPrice: null -> 7200
+  Funda de almohadón 70x45cm (Almohada) (import-product-funda-de-almohadon2)
+    - producto.transferPrice: null -> 9600
+    - variante[color=canela].transferPrice: null -> 9600
+    - variante[color=crudo].transferPrice: null -> 9600
+  Funda de almohadón 60x35cm (import-product-funda-de-almohadon3)
+    - producto.transferPrice: null -> 6400
+  Funda Dispenser de Agua Drink More (import-product-funda-dispenser-de-agua-drink-more)
+    - producto.transferPrice: null -> 9200
+  Funda dispenser de AGUA (import-product-funda-dispenser-de-agua1)
+    - producto.transferPrice: null -> 9200
+  Funda para bidon de agua (import-product-funda-para-bidon-de-agua)
+    - producto.transferPrice: null -> 9200
+  Funda Tusor Rayada (import-product-funda-tusor-rayada)
+    - producto.transferPrice: null -> 6392
+    - variante[color=rayas-finas].transferPrice: null -> 6392
+  Guirnalda Microled Corcho 10 Luces 1 Metro Luz Cálida (import-product-guirnalda-microled-corcho-10-luces-1-metro-luz-calida-gsrdz)
+    - producto.transferPrice: null -> 1440
+  Guirnalda Microled Corcho 20 Luces 2 Metros Luz Cálida (import-product-guirnalda-microled-corcho-20-luces-2-metros-luz-calida-hjcdl)
+    - producto.transferPrice: null -> 1920
+  Guirnalda Microled Corcho 30 Luces 3 Metros Luz Cálida (import-product-guirnalda-microled-corcho-30-luces-3-metros-luz-calida)
+    - producto.transferPrice: null -> 2400
+  Hermético x4 Redondos (import-product-hermetico-x4-1q042)
+    - producto.transferPrice: null -> 8000
+    - variante[color=blanco].transferPrice: null -> 8000
+    - variante[color=celeste].transferPrice: null -> 8000
+    - variante[color=negro].transferPrice: null -> 8000
+    - variante[color=rosa].transferPrice: null -> 8000
+  Hermético x4 grandes (import-product-hermetico-x4-t20x1)
+    - producto.transferPrice: null -> 10000
+    - variante[color=azul].transferPrice: null -> 10000
+    - variante[color=naranja].transferPrice: null -> 10000
+    - variante[color=rosa].transferPrice: null -> 10000
+    - variante[color=verde].transferPrice: null -> 10000
+  Huevera Deslizante p/ 24 un. aprox (import-product-huevera-deslizante-p-24-un-aprox)
+    - producto.transferPrice: null -> 11920
+    - variante[color=blanco].transferPrice: null -> 11920
+    - variante[color=gris].transferPrice: null -> 11920
+  Huevera x10 unid (import-product-huevera-x10-unid)
+    - producto.transferPrice: null -> 6000
+  Huevera x24 (import-product-huevera-x24)
+    - producto.transferPrice: null -> 10000
+  Setx4 Individuales Cuerina 40x28cm (import-product-indiv-1190t)
+    - producto.transferPrice: null -> 6400
+  Setx2 individuales rayados (import-product-indiv-1jxdt)
+    - producto.transferPrice: null -> 8000
+  Individual AMORFO gris 31x40cm (import-product-individual-amorfo-gris-31x40cm)
+    - producto.transferPrice: null -> 8400
+  Individual con volados - Gris (import-product-individual-con-volados-gris)
+    - producto.transferPrice: null -> 5520
+  Individual entramado liso 45x35cm (import-product-individual-entramado-liso-45x35cm)
+    - producto.transferPrice: null -> 2400
+    - variante[color=gris-claro].transferPrice: null -> 2400
+    - variante[color=gris-oscuro].transferPrice: null -> 2400
+  Individual entramado liso 45x35cm (import-product-individual-entramado-liso-45x35cm-pnqor)
+    - producto.transferPrice: null -> 2400
+  Individual Gris Diseño tejido 44x29cm (import-product-individual-gris-diseno-tejido-44x29cm)
+    - producto.transferPrice: null -> 5520
+  Individual PVC Gris Rosado 38cm (import-product-individual-pvc-gris-rosado-38cm)
+    - producto.transferPrice: null -> 3600
+  Individual redondo 38cm Cuerina (import-product-individual-redondo-38cm-cuerina-3-colores)
+    - producto.transferPrice: null -> 5040
+    - variante[color=beige].transferPrice: null -> 5040
+    - variante[color=cielo].transferPrice: null -> 5040
+    - variante[color=gris-claro].transferPrice: null -> 5040
+    - variante[color=gris-oscuro].transferPrice: null -> 5040
+  Individual Redondo SANDIRA 38cm (import-product-individual-redondo-sandira-38cm)
+    - producto.transferPrice: null -> 5520
+    - variante[color=negro].transferPrice: null -> 5520
+    - variante[color=terracota].transferPrice: null -> 5520
+    - variante[color=verde].transferPrice: null -> 5520
+  Individual Rústico 38cm (import-product-individual-rustico-38cm)
+    - producto.transferPrice: null -> 4400
+  Individual Rústico Redondo 38cm (import-product-individual-rustico-redondo-38cm)
+    - producto.transferPrice: null -> 5520
+    - variante[color=blanco].transferPrice: null -> 5520
+  Individual trenzado con flecos 45x30cm (import-product-individual-trenzado-con-flecos-45x30cm-huvcq)
+    - producto.transferPrice: null -> 5440
+    - variante[color=beige].transferPrice: null -> 5440
+    - variante[color=marron].transferPrice: null -> 5440
+    - variante[color=rosa].transferPrice: null -> 5440
+    - variante[color=verde].transferPrice: null -> 5440
+  Individual Redondo 38cm (import-product-individual1)
+    - producto.transferPrice: null -> 3360
+    - variante[color=rojo].transferPrice: null -> 3360
+    - variante[color=rosa].transferPrice: null -> 3360
+  INDIVUDUAL PERAK FLECOS NEGROS 35 CM (import-product-indivudual-perak-flecos-negros-35-cm-cqaf7)
+    - producto.transferPrice: null -> 7600
+  Jarra de acrílico 1.5L TASKIM (import-product-jarra-de-acrilico-1-5l-taskim)
+    - producto.transferPrice: null -> 25200
+  Jarra de acrilico Negra 1.5L (import-product-jarra-de-acrilico-negra-1-5l)
+    - producto.transferPrice: null -> 25200
+  Jarra de vidrio con tapa de bambú 1470ml (import-product-jarra-de-vidrio-con-tapa-de-bambu-1470ml)
+    - producto.transferPrice: null -> 19600
+  Jarra vidrio labrada 1L (import-product-jarra-vidrio-1tm06)
+    - producto.transferPrice: null -> 18000
+  Jarrón/Florero DANA 20x15cm (import-product-jarron-florero-dana-20x15cm)
+    - producto.transferPrice: null -> 15920
+  Jarron/ Florero de vidrio 13x15cm (import-product-jarron-florero-de-vidrio-13x15cm)
+    - producto.transferPrice: null -> 13520
+  Jarrón/florero GAITA 30x15cm (import-product-jarron-florero-gaita-30x15cm)
+    - producto.transferPrice: null -> 22000
+  Jarrón MURCIA 30cm (import-product-jarron-murcia-30cm)
+    - producto.transferPrice: null -> 22800
+  Juego cortina BLACK OUT 100% Opacidad (import-product-juego-cortina-black-out-100-opacidad-ytqqo)
+    - producto.transferPrice: null -> 46320
+    - variante[color=beige].transferPrice: null -> 46320
+    - variante[color=gris].transferPrice: null -> 46320
+  Juego Cortina Simil tusor Gris medio (import-product-juego-cortina-simil-tusor-gris-medio-ctkko)
+    - producto.transferPrice: null -> 38000
+  Juego taza + Plato LATTE (import-product-juego-taza-plato-latte)
+    - producto.transferPrice: null -> 12000
+  JUEGO TOALLA GRAIN 400grs (import-product-juego-toalla-grain-jm3tk)
+    - producto.transferPrice: null -> 22000
+    - variante[color=beige].transferPrice: null -> 22000
+    - variante[color=blanco].transferPrice: null -> 22000
+    - variante[color=gris].transferPrice: null -> 22000
+  JUEGO TOALLA RIDE 350grs (import-product-juego-toalla-ride-57r8l)
+    - producto.transferPrice: null -> 18320
+    - variante[color=azul].transferPrice: null -> 18320
+    - variante[color=gris].transferPrice: null -> 18320
+  JUEGO TOALLA TRIM 400grs (import-product-juego-toalla-trim-pimzo)
+    - producto.transferPrice: null -> 22000
+    - variante[color=beige].transferPrice: null -> 22000
+    - variante[color=celeste].transferPrice: null -> 22000
+  Juego Toalla y Toallon 350grs (import-product-juego-toalla-y-toallon-350grs)
+    - producto.transferPrice: null -> 18320
+    - variante[color=malbec].transferPrice: null -> 18320
+    - variante[color=petroleo].transferPrice: null -> 18320
+    - variante[color=vison].transferPrice: null -> 18320
+  Cubre Edredon DUVET Queen + fundas almohadas (import-product-kit-duvet-1vk25)
+    - producto.transferPrice: null -> 52720
+  Lata Acero Vintage AZUCAR (import-product-lata-acero-vintage-azucar-3jbfz)
+    - producto.transferPrice: null -> 10320
+  Lata Acero Vintage FIDEOS (import-product-lata-acero-vintage-fideos-v6jzx)
+    - producto.transferPrice: null -> 15600
+  Lata Acero Vintage GALLETITAS (import-product-lata-acero-vintage-galletitas-56917)
+    - producto.transferPrice: null -> 14800
+  Lata Acero Vintage TE (import-product-lata-acero-vintage-te-w8b5z)
+    - producto.transferPrice: null -> 10320
+  Lata Acero Vintage COFFEE (import-product-lata-coffee-crema1)
+    - producto.transferPrice: null -> 10320
+  Lata para PAN Vintage (import-product-lata-para-pan-vintage-obdj9)
+    - producto.transferPrice: null -> 34800
+  BANDEJA ACACIA MANILA BLACK 28X13 CM (import-product-manila-1gyz4)
+    - producto.transferPrice: null -> 19600
+  Mant/Alfombra TULUM 200x175cm (import-product-mant-alfombra-tulum-200x175cm)
+    - producto.transferPrice: null -> 23920
+  Manta/Alfombra Petit AURORA 100X175cm (import-product-manta-alfombra-petit-aurora-100x175cm)
+    - producto.transferPrice: null -> 15600
+  Manta/ Alfombra TULUM 200x175cm Negra (import-product-manta-alfombra-tulum-200x175cm-negra)
+    - producto.transferPrice: null -> 23920
+  Manta/Alfombra TULUM petit 100x175cm (import-product-manta-alfombra-tulum-petit-100x175cm)
+    - producto.transferPrice: null -> 15600
+  Manta/Alfombra Aurora 195x160cm (import-product-manta-aurora-1ffgc)
+    - producto.transferPrice: null -> 23920
+  Manta BAHIA cruda 190x155cm (import-product-manta-bahia-cruda-190x155cm)
+    - producto.transferPrice: null -> 30000
+  Manta BAHIA MOKA 175X190cm (import-product-manta-bahia-moka-175x190cm)
+    - producto.transferPrice: null -> 30000
+  Manta CUYO Gris 175x190cm (import-product-manta-cuyo-gris-175x190cm)
+    - producto.transferPrice: null -> 26400
+  Manta FLANNEL KING (import-product-manta-flannel-todas-las-medidas)
+    - producto.transferPrice: null -> 43920
+    - variante[tamano=king].transferPrice: null -> 43920
+  Manta INDIA 155x125cm (import-product-manta-india-155x125cm)
+    - producto.transferPrice: null -> 23920
+  MANTA POLAR 1 1/2 plaza BEIGE (import-product-manta-polar-1xk0l)
+    - producto.transferPrice: null -> 17520
+  Manta Suplesa ROMBO 300grs TWIN (import-product-manta-suplesa-rombo-300grs-todas-las-medidas)
+    - producto.transferPrice: null -> 43920
+    - variante[tamano=twin].transferPrice: null -> 43920
+  Mantel LINES 300x150cm (import-product-mantel-1lsfo)
+    - producto.transferPrice: null -> 28720
+  Mantel Antimanchas 250x150cm (import-product-mantel-antimanchas-250x150cm)
+    - producto.transferPrice: null -> 25520
+    - variante[tamano=2-50x1-50].transferPrice: null -> 25520
+  Mantel CUADRICULA gris 200x150cm (import-product-mantel-cuadricula-200x150cm-q6oo6)
+    - producto.transferPrice: null -> 19600
+  Mantel CUADRICULA negro 200x150cm (import-product-mantel-cuadricula-negro-200x150cm-1wcz1)
+    - producto.transferPrice: null -> 19600
+  Mantel CUADRICULA gris 250x150cm (import-product-mantel-eufuv)
+    - producto.transferPrice: null -> 25520
+  Mantel Impermeable 1.37x1.80cm Vinilico (import-product-mantel-impermeable-1-37x1-80cm-vinilico)
+    - producto.transferPrice: null -> 16720
+    - variante[modelo=espiga].transferPrice: null -> 16720
+    - variante[modelo=liso].transferPrice: null -> 16720
+    - variante[modelo=ramas].transferPrice: null -> 16720
+  Mantel Impermeable Rafia 2.50x1.40cm (import-product-mantel-impermeable-rafia-2-50x1-40cm)
+    - producto.transferPrice: null -> 39920
+    - variante[color=beige].transferPrice: null -> 39920
+    - variante[color=gris-oscuro].transferPrice: null -> 39920
+  Mantel LINES 250x150cm (import-product-mantel-lines-250x150cm-1lpcm)
+    - producto.transferPrice: null -> 25520
+  Mantel Tusor Liso 200x150cm (import-product-mantel-liso1)
+    - producto.transferPrice: null -> 23360
+  Mantel CUADRICULA negro 250x150cm (import-product-mantel-qzr8p)
+    - producto.transferPrice: null -> 25520
+  MANTEL SIMIL LINO 250X150CM (import-product-mantel-simil-lino-250x150cm-21fd8)
+    - producto.transferPrice: null -> 25440
+  MANTEL SIMIL LINO 250X150CM (import-product-mantel-simil-lino-250x150cm-f3u28)
+    - producto.transferPrice: null -> 25440
+  MANTEL SIMIL TUSOR 200X130CM (import-product-mantel-simil-tusor-200x130cm-1eumx)
+    - producto.transferPrice: null -> 19600
+  MANTEL SIMIL TUSOR 200X130CM (import-product-mantel-simil-tusor-200x130cm-4mpzo)
+    - producto.transferPrice: null -> 19600
+  MANTEL SIMIL TUSOR 200X130CM (import-product-mantel-simil-tusor-200x130cm-wgks4)
+    - producto.transferPrice: null -> 19600
+  MANTEL SIMIL TUSOR 300X130CM (import-product-mantel-simil-tusor-300x130cm-rjg5t)
+    - producto.transferPrice: null -> 24720
+  Mantel tusor 250x150cm Gris Oscuro (import-product-mantel-tusor-250x150cm-gris-oscuro)
+    - producto.transferPrice: null -> 28720
+  Mantel tusor 300x150cm Gris Claro (import-product-mantel-tusor-300x150cm-gris-claro)
+    - producto.transferPrice: null -> 31920
+  Mantel Tusor Liso 200x150cm (import-product-mantel-tusor-liso-200x150cm)
+    - producto.transferPrice: null -> 23360
+  Mantel Tusor Liso 300x150cm (import-product-mantel-tusor-liso-300x150cm)
+    - producto.transferPrice: null -> 31920
+  Mantel Impermeable antimanchas 250x150cm (import-product-mantel2)
+    - producto.transferPrice: null -> 25520
+  Setx50 unid. moldes descartables (import-product-molde-desc-1qq7d)
+    - producto.transferPrice: null -> 5520
+  Molinillo SAL/PIMIENTA ACERO (import-product-molinillo-xd3q2)
+    - producto.transferPrice: null -> 11920
+  Muñeco Navideño con luz LED 30cm (import-product-muneco-navideno-con-luz-led-30cm-9pi53)
+    - producto.transferPrice: null -> 18000
+  Kit 6 Piezas NEW BAMBU 1 plaza y media (import-product-new-bambu-1-1-2-1tcvt)
+    - producto.transferPrice: null -> 55920
+  Kit 6 Piezas NEW BAMBU 1 plaza y media (import-product-new-bambu-1-1-2-rq9ff)
+    - producto.transferPrice: null -> 55920
+  BOWL BAJO OVAL NOIX 28,5X17 CM (import-product-noix-285x17-cm-scygo)
+    - producto.transferPrice: null -> 15920
+  BANDEJA REDONDA NOIX 31 CM (import-product-noix-31-z7ivw)
+    - producto.transferPrice: null -> 26000
+  Organizador 16x8cm 5 divisiones (import-product-organizador-16x8cm-5-divisiones)
+    - producto.transferPrice: null -> 2400
+  Organizador Colgante de tela - 3 y 5 estantes (import-product-organizador-colgante-de-tela-3-y-5-estantes-kl45q)
+    - producto.transferPrice: null -> 11920
+    - variante[tamano=3-estantes].transferPrice: null -> 11920
+    - variante[tamano=5-estantes].transferPrice: null -> 15920
+  Organizador de Acrílico Chico 31X10cm (import-product-organizador-de-acrilico-chico-31x10cm)
+    - producto.transferPrice: null -> 6320
+  Organizador de Acrílico Grande 31x20cm (import-product-organizador-de-acrilico-grande-31x20cm)
+    - producto.transferPrice: null -> 9760
+  Organizador con asas plegable 47x28x27cm (import-product-organizador-de-placard-con-asas-plegable-fej8w)
+    - producto.transferPrice: null -> 10000
+  Organizador de Tela con Visor 58x29cm (import-product-organizador-de-tela-con-visor-58x29cm)
+    - producto.transferPrice: null -> 10000
+  Organizador multiuso con visor 100x45x15cm (import-product-organizador-multiuso-con-visor-100x45x15cm)
+    - producto.transferPrice: null -> 8400
+  Organizador Portacosmeticos Acrilico (import-product-organizador-portacosmeticos-acrilico)
+    - producto.transferPrice: null -> 6800
+  Organizador rectangular de tela 80x45x15cm (import-product-organizador-rectangular-de-tela-1qxci)
+    - producto.transferPrice: null -> 9200
+  Organizador rectangular de tela 60x40x30cm (import-product-organizador-rectangular-de-tela-plastica-zbc1s)
+    - producto.transferPrice: null -> 9200
+  Organizador rectangular de tela 80x60x25cm (import-product-organizador-rectangular-de-tela-ujnbe)
+    - producto.transferPrice: null -> 10000
+  Organizador x4 p/ Ropa Interior (import-product-organizador-x4-p-ropa-interior)
+    - producto.transferPrice: null -> 20400
+  Pack individuales x3 Nordico GRIS (import-product-pack-individuales-x3-nordico-gris)
+    - producto.transferPrice: null -> 10880
+  Pack x6 - Plato Postre SIDNEY blanco 22x20cm (import-product-pack-x6-plato-postre-sidney-blanco-22x20cm)
+    - producto.transferPrice: null -> 27120
+  Packx2 Cuadros (import-product-packx2-cuadros)
+    - producto.transferPrice: null -> 23600
+    - variante[modelo=amor].transferPrice: null -> 23600
+    - variante[modelo=familia].transferPrice: null -> 23600
+    - variante[modelo=hogar].transferPrice: null -> 23600
+    - variante[modelo=vida].transferPrice: null -> 23600
+  Packx2 ESENCIAL Gris (import-product-packx2-esencial-gris)
+    - producto.transferPrice: null -> 10000
+  Packx2 Individuales TOGETHER (import-product-packx2-individuales-together)
+    - producto.transferPrice: null -> 8000
+  Packx4 individuales 30x45cm Rayado (import-product-packx4-individuales-30x45cm-rayado)
+    - producto.transferPrice: null -> 15920
+  Packx4 individuales 30x45cm Rayado (import-product-packx4-individuales1)
+    - producto.transferPrice: null -> 15920
+  Packx4 Servilletas Crudo (import-product-packx4-servilletas-crudo)
+    - producto.transferPrice: null -> 10000
+  Packx4 Servilletas LETS CELEBRATE (import-product-packx4-servilletas-lets-celebrate)
+    - producto.transferPrice: null -> 10000
+  Packx4 Servilletas WHITE (import-product-packx4-servilletas1)
+    - producto.transferPrice: null -> 10000
+  Packx5 Bolsas de ropa al Vacio + Bomba Manual (import-product-packx5-bolsas-de-ropa-al-vacio-bomba-manual)
+    - producto.transferPrice: null -> 14800
+  Packx6 Compoteras Postre 175cc (import-product-packx6-compoteras-postre-175cc)
+    - producto.transferPrice: null -> 18000
+  Packx6 un Plato Hondo 20.5cm UNNI (import-product-packx6-un-plato-hondo-20-5cm-unni-t0d2u)
+    - producto.transferPrice: null -> 38800
+  Packx6 un Plato Playo 26cm UNNI (import-product-packx6-un-plato-playo-26cm-unni-2irg2)
+    - producto.transferPrice: null -> 43600
+  Packx6 un Plato Postre 19cm UNNI (import-product-packx6-un-plato-postre-19cm-unni-n8c18)
+    - producto.transferPrice: null -> 35600
+  Paño limpieza HOME 45x35cm (import-product-pano-limpieza-home-45x35cm)
+    - producto.transferPrice: null -> 4400
+  Paño secaplatos 38x51cm (import-product-pano-secaplatos-38x51cm)
+    - producto.transferPrice: null -> 7600
+    - variante[color=gris].transferPrice: null -> 7600
+    - variante[color=marron].transferPrice: null -> 7600
+    - variante[color=negro].transferPrice: null -> 7600
+  Perchero Colgante 4 ganchos (import-product-perchero-colgante-4-ganchos)
+    - producto.transferPrice: null -> 7920
+  Pesebre navideño - 20cm (import-product-pesebre-navideno-20cm-s03nf)
+    - producto.transferPrice: null -> 13520
+  PILLOW 180x90cm (import-product-pillow-180x90cm-1e5gq)
+    - producto.transferPrice: null -> 28720
+    - variante[color=beige].transferPrice: null -> 28720
+    - variante[color=gris].transferPrice: null -> 28720
+  PILLOW 220X90CM (import-product-pillow-220x90cm-g448b)
+    - producto.transferPrice: null -> 34800
+    - variante[color=gris].transferPrice: null -> 34800
+  Pino navideño - 27cm (import-product-pino-navideno-27cm-k61js)
+    - producto.transferPrice: null -> 3200
+  Planta Artificial 110cm "Caña Muda" (import-product-planta-artificial-110cm-cana-muda)
+    - producto.transferPrice: null -> 59920
+  Plato chico Nube Jaspeado beige (import-product-plato-chico-nube-jaspeado-beige)
+    - producto.transferPrice: null -> 5280
+  Plato playo 15cm (import-product-plato-playo-15cm)
+    - producto.transferPrice: null -> 3920
+  Plato rectangular 9x25cm Terrazo (import-product-plato-rectangular-9x25cm-terrazo)
+    - producto.transferPrice: null -> 6800
+  Porta cosméticos para viaje 20x15cm (import-product-porta-cosmeticos-para-viaje-20x15cm-hmchf)
+    - producto.transferPrice: null -> 4800
+    - variante[color=azul].transferPrice: null -> 4800
+    - variante[color=verde].transferPrice: null -> 4800
+  Porta cubiertos x4 unidades (import-product-porta-cubiertos-x4-unidades)
+    - producto.transferPrice: null -> 7040
+  Porta cubiertos x4 unidades (import-product-porta-cubiertos-x4-unidades-e71b0)
+    - producto.transferPrice: null -> 7040
+  Porta llaves HEY 14x10cm (import-product-porta-llaves-hey-14x10cm)
+    - producto.transferPrice: null -> 6800
+  Porta llaves HOME 20x12cm (import-product-porta-llaves-home-20x12cm)
+    - producto.transferPrice: null -> 9840
+    - variante[color=claro].transferPrice: null -> 9840
+    - variante[color=oscuro].transferPrice: null -> 9840
+  Porta llaves SWEET 15x10cm (import-product-porta-llaves-sweet-15x10cm)
+    - producto.transferPrice: null -> 6800
+  Porta llaves WELCOME 30x12cm (import-product-porta-llaves-welcome-30x12cm)
+    - producto.transferPrice: null -> 12400
+    - variante[color=claro].transferPrice: null -> 12400
+    - variante[color=oscuro].transferPrice: null -> 12400
+  Porta Repasador Oval 12x6cm (import-product-porta-repasador-oval-12x6cm)
+    - producto.transferPrice: null -> 3200
+  Porta sahumerio LUNA 25x6cm (import-product-porta-sahumerio-luna-25x6cm)
+    - producto.transferPrice: null -> 4400
+  Porta sahumerio VIBES 20x8cm (import-product-porta-sahumerio1)
+    - producto.transferPrice: null -> 4080
+  Porta vela ESTRELLA (inluye vela) (import-product-porta-vela-estrella-inluye-vela-9syp6)
+    - producto.transferPrice: null -> 2400
+  Portavela BOIS negro 22.5x7cm (import-product-portavela-bois-negro-22-5x7cm)
+    - producto.transferPrice: null -> 11600
+  Portavela BOIS negro 28x7cm (import-product-portavela-bois-negro-28x7cm)
+    - producto.transferPrice: null -> 14800
+  Posavasos x4 Gaudí (import-product-posavasos-x4-gaudi-1x1co)
+    - producto.transferPrice: null -> 5200
+  Posavasos x4 Helzinki (import-product-posavasos-x4-helzinki-19a7e)
+    - producto.transferPrice: null -> 5200
+  Rellenos de almohadon 40x40cm (import-product-rellenos-de-almohadon-40x40cm)
+    - producto.transferPrice: null -> 5600
+  Rellenos de almohadon 50x50cm (import-product-rellenos-de-almohadon-50x50cm)
+    - producto.transferPrice: null -> 7920
+  Reloj de Pared 25cm (import-product-reloj-de-pared-25cm-ulrwj)
+    - producto.transferPrice: null -> 19120
+  Reloj SQUARE 15x12cm (import-product-reloj-square-15x12cm-c85u8)
+    - producto.transferPrice: null -> 14320
+  Reno Navideño 20cm (import-product-reno-navideno-20cm-iyb6o)
+    - producto.transferPrice: null -> 15920
+    - variante[color=plata].transferPrice: null -> 15920
+  Repasador ROAD 60x40cm (import-product-repasador-road-60x40cm)
+    - producto.transferPrice: null -> 3120
+    - variante[color=beige].transferPrice: null -> 3120
+    - variante[color=gris].transferPrice: null -> 3120
+    - variante[color=negro].transferPrice: null -> 3120
+  REPASADOR ROLLER 60x40cm (import-product-repasador-roller-60x40cm-tpiy5)
+    - producto.transferPrice: null -> 3360
+    - variante[color=azul].transferPrice: null -> 3360
+    - variante[color=gris].transferPrice: null -> 3360
+    - variante[color=marron].transferPrice: null -> 3360
+    - variante[color=verde].transferPrice: null -> 3360
+  Repasador TERRY 45x70cm (import-product-repasador-terry-45x70cm)
+    - producto.transferPrice: null -> 4160
+    - variante[color=azul].transferPrice: null -> 4160
+    - variante[color=bordo].transferPrice: null -> 4160
+    - variante[color=gris].transferPrice: null -> 4160
+    - variante[color=negro].transferPrice: null -> 4160
+  Repasador WAFFLE Melange 70x45cm (import-product-repasador-waffle-melange-70x45cm)
+    - producto.transferPrice: null -> 3120
+    - variante[color=beige].transferPrice: null -> 3120
+    - variante[color=gris].transferPrice: null -> 3120
+    - variante[color=gris-oscuro].transferPrice: null -> 3120
+  Rociador spray 100ml (import-product-rociador-spray-3yp2w)
+    - producto.transferPrice: null -> 4720
+  Sabana Lisa Beige Premium 2 1/2 (import-product-sabana-18af5)
+    - producto.transferPrice: null -> 27920
+  Sabana 2 1/2 - Embozo bordado 600HQ (import-product-sabana-495es)
+    - producto.transferPrice: null -> 47120
+  Sabana Lisa Gris Premium 2 1/2 (import-product-sabana-b8tit)
+    - producto.transferPrice: null -> 27920
+  Sabana LOOK 144hilos 2 plazas 1/2 (import-product-sabana-look-144hilos-2-plazas-1-2)
+    - producto.transferPrice: null -> 59999
+    - variante[color=blanco].transferPrice: null -> 59999
+  Sabana Oxford BELLE 600HQ King beige (import-product-sabana-oxford-belle-600hq-king-beige-8djdq)
+    - producto.transferPrice: null -> 61200
+  Sabana Oxford LUMIERE KING 600HQ blanco (import-product-sabana-oxford-lumiere-king-600hq-blanco-1g34k)
+    - producto.transferPrice: null -> 61200
+  Sabana PLATINUM 700H 1 1/2 (import-product-sabana-platinum-700h-1-1-2)
+    - producto.transferPrice: null -> 39920
+  Sabana PLATINUM 700H Queen (import-product-sabana-platinum-700h-queen)
+    - producto.transferPrice: null -> 52720
+  Sabana PLATINUM 700H Queen blanco (import-product-sabana-platinum-700h-queen-blanco)
+    - producto.transferPrice: null -> 52720
+  Sabana PLISSE 500H Premium 1 1/2 (import-product-sabana-plisse-500h-premium-1-1-2)
+    - producto.transferPrice: null -> 34000
+    - variante[color=arena].transferPrice: null -> 34000
+    - variante[color=rosa].transferPrice: null -> 34000
+  Sabana Premium King 600H Oxford Soft (import-product-sabana-premium-king-600h-oxford-soft-s60eb)
+    - producto.transferPrice: null -> 61200
+  Sabana Premiun 600H QUEEN (import-product-sabana-premiun-600h-queen)
+    - producto.transferPrice: null -> 43960
+    - variante[color=beige].transferPrice: null -> 43960
+    - variante[color=gris].transferPrice: null -> 43960
+  Sabana Premiun 600H Twin (import-product-sabana-premiun-600h-twin)
+    - producto.transferPrice: null -> 26800
+    - variante[color=beige].transferPrice: null -> 26800
+    - variante[color=blanco].transferPrice: null -> 26800
+    - variante[color=gris].transferPrice: null -> 26800
+  Sabana 2 1/2 - Embozo bordado 600HQ (import-product-sabana-xy43f)
+    - producto.transferPrice: null -> 47120
+  Sabanas SENSE 150H 100% algodon 2 1/2 (import-product-sabanas-sense-150h-100-algodon-2-1-2)
+    - producto.transferPrice: null -> 71920
+    - variante[color=blanco].transferPrice: null -> 71920
+  Servilletero metal blanco (import-product-servilletero-metal-blanco)
+    - producto.transferPrice: null -> 5200
+  Set 11 Utensilios + Porta Utensilios (import-product-set-11-utensilios-porta-utensilios)
+    - producto.transferPrice: null -> 31920
+  SET 3 PIEZAS BAÑO GRIS/NEGRO (import-product-set-3-piezas-bano-gris-negro-1wkmz)
+    - producto.transferPrice: null -> 10000
+    - variante[color=gris].transferPrice: null -> 10000
+    - variante[color=negro].transferPrice: null -> 10000
+  SET 5 PIEZAS BAÑO GRIS/NEGRO (import-product-set-5-piezas-bano-gris-negro-1eb3m)
+    - producto.transferPrice: null -> 36400
+    - variante[color=gris].transferPrice: null -> 36400
+    - variante[color=negro].transferPrice: null -> 36400
+  SET CORTINA + GANCHOS + ALFOMBRA (import-product-set-cortina-ganchos-alfombra-6fl72)
+    - producto.transferPrice: null -> 15120
+    - variante[color=celeste-grisaceo].transferPrice: null -> 15120
+    - variante[color=gris].transferPrice: null -> 15120
+  Set cubiertos dorados con mango simil marmol (import-product-set-cubiertos-dorados-con-mango-simil-marmol)
+    - producto.transferPrice: null -> 10320
+  Set de baño 4 piezas GRIS PETROLEO (import-product-set-de-bano-4-piezas-1dzwe)
+    - producto.transferPrice: null -> 14000
+  Set de baño 4 piezas CREMA (import-product-set-de-bano-4-piezas-8t9xs)
+    - producto.transferPrice: null -> 14000
+  Set de baño 5 piezas Crema (import-product-set-de-bano-5-piezas-1q7bx)
+    - producto.transferPrice: null -> 27120
+  Set de baño 5 piezas Vison (import-product-set-de-bano-5-piezas-1yfz5)
+    - producto.transferPrice: null -> 27120
+  Set de baño 5 piezas Gris petroleo (import-product-set-de-bano-5-piezas-fzcz3)
+    - producto.transferPrice: null -> 27120
+  Set de sushi (import-product-set-de-sushi)
+    - producto.transferPrice: null -> 16720
+  Setx4 latas Almacenamiento (import-product-set-latas-pij1a)
+    - producto.transferPrice: null -> 31920
+  Set Organizador p/ Hisopos y Algodón (import-product-set-organizador-p-hisopos-y-algodon)
+    - producto.transferPrice: null -> 12720
+  SET DE SUSHI PARA 2 PORCELANA NEGRO 19X9 CM (import-product-set-sushi-10z1c)
+    - producto.transferPrice: null -> 26000
+  Set taza y plato de ceramica GRIS Y ARENA 200ml (import-product-set-tazas-65qlg)
+    - producto.transferPrice: null -> 7920
+  Set Vajilla 16Pz Opal Blanco Cuadrado (import-product-set-vajilla-16pz-opal-blanco-cuadrado-txvbq)
+    - producto.transferPrice: null -> 63920
+  Set Vajilla 24Piezas Opal Blanco Redondo (import-product-set-vajilla-24piezas-opal-blanco-redondo-nw9pq)
+    - producto.transferPrice: null -> 79920
+  Set whisky Hielera + 6 vasos (import-product-set-whisky-r2jxk)
+    - producto.transferPrice: null -> 36720
+  Set x2 Individuales ENJOY (import-product-set-x2-individuales-enjoy)
+    - producto.transferPrice: null -> 10000
+  Set x4 Individuales negros 30x45cm (import-product-set-x4-individuales-negros-30x45cm)
+    - producto.transferPrice: null -> 15920
+  Setx10 Plato de sitio Rayas Plateado 34cm (import-product-setx10-plato-de-sitio-rayas-plateado-34cm)
+    - producto.transferPrice: null -> 7120
+  Setx12 Utensilios de silicona con Vaso Contenedor (import-product-setx12-utensilios-de-silicona-con-vaso-contenedor-61k4c)
+    - producto.transferPrice: null -> 35600
+  Setx12 Utensilios de silicona con Vaso Contenedor GRIS (import-product-setx12-utensilios-de-silicona-con-vaso-contenedor-gris-xvdvz)
+    - producto.transferPrice: null -> 35600
+  Setx2 Aceitero Vidrio Labrado 500ML (import-product-setx2-aceitero-fa4na)
+    - producto.transferPrice: null -> 11920
+  Setx2 Bidón Jabon liquido y Suavizante 1.9L (import-product-setx2-bidon-jabon-liquido-y-suavizante-1-9l)
+    - producto.transferPrice: null -> 14800
+  Setx2 Dispenser DETEGERGENTE y JABON LIQ 500cc (import-product-setx2-dispenser-detegergente-y-jabon-liq-500cc)
+    - producto.transferPrice: null -> 8400
+  Setx2 individuales Cocina (import-product-setx2-individuales-cocina)
+    - producto.transferPrice: null -> 8000
+  Setx2 molde freidora aire 20cm (import-product-setx2-molde-bhjg3)
+    - producto.transferPrice: null -> 10000
+  Setx2 OLIVA y ACETO 250cc (import-product-setx2-oliva-y-aceto-250cc)
+    - producto.transferPrice: null -> 6400
+  Setx2 Platos Rectangulares de Bambu (import-product-setx2-platos-rectangulares-de-bambu)
+    - producto.transferPrice: null -> 17280
+  Setx2 Salero de vidrio (import-product-setx2-salero-9p0y9)
+    - producto.transferPrice: null -> 5200
+  Setx2 tazas doble fondo (import-product-setx2-tazas-doble-fondo)
+    - producto.transferPrice: null -> 14400
+  Setx2 vasos para cafe 150cc (import-product-setx2-vasos-1sdgi)
+    - producto.transferPrice: null -> 11600
+  Setx2 Velas LED Grises 25cm (import-product-setx2-velas-led-grises-25cm-5l3d5)
+    - producto.transferPrice: null -> 5520
+  Setx20 bolas navideñas 4cm (import-product-setx20-bolas-navidenas-4cm-m4jnr)
+    - producto.transferPrice: null -> 10000
+  Setx24 Cubiertos + Cubiertero (import-product-setx24-cubiertos-cubiertero)
+    - producto.transferPrice: null -> 23920
+  Setx3 Arbolitos navidad (import-product-setx3-arbolitos-navidad-9s65u)
+    - producto.transferPrice: null -> 10320
+  Setx3 Canastos rústicos con tela (import-product-setx3-canastos-rusticos-con-tela)
+    - producto.transferPrice: null -> 31920
+  Setx3 Cestos Rusticos con plastico interior (import-product-setx3-cestos-rusticos-con-plastico-interior-hrwvy)
+    - producto.transferPrice: null -> 47200
+  Setx3 Dispenser de baño 500ml (import-product-setx3-dispenser-de-bano-500ml)
+    - producto.transferPrice: null -> 13200
+  Setx4 copetineros de ceramica negra en base bamboo con cucharas (import-product-setx4-copetineros-de-ceramica-negra-en-base-bamboo-con-cucharas)
+    - producto.transferPrice: null -> 31920
+  SETx4 Cubiertos Black BUDAPEST (import-product-setx4-cubiertos-black-budapest)
+    - producto.transferPrice: null -> 12400
+  Setx4 Especiero de vidrio (import-product-setx4-especiero-de-vidrio)
+    - producto.transferPrice: null -> 19920
+  Setx4 Individuales Cuerina 40x28cm gris oscuro (import-product-setx4-individuales-cuerina-40x28cm-gris-oscuro-13l1s)
+    - producto.transferPrice: null -> 6400
+  Setx5 bowls melamina (import-product-setx5-bowl-melamina-i1o1f)
+    - producto.transferPrice: null -> 12720
+  Setx6 copas de vidrio rayadas 250cc (import-product-setx6-copas-bbl6d)
+    - producto.transferPrice: null -> 16720
+  Setx6 copas labradas de vidrio 175ml (import-product-setx6-copas-labradas-de-vidrio-175ml)
+    - producto.transferPrice: null -> 26320
+  Setx6 copas vidrio FUME 270cc (import-product-setx6-copas-vidrio-zypb6)
+    - producto.transferPrice: null -> 26000
+  Setx6 de copas de vidrio labradas INFINIT (import-product-setx6-de-copas-de-vidrio-labradas-infinit-t29fo)
+    - producto.transferPrice: null -> 29440
+  Setx6 unid - Copas de cristal de Bohemia SYLVIA 580ml (import-product-setx6-unid-copas-de-cristal-de-bohemia-sylvia-580ml)
+    - producto.transferPrice: null -> 51920
+  Setx6 Utensilios + Porta Utensilios (import-product-setx6-utensilios-porta-utensilios)
+    - producto.transferPrice: null -> 25200
+  Setx6 vasos de vidrio rayados 250ml (import-product-setx6-vasos-177q4)
+    - producto.transferPrice: null -> 12720
+  Setx6 copas de vidrio AMBAR (import-product-setx6-vasos-de-vidrio-1u43e)
+    - producto.transferPrice: null -> 26000
+  Setx6 vasos de vidrio labrados INFINIT (import-product-setx6-vasos-de-vidrio-labrados-infinit-uas3v)
+    - producto.transferPrice: null -> 27920
+  Setx8 Especieros con Holder Giratorio Acero Inox (import-product-setx8-especieros-con-holder-giratorio-acero-inox)
+    - producto.transferPrice: null -> 29520
+  Tabla ANDHARA Marmol Negro con mango 38x12cm (import-product-tabla-andhara-marmol-negro-con-mango-38x12cm)
+    - producto.transferPrice: null -> 31920
+  Tabla/Copetinero Acacia Manila Black 30.5x15cm Ovalado (import-product-tabla-copetinero-acacia-manila-black-30-5x15cm-ovalado)
+    - producto.transferPrice: null -> 14000
+  Tabla de ACACIA Kikar 40x20cm (import-product-tabla-de-acacia-kikar-40x20cm)
+    - producto.transferPrice: null -> 26000
+  Tabla de Laja DELICATESSEN 33x23cm (import-product-tabla-de-laja-delicatessen-33x23cm)
+    - producto.transferPrice: null -> 13520
+  Tacho 5L + escobilla (import-product-tacho-5l-escobilla)
+    - producto.transferPrice: null -> 36400
+  Tacho 5L + escobilla blanco (import-product-tacho-5l-escobilla-blanco-bchzo)
+    - producto.transferPrice: null -> 36400
+  Tacho residuos 5L Negro facetado (import-product-tacho-residuo-gf84q)
+    - producto.transferPrice: null -> 31120
+  Tacho Residuos 3 Lts Negro (import-product-tacho-residuos-3-lts-negro)
+    - producto.transferPrice: null -> 23600
+  Tacho Residuos Acero Acanalado 3Lts (import-product-tacho-residuos-acero-acanalado-3lts-4skaz)
+    - producto.transferPrice: null -> 28400
+  Tacho Residuos Acero Acanalado 3Lts (import-product-tacho-residuos-acero-acanalado-3lts-lpe5b)
+    - producto.transferPrice: null -> 28400
+  Taza CREAM 440ml (import-product-taza-1tgq4)
+    - producto.transferPrice: null -> 7200
+  Taza Cafe doble Vidrio AMBAR 120cc (import-product-taza-cafe-doble-vidrio-ambar-120cc)
+    - producto.transferPrice: null -> 7040
+  Taza de vidrio PREMIUM (import-product-taza-de-vidrio-premium)
+    - producto.transferPrice: null -> 6800
+  Taza motivacional (import-product-taza-motivacional-gh79z)
+    - producto.transferPrice: null -> 7440
+    - variante[modelo=bonita].transferPrice: null -> 7440
+    - variante[modelo=cree-en-ti].transferPrice: null -> 7440
+    - variante[modelo=tu-poder].transferPrice: null -> 7440
+  Taza Cafe Doble Vidrio FUME 120cc (import-product-taza1)
+    - producto.transferPrice: null -> 7040
+  Taza Capuchino Doble Vidrio 200cc (import-product-taza3)
+    - producto.transferPrice: null -> 10000
+  Tazon/ Taza Ceramica Jaspeada 350ml (import-product-tazon1)
+    - producto.transferPrice: null -> 6000
+  Tender Vertical Plegable (import-product-tender-vertical-plegable)
+    - producto.transferPrice: null -> 43920
+  Termo Doble pared Acero Inoxidable 1 litro (import-product-termo-1-l-1r86f)
+    - producto.transferPrice: null -> 46320
+  Termo Doble pared Acero Inoxidable 750 ml (import-product-termo-750-ml-evg7t)
+    - producto.transferPrice: null -> 42320
+  Tetera de vidrio con tapa bambu 1L (import-product-tetera-18aqd)
+    - producto.transferPrice: null -> 18800
+  TOALLITA WAVE 30x45cm (import-product-toallita-wave-bz6sh)
+    - producto.transferPrice: null -> 3600
+    - variante[color=azul].transferPrice: null -> 3600
+    - variante[color=celeste].transferPrice: null -> 3600
+  Trapito BATH 60x48cm (import-product-trapito-bath-60x48cm1)
+    - producto.transferPrice: null -> 4000
+  Trapito RELAX time 60x70cm (import-product-trapito-relax-time-60x70cm)
+    - producto.transferPrice: null -> 6160
+  Trapo cocina 60x110cm (import-product-trapo-cocina-1tmih)
+    - producto.transferPrice: null -> 6880
+  Trapito BIENVENIDO 60x48cm (import-product-trapo-piso-1t59q)
+    - producto.transferPrice: null -> 4000
+  Trapo piso con estampa SWEET HOME (import-product-trapo-piso-con-estampa-sweet-home)
+    - producto.transferPrice: null -> 4400
+  Tupper 5 divisiones cuadrado (import-product-tupper-5-divisiones-cuadrado)
+    - producto.transferPrice: null -> 7840
+  Vaso Cervecero de doble vidrio 420cc (import-product-vaso-cervecero-de-doble-vidrio-420cc)
+    - producto.transferPrice: null -> 12720
+  Vaso Mareado para Whisky 185ml (import-product-vaso-mareado-para-whisky-185ml)
+    - producto.transferPrice: null -> 4160
+    - variante[modelo=hielo].transferPrice: null -> 4160
+    - variante[modelo=rayas].transferPrice: null -> 4160
+  Vaso organizador para cosmeticos/libreria (import-product-vaso-organizador-para-cosmeticos-libreria)
+    - producto.transferPrice: null -> 5440
+  Vaso/Portacepillo de bambu (import-product-vaso-portacepillo-de-bambu)
+    - producto.transferPrice: null -> 8000
+  Setx6 Vasos de vidrio 350cc (import-product-vasos-x6-x0wha)
+    - producto.transferPrice: null -> 13520
+  Vela de soja 27x9cm (import-product-vela-de-soja-27x9cm)
+    - producto.transferPrice: null -> 8000
+  Vela Mamá 12x6cm (import-product-vela-mama-12x6cm)
+    - producto.transferPrice: null -> 4000
+  Velador TORRE 33X10cm (import-product-velador-torre-33x10cm)
+    - producto.transferPrice: null -> 22400
+    - variante[color=gris].transferPrice: null -> 22400
+

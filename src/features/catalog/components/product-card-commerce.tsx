@@ -22,7 +22,7 @@ export type ProductCardCommerceData = {
 type ProductCardCommerceVariant = "default" | "catalog";
 
 const catalogCtaBase =
-  "inline-flex h-12 w-full appearance-none items-center justify-center gap-2 rounded-[10px] bg-[#5f4033] px-5 font-sans text-center text-[12.5px] font-medium normal-case tracking-normal whitespace-nowrap leading-none text-[#f6efe7] shadow-[0_8px_18px_rgba(91,64,51,0.1)] transition duration-200 hover:bg-[#67493b] hover:shadow-[0_10px_22px_rgba(91,64,51,0.14)] sm:text-sm";
+  "inline-flex h-12 w-full appearance-none items-center justify-center gap-2 rounded-[10px] bg-cta px-5 font-sans text-center text-[12.5px] font-medium normal-case tracking-normal whitespace-nowrap leading-none text-cta-foreground shadow-[0_8px_18px_color-mix(in_srgb,var(--cta)_10%,transparent)] transition duration-200 hover:bg-cta-hover hover:shadow-[0_10px_22px_color-mix(in_srgb,var(--cta)_14%,transparent)] sm:text-sm";
 
 const catalogCtaLabelBase = "text-[12.5px] font-medium leading-none tracking-normal sm:text-sm";
 
@@ -33,7 +33,7 @@ function renderCatalogCtaLabel(label: string) {
 // Purely decorative — matches references/card's add-to-cart button. Only
 // rendered on the real "Agregar al carrito" action for variant="catalog",
 // never in the out-of-stock / "Ver producto" states.
-function CartIcon() {
+export function CartIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -67,6 +67,43 @@ function toCartProduct(product: ProductCardCommerceData): CartProductInput {
   };
 }
 
+/**
+ * What a card's buy action does: out of stock wins, then products with
+ * variants/options go to the product page to choose, otherwise add directly.
+ */
+export type ProductCardPurchaseMode = "out-of-stock" | "options" | "add";
+
+export function getProductCardPurchaseMode(
+  product: Pick<ProductCardCommerceData, "stock" | "hasSelectableOptions">,
+): ProductCardPurchaseMode {
+  if (product.stock <= 0) {
+    return "out-of-stock";
+  }
+
+  return product.hasSelectableOptions ? "options" : "add";
+}
+
+type CartAddResult = ReturnType<ReturnType<typeof useCart>["addItem"]>;
+
+/** The one add-to-cart path for product cards (button and promo band). */
+export function useProductCardAddToCart(product: ProductCardCommerceData) {
+  const { addItem } = useCart();
+  const [isPending, startTransition] = useTransition();
+
+  const addToCart = () => {
+    let result: CartAddResult | undefined;
+
+    // startTransition runs its callback synchronously, so result is set here.
+    startTransition(() => {
+      result = addItem(toCartProduct(product), 1);
+    });
+
+    return result;
+  };
+
+  return { addToCart, isPending };
+}
+
 type ProductCardCtaProps = {
   product: ProductCardCommerceData;
   className?: string;
@@ -78,7 +115,7 @@ type ProductCardCtaProps = {
 function getCtaClassName(variant: ProductCardCommerceVariant) {
   return variant === "catalog"
     ? catalogCtaBase
-    : "inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-[#d8c9bb] px-2 text-[10px] font-medium leading-none text-[#3a2a22] transition hover:border-[#6f4b3a] hover:text-[#6f4b3a] sm:px-3 sm:text-[11px]";
+    : "inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-accent/50 px-2 text-[10px] font-medium leading-none text-ink transition hover:border-brand hover:text-brand sm:px-3 sm:text-[11px]";
 }
 
 export function ProductCardCta({
@@ -88,8 +125,7 @@ export function ProductCardCta({
   variant = "default",
   outOfStockLabel = "Sin stock",
 }: ProductCardCtaProps) {
-  const { addItem } = useCart();
-  const [isPending, startTransition] = useTransition();
+  const { addToCart, isPending } = useProductCardAddToCart(product);
   const isOutOfStock = product.stock <= 0;
   const ctaClassName = getCtaClassName(variant);
 
@@ -111,9 +147,7 @@ export function ProductCardCta({
     event.preventDefault();
     event.stopPropagation();
 
-    startTransition(() => {
-      addItem(toCartProduct(product), 1);
-    });
+    addToCart();
   };
 
   return (
@@ -123,7 +157,7 @@ export function ProductCardCta({
       disabled={isPending}
       className={cn(
         ctaClassName,
-        "disabled:cursor-wait disabled:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
+        "disabled:cursor-wait disabled:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2",
         className,
       )}
     >
@@ -155,7 +189,7 @@ export function ProductCardActions({
   if (variant === "catalog") {
     const ctaClassName = cn(
       getCtaClassName(variant),
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2",
       buttonClassName,
     );
 
@@ -210,7 +244,7 @@ export function ProductCardActions({
         onClick={(event) => event.stopPropagation()}
         className={cn(
           getCtaClassName(variant),
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-strong)] focus-visible:ring-offset-2",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2",
           buttonClassName,
         )}
       >

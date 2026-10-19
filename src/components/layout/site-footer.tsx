@@ -61,39 +61,39 @@ export function SiteFooter({ navigation }: SiteFooterProps) {
   const isOpen = (section: MobileFooterSection) => openSections.includes(section);
 
   return (
-    <footer className="w-full bg-neutral-900 text-white">
+    <footer className="w-full bg-ink text-surface">
       <SiteContainer className="py-14 sm:py-16 lg:py-20">
         <div className="md:hidden">
           <div>
             <button
               type="button"
               onClick={() => toggleSection("social")}
-              className="flex w-full items-center justify-between border-b border-white/10 py-4 text-left"
+              className="flex w-full items-center justify-between border-b border-surface/10 py-4 text-left"
             >
-              <span className="text-sm font-semibold uppercase tracking-[0.18em] text-white">
+              <span className="text-sm font-semibold uppercase tracking-[0.18em] text-surface">
                 Seguinos
               </span>
-              <span className="text-lg text-white">{isOpen("social") ? "" : "+"}</span>
+              <span className="text-lg text-surface">{isOpen("social") ? "" : "+"}</span>
             </button>
             {isOpen("social") ? (
-              <div className="space-y-5 pb-5 pt-4 text-sm text-white/70">
-                <div className="flex gap-3 text-neutral-300">
+              <div className="space-y-5 pb-5 pt-4 text-sm text-surface/70">
+                <div className="flex gap-3 text-surface/85">
                   <Link
                     href="https://www.instagram.com"
                     aria-label="Instagram"
-                    className="flex h-10 w-10 items-center justify-center border border-white/14 transition hover:border-white/30 hover:text-white"
+                    className="flex h-10 w-10 items-center justify-center border border-surface/14 transition hover:border-surface/30 hover:text-surface"
                   >
                     <InstagramIcon />
                   </Link>
                   <Link
                     href="https://www.facebook.com"
                     aria-label="Facebook"
-                    className="flex h-10 w-10 items-center justify-center border border-white/14 transition hover:border-white/30 hover:text-white"
+                    className="flex h-10 w-10 items-center justify-center border border-surface/14 transition hover:border-surface/30 hover:text-surface"
                   >
                     <FacebookIcon />
                   </Link>
                 </div>
-                <p className="max-w-xs leading-7 text-neutral-400">
+                <p className="max-w-xs leading-7 text-surface/65">
                   Inspiracion cotidiana, lanzamientos y piezas elegidas para cada espacio.
                 </p>
               </div>
@@ -104,19 +104,19 @@ export function SiteFooter({ navigation }: SiteFooterProps) {
             <button
               type="button"
               onClick={() => toggleSection("products")}
-              className="flex w-full items-center justify-between border-b border-white/10 py-4 text-left"
+              className="flex w-full items-center justify-between border-b border-surface/10 py-4 text-left"
             >
-              <span className="text-sm font-semibold uppercase tracking-[0.18em] text-white">
+              <span className="text-sm font-semibold uppercase tracking-[0.18em] text-surface">
                 Nuestros productos
               </span>
-              <span className="text-lg text-white">{isOpen("products") ? "" : "+"}</span>
+              <span className="text-lg text-surface">{isOpen("products") ? "" : "+"}</span>
             </button>
             {isOpen("products") ? (
-              <div className="pb-5 pt-4 text-sm text-white/70">
-                <ul className="space-y-3 text-neutral-400">
+              <div className="pb-5 pt-4 text-sm text-surface/70">
+                <ul className="space-y-3 text-surface/65">
                   {navigation.categories.map((item) => (
                     <li key={item.label}>
-                      <Link className="transition hover:text-white" href={item.href}>
+                      <Link className="transition hover:text-surface" href={item.href}>
                         {item.label}
                       </Link>
                     </li>
@@ -130,16 +130,16 @@ export function SiteFooter({ navigation }: SiteFooterProps) {
             <button
               type="button"
               onClick={() => toggleSection("contact")}
-              className="flex w-full items-center justify-between border-b border-white/10 py-4 text-left"
+              className="flex w-full items-center justify-between border-b border-surface/10 py-4 text-left"
             >
-              <span className="text-sm font-semibold uppercase tracking-[0.18em] text-white">
+              <span className="text-sm font-semibold uppercase tracking-[0.18em] text-surface">
                 Contactanos
               </span>
-              <span className="text-lg text-white">{isOpen("contact") ? "" : "+"}</span>
+              <span className="text-lg text-surface">{isOpen("contact") ? "" : "+"}</span>
             </button>
             {isOpen("contact") ? (
-              <div className="pb-5 pt-4 text-sm text-white/70">
-                <ul className="space-y-3 leading-7 text-neutral-400">
+              <div className="pb-5 pt-4 text-sm text-surface/70">
+                <ul className="space-y-3 leading-7 text-surface/65">
                   <li>+54 3624750741</li>
                   <li>deluar2024@hotmail.com</li>
                   <li>Resistencia - Chaco - Argentina</li>
@@ -152,15 +152,15 @@ export function SiteFooter({ navigation }: SiteFooterProps) {
             <button
               type="button"
               onClick={() => toggleSection("payments")}
-              className="flex w-full items-center justify-between border-b border-white/10 py-4 text-left"
+              className="flex w-full items-center justify-between border-b border-surface/10 py-4 text-left"
             >
-              <span className="text-sm font-semibold uppercase tracking-[0.18em] text-white">
+              <span className="text-sm font-semibold uppercase tracking-[0.18em] text-surface">
                 Medios de pago
               </span>
-              <span className="text-lg text-white">{isOpen("payments") ? "" : "+"}</span>
+              <span className="text-lg text-surface">{isOpen("payments") ? "" : "+"}</span>
             </button>
             {isOpen("payments") ? (
-              <div className="pb-5 pt-4 text-sm text-white/70">
+              <div className="pb-5 pt-4 text-sm text-surface/70">
                 <ul className="inline-grid grid-cols-[repeat(4,60px)] gap-x-2 gap-y-2">
                   {paymentMethods.map((method) => (
                     <li
@@ -182,7 +182,7 @@ export function SiteFooter({ navigation }: SiteFooterProps) {
           </div>
 
           <div className="space-y-5 pt-8">
-            <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-white">
+            <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-surface">
               Novedades
             </h2>
             <form className="space-y-3">
@@ -193,11 +193,11 @@ export function SiteFooter({ navigation }: SiteFooterProps) {
                 id="footer-newsletter-email-mobile"
                 type="email"
                 placeholder="Tu correo"
-                className="h-11 w-full border border-white/14 bg-transparent px-4 text-sm text-white outline-none transition placeholder:text-neutral-500 focus:border-white/30"
+                className="h-11 w-full border border-surface/14 bg-transparent px-4 text-sm text-surface outline-none transition placeholder:text-surface/55 focus:border-surface/30"
               />
               <button
                 type="submit"
-                className="h-11 w-full bg-white px-4 text-sm font-medium text-neutral-900 transition hover:bg-neutral-200"
+                className="h-11 w-full bg-surface px-4 text-sm font-medium text-ink transition hover:bg-canvas"
               >
                 Enviar
               </button>
@@ -207,38 +207,38 @@ export function SiteFooter({ navigation }: SiteFooterProps) {
 
         <div className="hidden grid-cols-1 gap-x-8 gap-y-10 md:grid md:grid-cols-2 lg:grid-cols-[0.9fr_1.05fr_0.95fr_1.15fr_0.95fr] lg:gap-x-10">
           <div className="space-y-5">
-            <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-white">
+            <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-surface">
               Seguinos
             </h2>
-            <div className="flex gap-3 text-neutral-300">
+            <div className="flex gap-3 text-surface/85">
               <Link
                 href="https://www.instagram.com"
                 aria-label="Instagram"
-                className="flex h-10 w-10 items-center justify-center border border-white/14 transition hover:border-white/30 hover:text-white"
+                className="flex h-10 w-10 items-center justify-center border border-surface/14 transition hover:border-surface/30 hover:text-surface"
               >
                 <InstagramIcon />
               </Link>
               <Link
                 href="https://www.facebook.com"
                 aria-label="Facebook"
-                className="flex h-10 w-10 items-center justify-center border border-white/14 transition hover:border-white/30 hover:text-white"
+                className="flex h-10 w-10 items-center justify-center border border-surface/14 transition hover:border-surface/30 hover:text-surface"
               >
                 <FacebookIcon />
               </Link>
             </div>
-            <p className="max-w-xs text-sm leading-7 text-neutral-400">
+            <p className="max-w-xs text-sm leading-7 text-surface/65">
               Inspiracion cotidiana, lanzamientos y piezas elegidas para cada espacio.
             </p>
           </div>
 
           <div className="space-y-5">
-            <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-white">
+            <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-surface">
               Nuestros productos
             </h2>
-            <ul className="space-y-3 text-sm text-neutral-400">
+            <ul className="space-y-3 text-sm text-surface/65">
               {navigation.categories.map((item) => (
                 <li key={item.label}>
-                  <Link className="transition hover:text-white" href={item.href}>
+                  <Link className="transition hover:text-surface" href={item.href}>
                     {item.label}
                   </Link>
                 </li>
@@ -247,10 +247,10 @@ export function SiteFooter({ navigation }: SiteFooterProps) {
           </div>
 
           <div className="space-y-5">
-            <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-white">
+            <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-surface">
               Contactanos
             </h2>
-            <ul className="space-y-3 text-sm leading-7 text-neutral-400">
+            <ul className="space-y-3 text-sm leading-7 text-surface/65">
               <li>+54 3624750741</li>
               <li>deluar2024@hotmail.com</li>
               <li>Resistencia - Chaco - Argentina</li>
@@ -258,7 +258,7 @@ export function SiteFooter({ navigation }: SiteFooterProps) {
           </div>
 
           <div className="space-y-5">
-            <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-white">
+            <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-surface">
               Medios de pago
             </h2>
             <ul className="inline-grid grid-cols-[repeat(4,60px)] gap-x-2 gap-y-2">
@@ -280,7 +280,7 @@ export function SiteFooter({ navigation }: SiteFooterProps) {
           </div>
 
           <div className="space-y-5">
-            <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-white">
+            <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-surface">
               Novedades
             </h2>
             <form className="space-y-3">
@@ -291,11 +291,11 @@ export function SiteFooter({ navigation }: SiteFooterProps) {
                 id="footer-newsletter-email"
                 type="email"
                 placeholder="Tu correo"
-                className="h-11 w-full border border-white/14 bg-transparent px-4 text-sm text-white outline-none transition placeholder:text-neutral-500 focus:border-white/30"
+                className="h-11 w-full border border-surface/14 bg-transparent px-4 text-sm text-surface outline-none transition placeholder:text-surface/55 focus:border-surface/30"
               />
               <button
                 type="submit"
-                className="h-11 w-full bg-white px-4 text-sm font-medium text-neutral-900 transition hover:bg-neutral-200"
+                className="h-11 w-full bg-surface px-4 text-sm font-medium text-ink transition hover:bg-canvas"
               >
                 Enviar
               </button>
@@ -303,7 +303,7 @@ export function SiteFooter({ navigation }: SiteFooterProps) {
           </div>
         </div>
       </SiteContainer>
-      <SiteContainer className="border-t border-white/10 py-5 text-xs uppercase tracking-[0.18em] text-neutral-500">
+      <SiteContainer className="border-t border-surface/10 py-5 text-xs uppercase tracking-[0.18em] text-surface/55">
         {siteConfig.name}
       </SiteContainer>
     </footer>

@@ -87,7 +87,7 @@ export function HomeBenefitsStrip() {
   }, []);
 
   return (
-    <section className="bg-white py-14 sm:py-16">
+    <section className="bg-surface-raised py-14 sm:py-16">
       <div className="mx-auto w-full max-w-[78rem] px-6 sm:px-8 lg:px-10">
         <div className="md:hidden">
           <div
@@ -102,7 +102,7 @@ export function HomeBenefitsStrip() {
                 key={benefit.id}
                 className={
                   index === activeIndex
-                    ? "h-1.5 w-6 rounded-full bg-[var(--color-accent-strong)] transition-all duration-300"
+                    ? "h-1.5 w-6 rounded-full bg-brand transition-all duration-300"
                     : "h-1.5 w-1.5 rounded-full bg-border transition-all duration-300"
                 }
               />

@@ -141,6 +141,14 @@ export const adminNavIcons: Record<string, React.ReactNode> = {
       <path d="M6.2 13.5V9.8h3.6v3.7" />
     </svg>
   ),
+  "settings-appearance": (
+    <svg {...svgProps}>
+      <path d="M8 2a6 6 0 1 0 0 12c.9 0 1.3-.6 1.3-1.2 0-.8-.6-1.1-.6-1.9 0-.7.6-1.2 1.3-1.2H12a2 2 0 0 0 2-2C14 4.4 11.3 2 8 2Z" />
+      <circle cx="5" cy="7.2" r=".7" />
+      <circle cx="7.6" cy="4.8" r=".7" />
+      <circle cx="10.6" cy="5.6" r=".7" />
+    </svg>
+  ),
   "settings-preferences": (
     <svg {...svgProps}>
       <path d="M2 5h4.6M9.6 5H14M2 11h1.6M6.2 11H14" />
