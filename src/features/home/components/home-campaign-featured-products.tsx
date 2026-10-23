@@ -15,10 +15,10 @@ export function HomeCampaignFeaturedProducts({
   return (
     <section>
       <div className="mx-auto grid max-w-[84.5rem] grid-cols-2 gap-x-2.5 gap-y-3.5 lg:grid-cols-4 lg:gap-x-2.5 lg:gap-y-4">
-        {/* Same card as /productos, so the promo band and actions match. */}
-        {campaign.products.map((product, index) => (
+        {/* Same card as /productos, so prices and actions match. */}
+        {campaign.products.map((product) => (
           <div key={product.id} className="h-full w-full min-w-0">
-            <ProductCard product={product} variant="desktopCatalog" staggerIndex={index} />
+            <ProductCard product={product} variant="desktopCatalog" />
           </div>
         ))}
       </div>
