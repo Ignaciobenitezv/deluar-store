@@ -80,6 +80,52 @@ const SURFACES: Record<HomeHeroSurface, SurfaceStyle> = {
   },
 };
 
+// A slide with its own image in Studio shows it across the panel; text goes
+// light over a dark scrim, whatever the photo. Opaque ink base for the wipe.
+const PHOTO_SURFACE: SurfaceStyle = {
+  panel: "bg-ink",
+  title: "text-white",
+  body: "text-white/90",
+  tag: "bg-promo text-promo-foreground",
+  cta: "bg-white hover:bg-surface-raised",
+  ctaText: "text-ink",
+  link: "text-white",
+  control: "border-white/55 text-white hover:bg-white/12",
+  bar: "bg-white",
+  barIdle: "bg-white/40",
+};
+
+function surfaceOf(slide: HomeHeroSlide) {
+  return slide.imageUrl ? PHOTO_SURFACE : SURFACES[slide.surface ?? "sand"];
+}
+
+/** The slide's own photo behind the panel content; nothing for colour-only slides. */
+function PanelPhoto({ slide, priority }: { slide: HomeHeroSlide; priority: boolean }) {
+  if (!slide.imageUrl) {
+    return null;
+  }
+
+  const sizes = "(min-width: 1024px) 58vw, 100vw";
+
+  return (
+    <div aria-hidden="true" className="absolute inset-0 -z-10">
+      {slide.mobileImageUrl ? (
+        <Image src={slide.mobileImageUrl} alt="" fill sizes="100vw" priority={priority} className="object-cover lg:hidden" />
+      ) : null}
+      <Image
+        src={slide.imageUrl}
+        alt=""
+        fill
+        sizes={sizes}
+        priority={priority}
+        className={cn("object-cover", slide.mobileImageUrl && "hidden lg:block")}
+      />
+      {/* Darker at the bottom, where the tag, text and buttons sit. */}
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(0_0_0/0.35)_0%,rgb(0_0_0/0.25)_45%,rgb(0_0_0/0.65)_100%)]" />
+    </div>
+  );
+}
+
 // Titles come from the CMS (up to 140 chars): scale by length so a short word
 // lands as a poster and a long sentence still fits the panel.
 function getTitleSizeClass(title: string) {
@@ -160,15 +206,16 @@ type SlidePanelProps = {
 };
 
 function SlidePanel({ slide, isCurrent, entered, animate }: SlidePanelProps) {
-  const surface = SURFACES[slide.surface ?? "sand"];
+  const surface = surfaceOf(slide);
   const words = slide.title.split(/\s+/).filter(Boolean);
   const TitleTag = isCurrent ? "h1" : "p";
   const showTag = Boolean(slide.eyebrow) && !isBrandOnlyEyebrow(slide.eyebrow);
 
   return (
     // Colour lives on the panel: the global `a { color: inherit }` rule is
-    // unlayered and beats utility colours set directly on links.
-    <div className={cn("flex h-full flex-col", surface.panel, surface.link)}>
+    // unlayered and beats utility colours set directly on links. A photo
+    // slide leaves the background to PanelPhoto behind it.
+    <div className={cn("flex h-full flex-col", !slide.imageUrl && surface.panel, surface.link)}>
       <TitleTag
         className={cn(
           archivo.className,
@@ -427,7 +474,7 @@ export function HomeHeroSlider({ slides }: HomeHeroSliderProps) {
 
   const current = slides[state.index];
   const previous = state.previous !== null ? slides[state.previous] : null;
-  const surface = SURFACES[current.surface ?? "sand"];
+  const surface = surfaceOf(current);
   const panelWipe = {
     clipPath: state.entered ? "inset(0 0 0 0)" : "inset(0 100% 0 0)",
     transition:
@@ -452,7 +499,9 @@ export function HomeHeroSlider({ slides }: HomeHeroSliderProps) {
       <div className="relative overflow-hidden">
         {previous ? (
           <div aria-hidden="true" className="absolute inset-0 px-5 pb-6 pt-8 sm:px-10 sm:pb-8 sm:pt-12 lg:px-14 lg:pb-12 lg:pt-14 xl:px-20">
-            <div className={cn("absolute inset-0", SURFACES[previous.surface ?? "sand"].panel)} />
+            <div className={cn("absolute inset-0 isolate", surfaceOf(previous).panel)}>
+              <PanelPhoto slide={previous} priority={false} />
+            </div>
             <div className="relative h-full">
               <SlidePanel slide={previous} isCurrent={false} entered animate={false} />
             </div>
@@ -461,12 +510,13 @@ export function HomeHeroSlider({ slides }: HomeHeroSliderProps) {
 
         <div
           className={cn(
-            "relative flex h-full flex-col px-5 pb-6 pt-8 sm:px-10 sm:pb-8 sm:pt-12 lg:px-14 lg:pb-12 lg:pt-14 xl:px-20",
+            "relative isolate flex h-full flex-col px-5 pb-6 pt-8 sm:px-10 sm:pb-8 sm:pt-12 lg:px-14 lg:pb-12 lg:pt-14 xl:px-20",
             surface.panel,
           )}
           style={panelWipe}
           aria-live={autoplay ? "off" : "polite"}
         >
+          <PanelPhoto key={current.id} slide={current} priority={state.index === 0} />
           <div className="flex-1">
             <SlidePanel
               key={current.id}

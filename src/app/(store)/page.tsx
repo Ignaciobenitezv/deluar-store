@@ -13,20 +13,28 @@ import { HomeNewsletterBanner } from "@/features/home/components/home-newsletter
 import type {
   HomeCategoryRailItem,
   HomeHeroSlide,
+  HomePageData,
 } from "@/features/home/types";
+import { getStorefrontCopy } from "@/features/storefront-copy/server/get-storefront-copy";
+import { composeHeroSlides, fillHeroProducts } from "@/features/storefront-copy/hero-slides";
+import { sectionImageSrc } from "@/features/storefront-copy/section-images";
+import type { StorefrontCopy } from "@/features/storefront-copy/fields";
+import { applyHomeProductPicks, homeProductPickIds, type HomeProductPicks } from "@/features/home/mappers";
 import { buildMetadata } from "@/lib/seo";
-import { getSanityImageUrl, TIENDANUBE_PLACEHOLDER_IMAGE_ASSET_REF } from "@/integrations/sanity/image";
+import { getSanityAssetUrl, getSanityImageUrl, TIENDANUBE_PLACEHOLDER_IMAGE_ASSET_REF } from "@/integrations/sanity/image";
 import { sanityFetch, sanityFreshFetch } from "@/integrations/sanity/client";
 import { getHomePageData } from "@/integrations/sanity/home";
 import {
   categoryTreeQuery,
   homePageQuery,
   homeCategoryRepresentativeProductQuery,
+  productsByIdsQuery,
   siteSettingsQuery,
 } from "@/integrations/sanity/queries";
 import type {
   CategoryDocument,
   HomePageDocument,
+  ProductDocument,
   SiteSettingsDocument,
   SanityImageWithAlt,
 } from "@/types/cms";
@@ -91,18 +99,48 @@ async function buildHomeCategoryRail(): Promise<HomeCategoryRailItem[]> {
   }
 }
 
+/** Products picked in Configuración → Textos replace the automatic lists they were picked for. */
+async function withProductPicks(homePage: HomePageData, copy: StorefrontCopy): Promise<HomePageData> {
+  const picks: HomeProductPicks = {
+    ...copy.productLists,
+    heroBySlide: Object.fromEntries(
+      Object.entries(copy.heroSlides).flatMap(([slideId, override]) => (override.products?.length ? [[slideId, override.products]] : [])),
+    ),
+  };
+  const ids = homeProductPickIds(picks);
+
+  if (ids.length === 0) {
+    return homePage;
+  }
+
+  try {
+    return applyHomeProductPicks(homePage, picks, await sanityFreshFetch<ProductDocument[]>(productsByIdsQuery, { ids }));
+  } catch {
+    // Sanity unreachable: the automatic lists already loaded still render.
+    return homePage;
+  }
+}
+
 export default async function StoreIndexPage() {
-  const homePage = await getHomePageData();
-  const heroSlides = buildHomeSlides(homePage);
+  const [baseHomePage, { copy }] = await Promise.all([getHomePageData(), getStorefrontCopy()]);
+  // The hero as set in Configuración → Textos: its slides, order, texts and photos…
+  const composedSlides = composeHeroSlides(buildHomeSlides(baseHomePage), copy, (assetRef) => ({
+    // Same sizes as a Studio slide image (features/home/mappers.ts).
+    imageUrl: getSanityAssetUrl(assetRef, 1800, 1080),
+    mobileImageUrl: getSanityAssetUrl(assetRef, 900, 1200),
+  }));
+  // …then every picked product list, then products for slides still without any.
+  const homePage = await withProductPicks({ ...baseHomePage, heroSlides: composedSlides }, copy);
+  const heroSlides = fillHeroProducts(homePage.heroSlides, homePage.heroProductPool);
   const categoryRailItems = await buildHomeCategoryRail();
 
   return (
     <>
       <HomeHeroSlider slides={heroSlides} />
-      <HomeCategoryRail categories={categoryRailItems} />
+      <HomeCategoryRail categories={categoryRailItems} title={copy.categories.title} />
       {/* Same list as the featured grid right below: the strip opens with its
           first row and then cycles through all of them in shuffled groups. */}
-      <HomeNewInArrivalStrip products={homePage.campaignFeatured.products} />
+      <HomeNewInArrivalStrip products={homePage.campaignFeatured.products} copy={copy.newArrivals} />
       <section className="pb-10 sm:pb-12">
         <SiteContainer>
           <div className="bg-surface-raised px-3 py-3.5 sm:px-4 sm:py-4.5 lg:px-5 lg:py-5">
@@ -121,22 +159,25 @@ export default async function StoreIndexPage() {
         label={homePage.campaignFeatured.title}
       />
       <HomeBenefitsArrivalStrip
-        label="Beneficios de comprar en Deluar"
+        label={copy.benefits.label}
         benefits={[
-          { title: "Envíos", text: "A todo el país" },
-          { title: "20% OFF", text: "Con pago en efectivo", highlight: true },
-          { title: "Cuotas", text: "En todos nuestros productos" },
+          { title: copy.benefits.shippingTitle, text: copy.benefits.shippingText },
+          { title: copy.benefits.paymentTitle, text: copy.benefits.paymentText, highlight: true },
+          { title: copy.benefits.installmentsTitle, text: copy.benefits.installmentsText },
         ]}
       />
-      <HomeEditorialCategoryBanners />
+      <HomeEditorialCategoryBanners
+        copy={copy.editorial}
+        images={{ first: sectionImageSrc(copy.images, "editorialFirst"), second: sectionImageSrc(copy.images, "editorialSecond") }}
+      />
 
       <section className="bg-surface-raised py-12 sm:py-14">
         <SiteContainer>
-          <HomeOffersCarousel products={homePage.offerProducts} />
+          <HomeOffersCarousel products={homePage.offerProducts} copy={copy.offers} />
         </SiteContainer>
       </section>
-      <HomeBenefitsStrip />
-      <HomeNewsletterBanner />
+      <HomeBenefitsStrip copy={copy.benefits} />
+      <HomeNewsletterBanner copy={copy.newsletter} imageSrc={sectionImageSrc(copy.images, "newsletter", 2400)} />
     </>
   );
 }

@@ -1,27 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type JSX } from "react";
+import type { StorefrontCopy } from "@/features/storefront-copy/fields";
 
-const benefits = [
-  {
-    id: "shipping",
-    title: "Envios",
-    text: "A todo el pais",
-    icon: ShippingIcon,
-  },
-  {
-    id: "payment",
-    title: "20% OFF",
-    text: "Con pago en efectivo",
-    icon: PaymentIcon,
-  },
-  {
-    id: "installments",
-    title: "Cuotas",
-    text: "En todos nuestros productos",
-    icon: InstallmentsIcon,
-  },
-];
+type Benefit = { id: string; title: string; text: string; icon: () => JSX.Element };
+
+// Texts from Configuración → Textos; the icons stay with their position.
+function buildBenefits(copy: StorefrontCopy["benefits"]): Benefit[] {
+  return [
+    { id: "shipping", title: copy.shippingTitle, text: copy.shippingText, icon: ShippingIcon },
+    { id: "payment", title: copy.paymentTitle, text: copy.paymentText, icon: PaymentIcon },
+    { id: "installments", title: copy.installmentsTitle, text: copy.installmentsText, icon: InstallmentsIcon },
+  ];
+}
 
 function ShippingIcon() {
   return (
@@ -54,7 +45,7 @@ function InstallmentsIcon() {
   );
 }
 
-function BenefitItem({ benefit }: { benefit: (typeof benefits)[number] }) {
+function BenefitItem({ benefit }: { benefit: Benefit }) {
   const Icon = benefit.icon;
 
   return (
@@ -74,7 +65,8 @@ function BenefitItem({ benefit }: { benefit: (typeof benefits)[number] }) {
   );
 }
 
-export function HomeBenefitsStrip() {
+export function HomeBenefitsStrip({ copy }: { copy: StorefrontCopy["benefits"] }) {
+  const benefits = buildBenefits(copy);
   const [activeIndex, setActiveIndex] = useState(0);
   const activeBenefit = benefits[activeIndex];
 
@@ -84,7 +76,7 @@ export function HomeBenefitsStrip() {
     }, 5000);
 
     return () => window.clearInterval(intervalId);
-  }, []);
+  }, [benefits.length]);
 
   return (
     <section className="bg-surface-raised py-14 sm:py-16">

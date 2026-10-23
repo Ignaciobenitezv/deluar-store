@@ -60,7 +60,8 @@ export const homePageSchema = defineType({
     defineField({
       name: "heroSlides",
       title: "Diapositivas principales",
-      description: "Banners principales de la portada.",
+      description:
+        "Banners principales de la portada. Desde el panel de Deluar (Configuración → Textos → Hero) se pueden corregir, ocultar, reordenar y agregar diapositivas: lo hecho ahí tiene prioridad.",
       type: "array",
       group: "content",
       of: [defineArrayMember({ type: "homeHeroSlide" })],

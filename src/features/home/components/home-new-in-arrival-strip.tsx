@@ -6,6 +6,7 @@ import { Archivo } from "next/font/google";
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { SiteContainer } from "@/components/layout/site-container";
 import type { CatalogProductCard } from "@/features/catalog/types";
+import type { StorefrontCopy } from "@/features/storefront-copy/fields";
 import {
   createArrivalStripStart,
   drawArrivalGroup,
@@ -56,6 +57,7 @@ type ArrivalStripProduct = Pick<
 
 type HomeNewInArrivalStripProps = {
   products: ArrivalStripProduct[];
+  copy: StorefrontCopy["newArrivals"];
 };
 
 function PiecePhoto({ product }: { product: ArrivalStripProduct }) {
@@ -78,7 +80,7 @@ function PiecePhoto({ product }: { product: ArrivalStripProduct }) {
   );
 }
 
-function SupportLine({ countLabel, className }: { countLabel: string; className?: string }) {
+function SupportLine({ countLabel, viewAll, className }: { countLabel: string; viewAll: string; className?: string }) {
   return (
     <p className={cn("flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[15px] text-muted", className)}>
       <span>{countLabel}</span>
@@ -87,7 +89,7 @@ function SupportLine({ countLabel, className }: { countLabel: string; className?
         href="/productos"
         className="inline-flex items-center gap-1.5 font-medium text-foreground underline-offset-4 transition-colors hover:text-brand hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2"
       >
-        Ver todo
+        {viewAll}
         <svg
           aria-hidden="true"
           viewBox="0 0 16 16"
@@ -105,7 +107,7 @@ function SupportLine({ countLabel, className }: { countLabel: string; className?
   );
 }
 
-export function HomeNewInArrivalStrip({ products }: HomeNewInArrivalStripProps) {
+export function HomeNewInArrivalStrip({ products, copy }: HomeNewInArrivalStripProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const productCount = products.length;
   // Rest of the shuffle bag; only touched from timer callbacks, never render.
@@ -202,6 +204,11 @@ export function HomeNewInArrivalStrip({ products }: HomeNewInArrivalStripProps) 
   // While the band covers the row the reset must be instant, not animated.
   const isResetting = cycle.phase === "reveal";
   const growTransition = isResetting ? "none" : `width ${GROW_MS}ms ease`;
+  // On phones the last word of the big title drops to its own line ("Lo / nuevo").
+  const titleWords = copy.titleLead.split(" ");
+  const titleLast = titleWords.pop() ?? "";
+  const titleHead = titleWords.join(" ");
+
   const countLabel =
     products.length === 1 ? "1 pieza recién llegada" : `${products.length} piezas recién llegadas`;
 
@@ -257,14 +264,18 @@ export function HomeNewInArrivalStrip({ products }: HomeNewInArrivalStripProps) 
               className={cn(archivo.className, "whitespace-nowrap text-promo")}
             >
               <span className="block text-[clamp(3.25rem,15vw,4.25rem)] font-extrabold leading-[0.82] tracking-[-0.03em] [font-stretch:75%] sm:text-[5.5rem] lg:text-[clamp(5.5rem,7.4vw,8rem)]">
-                Lo <br className="lg:hidden" />
-                nuevo
+                {titleHead ? (
+                  <>
+                    {titleHead} <br className="lg:hidden" />
+                  </>
+                ) : null}
+                {titleLast}
               </span>
               <span className="mt-2 block text-[1.5rem] font-medium leading-none tracking-[-0.01em] text-foreground [font-stretch:87.5%] sm:text-[2rem] lg:mt-3 lg:text-[clamp(2rem,2.7vw,2.6rem)]">
-                en Deluar
+                {copy.titleTail}
               </span>
             </h2>
-            <SupportLine countLabel={countLabel} className="mt-6 hidden lg:flex" />
+            <SupportLine countLabel={countLabel} viewAll={copy.viewAll} className="mt-6 hidden lg:flex" />
           </div>
 
           <div
@@ -274,7 +285,7 @@ export function HomeNewInArrivalStrip({ products }: HomeNewInArrivalStripProps) 
           />
         </div>
 
-        <SupportLine countLabel={countLabel} className="mt-4 lg:hidden" />
+        <SupportLine countLabel={countLabel} viewAll={copy.viewAll} className="mt-4 lg:hidden" />
       </SiteContainer>
     </section>
   );

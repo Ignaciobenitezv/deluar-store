@@ -35,7 +35,7 @@ type MapHomePageDataInput = {
 // — the separately-queried featuredProducts/newInProducts/offerProducts
 // params are already gated at the GROQ level (see queries.ts) and pass this
 // unconditionally the same way.
-function isVisibleProduct(product: ProductDocument) {
+export function isVisibleProduct(product: ProductDocument) {
   return product.isActive !== false && isProductStockAvailable(product);
 }
 
@@ -66,7 +66,7 @@ function mapProductToHeroProduct(product: ProductDocument): HomeHeroProduct | nu
 // Temporary until slides reference their own products: a shuffled pool of the
 // products already curated for the Home, dealt two per slide without repeats.
 // Shuffled on the server so the client hydrates the same picks.
-function dealHeroProducts(pool: ProductDocument[], slideCount: number) {
+function shuffleHeroProducts(pool: ProductDocument[]) {
   const seen = new Set<string>();
   const products = pool
     .filter((product) => {
@@ -82,6 +82,10 @@ function dealHeroProducts(pool: ProductDocument[], slideCount: number) {
     [products[index], products[swapIndex]] = [products[swapIndex], products[index]];
   }
 
+  return products;
+}
+
+function dealHeroProducts(products: HomeHeroProduct[], slideCount: number) {
   return Array.from({ length: slideCount }, (_, slideIndex) =>
     products.slice(slideIndex * HERO_PRODUCTS_PER_SLIDE, (slideIndex + 1) * HERO_PRODUCTS_PER_SLIDE),
   );
@@ -151,11 +155,14 @@ export function mapHomePageData({
 
   // Surface and products are not editable yet: alternate brand surfaces and
   // deal random curated products until the slide schema carries them.
+  const heroProductPool = shuffleHeroProducts([
+    ...effectiveFeaturedProducts,
+    ...visibleNewInProducts,
+    ...visibleOfferProducts,
+  ]);
+
   const withHeroComposition = (slides: HomeHero[]): HomeHero[] => {
-    const dealtProducts = dealHeroProducts(
-      [...effectiveFeaturedProducts, ...visibleNewInProducts, ...visibleOfferProducts],
-      slides.length,
-    );
+    const dealtProducts = dealHeroProducts(heroProductPool, slides.length);
 
     return slides.map((slide, index) => ({
       ...slide,
@@ -181,6 +188,7 @@ export function mapHomePageData({
       secondaryCtaLabel: undefined,
       secondaryCtaHref: undefined,
     },
+    heroProductPool,
     heroSlides: withHeroComposition(
       heroSlides.length > 0
         ? heroSlides
@@ -193,8 +201,9 @@ export function mapHomePageData({
                 homePage?.heroText ||
                 siteSettings?.siteDescription ||
                 "Una seleccion de piezas para cocina, living, dormitorio y bano curadas para DELUAR.",
-              imageUrl: getSanityImageUrl(fallbackHeroImage, 1800, 1080),
-              mobileImageUrl: getSanityImageUrl(fallbackHeroImage, 900, 1200),
+              // Only an image loaded for the hero fills the panel, never a product photo.
+              imageUrl: getSanityImageUrl(homePage?.heroImage, 1800, 1080),
+              mobileImageUrl: getSanityImageUrl(homePage?.heroImage, 900, 1200),
               imageAlt: fallbackHeroImage?.alt || homePage?.heroTitle || siteConfig.name,
               ctaLabel: homePage?.heroCtaLabel || "Ver productos",
               ctaHref: homePage?.heroCtaHref || "/productos",
@@ -257,5 +266,59 @@ export function mapHomePageData({
       contactEmail: siteSettings?.contactEmail,
       whatsappNumber: siteSettings?.whatsappNumber,
     },
+  };
+}
+
+/** Products hand-picked in Configuración → Textos; a list left out keeps its automatic source. */
+export type HomeProductPicks = {
+  featured?: string[];
+  spotlight?: string[];
+  offers?: string[];
+  /** Two products per hero slide, by slide id. */
+  heroBySlide: Record<string, string[]>;
+};
+
+/** Every product id the picks point at, for one fetch. */
+export function homeProductPickIds(picks: HomeProductPicks) {
+  return [
+    ...new Set([
+      ...(picks.featured ?? []),
+      ...(picks.spotlight ?? []),
+      ...(picks.offers ?? []),
+      ...Object.values(picks.heroBySlide).flat(),
+    ]),
+  ];
+}
+
+/**
+ * The home data with the picked products in their picked order. Hidden,
+ * archived, out-of-stock or deleted products are skipped, like in the
+ * automatic lists; a list whose picks are all gone falls back to automatic.
+ */
+export function applyHomeProductPicks(
+  data: HomePageData,
+  picks: HomeProductPicks,
+  products: ProductDocument[],
+): HomePageData {
+  const byId = new Map(products.filter(isVisibleProduct).map((product) => [product._id, product]));
+  const pick = (ids: string[] | undefined) =>
+    (ids ?? []).map((id) => byId.get(id)).filter((product): product is ProductDocument => Boolean(product));
+
+  const featured = pick(picks.featured).map(mapProductToCatalogCard);
+  const spotlight = pick(picks.spotlight).map(mapProductToHomeNewIn);
+  const offers = pick(picks.offers).map(mapProductToCatalogCard);
+
+  return {
+    ...data,
+    heroSlides: data.heroSlides.map((slide) => {
+      const heroProducts = pick(picks.heroBySlide[slide.id])
+        .map(mapProductToHeroProduct)
+        .filter((product): product is HomeHeroProduct => product !== null);
+
+      return heroProducts.length > 0 ? { ...slide, products: heroProducts } : slide;
+    }),
+    campaignFeatured: featured.length > 0 ? { ...data.campaignFeatured, products: featured } : data.campaignFeatured,
+    campaignSpotlightProducts: spotlight.length > 0 ? spotlight : data.campaignSpotlightProducts,
+    offerProducts: offers.length > 0 ? offers : data.offerProducts,
   };
 }

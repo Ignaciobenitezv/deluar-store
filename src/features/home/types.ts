@@ -127,6 +127,8 @@ export type HomeNewInProduct = {
 export type HomePageData = {
   hero: HomeHero;
   heroSlides: HomeHeroSlide[];
+  /** The shuffled products the hero deals from, for slides added in the admin. */
+  heroProductPool: HomeHeroProduct[];
   categories: CatalogCategorySummary[];
   featuredProducts: CatalogProductCard[];
   campaignFeatured: HomeCampaignFeatured;

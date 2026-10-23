@@ -1,6 +1,6 @@
 "use client";
 
-import { useReducer, useState, useTransition, type ReactNode } from "react";
+import { useReducer, useState, useTransition } from "react";
 import { Badge } from "@/components/admin/ui/badge";
 import { dashboardUi } from "@/features/admin/dashboard/lib/dashboard-ui";
 import {
@@ -28,6 +28,7 @@ import {
 } from "../actions/storefront-theme-actions";
 import { contrastWarningsLabel, type ThemeWriteResult } from "../server/storefront-theme-service";
 import type { AdminStorefrontThemeData } from "../server/storefront-theme-data";
+import { ActionButton, FeedbackMessage, StatusRow, formatDate, type EditorFeedback } from "./settings-editor-ui";
 import { StorefrontThemePreview } from "./storefront-theme-preview";
 import { ThemeColorField } from "./theme-color-field";
 
@@ -95,25 +96,6 @@ function adjustHint(check: ThemeContrastCheck) {
   return sources.map((source) => COLOR_FIELDS[source].label).join(" o ");
 }
 
-// Not Intl: Node and the browser ship different ICU data (e.g. the space in
-// "5:20 p. m."), which breaks hydration. Argentina is UTC-3 all year (no DST).
-const ARGENTINA_OFFSET_MS = -3 * 60 * 60 * 1000;
-
-function formatDate(value: string | null | undefined) {
-  const time = value ? Date.parse(value) : Number.NaN;
-
-  if (Number.isNaN(time)) {
-    return null;
-  }
-
-  const date = new Date(time + ARGENTINA_OFFSET_MS);
-  const pad = (part: number) => String(part).padStart(2, "0");
-
-  return `${pad(date.getUTCDate())}/${pad(date.getUTCMonth() + 1)}/${date.getUTCFullYear()} ${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`;
-}
-
-type Feedback = { tone: "success" | "warning" | "danger"; message: string; issues?: string[] } | null;
-
 function Swatches({ colors }: { colors: ThemeBaseColors }) {
   return (
     <span className="flex overflow-hidden rounded-md border border-border">
@@ -121,45 +103,6 @@ function Swatches({ colors }: { colors: ThemeBaseColors }) {
         <span key={key} className="h-5 flex-1" style={{ backgroundColor: colors[key] }} />
       ))}
     </span>
-  );
-}
-
-const BUTTON_TONES = {
-  primary: dashboardUi.primaryAction,
-  soft: dashboardUi.softAction,
-  danger:
-    "rounded-xl border border-danger/40 bg-danger-soft text-danger transition-colors duration-150 hover:bg-danger/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/30",
-} as const;
-
-function ActionButton({
-  tone = "soft",
-  children,
-  ...props
-}: { tone?: keyof typeof BUTTON_TONES; children: ReactNode } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  return (
-    <button
-      type="button"
-      {...props}
-      className={cn(
-        BUTTON_TONES[tone],
-        "inline-flex h-8 items-center justify-center px-3 font-medium disabled:cursor-not-allowed disabled:opacity-50",
-      )}
-    >
-      {/* Size on a span: globals.css sets an unlayered button { font: inherit }. */}
-      <span className="text-[12px]">{children}</span>
-    </button>
-  );
-}
-
-function StatusRow({ label, value, badge }: { label: string; value: ReactNode; badge?: ReactNode }) {
-  return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 py-2 first:pt-0 last:pb-0">
-      <span className={dashboardUi.mutedLabel}>{label}</span>
-      <span className="flex min-w-0 flex-wrap items-center justify-end gap-2 text-[12.5px] text-text-primary">
-        {value}
-        {badge}
-      </span>
-    </div>
   );
 }
 
@@ -199,7 +142,7 @@ function savedValue(state: ThemeEditorState) {
  */
 export function StorefrontThemeEditor({ data }: { data: AdminStorefrontThemeData }) {
   const [state, dispatch] = useReducer(themeEditorReducer, data.snapshot, initialEditorState);
-  const [feedback, setFeedback] = useState<Feedback>(null);
+  const [feedback, setFeedback] = useState<EditorFeedback>(null);
   const [confirming, setConfirming] = useState<"publish" | "discardSaved" | null>(null);
   const [isPending, startTransition] = useTransition();
   const { tokens, validation } = evaluateDraft(state.draft);
@@ -314,20 +257,7 @@ export function StorefrontThemeEditor({ data }: { data: AdminStorefrontThemeData
               </div>
             ) : null}
 
-            {feedback ? (
-              <div
-                role={feedback.tone === "danger" ? "alert" : "status"}
-                className={cn(
-                  "rounded-xl border px-3.5 py-2.5 text-[12px] leading-5",
-                  feedback.tone === "success" && "border-success/25 bg-success-soft text-success",
-                  feedback.tone === "warning" && "border-warning/25 bg-warning-soft text-warning",
-                  feedback.tone === "danger" && "border-danger/25 bg-danger-soft text-danger",
-                )}
-              >
-                {feedback.message}
-                {feedback.issues?.length ? <span className="mt-1 block">{feedback.issues.join(" · ")}</span> : null}
-              </div>
-            ) : null}
+            {feedback ? <FeedbackMessage feedback={feedback} /> : null}
 
             <div className="flex flex-wrap gap-2 border-t border-border pt-3">
               <ActionButton

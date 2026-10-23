@@ -1,5 +1,5 @@
-const WHATSAPP_URL =
-  "https://wa.me/5493644448683?text=Hola%2C%20vengo%20de%20la%20pagina%21%20Quer%C3%ADa%20hacer%20una%20consulta.";
+import type { StorefrontCopy } from "@/features/storefront-copy/fields";
+import { whatsappHref } from "@/features/storefront-copy/storefront-copy-document";
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -14,23 +14,25 @@ function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
-export function WhatsAppFloatingButton() {
+export function WhatsAppFloatingButton({ copy }: { copy: StorefrontCopy["whatsapp"] }) {
+  const href = whatsappHref(copy);
+
   return (
     <>
       <a
         aria-label="Consultar por WhatsApp"
         className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-6 z-50 hidden items-center gap-2 rounded-full border border-white/20 bg-accent-soft px-4 py-3 text-sm font-medium text-surface shadow-[0_18px_42px_color-mix(in_srgb,var(--ink)_34%,transparent)] ring-1 ring-black/5 backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-accent-soft hover:shadow-[0_22px_52px_color-mix(in_srgb,var(--ink)_40%,transparent)] md:flex"
-        href={WHATSAPP_URL}
+        href={href}
         rel="noopener noreferrer"
         target="_blank"
       >
         <WhatsAppIcon className="h-5 w-5" />
-        <span>{"\u00bfNecesitas ayuda?"}</span>
+        <span>{copy.label}</span>
       </a>
       <a
         aria-label="Consultar por WhatsApp"
         className="fixed bottom-[calc(2.875rem+env(safe-area-inset-bottom))] right-4 z-50 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-accent-soft text-surface shadow-[0_12px_28px_color-mix(in_srgb,var(--ink)_28%,transparent)] ring-1 ring-black/5 backdrop-blur-sm md:hidden"
-        href={WHATSAPP_URL}
+        href={href}
         rel="noopener noreferrer"
         target="_blank"
       >

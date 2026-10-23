@@ -2,13 +2,14 @@ import Link from "next/link";
 import { AdminNavIcon } from "@/features/admin/shell/admin-nav-icons";
 import { TabStripBaseline, TabStripContent, TabStripIndicator } from "@/features/admin/shell/tab-strip";
 
-export type AdminSettingsTabId = "general" | "apariencia" | "preferencias" | "arca" | "integraciones";
+export type AdminSettingsTabId = "general" | "apariencia" | "textos" | "preferencias" | "arca" | "integraciones";
 
 type SettingsTab = { id: AdminSettingsTabId; label: string; iconId: string };
 
 const settingsTabs: SettingsTab[] = [
   { id: "general", label: "General", iconId: "settings-general" },
   { id: "apariencia", label: "Apariencia", iconId: "settings-appearance" },
+  { id: "textos", label: "Textos", iconId: "settings-copy" },
   { id: "preferencias", label: "Preferencias", iconId: "settings-preferences" },
   { id: "arca", label: "ARCA", iconId: "settings-arca" },
   { id: "integraciones", label: "Integraciones", iconId: "settings-integrations" },

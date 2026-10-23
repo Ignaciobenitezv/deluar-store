@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
  * because globals.css resolves them at :root (and .admin-root redefines
  * --background/--surface/--border), so they would not follow otherwise.
  */
-function previewStyle(tokens: ThemeTokens): CSSProperties {
+export function previewStyle(tokens: ThemeTokens): CSSProperties {
   const variables: Record<string, string> = {};
 
   for (const [name, variable] of Object.entries(THEME_CSS_VARIABLES) as [ThemeTokenName, string][]) {

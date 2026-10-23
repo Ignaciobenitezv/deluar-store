@@ -6,7 +6,7 @@ import { structure } from "./src/integrations/sanity/structure";
 // Documents that must exist at most once (fixed _id set in structure.ts) and
 // are managed only from the Deluar admin: no "create new" entry and no
 // document actions at all (no edit, publish, unpublish, duplicate or delete).
-const SINGLETON_TYPES = new Set(["storefrontTheme"]);
+const SINGLETON_TYPES = new Set(["storefrontTheme", "storefrontCopy"]);
 
 export default defineConfig({
   name: "default",

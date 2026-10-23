@@ -1,4 +1,5 @@
 import type { StructureResolver } from "sanity/structure";
+import { STOREFRONT_COPY_DOCUMENT_ID } from "@/features/storefront-copy/storefront-copy-document";
 import { STOREFRONT_THEME_DOCUMENT_ID } from "@/features/theme/storefront-theme-document";
 
 export const structure: StructureResolver = (S) =>
@@ -35,6 +36,15 @@ export const structure: StructureResolver = (S) =>
                     .schemaType("storefrontTheme")
                     .documentId(STOREFRONT_THEME_DOCUMENT_ID)
                     .title("Colores de la tienda (solo lectura)"),
+                ),
+              S.listItem()
+                .title("Textos de la tienda (solo lectura)")
+                .id(STOREFRONT_COPY_DOCUMENT_ID)
+                .child(
+                  S.document()
+                    .schemaType("storefrontCopy")
+                    .documentId(STOREFRONT_COPY_DOCUMENT_ID)
+                    .title("Textos de la tienda (solo lectura)"),
                 ),
             ]),
         ),

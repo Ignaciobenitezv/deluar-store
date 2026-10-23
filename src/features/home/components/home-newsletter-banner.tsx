@@ -1,11 +1,12 @@
 import { SiteContainer } from "@/components/layout/site-container";
+import type { StorefrontCopy } from "@/features/storefront-copy/fields";
 
-export function HomeNewsletterBanner() {
+export function HomeNewsletterBanner({ copy, imageSrc }: { copy: StorefrontCopy["newsletter"]; imageSrc: string }) {
   return (
     <section
       className="relative -mb-14 w-full overflow-hidden bg-ink sm:-mb-16"
       style={{
-        backgroundImage: "url('/mdomi.jpg')",
+        backgroundImage: `url("${imageSrc}")`,
         backgroundPosition: "center center",
         backgroundRepeat: "no-repeat",
         backgroundSize: "cover",
@@ -16,13 +17,12 @@ export function HomeNewsletterBanner() {
         <div className="w-full md:flex md:justify-end">
           <div className="max-w-xl space-y-5 text-white">
             <div className="space-y-3">
-              <p className="text-xs uppercase tracking-[0.22em] text-white/70">Novedades</p>
+              <p className="text-xs uppercase tracking-[0.22em] text-white/70">{copy.eyebrow}</p>
               <h2 className="text-3xl font-medium tracking-[0.01em] sm:text-4xl">
-                Recibí todas las ofertas
+                {copy.title}
               </h2>
-              <p className="max-w-lg text-sm leading-7 text-white/78 sm:text-base">
-                Novedades, lanzamientos y oportunidades seleccionadas para tu casa en
-                una sola suscripción.
+              <p className="max-w-lg whitespace-pre-line text-sm leading-7 text-white/78 sm:text-base">
+                {copy.text}
               </p>
             </div>
 
@@ -33,14 +33,14 @@ export function HomeNewsletterBanner() {
               <input
                 id="home-newsletter-email"
                 type="email"
-                placeholder="Tu correo"
+                placeholder={copy.placeholder}
                 className="h-12 min-w-0 flex-1 border border-white/35 bg-black/18 px-4 text-sm text-white outline-none transition placeholder:text-white/62 focus:border-white/60"
               />
               <button
                 type="submit"
                 className="h-12 shrink-0 bg-surface px-6 text-sm font-medium text-ink transition hover:bg-canvas"
               >
-                Enviar
+                {copy.button}
               </button>
             </form>
           </div>

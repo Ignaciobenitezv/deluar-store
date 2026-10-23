@@ -8,9 +8,10 @@ import type { HomeCategoryRailItem } from "@/features/home/types";
 
 type HomeCategoryRailProps = {
   categories: HomeCategoryRailItem[];
+  title: string;
 };
 
-export function HomeCategoryRail({ categories }: HomeCategoryRailProps) {
+export function HomeCategoryRail({ categories, title }: HomeCategoryRailProps) {
   const railRef = useRef<HTMLDivElement | null>(null);
 
   if (categories.length === 0) {
@@ -33,8 +34,8 @@ export function HomeCategoryRail({ categories }: HomeCategoryRailProps) {
       <SiteContainer className="space-y-3.5">
         <div className="flex items-center justify-between gap-4">
           <h2 className="text-[1.35rem] sm:text-[1.55rem] font-bold tracking-tight text-foreground">
-  Categorías
-</h2>
+            {title}
+          </h2>
 
           <div className="flex items-center gap-2.5">
             <button

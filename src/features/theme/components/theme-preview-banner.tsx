@@ -1,16 +1,28 @@
+import type { StorefrontCopyResult } from "@/features/storefront-copy/server/get-storefront-copy";
 import type { StorefrontTheme } from "@/features/theme/types";
 
+// Either may be missing when its draft could not be read: that part is the published version.
+type ThemePreviewBannerProps = {
+  preview: StorefrontTheme["preview"];
+  copyPreview: StorefrontCopyResult["preview"];
+};
+
+function colorsMessage(preview: ThemePreviewBannerProps["preview"]) {
+  if (!preview?.hasDraft) {
+    return "colores publicados";
+  }
+
+  return preview.draftRejected ? "colores publicados (el borrador tiene valores inválidos)" : "borrador de colores";
+}
+
 /**
- * Shown only while an authorised admin previews the saved palette draft on
- * the real storefront (getStorefrontTheme sets `preview`). Plain form posts:
- * no client code, nothing rendered for regular visitors.
+ * Shown only while an authorised admin previews the saved drafts (palette and
+ * texts) on the real storefront: getStorefrontTheme / getStorefrontCopy set
+ * `preview`. Plain form posts: no client code, nothing rendered for regular visitors.
  */
-export function ThemePreviewBanner({ preview }: { preview: NonNullable<StorefrontTheme["preview"]> }) {
-  const message = !preview.hasDraft
-    ? "No hay un borrador guardado: ves la paleta publicada."
-    : preview.draftRejected
-      ? "El borrador tiene valores inválidos: ves la paleta publicada."
-      : "Ves el borrador de colores guardado. Solo vos lo ves.";
+export function ThemePreviewBanner({ preview, copyPreview }: ThemePreviewBannerProps) {
+  const texts = copyPreview?.hasDraft ? "borrador de textos" : "textos publicados";
+  const hasAnyDraft = Boolean((preview?.hasDraft && !preview.draftRejected) || copyPreview?.hasDraft);
 
   return (
     <div
@@ -19,7 +31,7 @@ export function ThemePreviewBanner({ preview }: { preview: NonNullable<Storefron
     >
       <p className="min-w-0 text-surface">
         <span className="font-semibold">Vista previa · </span>
-        {message}
+        Ves {colorsMessage(preview)} y {texts}.{hasAnyDraft ? " Solo vos lo ves." : ""}
       </p>
       <form action="/api/admin/theme-preview" method="post">
         <input type="hidden" name="action" value="disable" />

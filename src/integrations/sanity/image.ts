@@ -15,6 +15,20 @@ const builder = createImageUrlBuilder({
  * thumbnail selection. */
 export const TIENDANUBE_PLACEHOLDER_IMAGE_ASSET_REF = "image-6b2cf67d136ed1727e2c54e0988ed6a3e75cc8cd-1200x1500-png";
 
+/**
+ * An uploaded image asset by its id ("image-…-1800x1200-jpg"): cropped to
+ * width × height, or with no height, scaled to at most that width uncropped.
+ */
+export function getSanityAssetUrl(assetRef: string, width: number, height?: number) {
+  if (!sanityConfig.projectId || !sanityConfig.dataset) {
+    return null;
+  }
+
+  const image = builder.image({ asset: { _ref: assetRef } }).width(width).auto("format");
+
+  return (height ? image.height(height).fit("crop") : image.fit("max")).url();
+}
+
 export function getSanityImageUrl(
   source?: SanityImageWithAlt,
   width = 900,

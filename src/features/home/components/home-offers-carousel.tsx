@@ -9,10 +9,12 @@ import {
 } from "@/features/catalog/components/product-card-formatting";
 import { ProductCardImageStack } from "@/features/catalog/components/product-card-image-stack";
 import type { CatalogProductCard } from "@/features/catalog/types";
+import type { StorefrontCopy } from "@/features/storefront-copy/fields";
 import { cn } from "@/lib/utils";
 
 type HomeOffersCarouselProps = {
   products: CatalogProductCard[];
+  copy: StorefrontCopy["offers"];
 };
 
 function formatPrice(value: number) {
@@ -77,7 +79,7 @@ function OfferPreviewCard({
   );
 }
 
-export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
+export function HomeOffersCarousel({ products, copy }: HomeOffersCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState<1 | -1>(1);
   const [isDesktopPaused, setIsDesktopPaused] = useState(false);
@@ -115,9 +117,9 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
     <section className="space-y-7">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="space-y-2">
-          <p className="text-xs uppercase tracking-[0.24em] text-muted">Ofertas destacadas</p>
+          <p className="text-xs uppercase tracking-[0.24em] text-muted">{copy.eyebrow}</p>
           <h2 className="text-3xl font-semibold tracking-[0.03em] text-foreground">
-            Oportunidades curadas para DELUAR
+            {copy.title}
           </h2>
         </div>
 
@@ -125,7 +127,7 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
           href="/productos"
           className="inline-flex text-sm uppercase tracking-[0.22em] text-foreground/82 transition-colors hover:text-foreground"
         >
-          Ver todos
+          {copy.viewAll}
         </Link>
       </div>
 
@@ -170,7 +172,7 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                 <div className="flex min-h-[36rem] flex-col justify-between p-8 xl:p-10">
                   <div className="space-y-5">
                     <span className="inline-flex min-h-8 items-center rounded-full border border-accent/50 bg-accent-soft/80 px-4 text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-brand">
-                      Oferta
+                      {copy.badge}
                     </span>
                     <div className="space-y-4">
                       <h3 className="max-w-[22rem] text-[2.4rem] font-semibold leading-[0.98] tracking-[0.02em] text-ink xl:text-[2.75rem]">
@@ -203,7 +205,7 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                         href={activeProduct.productHref}
                         className="inline-flex min-h-12 items-center justify-center rounded-full border border-accent/80 bg-accent-soft px-6 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-brand shadow-[0_10px_24px_color-mix(in_srgb,var(--cta)_10%,transparent)] transition-all duration-300 hover:-translate-y-[1px] hover:border-accent/90 hover:bg-accent-soft"
                       >
-                        Ver producto
+                        {copy.productCta}
                       </Link>
 
                       {hasMultipleProducts ? (
@@ -269,7 +271,7 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                 <div className="flex flex-1 flex-col justify-between gap-4 p-4">
                   <div className="space-y-3">
                     <span className="inline-flex min-h-7 items-center rounded-full border border-accent/50 bg-accent-soft/80 px-3.5 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-brand">
-                      Oferta
+                      {copy.badge}
                     </span>
                     <h3 className="text-[1.9rem] font-semibold leading-[1] tracking-[0.02em] text-ink">
                       {activeProduct.title}
@@ -296,7 +298,7 @@ export function HomeOffersCarousel({ products }: HomeOffersCarouselProps) {
                       href={activeProduct.productHref}
                       className="inline-flex min-h-11 items-center justify-center rounded-full border border-accent/80 bg-accent-soft px-5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-brand"
                     >
-                      Ver producto
+                      {copy.productCta}
                     </Link>
 
                     {hasMultipleProducts ? (

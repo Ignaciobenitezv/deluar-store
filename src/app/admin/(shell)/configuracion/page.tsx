@@ -5,6 +5,7 @@ import { AppearanceSection } from "@/features/admin/settings/components/appearan
 import { AdminSettingsShell } from "@/features/admin/settings/components/admin-settings-shell";
 import { resolveSettingsTab } from "@/features/admin/settings/components/admin-settings-tabs";
 import { ArcaSection } from "@/features/admin/settings/components/arca-section";
+import { CopySection } from "@/features/admin/settings/components/copy-section";
 import { GeneralSection } from "@/features/admin/settings/components/general-section";
 import { IntegrationsSection } from "@/features/admin/settings/components/integrations-section";
 import { PreferencesSection } from "@/features/admin/settings/components/preferences-section";
@@ -30,6 +31,9 @@ export default async function AdminConfiguracionPage({ searchParams }: AdminConf
   switch (activeTab) {
     case "apariencia":
       content = <AppearanceSection />;
+      break;
+    case "textos":
+      content = <CopySection />;
       break;
     case "preferencias":
       content = <PreferencesSection />;

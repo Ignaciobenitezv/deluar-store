@@ -444,6 +444,30 @@ export const storefrontThemeAdminQuery = groq`
   }
 `;
 
+// Storefront texts (Configuración → Textos). Same singleton rules as the theme:
+// the public query is pinned to the published _id.
+export const storefrontCopyQuery = groq`
+  *[_type == "storefrontCopy" && _id == "storefrontCopy"][0]
+`;
+
+// Products hand-picked for the home (Configuración → Textos), by published id.
+// Visibility is checked in applyHomeProductPicks, like the home's own picks.
+export const productsByIdsQuery = groq`
+  *[_type == "product" && _id in $ids]
+  ${productCardQuery}
+`;
+
+// Admin product picker: published products whose title matches, for adding to a list.
+export const productPickerSearchQuery = groq`
+  *[_type == "product" && !(_id in path("drafts.**")) && isActive != false && title match $term]
+    | order(title asc) [0...20]
+  ${productCardQuery}
+`;
+
+export const storefrontCopyAdminQuery = groq`
+  *[_type == "storefrontCopy" && _id in [$publishedId, $draftId]]
+`;
+
 export const promoSettingsQuery = groq`
   *[_type == "promoSettings"][0]{
     _id,

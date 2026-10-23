@@ -3,6 +3,7 @@ import { WhatsAppFloatingButton } from "@/components/layout/whatsapp-floating-bu
 import { SiteShell } from "@/components/layout/site-shell";
 import { StorefrontAnalyticsBridge } from "@/features/analytics/components/storefront-analytics-bridge";
 import { CartProvider } from "@/features/cart/cart-context";
+import { getStorefrontCopy } from "@/features/storefront-copy/server/get-storefront-copy";
 import { StorefrontThemeStyle } from "@/features/theme/components/storefront-theme-style";
 import { ThemePreviewBanner } from "@/features/theme/components/theme-preview-banner";
 import { getStorefrontTheme } from "@/features/theme/server/get-storefront-theme";
@@ -12,7 +13,7 @@ type StoreLayoutProps = {
 };
 
 export default async function StoreLayout({ children }: StoreLayoutProps) {
-  const theme = await getStorefrontTheme();
+  const [theme, { copy, preview: copyPreview }] = await Promise.all([getStorefrontTheme(), getStorefrontCopy()]);
 
   return (
     <>
@@ -23,8 +24,8 @@ export default async function StoreLayout({ children }: StoreLayoutProps) {
           <StorefrontAnalyticsBridge />
         </Suspense>
         <SiteShell>{children}</SiteShell>
-        <WhatsAppFloatingButton />
-        {theme.preview ? <ThemePreviewBanner preview={theme.preview} /> : null}
+        <WhatsAppFloatingButton copy={copy.whatsapp} />
+        {theme.preview || copyPreview ? <ThemePreviewBanner preview={theme.preview} copyPreview={copyPreview} /> : null}
       </CartProvider>
     </>
   );
