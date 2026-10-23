@@ -10,6 +10,7 @@ import {
 } from "@/features/catalog/components/product-card-commerce";
 import { ProductCardImageStack } from "@/features/catalog/components/product-card-image-stack";
 import { ProductCardBuyPill } from "@/features/catalog/components/product-card-buy-pill";
+import { ProductCardPromoBand } from "@/features/catalog/components/product-card-promo-band";
 import type { CatalogProductCard } from "@/features/catalog/types";
 
 function formatPrice(value: number) {
@@ -20,12 +21,18 @@ type ProductCardProps = {
   product: CatalogProductCard;
   variant?: "default" | "desktopCatalog" | "catalogMobile";
   showCommerceEnhancements?: boolean;
+  /** Home only: the animated promo band replaces the buy pill. /productos keeps the pill. */
+  showPromoBand?: boolean;
+  /** Position in its grid; staggers the promo band animation. */
+  staggerIndex?: number;
 };
 
 export function ProductCard({
   product,
   variant = "default",
   showCommerceEnhancements = true,
+  showPromoBand = false,
+  staggerIndex = 0,
 }: ProductCardProps) {
   const isDesktopCatalog = variant === "desktopCatalog";
   const isCatalogMobile = variant === "catalogMobile";
@@ -167,7 +174,11 @@ export function ProductCard({
 
         {showCommerceEnhancements && isCatalogVariant ? (
           <div className="mt-auto pt-3">
-            <ProductCardBuyPill product={product} />
+            {showPromoBand ? (
+              <ProductCardPromoBand product={product} offer={transferOffer} staggerIndex={staggerIndex} />
+            ) : (
+              <ProductCardBuyPill product={product} />
+            )}
           </div>
         ) : null}
 
