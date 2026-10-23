@@ -346,6 +346,17 @@ export type HeroSlideTexts = Record<HeroSlideTextKey, string>;
 /** The slide's photo: a replacement uploaded from the admin (Sanity image asset id), or none at all. */
 export type HeroSlideImageChoice = { assetRef: string } | "removed";
 
+/**
+ * How a photo sits in its frame, set by hand in the admin: the point that
+ * stays in view (0–1 from the left / top) and a zoom. It applies to whatever
+ * photo the block shows (from Studio, uploaded, or the original file).
+ */
+export type ImageFraming = { x: number; y: number; zoom: number };
+
+export const DEFAULT_IMAGE_FRAMING: ImageFraming = { x: 0.5, y: 0.5, zoom: 1 };
+
+export const IMAGE_FRAMING_MAX_ZOOM = 3;
+
 /** The colour panel a slide shows when it has no photo (same names as the hero's surfaces). */
 export const HERO_SURFACES = {
   promo: "Rojo promoción",
@@ -362,6 +373,7 @@ export type HeroSurfaceId = keyof typeof HERO_SURFACES;
  */
 export type HeroSlideOverride = Partial<HeroSlideTexts> & {
   image?: HeroSlideImageChoice;
+  imageFraming?: ImageFraming;
   products?: string[];
   surface?: HeroSurfaceId;
   custom?: true;
@@ -436,6 +448,8 @@ export type StorefrontCopy = {
   heroSlideOrder: string[] | null;
   productLists: ProductLists;
   images: SectionImages;
+  /** Hand-set framing of each block's photo; absent: centred, no zoom. */
+  imageFraming: Partial<Record<SectionImageId, ImageFraming>>;
 };
 
 export const STOREFRONT_COPY_SECTION_IDS = Object.keys(STOREFRONT_COPY_SECTIONS) as StorefrontCopySectionId[];
@@ -456,4 +470,5 @@ export const DEFAULT_STOREFRONT_COPY = {
   heroSlideOrder: null,
   productLists: {},
   images: {},
+  imageFraming: {},
 } as StorefrontCopy;

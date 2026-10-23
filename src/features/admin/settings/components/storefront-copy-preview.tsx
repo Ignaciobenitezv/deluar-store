@@ -5,7 +5,8 @@ import type { ProductSummary } from "@/features/storefront-copy/editor";
 import type { HomeHeroSurface } from "@/features/home/types";
 import { RichText } from "@/features/storefront-copy/components/rich-text";
 import { sectionImageSrc } from "@/features/storefront-copy/section-images";
-import type { HeroSlideTexts, StorefrontCopy, StorefrontCopySectionId } from "@/features/storefront-copy/fields";
+import { framingStyle } from "@/features/storefront-copy/framing";
+import type { HeroSlideTexts, ImageFraming, StorefrontCopy, StorefrontCopySectionId } from "@/features/storefront-copy/fields";
 import type { ThemeTokens } from "@/features/theme/types";
 import { cn } from "@/lib/utils";
 import { previewStyle } from "./storefront-theme-preview";
@@ -224,12 +225,14 @@ function sectionPreview(section: StorefrontCopySectionId, copy: StorefrontCopy, 
       return (
         <div className="grid grid-cols-2">
           {[
-            { image: sectionImageSrc(copy.images, "editorialFirst", 900), title: copy.editorial.firstTitle, text: copy.editorial.firstText },
-            { image: sectionImageSrc(copy.images, "editorialSecond", 900), title: copy.editorial.secondTitle, text: copy.editorial.secondText },
+            { image: sectionImageSrc(copy.images, "editorialFirst", 900), framing: copy.imageFraming.editorialFirst, title: copy.editorial.firstTitle, text: copy.editorial.firstText },
+            { image: sectionImageSrc(copy.images, "editorialSecond", 900), framing: copy.imageFraming.editorialSecond, title: copy.editorial.secondTitle, text: copy.editorial.secondText },
           ].map((banner, index) => (
             <div key={index} className="bg-canvas">
-              {/* eslint-disable-next-line @next/next/no-img-element -- static banner photo, preview only */}
-              <img src={banner.image} alt="" className="h-24 w-full object-cover" />
+              <span className="block h-24 overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element -- banner photo, preview only */}
+                <img src={banner.image} alt="" className="h-full w-full object-cover" style={framingStyle(banner.framing)} />
+              </span>
               <div className="px-3 pb-3 pt-3 text-center">
                 <p className="text-[13px] font-semibold leading-tight text-foreground">{banner.title}</p>
                 <p className="mt-1 whitespace-pre-line text-[9.5px] leading-4 text-muted">{banner.text}</p>
@@ -281,7 +284,7 @@ function sectionPreview(section: StorefrontCopySectionId, copy: StorefrontCopy, 
       return (
         <div className="relative overflow-hidden bg-ink">
           {/* eslint-disable-next-line @next/next/no-img-element -- static background, preview only */}
-          <img src={sectionImageSrc(copy.images, "newsletter", 1200)} alt="" className="absolute inset-0 h-full w-full object-cover" />
+          <img src={sectionImageSrc(copy.images, "newsletter", 1200)} alt="" className="absolute inset-0 h-full w-full object-cover" style={framingStyle(copy.imageFraming.newsletter)} />
           <div className="absolute inset-0 bg-black/50" />
           <div className="relative space-y-1.5 p-5 text-white">
             <p className="text-[9px] uppercase tracking-[0.22em] text-white/70">{copy.newsletter.eyebrow}</p>
@@ -385,6 +388,7 @@ export function HeroSlidePreview({
   imageUrl,
   surface,
   products,
+  framing,
   tokens,
 }: {
   texts: HeroSlideTexts;
@@ -392,6 +396,8 @@ export function HeroSlidePreview({
   surface: HomeHeroSurface;
   /** The two products on the right, as picked (or as they show now). */
   products: ProductSummary[];
+  /** Hand-set framing of the photo. */
+  framing?: ImageFraming;
   tokens: ThemeTokens;
 }) {
   const colors = imageUrl
@@ -405,8 +411,10 @@ export function HeroSlidePreview({
         <div className={cn("relative isolate flex min-h-52 flex-col justify-between p-4", colors.panel)}>
           {imageUrl ? (
             <>
-              {/* eslint-disable-next-line @next/next/no-img-element -- Sanity CDN thumbnail, preview only */}
-              <img src={imageUrl} alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" />
+              <span className="absolute inset-0 -z-10 overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element -- Sanity CDN thumbnail, preview only */}
+                <img src={imageUrl} alt="" className="h-full w-full object-cover" style={framingStyle(framing)} />
+              </span>
               <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgb(0_0_0/0.35)_0%,rgb(0_0_0/0.25)_45%,rgb(0_0_0/0.65)_100%)]" />
             </>
           ) : null}

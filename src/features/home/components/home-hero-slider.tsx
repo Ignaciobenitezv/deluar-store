@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "
 import { formatProductPrice } from "@/features/catalog/components/product-card-formatting";
 import { calculateTransferPrice } from "@/features/pricing/commercial-pricing";
 import type { HomeHeroProduct, HomeHeroSlide, HomeHeroSurface } from "@/features/home/types";
+import { framingStyle } from "@/features/storefront-copy/framing";
 import { cn } from "@/lib/utils";
 
 const archivo = Archivo({
@@ -106,11 +107,12 @@ function PanelPhoto({ slide, priority }: { slide: HomeHeroSlide; priority: boole
   }
 
   const sizes = "(min-width: 1024px) 58vw, 100vw";
+  const framing = framingStyle(slide.imageFraming);
 
   return (
-    <div aria-hidden="true" className="absolute inset-0 -z-10">
+    <div aria-hidden="true" className="absolute inset-0 -z-10 overflow-hidden">
       {slide.mobileImageUrl ? (
-        <Image src={slide.mobileImageUrl} alt="" fill sizes="100vw" priority={priority} className="object-cover lg:hidden" />
+        <Image src={slide.mobileImageUrl} alt="" fill sizes="100vw" priority={priority} className="object-cover lg:hidden" style={framing} />
       ) : null}
       <Image
         src={slide.imageUrl}
@@ -119,6 +121,7 @@ function PanelPhoto({ slide, priority }: { slide: HomeHeroSlide; priority: boole
         sizes={sizes}
         priority={priority}
         className={cn("object-cover", slide.mobileImageUrl && "hidden lg:block")}
+        style={framing}
       />
       {/* Darker at the bottom, where the tag, text and buttons sit. */}
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(0_0_0/0.35)_0%,rgb(0_0_0/0.25)_45%,rgb(0_0_0/0.65)_100%)]" />

@@ -125,9 +125,9 @@ export default async function StoreIndexPage() {
   const [baseHomePage, { copy }] = await Promise.all([getHomePageData(), getStorefrontCopy()]);
   // The hero as set in Configuración → Textos: its slides, order, texts and photos…
   const composedSlides = composeHeroSlides(buildHomeSlides(baseHomePage), copy, (assetRef) => ({
-    // Same sizes as a Studio slide image (features/home/mappers.ts).
-    imageUrl: getSanityAssetUrl(assetRef, 1800, 1080),
-    mobileImageUrl: getSanityAssetUrl(assetRef, 900, 1200),
+    // Uncropped: the panel crops it with the hand-set framing, the same on every screen.
+    imageUrl: getSanityAssetUrl(assetRef, 1800),
+    mobileImageUrl: null,
   }));
   // …then every picked product list, then products for slides still without any.
   const homePage = await withProductPicks({ ...baseHomePage, heroSlides: composedSlides }, copy);
@@ -168,7 +168,10 @@ export default async function StoreIndexPage() {
       />
       <HomeEditorialCategoryBanners
         copy={copy.editorial}
-        images={{ first: sectionImageSrc(copy.images, "editorialFirst"), second: sectionImageSrc(copy.images, "editorialSecond") }}
+        images={{
+          first: { src: sectionImageSrc(copy.images, "editorialFirst"), framing: copy.imageFraming.editorialFirst },
+          second: { src: sectionImageSrc(copy.images, "editorialSecond"), framing: copy.imageFraming.editorialSecond },
+        }}
       />
 
       <section className="bg-surface-raised py-12 sm:py-14">
@@ -177,7 +180,11 @@ export default async function StoreIndexPage() {
         </SiteContainer>
       </section>
       <HomeBenefitsStrip copy={copy.benefits} />
-      <HomeNewsletterBanner copy={copy.newsletter} imageSrc={sectionImageSrc(copy.images, "newsletter", 2400)} />
+      <HomeNewsletterBanner
+        copy={copy.newsletter}
+        imageSrc={sectionImageSrc(copy.images, "newsletter", 2400)}
+        framing={copy.imageFraming.newsletter}
+      />
     </>
   );
 }

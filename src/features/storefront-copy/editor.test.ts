@@ -67,3 +67,21 @@ test("a block photo is set and restored", () => {
   assert.deepEqual(state.draft.images, {});
   assert.equal(hasLocalCopyChanges(state), false);
 });
+
+test("framing follows its photo: changing the photo re-centres it", () => {
+  let state = copyEditorReducer(fresh(), { type: "setHeroFraming", slideId: "s1", framing: { x: 0.2, y: 0.3, zoom: 2 } });
+  assert.deepEqual(state.draft.heroSlides.s1, { imageFraming: { x: 0.2, y: 0.3, zoom: 2 } });
+
+  state = copyEditorReducer(state, { type: "setHeroImage", slideId: "s1", image: { assetRef: "image-abc-10x10-jpg" } });
+  assert.deepEqual(state.draft.heroSlides.s1, { image: { assetRef: "image-abc-10x10-jpg" } });
+
+  state = copyEditorReducer(state, { type: "setSectionFraming", id: "newsletter", framing: { x: 0.1, y: 0.1, zoom: 1 } });
+  assert.deepEqual(state.draft.imageFraming, { newsletter: { x: 0.1, y: 0.1, zoom: 1 } });
+
+  state = copyEditorReducer(state, { type: "setSectionImage", id: "newsletter", assetRef: "image-def-10x10-jpg" });
+  assert.deepEqual(state.draft.imageFraming, {});
+
+  // Centred with no zoom is the default: nothing to store.
+  state = copyEditorReducer(state, { type: "setSectionFraming", id: "newsletter", framing: { x: 0.5, y: 0.5, zoom: 1 } });
+  assert.deepEqual(state.draft.imageFraming, {});
+});

@@ -35,6 +35,7 @@ import {
   sectionFields,
   type CopyFieldDefinition,
   type HeroSlideImageChoice,
+  type ImageFraming,
   type HeroSlideTexts,
   type ProductListId,
   type StorefrontCopy,
@@ -45,6 +46,7 @@ import {
   copyToFields,
   resolveStorefrontCopy,
 } from "@/features/storefront-copy/storefront-copy-document";
+import { framingStyle, isDefaultFraming } from "@/features/storefront-copy/framing";
 import type { ThemeTokens } from "@/features/theme/types";
 import { getSanityAssetUrl } from "@/integrations/sanity/image";
 import { cn } from "@/lib/utils";
@@ -56,6 +58,7 @@ import {
   uploadHeroImageAction,
 } from "../actions/storefront-copy-actions";
 import { shrinkImageForUpload } from "../lib/shrink-image";
+import { ImageFramingDialog, type FramingFrames } from "./image-framing-dialog";
 import { ProductPicker } from "./product-picker";
 import { HeroSlidePreview, SectionPreview, SpotlightPreview } from "./storefront-copy-preview";
 import { previewStyle } from "./storefront-theme-preview";
@@ -224,6 +227,15 @@ function CopyField({
   );
 }
 
+// How each photo is cropped on the store, measured on its usual screens:
+// hero panel ~6:5 on a computer and a bit taller than wide on a phone;
+// category banners ~7:6 / 8:7; the newsletter strip is very wide on a computer.
+const FRAMES: Record<"hero" | "editorial" | "newsletter", FramingFrames> = {
+  hero: { desktop: "aspect-[6/5]", mobile: "aspect-[10/11]" },
+  editorial: { desktop: "aspect-[7/6]", mobile: "aspect-[8/7]" },
+  newsletter: { desktop: "aspect-[18/5]", mobile: "aspect-[10/9]" },
+};
+
 // The store's own surface colours (painted with its palette via previewStyle).
 const SURFACE_SWATCHES: Record<HeroSurfaceId, string> = {
   promo: "bg-promo",
@@ -313,7 +325,8 @@ function effectiveImageUrl(studioImageUrl: string | null, choice: HeroSlideImage
     return null;
   }
 
-  return choice ? getSanityAssetUrl(choice.assetRef, 900, 540) : studioImageUrl;
+  // Uncropped, like on the store: the framing does the cropping.
+  return choice ? getSanityAssetUrl(choice.assetRef, 1200) : studioImageUrl;
 }
 
 /**
@@ -328,9 +341,16 @@ function PhotoControl({
   restoreLabel = "Volver a la foto de Studio",
   allowRemove = true,
   choice,
+  framing,
+  frames,
+  onFramingChange,
   disabled,
   onChange,
 }: {
+  /** Hand-set framing of whatever photo shows, and the crops to preview it in. */
+  framing: ImageFraming | undefined;
+  frames: FramingFrames;
+  onFramingChange: (framing: ImageFraming | null) => void;
   label?: string;
   /** What shows without a change: the Studio photo, or the block's original file. */
   originalImageUrl: string | null;
@@ -345,6 +365,7 @@ function PhotoControl({
   const inputId = useId();
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [framingOpen, setFramingOpen] = useState(false);
   const imageUrl = effectiveImageUrl(originalImageUrl, choice);
   const status =
     choice === "removed"
@@ -385,7 +406,7 @@ function PhotoControl({
       <div className="flex h-16 w-28 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-surface">
         {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element -- small admin thumbnail from the Sanity CDN
-          <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+          <img src={imageUrl} alt="" className="h-full w-full object-cover" style={framingStyle(framing)} />
         ) : (
           <span className="text-[10px] text-text-secondary">Sin foto</span>
         )}
@@ -421,6 +442,11 @@ function PhotoControl({
               }
             }}
           />
+          {imageUrl ? (
+            <ActionButton disabled={disabled || uploading} onClick={() => setFramingOpen(true)}>
+              {isDefaultFraming(framing) ? "Ajustar encuadre…" : "Encuadre ajustado · cambiar…"}
+            </ActionButton>
+          ) : null}
           {allowRemove && imageUrl ? (
             <ActionButton disabled={disabled || uploading} onClick={() => onChange("removed")}>
               Quitar foto
@@ -438,6 +464,17 @@ function PhotoControl({
           </p>
         ) : null}
       </div>
+
+      {framingOpen && imageUrl ? (
+        <ImageFramingDialog
+          title={label}
+          imageUrl={imageUrl}
+          framing={framing}
+          frames={frames}
+          onApply={onFramingChange}
+          onClose={() => setFramingOpen(false)}
+        />
+      ) : null}
     </div>
   );
 }
@@ -512,7 +549,9 @@ export function StorefrontCopyEditor({ data, tokens }: { data: AdminStorefrontCo
     };
   const listCount = (list: ProductListId | undefined) => (list && state.draft.productLists[list]?.length ? 1 : 0);
   const imageCount = (section: StorefrontCopySectionId) =>
-    SECTION_IMAGE_IDS.filter((id) => SECTION_IMAGES[id].section === section && state.draft.images[id]).length;
+    SECTION_IMAGE_IDS.filter(
+      (id) => SECTION_IMAGES[id].section === section && (state.draft.images[id] || state.draft.imageFraming[id]),
+    ).length;
   const navItems = (group: GroupId) => [
     ...(group === "home" ? [{ target: HERO_TARGET as SectionTarget, label: "Hero", count: heroCount }] : []),
     ...sectionsOf(group).flatMap((section) => [
@@ -993,8 +1032,12 @@ export function StorefrontCopyEditor({ data, tokens }: { data: AdminStorefrontCo
         </div>
 
         <PhotoControl
+          label="Foto de la diapositiva"
           originalImageUrl={slide.imageUrl}
           choice={corrections.image}
+          framing={corrections.imageFraming}
+          frames={FRAMES.hero}
+          onFramingChange={(framing) => dispatch({ type: "setHeroFraming", slideId: slide.id, framing })}
           disabled={isPending || !data.canWrite}
           onChange={(image) => dispatch({ type: "setHeroImage", slideId: slide.id, image })}
         />
@@ -1035,6 +1078,7 @@ export function StorefrontCopyEditor({ data, tokens }: { data: AdminStorefrontCo
           texts={effectiveTexts}
           imageUrl={effectiveImageUrl(slide.imageUrl, corrections.image)}
           surface={surface}
+          framing={corrections.imageFraming}
           products={(corrections.products ?? slide.automaticProducts)
             .map((id) => productCache[id])
             .filter((product): product is ProductSummary => Boolean(product))}
@@ -1124,6 +1168,9 @@ export function StorefrontCopyEditor({ data, tokens }: { data: AdminStorefrontCo
                 restoreLabel="Volver a la foto original"
                 allowRemove={false}
                 choice={assetRef ? { assetRef } : undefined}
+                framing={state.draft.imageFraming[id]}
+                frames={FRAMES[SECTION_IMAGES[id].section]}
+                onFramingChange={(framing) => dispatch({ type: "setSectionFraming", id, framing })}
                 disabled={isPending || !data.canWrite}
                 onChange={(image) =>
                   dispatch({ type: "setSectionImage", id, assetRef: image && image !== "removed" ? image.assetRef : null })

@@ -272,3 +272,23 @@ test("background photos: stored as image references, original file when absent",
   assert.deepEqual(resolveStorefrontCopy(copyToFields(copy)).images, { editorialSecond: ASSET });
   assert.deepEqual(resolveStorefrontCopy(null).images, {});
 });
+
+test("framing: kept per hero slide and per block photo, clamped; centred is not stored", () => {
+  const result = sanitizeStorefrontCopyFields({
+    heroSlides: [{ _key: "s1", imageFraming: { x: 0.2, y: 1.4, zoom: 5 } }],
+    imageFraming: { newsletter: { x: 0.5, y: 0.5, zoom: 1 }, editorialFirst: { x: 0.3, y: 0.7, zoom: 1.5 } },
+  });
+
+  assert.ok(result.ok);
+  assert.deepEqual(result.ok && result.fields.heroSlides[0].imageFraming, { x: 0.2, y: 1, zoom: 3 });
+  assert.deepEqual(result.ok && result.fields.imageFraming, { editorialFirst: { x: 0.3, y: 0.7, zoom: 1.5 } });
+  assert.equal(sanitizeStorefrontCopyFields({ heroSlides: [{ _key: "s1", imageFraming: { x: "a" } }] }).ok, false);
+
+  const copy = structuredClone(DEFAULT_STOREFRONT_COPY);
+  copy.heroSlides = { s1: { imageFraming: { x: 0.1, y: 0.9, zoom: 2 } } };
+  copy.imageFraming = { newsletter: { x: 0.4, y: 0.2, zoom: 1.2 } };
+  const reread = resolveStorefrontCopy(copyToFields(copy));
+
+  assert.deepEqual(reread.heroSlides, copy.heroSlides);
+  assert.deepEqual(reread.imageFraming, copy.imageFraming);
+});

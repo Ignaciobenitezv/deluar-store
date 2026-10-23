@@ -26,6 +26,19 @@ const LONG_KINDS = new Set(["multiline", "list", "richtext"]);
 
 const textType = (field: CopyFieldDefinition) => (LONG_KINDS.has(field.kind ?? "text") ? "text" : "string");
 
+/** Hand-set framing of a photo: the point that stays in view (0–1) and a zoom (1–3). */
+const framingField = (name: string, title: string) =>
+  defineField({
+    name,
+    title,
+    type: "object",
+    fields: [
+      defineField({ name: "x", title: "Foco horizontal (0–1)", type: "number" }),
+      defineField({ name: "y", title: "Foco vertical (0–1)", type: "number" }),
+      defineField({ name: "zoom", title: "Zoom", type: "number" }),
+    ],
+  });
+
 /** Weak product references: a picked product can still be deleted from Productos. */
 const productRefsField = (name: string, title: string) =>
   defineField({
@@ -74,6 +87,7 @@ export const storefrontCopySchema = defineType({
             ),
             defineField({ name: "image", title: "Foto de reemplazo", type: "image" }),
             defineField({ name: "imageRemoved", title: "Sin foto", type: "boolean" }),
+            framingField("imageFraming", "Encuadre de la foto"),
             productRefsField("products", "Productos de la derecha"),
             defineField({
               name: "surface",
@@ -99,6 +113,16 @@ export const storefrontCopySchema = defineType({
           title: `${STOREFRONT_COPY_SECTIONS[SECTION_IMAGES[id].section].label} · ${SECTION_IMAGES[id].label}`,
           type: "image",
         }),
+      ),
+    }),
+    defineField({
+      name: "imageFraming",
+      title: "Encuadre de las fotos de fondo",
+      description: "Vacío: centrada y sin zoom.",
+      type: "object",
+      options: { collapsible: true, collapsed: true },
+      fields: SECTION_IMAGE_IDS.map((id) =>
+        framingField(id, `${STOREFRONT_COPY_SECTIONS[SECTION_IMAGES[id].section].label} · ${SECTION_IMAGES[id].label}`),
       ),
     }),
     defineField({

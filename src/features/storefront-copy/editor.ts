@@ -6,12 +6,14 @@ import {
   type ProductListId,
   type HeroSurfaceId,
   type SectionImageId,
+  type ImageFraming,
   HERO_SLIDES_MAX,
   type HeroSlideTexts,
   type StorefrontCopy,
   type StorefrontCopySectionId,
 } from "./fields";
 import { copyToFields, resolveStorefrontCopy } from "./storefront-copy-document";
+import { isDefaultFraming } from "./framing";
 
 // Admin texts editor model (Configuración → Textos). Pure, same shape as the
 // palette editor (features/theme/editor.ts): server snapshot + local working
@@ -49,6 +51,9 @@ export type CopyEditorAction =
   | { type: "setHeroSurface"; slideId: string; surface: HeroSurfaceId | null }
   /** A block's background photo; null goes back to the original file. */
   | { type: "setSectionImage"; id: SectionImageId; assetRef: string | null }
+  /** Hand-set framing; null goes back to centred, no zoom. */
+  | { type: "setHeroFraming"; slideId: string; framing: ImageFraming | null }
+  | { type: "setSectionFraming"; id: SectionImageId; framing: ImageFraming | null }
   /**
    * Slide list. `studioIds`: Studio's slides in Studio's order, the list the
    * hero shows until the admin first changes it.
@@ -156,8 +161,8 @@ function withField(state: CopyEditorState, section: StorefrontCopySectionId, key
 function withHeroField(
   state: CopyEditorState,
   slideId: string,
-  key: HeroSlideTextKey | "image" | "products" | "surface",
-  value: string | string[] | HeroSlideImageChoice | null,
+  key: HeroSlideTextKey | "image" | "products" | "surface" | "imageFraming",
+  value: string | string[] | HeroSlideImageChoice | ImageFraming | null,
 ): CopyEditorState {
   const slide = { ...state.draft.heroSlides[slideId] };
 
@@ -208,11 +213,15 @@ export function copyEditorReducer(state: CopyEditorState, action: CopyEditorActi
     case "resetHeroField":
       return withHeroField(state, action.slideId, action.key, null);
     case "setHeroImage":
-      return withHeroField(state, action.slideId, "image", action.image);
+      // A new photo starts centred.
+      return withHeroField(withHeroField(state, action.slideId, "imageFraming", null), action.slideId, "image", action.image);
     case "setHeroProducts":
       return withHeroField(state, action.slideId, "products", action.products?.length ? action.products : null);
     case "setSectionImage": {
       const images = { ...state.draft.images };
+      // A framing set for one photo makes no sense for another: back to centred.
+      const imageFraming = { ...state.draft.imageFraming };
+      delete imageFraming[action.id];
 
       if (action.assetRef) {
         images[action.id] = action.assetRef;
@@ -220,8 +229,26 @@ export function copyEditorReducer(state: CopyEditorState, action: CopyEditorActi
         delete images[action.id];
       }
 
-      return { ...state, draft: { ...state.draft, images } };
+      return { ...state, draft: { ...state.draft, images, imageFraming } };
     }
+    case "setSectionFraming": {
+      const imageFraming = { ...state.draft.imageFraming };
+
+      if (action.framing && !isDefaultFraming(action.framing)) {
+        imageFraming[action.id] = action.framing;
+      } else {
+        delete imageFraming[action.id];
+      }
+
+      return { ...state, draft: { ...state.draft, imageFraming } };
+    }
+    case "setHeroFraming":
+      return withHeroField(
+        state,
+        action.slideId,
+        "imageFraming",
+        action.framing && !isDefaultFraming(action.framing) ? action.framing : null,
+      );
     case "setHeroSurface":
       return withHeroField(state, action.slideId, "surface", action.surface);
     case "addHeroSlide": {

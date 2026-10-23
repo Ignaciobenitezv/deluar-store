@@ -23,7 +23,9 @@ import {
   SECTION_IMAGE_IDS,
   type SectionImageId,
   type SectionImages,
+  type ImageFraming,
 } from "./fields";
+import { isDefaultFraming, parseImageFraming } from "./framing";
 
 /** Fixed _id of the Sanity singleton; its draft is "drafts.storefrontCopy". */
 export const STOREFRONT_COPY_DOCUMENT_ID = "storefrontCopy";
@@ -44,6 +46,7 @@ export type StoredHeroSlide = { _key: string; _type: typeof HERO_SLIDE_COPY_TYPE
     image?: StoredImage;
     imageRemoved?: true;
     surface?: HeroSurfaceId;
+    imageFraming?: ImageFraming;
     custom?: true;
     products?: StoredProductRef[];
   };
@@ -134,10 +137,11 @@ export type StorefrontCopyFields = {
   heroSlideOrder?: string[];
   productLists: Partial<Record<ProductListId, StoredProductRef[]>>;
   images: Partial<Record<SectionImageId, StoredImage>>;
+  imageFraming: Partial<Record<SectionImageId, ImageFraming>>;
 };
 
-type SectionsCopy = Omit<StorefrontCopy, "heroSlides" | "heroSlideOrder" | "productLists" | "images">;
-type SectionsFields = Omit<StorefrontCopyFields, "heroSlides" | "heroSlideOrder" | "productLists" | "images">;
+type SectionsCopy = Omit<StorefrontCopy, "heroSlides" | "heroSlideOrder" | "productLists" | "images" | "imageFraming">;
+type SectionsFields = Omit<StorefrontCopyFields, "heroSlides" | "heroSlideOrder" | "productLists" | "images" | "imageFraming">;
 
 export type CopySanitizeResult = { ok: true; fields: StorefrontCopyFields } | { ok: false; issues: string[] };
 
@@ -279,6 +283,15 @@ function readHeroSlides(raw: unknown): HeroReading {
       slide.custom = true;
     }
 
+    const rawFraming = (item as Record<string, unknown>).imageFraming;
+    const framing = parseImageFraming(rawFraming);
+
+    if (framing && !isDefaultFraming(framing)) {
+      slide.imageFraming = framing;
+    } else if (!framing && rawFraming !== undefined && rawFraming !== null) {
+      issues.push("Hero · Encuadre: no es válido.");
+    }
+
     const products = readProductRefs((item as Record<string, unknown>).products, HERO_PRODUCTS_MAX);
 
     if (products.problem) {
@@ -368,8 +381,21 @@ export function sanitizeStorefrontCopyFields(value: unknown): CopySanitizeResult
           ...(order.ids ? { heroSlideOrder: order.ids } : {}),
           productLists: storedProductLists(lists.lists),
           images: storedSectionImages(images.images),
+          imageFraming: readSectionFraming(value.imageFraming),
         },
       };
+}
+
+/** Hand-set framing per block photo; invalid or default (centred, no zoom) entries are not kept. */
+function readSectionFraming(raw: unknown): Partial<Record<SectionImageId, ImageFraming>> {
+  const record = isRecord(raw) ? raw : {};
+
+  return Object.fromEntries(
+    SECTION_IMAGE_IDS.flatMap((id) => {
+      const framing = parseImageFraming(record[id]);
+      return framing && !isDefaultFraming(framing) ? [[id, framing]] : [];
+    }),
+  );
 }
 
 /** Replacement photos: an image asset per block (by its id, or as a stored image). */
@@ -505,6 +531,10 @@ export function resolveStorefrontCopy(document: unknown): StorefrontCopy {
         override.custom = true;
       }
 
+      if (slide.imageFraming) {
+        override.imageFraming = slide.imageFraming;
+      }
+
       return [slide._key, override];
     }),
   );
@@ -515,7 +545,9 @@ export function resolveStorefrontCopy(document: unknown): StorefrontCopy {
 
   const { images } = readSectionImages(record.images);
 
-  return { ...(copy as SectionsCopy), heroSlides, heroSlideOrder, productLists, images } as StorefrontCopy;
+  const imageFraming = readSectionFraming(record.imageFraming);
+
+  return { ...(copy as SectionsCopy), heroSlides, heroSlideOrder, productLists, images, imageFraming } as StorefrontCopy;
 }
 
 /** Full texts (as the editor holds them) to the stored fields: only what differs from the defaults. */
@@ -569,6 +601,11 @@ export function copyToFields(copy: StorefrontCopy): StorefrontCopyFields {
       slide.custom = true;
     }
 
+    if (override.imageFraming && !isDefaultFraming(override.imageFraming)) {
+      // Kept as is: the write validation clamps or reports it.
+      slide.imageFraming = override.imageFraming;
+    }
+
     if (Object.keys(slide).length > 2) {
       heroSlides.push(slide);
     }
@@ -589,6 +626,7 @@ export function copyToFields(copy: StorefrontCopy): StorefrontCopyFields {
     images: Object.fromEntries(
       SECTION_IMAGE_IDS.filter((id) => copy.images?.[id]).map((id) => [id, storedImage(copy.images[id] as string)]),
     ),
+    imageFraming: readSectionFraming(copy.imageFraming),
   } as StorefrontCopyFields;
 }
 

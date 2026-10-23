@@ -1,3 +1,4 @@
+import type { ImageFraming } from "@/features/storefront-copy/fields";
 import type {
   CatalogCategorySummary,
   CatalogProductCard,
@@ -31,6 +32,8 @@ export type HomeHero = {
   ctaHref: string;
   secondaryCtaLabel?: string;
   secondaryCtaHref?: string;
+  /** Hand-set framing of the photo (Configuración → Textos). */
+  imageFraming?: ImageFraming;
   /** Defaults are assigned by the mapper until slides carry their own. */
   surface?: HomeHeroSurface;
   /** Up to two protagonist products; temporary random picks for now. */

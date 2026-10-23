@@ -1,17 +1,22 @@
+import Image from "next/image";
 import { SiteContainer } from "@/components/layout/site-container";
-import type { StorefrontCopy } from "@/features/storefront-copy/fields";
+import type { ImageFraming, StorefrontCopy } from "@/features/storefront-copy/fields";
+import { framingStyle } from "@/features/storefront-copy/framing";
 
-export function HomeNewsletterBanner({ copy, imageSrc }: { copy: StorefrontCopy["newsletter"]; imageSrc: string }) {
+export function HomeNewsletterBanner({
+  copy,
+  imageSrc,
+  framing,
+}: {
+  copy: StorefrontCopy["newsletter"];
+  imageSrc: string;
+  /** Hand-set framing of the background photo (Configuración → Textos). */
+  framing?: ImageFraming;
+}) {
   return (
-    <section
-      className="relative -mb-14 w-full overflow-hidden bg-ink sm:-mb-16"
-      style={{
-        backgroundImage: `url("${imageSrc}")`,
-        backgroundPosition: "center center",
-        backgroundRepeat: "no-repeat",
-        backgroundSize: "cover",
-      }}
-    >
+    <section className="relative -mb-14 w-full overflow-hidden bg-ink sm:-mb-16">
+      {/* An image, not a CSS background, so the framing (focus and zoom) applies like everywhere else. */}
+      <Image src={imageSrc} alt="" fill sizes="100vw" className="object-cover" style={framingStyle(framing)} aria-hidden="true" />
       <div className="absolute inset-0 bg-black/50" aria-hidden="true" />
       <SiteContainer className="relative flex min-h-[22rem] items-center py-16 sm:min-h-[25rem] sm:py-20">
         <div className="w-full md:flex md:justify-end">

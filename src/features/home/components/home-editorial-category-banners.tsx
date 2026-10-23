@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { StorefrontCopy } from "@/features/storefront-copy/fields";
+import type { ImageFraming, StorefrontCopy } from "@/features/storefront-copy/fields";
+import { framingStyle } from "@/features/storefront-copy/framing";
 
 // Texts and photos from Configuración → Textos (photos fall back to the files in /public).
-type EditorialImages = { first: string; second: string };
+type BannerImage = { src: string; framing?: ImageFraming };
+type EditorialImages = { first: BannerImage; second: BannerImage };
 
 function buildEditorialCategories(copy: StorefrontCopy["editorial"], images: EditorialImages) {
   return [
@@ -11,14 +13,14 @@ function buildEditorialCategories(copy: StorefrontCopy["editorial"], images: Edi
       id: "first",
       title: copy.firstTitle,
       description: copy.firstText,
-      imageSrc: images.first,
+      image: images.first,
       href: "/productos",
     },
     {
       id: "second",
       title: copy.secondTitle,
       description: copy.secondText,
-      imageSrc: images.second,
+      image: images.second,
       href: "/productos",
     },
   ];
@@ -32,13 +34,17 @@ export function HomeEditorialCategoryBanners({ copy, images }: { copy: Storefron
           <article key={category.id} className="flex flex-col">
             <Link href={category.href} className="group block">
               <div className="relative h-[21.25rem] w-full overflow-hidden bg-line/60 md:h-[32.5rem] lg:h-[38.75rem]">
-                <Image
-                  src={category.imageSrc}
-                  alt={category.title}
-                  fill
-                  sizes="(min-width: 768px) 50vw, 100vw"
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.015]"
-                />
+                {/* Hover zoom on a wrapper: the image's own transform is the hand-set framing. */}
+                <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.015]">
+                  <Image
+                    src={category.image.src}
+                    alt={category.title}
+                    fill
+                    sizes="(min-width: 768px) 50vw, 100vw"
+                    className="h-full w-full object-cover"
+                    style={framingStyle(category.image.framing)}
+                  />
+                </div>
               </div>
             </Link>
 
