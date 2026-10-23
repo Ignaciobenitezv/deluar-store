@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { HomeHeroProduct, HomeHeroSlide } from "@/features/home/types";
-import { composeHeroSlides, fillHeroProducts } from "./hero-slides";
+import { applyHeroProductFraming, composeHeroSlides, fillHeroProducts } from "./hero-slides";
 
 const studio = (id: string, title: string): HomeHeroSlide => ({
   id,
@@ -55,4 +55,14 @@ test("slides without products get two the others don't show", () => {
   );
 
   assert.deepEqual(slides[1].products?.map((item) => item.id), ["p3", "p4"]);
+});
+
+test("product framing lands on the slide's matching products only", () => {
+  const slides = applyHeroProductFraming(
+    [{ ...STUDIO[0], products: [product("p1"), product("p2")] }],
+    { a: { productFraming: { p2: { x: 0.1, y: 0.2, zoom: 2 } } } },
+  );
+
+  assert.equal(slides[0].products?.[0].imageFraming, undefined);
+  assert.deepEqual(slides[0].products?.[1].imageFraming, { x: 0.1, y: 0.2, zoom: 2 });
 });

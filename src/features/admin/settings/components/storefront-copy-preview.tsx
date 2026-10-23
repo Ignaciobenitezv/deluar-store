@@ -42,12 +42,20 @@ function Button({ children, className }: { children: ReactNode; className?: stri
 const BENEFIT_ICON = <span className="mx-auto block h-3.5 w-3.5 rounded-full border-[1.5px] border-current opacity-70" />;
 
 /** A product's photo, or an empty tile when there is none. */
-function ProductPhoto({ product, className }: { product: ProductSummary | undefined; className?: string }) {
+function ProductPhoto({
+  product,
+  className,
+  framing,
+}: {
+  product: ProductSummary | undefined;
+  className?: string;
+  framing?: ImageFraming;
+}) {
   return (
     <span className={cn("block shrink-0 overflow-hidden bg-line/60", className)}>
       {product?.imageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element -- Sanity CDN thumbnail, preview only
-        <img src={product.imageUrl} alt="" className="h-full w-full object-cover" />
+        <img src={product.imageUrl} alt="" className="h-full w-full object-cover" style={framingStyle(framing)} />
       ) : null}
     </span>
   );
@@ -389,8 +397,11 @@ export function HeroSlidePreview({
   surface,
   products,
   framing,
+  productFraming,
   tokens,
 }: {
+  /** Framing of each product's photo in this slide, by product id. */
+  productFraming?: Record<string, ImageFraming>;
   texts: HeroSlideTexts;
   imageUrl: string | null;
   surface: HomeHeroSurface;
@@ -441,7 +452,11 @@ export function HeroSlidePreview({
         <div className="grid grid-rows-2 gap-0.5">
           {[0, 1].map((slot) => (
             <div key={slot} className="relative min-h-0 bg-canvas-alt">
-              <ProductPhoto product={products[slot]} className="absolute inset-0 h-full w-full bg-canvas-alt" />
+              <ProductPhoto
+                product={products[slot]}
+                framing={products[slot] ? productFraming?.[products[slot].id] : undefined}
+                className="absolute inset-0 h-full w-full bg-canvas-alt"
+              />
               {products[slot] ? (
                 <span className="absolute bottom-1.5 left-1.5 right-1.5 rounded-md bg-surface px-1.5 py-1 shadow-sm">
                   <span className="block truncate text-[8.5px] text-foreground">{products[slot].title}</span>

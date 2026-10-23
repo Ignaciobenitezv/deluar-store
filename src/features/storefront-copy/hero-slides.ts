@@ -60,6 +60,27 @@ export function composeHeroSlides(
   });
 }
 
+/** The framing set for each picked product's tile, on the products the slide ends up showing. */
+export function applyHeroProductFraming(
+  slides: HomeHeroSlide[],
+  overrides: StorefrontCopy["heroSlides"],
+): HomeHeroSlide[] {
+  return slides.map((slide) => {
+    const framing = overrides[slide.id]?.productFraming;
+
+    if (!framing || !slide.products) {
+      return slide;
+    }
+
+    return {
+      ...slide,
+      products: slide.products.map((product) =>
+        framing[product.id] ? { ...product, imageFraming: framing[product.id] } : product,
+      ),
+    };
+  });
+}
+
 /**
  * Two products for every slide still without them (admin-created slides, or
  * picks that are all gone), dealt from the home's shuffled pool, preferring

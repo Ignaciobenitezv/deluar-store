@@ -292,3 +292,27 @@ test("framing: kept per hero slide and per block photo, clamped; centred is not 
   assert.deepEqual(reread.heroSlides, copy.heroSlides);
   assert.deepEqual(reread.imageFraming, copy.imageFraming);
 });
+
+test("hero product framing: only for picked products, round-trips, applied on the slide's products", () => {
+  const result = sanitizeStorefrontCopyFields({
+    heroSlides: [
+      {
+        _key: "s1",
+        products: ["prod-a", "prod-b"],
+        productFraming: [
+          { product: "prod-a", x: 0.2, y: 0.4, zoom: 1.5 },
+          { product: "prod-gone", x: 0.1, y: 0.1, zoom: 2 },
+        ],
+      },
+    ],
+  });
+
+  assert.ok(result.ok);
+  assert.deepEqual(result.ok && result.fields.heroSlides[0].productFraming, [
+    { _key: "f0", _type: "productFraming", product: "prod-a", x: 0.2, y: 0.4, zoom: 1.5 },
+  ]);
+
+  const copy = structuredClone(DEFAULT_STOREFRONT_COPY);
+  copy.heroSlides = { s1: { products: ["prod-a"], productFraming: { "prod-a": { x: 0.3, y: 0.6, zoom: 2 } } } };
+  assert.deepEqual(resolveStorefrontCopy(copyToFields(copy)).heroSlides, copy.heroSlides);
+});

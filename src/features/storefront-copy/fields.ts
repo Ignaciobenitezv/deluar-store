@@ -375,6 +375,12 @@ export type HeroSlideOverride = Partial<HeroSlideTexts> & {
   image?: HeroSlideImageChoice;
   imageFraming?: ImageFraming;
   products?: string[];
+  /**
+   * Framing of each picked product's photo in this slide's tiles, by product
+   * id. Only for picked products (automatic ones change on every visit), and
+   * independent of the product's own framing for the catalog.
+   */
+  productFraming?: Record<string, ImageFraming>;
   surface?: HeroSurfaceId;
   custom?: true;
 };

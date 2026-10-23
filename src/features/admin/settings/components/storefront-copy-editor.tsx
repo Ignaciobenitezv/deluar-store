@@ -230,8 +230,10 @@ function CopyField({
 // How each photo is cropped on the store, measured on its usual screens:
 // hero panel ~6:5 on a computer and a bit taller than wide on a phone;
 // category banners ~7:6 / 8:7; the newsletter strip is very wide on a computer.
-const FRAMES: Record<"hero" | "editorial" | "newsletter", FramingFrames> = {
+// The hero's product tiles are half its height on a computer (wide) and 4:5 on a phone.
+const FRAMES: Record<"hero" | "heroProduct" | "editorial" | "newsletter", FramingFrames> = {
   hero: { desktop: "aspect-[6/5]", mobile: "aspect-[10/11]" },
+  heroProduct: { desktop: "aspect-[17/10]", mobile: "aspect-[4/5]" },
   editorial: { desktop: "aspect-[7/6]", mobile: "aspect-[8/7]" },
   newsletter: { desktop: "aspect-[18/5]", mobile: "aspect-[10/9]" },
 };
@@ -1071,6 +1073,11 @@ export function StorefrontCopyEditor({ data, tokens }: { data: AdminStorefrontCo
           products={productCache}
           disabled={isPending}
           onChange={(products) => dispatch({ type: "setHeroProducts", slideId: slide.id, products })}
+          framing={{
+            values: corrections.productFraming ?? {},
+            frames: FRAMES.heroProduct,
+            onChange: (productId, framing) => dispatch({ type: "setHeroProductFraming", slideId: slide.id, productId, framing }),
+          }}
           onDiscover={rememberProducts}
         />
 
@@ -1079,6 +1086,7 @@ export function StorefrontCopyEditor({ data, tokens }: { data: AdminStorefrontCo
           imageUrl={effectiveImageUrl(slide.imageUrl, corrections.image)}
           surface={surface}
           framing={corrections.imageFraming}
+          productFraming={corrections.productFraming}
           products={(corrections.products ?? slide.automaticProducts)
             .map((id) => productCache[id])
             .filter((product): product is ProductSummary => Boolean(product))}

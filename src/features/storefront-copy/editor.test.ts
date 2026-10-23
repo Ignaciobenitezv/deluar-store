@@ -85,3 +85,12 @@ test("framing follows its photo: changing the photo re-centres it", () => {
   state = copyEditorReducer(state, { type: "setSectionFraming", id: "newsletter", framing: { x: 0.5, y: 0.5, zoom: 1 } });
   assert.deepEqual(state.draft.imageFraming, {});
 });
+
+test("hero product framing is set and cleared per product", () => {
+  let state = copyEditorReducer(fresh(), { type: "setHeroProducts", slideId: "s1", products: ["prod-a"] });
+  state = copyEditorReducer(state, { type: "setHeroProductFraming", slideId: "s1", productId: "prod-a", framing: { x: 0.2, y: 0.2, zoom: 1.4 } });
+  assert.deepEqual(state.draft.heroSlides.s1.productFraming, { "prod-a": { x: 0.2, y: 0.2, zoom: 1.4 } });
+
+  state = copyEditorReducer(state, { type: "setHeroProductFraming", slideId: "s1", productId: "prod-a", framing: null });
+  assert.equal(state.draft.heroSlides.s1.productFraming, undefined);
+});

@@ -88,6 +88,23 @@ export const storefrontCopySchema = defineType({
             defineField({ name: "image", title: "Foto de reemplazo", type: "image" }),
             defineField({ name: "imageRemoved", title: "Sin foto", type: "boolean" }),
             framingField("imageFraming", "Encuadre de la foto"),
+            defineField({
+              name: "productFraming",
+              title: "Encuadre de los productos",
+              type: "array",
+              of: [
+                defineArrayMember({
+                  type: "object",
+                  name: "productFraming",
+                  fields: [
+                    defineField({ name: "product", title: "Producto (id)", type: "string" }),
+                    defineField({ name: "x", title: "Foco horizontal (0–1)", type: "number" }),
+                    defineField({ name: "y", title: "Foco vertical (0–1)", type: "number" }),
+                    defineField({ name: "zoom", title: "Zoom", type: "number" }),
+                  ],
+                }),
+              ],
+            }),
             productRefsField("products", "Productos de la derecha"),
             defineField({
               name: "surface",

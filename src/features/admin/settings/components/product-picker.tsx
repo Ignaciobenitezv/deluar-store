@@ -5,18 +5,29 @@ import { Badge } from "@/components/admin/ui/badge";
 import { Input } from "@/components/admin/ui/input";
 import { formatProductPrice } from "@/features/catalog/components/product-card-formatting";
 import type { ProductSummary } from "@/features/storefront-copy/editor";
+import type { ImageFraming } from "@/features/storefront-copy/fields";
+import { framingStyle, isDefaultFraming } from "@/features/storefront-copy/framing";
 import { cn } from "@/lib/utils";
 import { searchPickerProductsAction } from "../actions/storefront-copy-actions";
+import { ImageFramingDialog, type FramingFrames } from "./image-framing-dialog";
 import { ActionButton } from "./settings-editor-ui";
 
 const SEARCH_DELAY_MS = 300;
 
-function Thumb({ product, className }: { product: ProductSummary | undefined; className?: string }) {
+function Thumb({
+  product,
+  className,
+  framing,
+}: {
+  product: ProductSummary | undefined;
+  className?: string;
+  framing?: ImageFraming;
+}) {
   return (
     <span className={cn("block shrink-0 overflow-hidden rounded-md border border-border bg-surface-elevated", className)}>
       {product?.imageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element -- small admin thumbnail from the Sanity CDN
-        <img src={product.imageUrl} alt="" className="h-full w-full object-cover" />
+        <img src={product.imageUrl} alt="" className="h-full w-full object-cover" style={framingStyle(framing)} />
       ) : null}
     </span>
   );
@@ -52,7 +63,17 @@ export function ProductPicker({
   disabled,
   onChange,
   onDiscover,
+  framing,
 }: {
+  /**
+   * Per-product framing of the photo where this list shows it (hero tiles).
+   * Without it, picked products have no framing button.
+   */
+  framing?: {
+    values: Record<string, ImageFraming>;
+    frames: FramingFrames;
+    onChange: (productId: string, framing: ImageFraming | null) => void;
+  };
   label: string;
   description?: string;
   automaticNote: string;
@@ -72,6 +93,7 @@ export function ProductPicker({
   const [results, setResults] = useState<ProductSummary[]>([]);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [framingId, setFramingId] = useState<string | null>(null);
   // An empty pick is stored as automatic; this keeps the manual view open while emptying or starting from nothing.
   const [manualMode, setManualMode] = useState(picked !== undefined);
   const isManual = picked !== undefined || manualMode;
@@ -152,7 +174,7 @@ export function ProductPicker({
                 return (
                   <li key={id} className="flex items-center gap-2.5 rounded-lg border border-border bg-surface px-2 py-1.5">
                     <span className="w-4 text-center text-[11px] tabular-nums text-text-secondary">{index + 1}</span>
-                    <Thumb product={product} className="h-9 w-9" />
+                    <Thumb product={product} className="h-9 w-9" framing={framing?.values[id]} />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[12.5px] text-text-primary">{product?.title ?? "Producto no encontrado"}</span>
                       <span className="flex items-center gap-1.5 text-[11px] tabular-nums text-text-secondary">
@@ -160,6 +182,18 @@ export function ProductPicker({
                         {product && !product.available ? <Badge tone="warning">No se muestra</Badge> : null}
                       </span>
                     </span>
+                    {framing && product?.imageUrl ? (
+                      <button
+                        type="button"
+                        disabled={disabled}
+                        onClick={() => setFramingId(id)}
+                        className="rounded-lg px-2 py-1 transition-colors hover:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 disabled:opacity-40"
+                      >
+                        <span className="text-[11.5px] font-medium text-primary">
+                          {isDefaultFraming(framing.values[id]) ? "Encuadre" : "Encuadre ✓"}
+                        </span>
+                      </button>
+                    ) : null}
                     <IconButton label="Subir" onClick={() => move(index, -1)} disabled={disabled || index === 0}>
                       ↑
                     </IconButton>
@@ -271,6 +305,17 @@ export function ProductPicker({
           </div>
         </>
       )}
+
+      {framing && framingId && products[framingId]?.imageUrl ? (
+        <ImageFramingDialog
+          title={`${products[framingId].title} · en esta diapositiva`}
+          imageUrl={products[framingId].imageUrl as string}
+          framing={framing.values[framingId]}
+          frames={framing.frames}
+          onApply={(next) => framing.onChange(framingId, next)}
+          onClose={() => setFramingId(null)}
+        />
+      ) : null}
     </div>
   );
 }

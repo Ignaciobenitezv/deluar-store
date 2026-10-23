@@ -49,7 +49,43 @@ export type StoredHeroSlide = { _key: string; _type: typeof HERO_SLIDE_COPY_TYPE
     imageFraming?: ImageFraming;
     custom?: true;
     products?: StoredProductRef[];
+    productFraming?: StoredProductFraming[];
   };
+
+/** Framing of one picked product's photo in a hero slide (Sanity keyed array item). */
+type StoredProductFraming = { _key: string; _type: "productFraming"; product: string } & ImageFraming;
+
+/** Stored entries (or the editor's id → framing map) to framings of the given picked products only. */
+function readProductFraming(raw: unknown, pickedIds: string[]): { framing: Record<string, ImageFraming>; problem: boolean } {
+  const framing: Record<string, ImageFraming> = {};
+  let problem = false;
+  const entries: [unknown, unknown][] = Array.isArray(raw)
+    ? raw.map((item) => [isRecord(item) ? item.product : undefined, item])
+    : isRecord(raw)
+      ? Object.entries(raw)
+      : [];
+
+  if (raw !== undefined && raw !== null && !Array.isArray(raw) && !isRecord(raw)) {
+    problem = true;
+  }
+
+  for (const [productId, value] of entries) {
+    const parsed = parseImageFraming(value);
+
+    if (!isProductId(productId) || !parsed) {
+      problem = true;
+    } else if (pickedIds.includes(productId) && !isDefaultFraming(parsed)) {
+      framing[productId] = parsed;
+    }
+  }
+
+  return { framing, problem };
+}
+
+const storedProductFraming = (framing: Record<string, ImageFraming>): StoredProductFraming[] =>
+  Object.entries(framing)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([product, { x, y, zoom }], index) => ({ _key: `f${index}`, _type: "productFraming", product, x, y, zoom }));
 
 /**
  * A picked product. Weak, so a product can still be deleted or archived from
@@ -302,6 +338,17 @@ function readHeroSlides(raw: unknown): HeroReading {
       slide.products = storedProductRefs(products.ids);
     }
 
+    // Only for the products picked in this slide; leftovers for removed picks are dropped.
+    const productFraming = readProductFraming((item as Record<string, unknown>).productFraming, products.ids);
+
+    if (productFraming.problem) {
+      issues.push("Hero · Encuadre de productos: no es válido.");
+    }
+
+    if (Object.keys(productFraming.framing).length > 0) {
+      slide.productFraming = storedProductFraming(productFraming.framing);
+    }
+
     if (Object.keys(slide).length > 2) {
       slides.push(slide);
     }
@@ -535,6 +582,10 @@ export function resolveStorefrontCopy(document: unknown): StorefrontCopy {
         override.imageFraming = slide.imageFraming;
       }
 
+      if (slide.productFraming?.length) {
+        override.productFraming = readProductFraming(slide.productFraming, override.products ?? []).framing;
+      }
+
       return [slide._key, override];
     }),
   );
@@ -606,6 +657,16 @@ export function copyToFields(copy: StorefrontCopy): StorefrontCopyFields {
       slide.imageFraming = override.imageFraming;
     }
 
+    const productFraming = Object.fromEntries(
+      Object.entries(override.productFraming ?? {}).filter(
+        ([id, framing]) => override.products?.includes(id) && !isDefaultFraming(framing),
+      ),
+    );
+
+    if (Object.keys(productFraming).length > 0) {
+      slide.productFraming = storedProductFraming(productFraming);
+    }
+
     if (Object.keys(slide).length > 2) {
       heroSlides.push(slide);
     }
@@ -656,7 +717,7 @@ export function applyHeroOverrides<Slide extends { id: string } & Partial<HeroSl
 
     // Picked products are resolved to real products elsewhere (applyHomeProductPicks).
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { image, products: _productIds, ...texts } = override;
+    const { image, products: _productIds, productFraming: _productFraming, ...texts } = override;
     const images: SlideImages =
       image === "removed" ? { imageUrl: null, mobileImageUrl: null } : image ? imageUrlsFor(image.assetRef) : {};
 

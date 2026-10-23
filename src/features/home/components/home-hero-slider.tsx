@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Archivo } from "next/font/google";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import { formatProductPrice } from "@/features/catalog/components/product-card-formatting";
 import { calculateTransferPrice } from "@/features/pricing/commercial-pricing";
 import type { HomeHeroProduct, HomeHeroSlide, HomeHeroSurface } from "@/features/home/types";
@@ -322,6 +322,23 @@ type ProductPieceProps = {
   order: number;
 };
 
+/**
+ * The tile photo: the framing set for this slide (or the product's own
+ * catalog focus), and the slow entrance zoom on top of the framing's zoom.
+ */
+function productPhotoStyle(product: HomeHeroProduct, entered: boolean, animate: boolean): CSSProperties {
+  const framing = product.imageFraming;
+  const position = framing ? `${(framing.x * 100).toFixed(1)}% ${(framing.y * 100).toFixed(1)}%` : product.imageObjectPosition;
+  const entrance = entered && animate ? 1 : animate ? 1.06 : 1;
+
+  return {
+    objectPosition: position,
+    transform: `scale(${(framing?.zoom ?? 1) * entrance})`,
+    transformOrigin: framing ? position : undefined,
+    transition: animate && entered ? `transform ${KEN_BURNS_MS}ms ${EASE_OUT}` : "none",
+  };
+}
+
 function ProductPiece({ product, isCurrent, entered, animate, order }: ProductPieceProps) {
   if (!product) {
     return <div className="absolute inset-0 bg-canvas-alt" />;
@@ -351,11 +368,7 @@ function ProductPiece({ product, isCurrent, entered, animate, order }: ProductPi
             fill
             sizes="(min-width: 1024px) 42vw, 50vw"
             className="object-cover"
-            style={{
-              objectPosition: product.imageObjectPosition,
-              transform: entered && animate ? "scale(1)" : animate ? "scale(1.06)" : "scale(1)",
-              transition: animate && entered ? `transform ${KEN_BURNS_MS}ms ${EASE_OUT}` : "none",
-            }}
+            style={productPhotoStyle(product, entered, animate)}
           />
         ) : null}
       </span>

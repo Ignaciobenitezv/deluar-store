@@ -53,6 +53,7 @@ export type CopyEditorAction =
   | { type: "setSectionImage"; id: SectionImageId; assetRef: string | null }
   /** Hand-set framing; null goes back to centred, no zoom. */
   | { type: "setHeroFraming"; slideId: string; framing: ImageFraming | null }
+  | { type: "setHeroProductFraming"; slideId: string; productId: string; framing: ImageFraming | null }
   | { type: "setSectionFraming"; id: SectionImageId; framing: ImageFraming | null }
   /**
    * Slide list. `studioIds`: Studio's slides in Studio's order, the list the
@@ -161,8 +162,8 @@ function withField(state: CopyEditorState, section: StorefrontCopySectionId, key
 function withHeroField(
   state: CopyEditorState,
   slideId: string,
-  key: HeroSlideTextKey | "image" | "products" | "surface" | "imageFraming",
-  value: string | string[] | HeroSlideImageChoice | ImageFraming | null,
+  key: HeroSlideTextKey | "image" | "products" | "surface" | "imageFraming" | "productFraming",
+  value: string | string[] | HeroSlideImageChoice | ImageFraming | Record<string, ImageFraming> | null,
 ): CopyEditorState {
   const slide = { ...state.draft.heroSlides[slideId] };
 
@@ -241,6 +242,17 @@ export function copyEditorReducer(state: CopyEditorState, action: CopyEditorActi
       }
 
       return { ...state, draft: { ...state.draft, imageFraming } };
+    }
+    case "setHeroProductFraming": {
+      const current = { ...state.draft.heroSlides[action.slideId]?.productFraming };
+
+      if (action.framing && !isDefaultFraming(action.framing)) {
+        current[action.productId] = action.framing;
+      } else {
+        delete current[action.productId];
+      }
+
+      return withHeroField(state, action.slideId, "productFraming", Object.keys(current).length > 0 ? current : null);
     }
     case "setHeroFraming":
       return withHeroField(

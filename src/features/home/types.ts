@@ -16,6 +16,8 @@ export type HomeHeroProduct = {
   imageUrl: string | null;
   imageAlt: string;
   imageObjectPosition?: string;
+  /** Framing set for this tile in Configuración → Textos; wins over imageObjectPosition. */
+  imageFraming?: ImageFraming;
   basePrice: number;
   pricePrefix?: string | null;
 };

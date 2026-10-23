@@ -16,7 +16,7 @@ import type {
   HomePageData,
 } from "@/features/home/types";
 import { getStorefrontCopy } from "@/features/storefront-copy/server/get-storefront-copy";
-import { composeHeroSlides, fillHeroProducts } from "@/features/storefront-copy/hero-slides";
+import { applyHeroProductFraming, composeHeroSlides, fillHeroProducts } from "@/features/storefront-copy/hero-slides";
 import { sectionImageSrc } from "@/features/storefront-copy/section-images";
 import type { StorefrontCopy } from "@/features/storefront-copy/fields";
 import { applyHomeProductPicks, homeProductPickIds, type HomeProductPicks } from "@/features/home/mappers";
@@ -131,7 +131,10 @@ export default async function StoreIndexPage() {
   }));
   // …then every picked product list, then products for slides still without any.
   const homePage = await withProductPicks({ ...baseHomePage, heroSlides: composedSlides }, copy);
-  const heroSlides = fillHeroProducts(homePage.heroSlides, homePage.heroProductPool);
+  const heroSlides = applyHeroProductFraming(
+    fillHeroProducts(homePage.heroSlides, homePage.heroProductPool),
+    copy.heroSlides,
+  );
   const categoryRailItems = await buildHomeCategoryRail();
 
   return (
